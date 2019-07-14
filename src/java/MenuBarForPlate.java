@@ -1,24 +1,40 @@
 package ln;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.io.*;
-import java.util.logging.*;
-import javax.swing.*;
-import javax.swing.JComponent.*;
+import java.awt.Desktop;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.io.File;
+import java.io.IOException;
+import java.util.logging.Logger;
+
+import javax.swing.Box;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.KeyStroke;
+
+import clojure.java.api.Clojure;
+import clojure.lang.IFn;
+
 
 public class MenuBarForPlate extends JMenuBar {
 
   private static final long serialVersionUID = 1L;
   private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
-  DialogMainFrame dmf;
+  private DialogMainFrame dmf;
+  private   DatabaseManager dbm;
   CustomTable plate_table;
-    Session session;
+   private IFn require = Clojure.var("clojure.core", "require");
 
-  public MenuBarForPlate(Session _s, CustomTable _table) {
-    session = _s;
+
+  public MenuBarForPlate(DatabaseManager _dbm, CustomTable _table) {
+      dbm = _dbm;
     plate_table = _table;
-    dmf = session.getDialogMainFrame();
+    dmf = dbm.getDialogMainFrame();
     // Create the menu bar.
     // JMenuBar menuBar = new JMenuBar();
     //    this.em = em;
@@ -51,7 +67,7 @@ public class MenuBarForPlate extends JMenuBar {
     menuItem.addActionListener(
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
-            session.getDatabaseManager().groupPlates(plate_table);
+            dbm.groupPlates(plate_table);
           }
         });
     menu.add(menuItem);
@@ -94,10 +110,13 @@ public class MenuBarForPlate extends JMenuBar {
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
             try {
+		
               int i = plate_table.getSelectedRow();
               String plate_sys_name = (String) plate_table.getValueAt(i, 0);
-	      //session.setPlateSysName(plate_sys_name);
-	      session.setPlateID(Integer.parseInt(plate_sys_name.substring(3)));
+	      //dbm.setPlateSysName(plate_sys_name);
+	       IFn setPlateID = Clojure.var("ln.session", "set-plate-id");
+
+	      setPlateID.invoke(Integer.parseInt(plate_sys_name.substring(3)));
   
               dmf.showWellTable(plate_sys_name);
             } catch (ArrayIndexOutOfBoundsException s) {
@@ -105,7 +124,7 @@ public class MenuBarForPlate extends JMenuBar {
 					      "Select a row!","Error",JOptionPane.ERROR_MESSAGE);
           
             } catch (IndexOutOfBoundsException s) {
-		JOptionPane.showMessageDialog(session.getDialogMainFrame(),
+		JOptionPane.showMessageDialog(dbm.getDialogMainFrame(),
 					      "Select a row!","Error",JOptionPane.ERROR_MESSAGE);
             }
           }
@@ -135,7 +154,7 @@ public class MenuBarForPlate extends JMenuBar {
 
     this.add(Box.createHorizontalGlue());
 
-        menu = new HelpMenu(session);
+        menu = new HelpMenu(dbm);
     this.add(menu);
   
 

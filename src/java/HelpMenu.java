@@ -1,27 +1,34 @@
 package ln;
 
 //import bllm.*;
-import java.awt.*;
-import java.awt.event.*;
-import java.util.logging.*;
-//import javax.help.*;
-import javax.swing.*;
-import javax.swing.JComponent.*;
-import java.awt.Toolkit;
 import java.awt.Desktop;
-import java.io.IOException;
-import java.net.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.logging.Logger;
+
+//import javax.help.*;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+
+import clojure.java.api.Clojure;
+import clojure.lang.IFn;
 
 
 public class HelpMenu extends JMenu {
 
   // DialogMainFrame dmf;
   // J/Table table;
-    private Session session;
+    //    private Session session;
   private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+    private IFn require = Clojure.var("clojure.core", "require");
 
-  public HelpMenu( Session _s) {
-      session = _s;
+  public HelpMenu( ) {
+      //      session = _s;
+    require.invoke(Clojure.read("ln.session"));
 
     this.setText("Help");
     this.setMnemonic(KeyEvent.VK_H);
@@ -31,7 +38,9 @@ public class HelpMenu extends JMenu {
     menuItem.addActionListener(
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
-	      openWebpage(URI.create(session.getHelpURLPrefix() + "toc"));
+	       IFn getHelpURLPrefix = Clojure.var("ln.session", "get-help-url-prefix");
+
+	      openWebpage(URI.create((String)getHelpURLPrefix.invoke() + "toc"));
 	      //            new OpenHelpDialog();
           }
         });

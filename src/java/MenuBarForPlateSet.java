@@ -16,26 +16,28 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
-import javax.swing.JFileChooser;
-import java.io.FileReader;
-import java.io.BufferedReader;
-import java.util.Vector;
+
+import clojure.java.api.Clojure;
+import clojure.lang.IFn;
 
 
 
 public class MenuBarForPlateSet extends JMenuBar {
 
   DialogMainFrame dmf;
-  CustomTable plate_set_table;
-    Session session;
+    DatabaseManager dbm;
+    CustomTable plate_set_table;
+    // Session session;
     private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
-  public MenuBarForPlateSet(DialogMainFrame _dmf, CustomTable _plate_set_table) {
-
-    dmf = _dmf;
+    public MenuBarForPlateSet(DatabaseManager _dbm, CustomTable _plate_set_table){
+      dbm = _dbm;
+      dmf = dbm.getDialogMainFrame();
     plate_set_table = _plate_set_table;
-    session = dmf.getSession();
-    
+    //session = dmf.getSession();
+       IFn require = Clojure.var("clojure.core", "require");
+    require.invoke(Clojure.read("ln.session"));
+
     JMenu menu = new JMenu("Plate Set");
     menu.setMnemonic(KeyEvent.VK_P);
     menu.getAccessibleContext().setAccessibleDescription("Menu items related to plate sets");
@@ -63,10 +65,11 @@ public class MenuBarForPlateSet extends JMenuBar {
 		  String plate_set_sys_name = plate_set_table.getValueAt(rowIndex, 0).toString();
 		  int plate_set_id = Integer.valueOf(plate_set_sys_name.substring(3));
 		  String name = plate_set_table.getValueAt(rowIndex, 1).toString();
-		  int plate_set_owner_id = session.getDatabaseRetriever().getPlateSetOwnerID(plate_set_id);
+		  int plate_set_owner_id = dbm.getDatabaseRetriever().getPlateSetOwnerID(plate_set_id);
 		  String description = plate_set_table.getValueAt(rowIndex, 6).toString();
-	  
-		  if ( plate_set_owner_id == session.getUserID()) {
+		  IFn getUserID = Clojure.var("ln.session", "get-user-id");
+   
+		  if ( plate_set_owner_id == (int)getUserID.invoke()) {
 		      new DialogEditPlateSet(dmf, plate_set_sys_name, name, description);
 	      } else {
                 JOptionPane.showMessageDialog(
@@ -97,7 +100,7 @@ public class MenuBarForPlateSet extends JMenuBar {
     menuItem.addActionListener(
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
-            session.getDatabaseManager().groupPlateSets(plate_set_table);
+            dbm.groupPlateSets(plate_set_table);
           }
         });
     utilitiesMenu.add(menuItem);
@@ -107,7 +110,7 @@ public class MenuBarForPlateSet extends JMenuBar {
     menuItem.addActionListener(
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
-            session.getDatabaseManager().reformatPlateSet(plate_set_table);
+            dbm.reformatPlateSet(plate_set_table);
           }
         });
     utilitiesMenu.add(menuItem);
@@ -142,7 +145,7 @@ public class MenuBarForPlateSet extends JMenuBar {
 		    Object[][] results = plate_set_table.getSelectedRowsAndHeaderAsStringArray();	   
 		    String plate_set_sys_name = (String) results[1][0];
 		    int  plate_set_id = Integer.parseInt(plate_set_sys_name.substring(3));
-		    session.getDatabaseManager().getDatabaseInserter().importAccessionsByPlateSet(plate_set_id);
+		    dbm.getDatabaseInserter().importAccessionsByPlateSet(plate_set_id);
 		}else{
 			JOptionPane.showMessageDialog(dmf, "Select a Plate Set for which to populate with accession IDs!");	      
 		    } 
@@ -162,7 +165,7 @@ public class MenuBarForPlateSet extends JMenuBar {
   
 		try{
 	       	int worklist_id = Integer.parseInt((String)results[1][7]);
-		Object[][] worklist = session.getDatabaseManager().getDatabaseRetriever().getWorklist(worklist_id);
+		Object[][] worklist = dbm.getDatabaseRetriever().getWorklist(worklist_id);
 		POIUtilities poi = new POIUtilities(dmf);
 		poi.writeJTableToSpreadsheet("Plate Sets", worklist);
 		try{
@@ -228,7 +231,7 @@ public class MenuBarForPlateSet extends JMenuBar {
 			    LOGGER.info("psid: " + plate_set_ids[i] );
 			    }
 
-			    Object[][] plate_set_data = session.getDatabaseRetriever().getPlateSetData(plate_set_ids);
+			    Object[][] plate_set_data = dbm.getDatabaseRetriever().getPlateSetData(plate_set_ids);
 			    POIUtilities poi = new POIUtilities(dmf);
 			    
 			    poi.writeJTableToSpreadsheet("Plate Set Information", plate_set_data);
@@ -266,16 +269,20 @@ public class MenuBarForPlateSet extends JMenuBar {
             try {
               int i = plate_set_table.getSelectedRow();
               String plate_set_sys_name = (String) plate_set_table.getValueAt(i, 0);
-              dmf.getSession().setPlateSetSysName(plate_set_sys_name);
-	      dmf.getSession().setPlateSetID(Integer.parseInt(plate_set_sys_name.substring(3)));
+	      IFn setPlateSetSysName = Clojure.var("ln.session", "set-plate-set-sys-name");
+
+              setPlateSetSysName.invoke(plate_set_sys_name);
+	         IFn setPlateSetID = Clojure.var("ln.session", "set-plate-set-id");
+
+	      setPlateSetID.invoke(Integer.parseInt(plate_set_sys_name.substring(3)));
               //System.out.println("plate_set_sys_name: " + plate_set_sys_name);
               dmf.showPlateTable(plate_set_sys_name);
             } catch (ArrayIndexOutOfBoundsException s) {
-			JOptionPane.showMessageDialog(session.getDialogMainFrame(),
+			JOptionPane.showMessageDialog(dbm.getDialogMainFrame(),
 					      "Select a row!","Error",JOptionPane.ERROR_MESSAGE);
           
             } catch (IndexOutOfBoundsException s) {
-		JOptionPane.showMessageDialog(session.getDialogMainFrame(),
+		JOptionPane.showMessageDialog(dbm.getDialogMainFrame(),
 					      "Select a row!","Error",JOptionPane.ERROR_MESSAGE);
             }
           }
@@ -305,7 +312,7 @@ public class MenuBarForPlateSet extends JMenuBar {
    
     this.add(Box.createHorizontalGlue());
 
-    menu = new HelpMenu(session);
+    menu = new HelpMenu();
     this.add(menu);
   }
 }

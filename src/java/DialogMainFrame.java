@@ -4,13 +4,15 @@ package ln;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Toolkit;
-import java.io.File;
 import java.sql.SQLException;
 import java.util.logging.Logger;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+
+import clojure.java.api.Clojure;
+import clojure.lang.IFn;
 
 public class DialogMainFrame extends JFrame {
 
@@ -25,9 +27,11 @@ public class DialogMainFrame extends JFrame {
   private WellPanel well_card;
 
   private static Utilities utils;
-    //private DatabaseManager dbm;
+    private DatabaseManager dbm;
     //private DatabaseRetriever dbr;
-    private static Session session;
+    // private static Session session;
+  private  IFn require = Clojure.var("clojure.core", "require");
+ 
  
   private Long sessionID;
 
@@ -37,9 +41,11 @@ public class DialogMainFrame extends JFrame {
     public static final int WELL = 4; //Card with wells
 
  
-  public DialogMainFrame( Session _s ) throws SQLException {
-      session = _s;
-        utils = new Utilities(this);
+  public DialogMainFrame(DatabaseManager _dbm ) throws SQLException {
+      // session = _s;
+      dbm = _dbm;
+    require.invoke(Clojure.read("ln.session"));
+       utils = new Utilities(this);
       this.setTitle("LIMS*Nucleus");
     this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
       ImageIcon img = new ImageIcon(this.getClass().getResource("images/mwplate.png"));
@@ -51,7 +57,7 @@ public class DialogMainFrame extends JFrame {
    
     cards = new JPanel(new CardLayout());
     card_layout = (CardLayout) cards.getLayout();
-    project_card = new ProjectPanel(this, session.getDatabaseRetriever().getDMFTableData(0, DialogMainFrame.PROJECT));
+    project_card = new ProjectPanel(this, dbm.getDatabaseRetriever().getDMFTableData(0, DialogMainFrame.PROJECT));
     cards.add(project_card, "ProjectPanel");
   
     
@@ -75,7 +81,7 @@ public class DialogMainFrame extends JFrame {
 
 
   public void showProjectTable() {
-    project_card = new ProjectPanel(this, session.getDatabaseRetriever().getDMFTableData(0, DialogMainFrame.PROJECT));
+    project_card = new ProjectPanel(this, dbm.getDatabaseRetriever().getDMFTableData(0, DialogMainFrame.PROJECT));
     cards.add(project_card, "ProjectPanel");
     card_layout.show(cards, "ProjectPanel");
   }
@@ -85,7 +91,7 @@ public class DialogMainFrame extends JFrame {
       int project_id = Integer.parseInt(_project_sys_name.substring(4));
      
       //  plate_set_card = new PlateSetPanel(this, dbm.getPlateSetTableData(_project_sys_name), _project_sys_name);
-      plate_set_card = new PlateSetPanel(this, session.getDatabaseRetriever().getDMFTableData(project_id, DialogMainFrame.PLATESET), _project_sys_name);
+      plate_set_card = new PlateSetPanel(this, dbm.getDatabaseRetriever().getDMFTableData(project_id, DialogMainFrame.PLATESET), _project_sys_name);
 
     cards.add(plate_set_card, "PlateSetPanel");
     card_layout.show(cards, "PlateSetPanel");
@@ -95,7 +101,7 @@ public class DialogMainFrame extends JFrame {
   public void showPlateTable(String _plate_set_sys_name) {
       int plate_set_id = Integer.parseInt(_plate_set_sys_name.substring(3));
       
-      plate_card = new PlatePanel(this, session.getDatabaseRetriever().getDMFTableData(plate_set_id, DialogMainFrame.PLATE));
+      plate_card = new PlatePanel(this, dbm.getDatabaseRetriever().getDMFTableData(plate_set_id, DialogMainFrame.PLATE));
     
     cards.add(plate_card, "PlatePanel");
     card_layout.show(cards, "PlatePanel");
@@ -105,7 +111,7 @@ public class DialogMainFrame extends JFrame {
   public void showWellTable(String _plate_sys_name) {
       int plate_id = Integer.parseInt(_plate_sys_name.substring(4));
       
-      well_card = new WellPanel(this, session.getDatabaseRetriever().getDMFTableData(plate_id, DialogMainFrame.WELL));
+      well_card = new WellPanel(this, dbm.getDatabaseRetriever().getDMFTableData(plate_id, DialogMainFrame.WELL));
     cards.add(well_card, "Well");
     card_layout.show(cards, "Well");
   }
@@ -131,16 +137,12 @@ public class DialogMainFrame extends JFrame {
     card_layout.show(cards, "Well");
   }
 
-    /*    
+      
   public DatabaseManager getDatabaseManager() {
     return this.dbm;
   }
-    */
     
-  public Session getSession() {
-    return session;
-  }
-    
+
     
   public Utilities getUtilities() {
     return utils;

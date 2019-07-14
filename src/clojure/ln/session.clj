@@ -233,6 +233,13 @@
   (c/get-at! props [:assets :session :plate-set-id ]))
 
 
+(defn set-plate-id [i]
+        (c/assoc-at! props  [:assets :session :plate-id i]))
+
+(defn get-plate-id []
+  (c/get-at! props [:assets :session :plate-id ]))
+
+
 (defn get-session-id []
   (c/get-at! props [:assets :session :session-id ]))
 
@@ -262,18 +269,3 @@
   (c/get-at! props [:assets :session :authenticated ]))
 
 
-(comment
-import clojure.java.api.Clojure;
-import clojure.lang.IFn;
-
-
-  
-//setup desired Clojure methods
-    IFn require = Clojure.var("clojure.core", "require");
-    require.invoke(Clojure.read("ln.session"));
-    IFn writeMess = Clojure.var("ln.session", "write-out-message");
-
-    require.invoke(Clojure.read("ln.db"));
-    IFn dropAllTables = Clojure.var("ln.db", "drop-all-tables");
-    IFn initLimsNucleus = Clojure.var("ln.db", "initialize-limsnucleus");
-)

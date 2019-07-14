@@ -31,7 +31,7 @@ public class DatabaseManager {
      DatabaseInserter dbInserter;
     DatabaseRetriever dbRetriever;
   DialogMainFrame dmf;
-    Session session;
+    // Session session;
   private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
   // psql -U ln_admin -h 192.168.1.11 -d lndb
@@ -43,7 +43,7 @@ public class DatabaseManager {
    */
   public DatabaseManager() {
       //LOGGER.info("in session: " + _s);
-        IFn require = Clojure.var("clojure.core", "require");
+      IFn require = Clojure.var("clojure.core", "require");
     require.invoke(Clojure.read("ln.session"));
     IFn getUser = Clojure.var("ln.session", "get-user");
     IFn getPassword = Clojure.var("ln.session", "get-password");
@@ -54,7 +54,6 @@ public class DatabaseManager {
     IFn setUserGroup = Clojure.var("ln.session", "set-user-group");
     IFn setAuthenticated = Clojure.var("ln.session", "set-authenticated");
     IFn setSessionID = Clojure.var("ln.session", "set-session-id");
-    IFn setProjectSysName = Clojure.var("ln.session", "set-project-sys-name");
     
    
       Long insertKey = 0L;
@@ -114,6 +113,7 @@ public class DatabaseManager {
       //This is the first initialization of  DatabaseRetriever, DatabaseInserter
       dbRetriever = new DatabaseRetriever(this);
       dbInserter = new DatabaseInserter(this);
+       dmf = new DialogMainFrame(this);
     } catch (ClassNotFoundException e) {
       LOGGER.severe("Class not found: " + e);
     } catch (SQLException sqle) {
@@ -125,6 +125,8 @@ public class DatabaseManager {
   public void updateSessionWithProject(String _project_sys_name) {
     int results = 0;
     String project_sys_name = _project_sys_name;
+      IFn setProjectSysName = Clojure.var("ln.session", "set-project-sys-name");
+  
     setProjectSysName.invoke(project_sys_name);
 
     try {
@@ -433,6 +435,10 @@ public class DatabaseManager {
     return dummy;
   }
 
+    public DialogMainFrame getDialogMainFrame(){
+	return this.dmf;
+    }
+    
   public DatabaseInserter getDatabaseInserter() {
     return this.dbInserter;
   }
@@ -445,7 +451,5 @@ public class DatabaseManager {
     return this.conn;
   }
 
-  public Session getSession() {
-    return session;
-  }
+ 
 }
