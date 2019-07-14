@@ -1,4 +1,4 @@
-package pm;
+package ln;
 import java.awt.BorderLayout;
 import java.awt.Desktop;
 import java.awt.GridBagConstraints;

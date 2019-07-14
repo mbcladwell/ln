@@ -1,6 +1,6 @@
 
 
-package pm;
+package ln;
 
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;

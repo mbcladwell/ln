@@ -1,4 +1,4 @@
-package pm;
+package ln;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -54,7 +54,7 @@ public class DatabaseManager {
 	  conn = DriverManager.getConnection(url, props);
 	  //LOGGER.info("conn: " + conn);
 	  PreparedStatement pstmt = conn.prepareStatement(
-              //  "SELECT password = crypt( ?,password) FROM pmuser WHERE pmuser_name = ?;");
+              //  "SELECT password = crypt( ?,password) FROM lnuser WHERE lnuser_name = ?;");
               "SELECT password = ?, password FROM lnuser WHERE lnuser_name = ?;");
 	  pstmt.setString(1, session.getPassword());
 	  pstmt.setString(2, session.getUserName());

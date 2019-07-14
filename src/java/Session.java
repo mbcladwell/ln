@@ -1,4 +1,4 @@
-package pm;
+package ln;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -65,7 +65,7 @@ public class Session {
 	}
 	    
 	}catch(FileNotFoundException fnfe){
-	    new DialogPropertiesNotFound(this);	   
+	    new DialogPropertiesNotFound();	   
 	}   
 
 

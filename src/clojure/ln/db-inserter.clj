@@ -1,4 +1,4 @@
-(ns lnmanager.db
+(ns ln.db
   (:require [clojure.java.jdbc :as j]
             [honeysql.core :as hsql]
             [honeysql.helpers :refer :all :as helpers]

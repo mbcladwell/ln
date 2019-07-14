@@ -46,14 +46,14 @@ public class DatabaseSetupPanel extends JPanel {
 
     //setup desired Clojure methods
     IFn require = Clojure.var("clojure.core", "require");
-    require.invoke(Clojure.read("lnmanager.session"));
-    IFn writeMess = Clojure.var("lnmanager.session", "write-out-message");
+    require.invoke(Clojure.read("ln.session"));
+    IFn writeMess = Clojure.var("ln.session", "write-out-message");
 
-    require.invoke(Clojure.read("lnmanager.db"));
-    IFn dropAllTables = Clojure.var("lnmanager.db", "drop-all-tables");
-    IFn initLimsNucleus = Clojure.var("lnmanager.db", "initialize-limsnucleus");
-    IFn addExampleData = Clojure.var("lnmanager.db", "add-example-data");
-    IFn deleteExampleData = Clojure.var("lnmanager.db", "delete-example-data");
+    require.invoke(Clojure.read("ln.db"));
+    IFn dropAllTables = Clojure.var("ln.db", "drop-all-tables");
+    IFn initLimsNucleus = Clojure.var("ln.db", "initialize-limsnucleus");
+    IFn addExampleData = Clojure.var("ln.db", "add-example-data");
+    IFn deleteExampleData = Clojure.var("ln.db", "delete-example-data");
     
     GridBagConstraints c = new GridBagConstraints();
         c.insets = new Insets(5, 5, 2, 2);

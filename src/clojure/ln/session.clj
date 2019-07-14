@@ -1,4 +1,4 @@
-(ns lnmanager.session
+(ns ln.session
   (:require [clojure.java.jdbc :as sql]
             [honeysql.core :as hsql]
             [honeysql.helpers :refer :all :as helpers]
@@ -8,8 +8,8 @@
   (:import java.sql.DriverManager)
   (:gen-class ))
 
-(load "/lnmanager/db")
-(load "/lnmanager/dialog")
+(load "/ln/db")
+
 
 
 (defn open-props-if-exists
@@ -21,7 +21,7 @@
     (def props (c/open-database! "ln-props"))  
     (if (.exists (io/as-file (str (java.lang.System/getProperty "user.home") "/ln-props") ))
       (def props (c/open-database! (str (java.lang.System/getProperty "user.home") "/ln-props") ))
-      (lnmanager.DialogPropertiesNotFound.))))
+      (ln.DialogPropertiesNotFound.))))
 
 ;;https://push-language.hampshire.edu/t/calling-clojure-code-from-java/865
 ;;(open-props-if-exists)
@@ -107,14 +107,6 @@
     (println (str "password: " (c/get-at! props [:assets :conn :password]) ))
     (println (str "user: " (c/get-at! props [:assets :conn :user]) ))))
 
-(defn  get-connection-url [target]	  
-  (case target
-  	"heroku" (str "jdbc:postgresql://"  (get-host) ":" (get-port)  "/" (get-dbname) "?sslmode=require&user=" (get-user) "&password="  (get-password))
-	  "local" (str "jdbc:postgresql://" (get-host) "/" (get-dbname));	   
-	  "elephantsql" (str "jdbc:postgresql://" (get-host) ":" (get-port) "/" (get-dbname) "?user=" (get-user) "&password=" (get-password) "&SSL=true" )))
-
-(get-connection-url (get-source)) 
-
 (defn get-host []
    (c/get-at! props [:assets :conn :host]))
 
@@ -132,6 +124,15 @@
 
 (defn get-password []
   (c/get-at! props [:assets :conn :password]))
+
+
+
+(defn  get-connection-url [target]	  
+  (case target
+  	"heroku" (str "jdbc:postgresql://"  (get-host) ":" (get-port)  "/" (get-dbname) "?sslmode=require&user=" (get-user) "&password="  (get-password))
+	  "local" (str "jdbc:postgresql://" (get-host) "/" (get-dbname));	   
+	  "elephantsql" (str "jdbc:postgresql://" (get-host) ":" (get-port) "/" (get-dbname) "?user=" (get-user) "&password=" (get-password) "&SSL=true" )))
+
 
 
 (defn set-user [u]

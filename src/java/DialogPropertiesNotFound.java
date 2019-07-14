@@ -34,6 +34,7 @@ import javax.swing.event.DocumentEvent;
 
 import clojure.java.api.Clojure;
 import clojure.lang.IFn;
+import ln.DatabaseSetupPanel;
 
 
 
@@ -81,7 +82,7 @@ public class DialogPropertiesNotFound extends JDialog
 	//session = new Session();
 	//dmf = session.getDialogMainFrame();
 	IFn require = Clojure.var("clojure.core", "require");
-	require.invoke(Clojure.read("lnmanager.session"));
+	require.invoke(Clojure.read("ln.session"));
 
     fileChooser = new JFileChooser();
 
@@ -546,7 +547,7 @@ label = new JLabel("User Directory:", SwingConstants.RIGHT);
     
     if (e.getSource() == createLnProps) {
 	
-	IFn createLnPropsMethod  = Clojure.var("lnmanager.session", "create-ln-props");	  
+	IFn createLnPropsMethod  = Clojure.var("ln.session", "create-ln-props");	  
 	createLnPropsMethod.invoke( hostField.getText(),
 				      portField.getText(),
 				      Boolean.toString(trueButton.isSelected()),
@@ -570,9 +571,9 @@ label = new JLabel("User Directory:", SwingConstants.RIGHT);
       if (returnVal == JFileChooser.APPROVE_OPTION) {
         java.io.File file = fileChooser.getSelectedFile();
 	selectedLabelResponse.setText(file.toString());
-	IFn setLnProps  = Clojure.var("lnmanager.session", "set-ln-props");
+	IFn setLnProps  = Clojure.var("ln.session", "set-ln-props");
 	setLnProps.invoke(file.toString());
-	IFn getAllProps  = Clojure.var("lnmanager.session", "get-all-props");
+	IFn getAllProps  = Clojure.var("ln.session", "get-all-props");
 	
 	Map<String, String> results = new HashMap<>();
 	results = (Map<String, String>)getAllProps.invoke();

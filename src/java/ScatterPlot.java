@@ -4,7 +4,7 @@
  *
  * http://zetcode.com/java/postgresql/
  */
-package pm;
+package ln;
 
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;

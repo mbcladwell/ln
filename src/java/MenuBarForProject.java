@@ -1,4 +1,4 @@
-package pm;
+package ln;
 
 import java.awt.Desktop;
 import java.awt.event.ActionEvent;

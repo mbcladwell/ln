@@ -1,4 +1,4 @@
-(ns lnmanager.example-data)
+(ns ln.example-data)
 
 ;;must be executed in order
 

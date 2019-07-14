@@ -1,4 +1,4 @@
-(ns lnmanager.dialog
+(ns ln.dialog
    (:use [seesaw core table dev mig border])
 
   (:require [clojure.java.io :as io]
@@ -7,6 +7,8 @@
            java.awt.Font java.awt.Toolkit )
   (:import [java.net.URL])
   (:gen-class))
+
+(load "/ln/session")
 
 
 (defn login-dialog
@@ -34,9 +36,9 @@
                                   [(button :text "Login"
                                            :listen [:mouse-clicked (fn [e] (if (config  (select (to-root e)  [:#cbox]) :selected?)
                                                                             (do
-                                                                             (lnmanager.session/set-user (config  (select (to-root e)  [:#nameid]) :text))
-                                                                             (lnmanager.session/set-password (config  (select (to-root e)  [:#passid]) :text))                                                             
-                                                                             (lnmanager.session/print-all-props))))])]
+                                                                             (ln.session/set-user (config  (select (to-root e)  [:#nameid]) :text))
+                                                                             (ln.session/set-password (config  (select (to-root e)  [:#passid]) :text))                                                             
+                                                                             (ln.session/print-all-props))))])]
                                   
                                   [(button :text "Cancel")]]))) 
 pack!
