@@ -1,17 +1,14 @@
 package ln;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.util.logging.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import javax.swing.JOptionPane;
-
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
 import java.sql.SQLException;
+import java.util.Properties;
+import java.util.logging.Logger;
+
+import javax.swing.JOptionPane;
 
 /**
  * Upon insert session gains a timestamp
@@ -148,7 +145,7 @@ public class Session {
 	}
 	    //	 LOGGER.info("URL: " + URL);
 
-	dbm = new DatabaseManager( this );
+	dbm = new DatabaseManager( );
 	if(authenticated){
 	    dbr = dbm.getDatabaseRetriever();
 	    dbi = dbm.getDatabaseInserter();

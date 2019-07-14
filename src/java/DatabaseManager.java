@@ -15,11 +15,14 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.Vector;
 import java.util.logging.Logger;
-import org.postgresql.Driver;
+
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
+
+import clojure.java.api.Clojure;
+import clojure.lang.IFn;
 
 /** */
 public class DatabaseManager {
@@ -38,26 +41,39 @@ public class DatabaseManager {
    * Use 'lndb' as the database name. Regular users will connect as ln_user and will have restricted
    * access (no delete etc.). Connect as ln_admin to get administrative privileges.
    */
-  public DatabaseManager(Session _s) {
+  public DatabaseManager() {
       //LOGGER.info("in session: " + _s);
-      session=_s;
+        IFn require = Clojure.var("clojure.core", "require");
+    require.invoke(Clojure.read("ln.session"));
+    IFn getUser = Clojure.var("ln.session", "get-user");
+    IFn getPassword = Clojure.var("ln.session", "get-password");
+    IFn getURL = Clojure.var("ln.session", "get-url");
+    IFn setUser = Clojure.var("ln.session", "set-user");
+    IFn setUserID = Clojure.var("ln.session", "set-user-id");
+    IFn getUserID = Clojure.var("ln.session", "get-user-id");
+    IFn setUserGroup = Clojure.var("ln.session", "set-user-group");
+    IFn setAuthenticated = Clojure.var("ln.session", "set-authenticated");
+    IFn setSessionID = Clojure.var("ln.session", "set-session-id");
+    IFn setProjectSysName = Clojure.var("ln.session", "set-project-sys-name");
+    
+   
       Long insertKey = 0L;
       try {
 	  Class.forName("org.postgresql.Driver");
 
 	  // String url = "jdbc:postgresql://localhost/postgres";
-	  String url = session.getURL();
+	  String url = (String)getURL.invoke();
 	  Properties props = new Properties();
-	  props.setProperty("user", "ln_admin");
-	  props.setProperty("password", "welcome");
+	  props.setProperty("user", (String)getUser.invoke());
+	  props.setProperty("password",(String) getPassword.invoke());
 
 	  conn = DriverManager.getConnection(url, props);
 	  //LOGGER.info("conn: " + conn);
 	  PreparedStatement pstmt = conn.prepareStatement(
               //  "SELECT password = crypt( ?,password) FROM lnuser WHERE lnuser_name = ?;");
               "SELECT password = ?, password FROM lnuser WHERE lnuser_name = ?;");
-	  pstmt.setString(1, session.getPassword());
-	  pstmt.setString(2, session.getUserName());
+	  pstmt.setString(1,(String) getPassword.invoke());
+	  pstmt.setString(2, (String)getUser.invoke());
 	  //LOGGER.info("pstmnt: " + pstmt);
 	  ResultSet rs = pstmt.executeQuery();
 	  rs.next();
@@ -68,9 +84,9 @@ public class DatabaseManager {
 
       if (pass) {
 	  
-	  session.setUserID( getUserIDForUserName(session.getUserName()));
-	  session.setUserGroup( getUserGroupForUserName(session.getUserName()));
-	  session.setAuthenticated( true);
+	  setUserID.invoke( getUserIDForUserName((String)getUser.invoke()));
+	  setUserGroup.invoke( getUserGroupForUserName((String)getUser.invoke()));
+	  setAuthenticated.invoke( true);
         
         String insertSql =
 	    "INSERT INTO lnsession (lnuser_id) values (?);";
@@ -78,13 +94,13 @@ public class DatabaseManager {
 	// "INSERT INTO lnsession (lnuser_id) SELECT id FROM lnuser WHERE lnuser_name = ?;";
         PreparedStatement insertPs =
             conn.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS);
-        insertPs.setInt(1, session.getUserID());
+        insertPs.setInt(1, (int)getUserID.invoke());
         insertPs.executeUpdate();
         ResultSet rsKey = insertPs.getGeneratedKeys();
 
         if (rsKey.next()) {
           insertKey = rsKey.getLong(1);
-	  session.setSessionID(insertKey.intValue());
+	  setSessionID.invoke(insertKey.intValue());
 
           // LOGGER.info("rsKey: " + insertKey);
         }
@@ -109,7 +125,7 @@ public class DatabaseManager {
   public void updateSessionWithProject(String _project_sys_name) {
     int results = 0;
     String project_sys_name = _project_sys_name;
-    session.setProjectSysName(project_sys_name);
+    setProjectSysName.invoke(project_sys_name);
 
     try {
       String query =

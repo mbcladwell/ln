@@ -38,7 +38,7 @@
                                                                             (do
                                                                              (ln.session/set-user (config  (select (to-root e)  [:#nameid]) :text))
                                                                              (ln.session/set-password (config  (select (to-root e)  [:#passid]) :text))                                                             
-                                                                             (ln.session/print-all-props))))])]
+                                                                             (print-all props)))])]
                                   
                                   [(button :text "Cancel")]]))) 
 pack!

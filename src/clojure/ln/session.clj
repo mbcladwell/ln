@@ -26,6 +26,9 @@
 ;;https://push-language.hampshire.edu/t/calling-clojure-code-from-java/865
 ;;(open-props-if-exists)
 
+(defn login-user
+  []
+  )
 
 (defn setup-local-postgres-session []
 (c/assoc-at! props [:conn] {:host "127.0.0.1"
@@ -96,7 +99,7 @@
 
 (defn print-all-props []
   (do
-    (println "All ln-props")
+    (println ":conn in ln-props")
     (println "------------")
     (println (str "Host: " (c/get-at! props [:assets :conn :host]) ))
     (println (str "Port: " (c/get-at! props [:assets :conn :port]) ))
@@ -257,3 +260,20 @@
 
 (defn get-authenticated []
   (c/get-at! props [:assets :session :authenticated ]))
+
+
+(comment
+import clojure.java.api.Clojure;
+import clojure.lang.IFn;
+
+
+  
+//setup desired Clojure methods
+    IFn require = Clojure.var("clojure.core", "require");
+    require.invoke(Clojure.read("ln.session"));
+    IFn writeMess = Clojure.var("ln.session", "write-out-message");
+
+    require.invoke(Clojure.read("ln.db"));
+    IFn dropAllTables = Clojure.var("ln.db", "drop-all-tables");
+    IFn initLimsNucleus = Clojure.var("ln.db", "initialize-limsnucleus");
+)
