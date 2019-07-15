@@ -1,14 +1,30 @@
 package ln;
 
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.Date;
-import java.util.logging.*;
-import javax.swing.*;
-import javax.swing.JComponent.*;
+import java.util.logging.Logger;
+
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
+
+import clojure.java.api.Clojure;
+import clojure.lang.IFn;
 
 public class DialogEditPlateSet extends JDialog {
   static JButton button;
@@ -24,18 +40,24 @@ public class DialogEditPlateSet extends JDialog {
     
   final Instant instant = Instant.now();
   static DialogMainFrame dmf;
-  private static Session session;
+  
+    //  private static Session session;
   private static DatabaseManager dbm;
   final DateFormat df = new SimpleDateFormat("MM/dd/yyyy");
   private static final long serialVersionUID = 1L;
   private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+    private IFn require = Clojure.var("clojure.core", "require");
 
   public DialogEditPlateSet(
-      DialogMainFrame _dmf, String _plate_set_sys_name, String _name, String _description) {
-    dmf = _dmf;
-    session = dmf.getSession();
-    project_sys_name = session.getProjectSysName();
-    dbm = session.getDatabaseManager();
+      DatabaseManager _dbm, String _plate_set_sys_name, String _name, String _description) {
+      dbm = _dbm;
+      dmf = dbm.getDialogMainFrame();
+      require.invoke(Clojure.read("ln.session"));
+      //session = dmf.getSession();
+        IFn getProjectSysName = Clojure.var("ln.session", "get-project-sys-name");
+
+	project_sys_name = (String)getProjectSysName.invoke();
+    //dbm = session.getDatabaseManager();
     plate_set_sys_name = _plate_set_sys_name;
 
     JPanel pane = new JPanel(new GridBagLayout());
@@ -79,7 +101,9 @@ public class DialogEditPlateSet extends JDialog {
     c.anchor = GridBagConstraints.LINE_START;
     pane.add(label, c);
 
-    label = new JLabel(session.getUserName());
+      IFn getUser = Clojure.var("ln.session", "get-user");
+   
+      label = new JLabel((String)getUser.invoke());
     c.gridx = 1;
     c.gridy = 1;
     c.gridheight = 1;

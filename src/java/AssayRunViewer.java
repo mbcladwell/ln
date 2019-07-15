@@ -5,31 +5,34 @@ import java.awt.GridBagConstraints;
 import java.awt.GridLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
+import java.util.Vector;
 import java.util.logging.Logger;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
-import javax.swing.event.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.table.*;
-import javax.swing.*;
-import java.awt.event.*;
-import javax.swing.JFileChooser;
-import java.io.FileReader;
-import java.io.BufferedReader;
-import java.util.Vector;
+import javax.swing.table.TableModel;
 
+import clojure.java.api.Clojure;
+import clojure.lang.IFn;
 
 public class AssayRunViewer extends JDialog implements java.awt.event.ActionListener {
   static JButton hitListFromFile;
@@ -42,7 +45,8 @@ public class AssayRunViewer extends JDialog implements java.awt.event.ActionList
   static JLabel label;
   static JComboBox<ComboItem> projectList;
   final DialogMainFrame dmf;
-    final Session session;
+    private DatabaseManager dbm;
+    //    final Session session;
     private int project_id;
     private String owner;
   private JTable assay_runs_table;
@@ -59,14 +63,22 @@ public class AssayRunViewer extends JDialog implements java.awt.event.ActionList
     private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
   // final EntityManager em;
   private static final long serialVersionUID = 1L;
+        private IFn require = Clojure.var("clojure.core", "require");
+
     
-    
-  public AssayRunViewer(DialogMainFrame _dmf) {
+  public AssayRunViewer(DatabaseManager _dbm) {
+      dbm = _dbm;
     this.setTitle("Assay Run Viewer");
-    this.dmf = _dmf;
-    this.session = dmf.getSession();
-    project_id = session.getProjectID();
-    owner = session.getUserName();
+    this.dmf = dbm.getDialogMainFrame();
+    require.invoke(Clojure.read("ln.session"));
+
+    //    this.session = dmf.getSession();
+     IFn getProjectID = Clojure.var("ln.session", "get-project-id");
+
+    project_id = (int)getProjectID.invoke();
+      IFn getUser = Clojure.var("ln.session", "get-user");
+   
+    owner = (String)getUser.invoke();
 
     parent_pane = new JPanel(new BorderLayout());
 
@@ -76,7 +88,7 @@ public class AssayRunViewer extends JDialog implements java.awt.event.ActionList
     assay_runs_pane_border.setTitlePosition(javax.swing.border.TitledBorder.TOP);
     assay_runs_pane.setBorder(assay_runs_pane_border);
 
-    assay_runs_table = session.getDatabaseRetriever().getAssayRuns(session.getProjectID());
+    assay_runs_table = dbm.getDatabaseRetriever().getAssayRuns((int)getProjectID.invoke());
   assay_runs_table.getSelectionModel().addListSelectionListener(						     
 	  new ListSelectionListener() {
 	      public void valueChanged(ListSelectionEvent e) {
@@ -87,7 +99,7 @@ public class AssayRunViewer extends JDialog implements java.awt.event.ActionList
 			int assay_run_id = Integer.parseInt(( (String)assay_runs_table.getModel().getValueAt(row,0)).substring(3));
 
 			//LOGGER.info("source_layout_id: " + source_layout_id);
-			hit_lists_table.setModel(session
+			hit_lists_table.setModel(dbm
 					   .getDatabaseRetriever()
 						.getHitListsForAssayRun(assay_run_id).getModel());
 			//
@@ -105,7 +117,7 @@ public class AssayRunViewer extends JDialog implements java.awt.event.ActionList
     assay_runs_pane.add(assay_runs_scroll_pane, BorderLayout.CENTER);
 
     GridLayout buttonLayout = new GridLayout(1,4,5,5);
-    projectList = new JComboBox(session.getDatabaseRetriever().getAllProjects());
+    projectList = new JComboBox(dbm.getDatabaseRetriever().getAllProjects());
     for(int i=0; i < projectList.getItemCount(); i++){
 	if(((ComboItem)projectList.getItemAt(i)).getKey() == project_id){
 		projectList.setSelectedIndex(i);
@@ -134,7 +146,7 @@ public class AssayRunViewer extends JDialog implements java.awt.event.ActionList
     hit_lists_pane_border.setTitlePosition(javax.swing.border.TitledBorder.TOP);
     hit_lists_pane.setBorder(hit_lists_pane_border);
 
-    hit_lists_table = session.getDatabaseRetriever().getHitLists(session.getProjectID());
+ hit_lists_table = dbm.getDatabaseRetriever().getHitLists((int)getProjectID.invoke());
 
     hit_lists_scroll_pane = new JScrollPane(hit_lists_table);
     hit_lists_table.setFillsViewportHeight(true);
@@ -220,7 +232,7 @@ public class AssayRunViewer extends JDialog implements java.awt.event.ActionList
 			    //just work with the first one
 			    int assay_run_id = Integer.parseInt(assay_run_ids[0]);
 			*/
-			    Object[][] assay_run_data = session.getDatabaseRetriever().getAssayRunData(assay_run_id);
+			    Object[][] assay_run_data = dbm.getDatabaseRetriever().getAssayRunData(assay_run_id);
 			    POIUtilities poi = new POIUtilities(dmf);
 			    
 			    poi.writeJTableToSpreadsheet("Assay Run Data", assay_run_data);
@@ -267,7 +279,7 @@ public class AssayRunViewer extends JDialog implements java.awt.event.ActionList
 			line = reader.readLine();
 		    }
 		    reader.close();
-		    session.getDatabaseInserter().insertHitListFromFile(assay_runs_id, s_ids);
+		    dbm.getDatabaseInserter().insertHitListFromFile(assay_runs_id, s_ids);
 		} catch (IOException ioe) {
 		    ioe.printStackTrace();
 		}
@@ -332,8 +344,12 @@ public class AssayRunViewer extends JDialog implements java.awt.event.ActionList
     if (e.getSource() == projectList) {
 	if(projectList.getSelectedIndex() > -1){
 	    project_id  = ((ComboItem)projectList.getSelectedItem()).getKey();
-	    session.setProjectID(project_id);
-	    session.setProjectSysName(((ComboItem)projectList.getSelectedItem()).toString());
+	    IFn setProjectID = Clojure.var("ln.session", "set-project-id");
+
+	    setProjectID.invoke(project_id);
+	    IFn setProjectSysName = Clojure.var("ln.session", "set-project-sys-name");
+    
+	    setProjectSysName.invoke(((ComboItem)projectList.getSelectedItem()).toString());
 	    this.refreshTables(); 
 	}
     }  
@@ -341,12 +357,12 @@ public class AssayRunViewer extends JDialog implements java.awt.event.ActionList
 
     public void refreshTables(){
        
-	CustomTable arTable = session.getDatabaseRetriever().getAssayRuns(project_id);
+	CustomTable arTable = dbm.getDatabaseRetriever().getAssayRuns(project_id);
 	TableModel arModel = arTable.getModel();
 	assay_runs_table.setModel(arModel);	
 
 		//LOGGER.info("project: " + project_id);
-	CustomTable hlTable = session.getDatabaseRetriever().getHitLists(project_id);
+	CustomTable hlTable = dbm.getDatabaseRetriever().getHitLists(project_id);
 	TableModel hlModel = hlTable.getModel();
 	hit_lists_table.setModel(hlModel);
 	
@@ -354,7 +370,7 @@ public class AssayRunViewer extends JDialog implements java.awt.event.ActionList
 
     public void refreshHitListsTable(){
 	int selected_project_id = ((ComboItem)projectList.getSelectedItem()).getKey();
-	CustomTable hlTable = session.getDatabaseRetriever().getHitLists(selected_project_id);
+	CustomTable hlTable = dbm.getDatabaseRetriever().getHitLists(selected_project_id);
 	TableModel hlModel = hlTable.getModel();
 	hit_lists_table.setModel(hlModel);
 

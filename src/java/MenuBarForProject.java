@@ -7,28 +7,39 @@ import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.logging.Logger;
-import javax.swing.JOptionPane;
+
 import javax.swing.Box;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+
+import clojure.java.api.Clojure;
+import clojure.lang.IFn;
+
+
+
 
 public class MenuBarForProject extends JMenuBar {
 
   DialogMainFrame dmf;
+    DatabaseManager dbm;
   CustomTable project_table;
-    Session session;
+    //    Session session;
 
   private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
-  public MenuBarForProject(DialogMainFrame _dmf, CustomTable _project_table) {
+  public MenuBarForProject(DatabaseManager _dbm, CustomTable _project_table) {
 
-    dmf = _dmf;
+      dbm = _dbm;
+      dmf = dbm.getDialogMainFrame();
     project_table = _project_table;
-    session = dmf.getSession();
-    
+    //session = dmf.getSession();
+     IFn require = Clojure.var("clojure.core", "require");
+    require.invoke(Clojure.read("ln.session"));
+
     JMenu menu = new JMenu("Project");
     menu.setMnemonic(KeyEvent.VK_P);
     menu.getAccessibleContext().setAccessibleDescription("Project");
@@ -82,14 +93,14 @@ public class MenuBarForProject extends JMenuBar {
 	      //dmf.setMainFrameTitle(results[1][0]);
               //dmf.showPlateSetTable(results[1][0]);
 	     
-              session.getDatabaseManager().updateSessionWithProject(project_sys_name);
+              dbm.updateSessionWithProject(project_sys_name);
 	      dmf.setMainFrameTitle(project_sys_name);
               dmf.showPlateSetTable(project_sys_name);
             } catch (ArrayIndexOutOfBoundsException s) {
-		JOptionPane.showMessageDialog(session.getDialogMainFrame(),
+		JOptionPane.showMessageDialog( dmf,
 					      "Select a row!","Error",JOptionPane.ERROR_MESSAGE);
             } catch (IndexOutOfBoundsException s) {
-		JOptionPane.showMessageDialog(session.getDialogMainFrame(),
+		JOptionPane.showMessageDialog(dmf,
 					      "Select a row!","Error",JOptionPane.ERROR_MESSAGE);
             }
           }
@@ -99,14 +110,16 @@ public class MenuBarForProject extends JMenuBar {
     menu = new ViewerMenu(dmf);
     this.add(menu);
 
-    if(session.getUserGroup().equals("administrator")){
+    IFn getUserGroup = Clojure.var("ln.session", "get-user-group");
+    
+    if(getUserGroup.invoke().equals("administrator")){
     menu = new AdminMenu(dmf, project_table);
      this.add(menu);
     }
 
      this.add(Box.createHorizontalGlue());
 
-    menu = new HelpMenu(session);
+    menu = new HelpMenu();
 
     this.add(menu);
   }

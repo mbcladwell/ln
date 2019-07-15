@@ -70,7 +70,7 @@ public class MenuBarForPlateSet extends JMenuBar {
 		  IFn getUserID = Clojure.var("ln.session", "get-user-id");
    
 		  if ( plate_set_owner_id == (int)getUserID.invoke()) {
-		      new DialogEditPlateSet(dmf, plate_set_sys_name, name, description);
+		      new DialogEditPlateSet(dbm, plate_set_sys_name, name, description);
 	      } else {
                 JOptionPane.showMessageDialog(
                     dmf,

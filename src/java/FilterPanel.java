@@ -1,15 +1,20 @@
 package ln;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.util.logging.*;
-import javax.swing.*;
-import javax.swing.JComponent.*;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.logging.Logger;
+
+import javax.swing.JButton;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.RowFilter;
-import javax.swing.event.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.swing.table.*;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
@@ -21,6 +26,7 @@ public class FilterPanel extends JPanel {
   private JTable table;
   private JScrollPane scrollPane;
   private DialogMainFrame parent;
+    private DatabaseManager dbm;
   private JPanel textPanel;
   private JButton clearButton;
   private JButton refreshButton;
@@ -32,10 +38,12 @@ public class FilterPanel extends JPanel {
   /**
    * @param id the project/plateset/plate etc id for fetching the main table
  */
-    public FilterPanel(DialogMainFrame _parent, JTable _table, int _id, int _entity_type) {
+    public FilterPanel(DatabaseManager _dbm, JTable _table, int _id, int _entity_type) {
+	
     this.setLayout(new GridBagLayout());
-    parent = _parent;
-    session = parent.getSession();
+    dbm = _dbm;
+    parent = dbm.getDialogMainFrame();
+    //session = parent.getSession();
     table = _table;
     id = _id;
     entity_type = _entity_type;
@@ -62,7 +70,7 @@ public class FilterPanel extends JPanel {
     refreshButton.addActionListener(
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
-	      JTable table2 =  session.getDatabaseManager().getDatabaseRetriever().getDMFTableData(id, entity_type );
+	      JTable table2 =  dbm.getDatabaseRetriever().getDMFTableData(id, entity_type );
 	       TableModel model = table2.getModel();
 	       table.setModel(model);
           }
@@ -133,66 +141,5 @@ public class FilterPanel extends JPanel {
 
   }
 
-  /*
-  public JTable getTable() {
-    return table;
-  }
 
-  public void updatePanel() {
-    JTable table = parent.getDatabaseManager().getProjectTableData();
-    TableModel model = table.getModel();
-    this.table.setModel(model);
-  }
-
-  public void tableChanged(TableModelEvent e) {
-    int row = e.getFirstRow();
-    int column = e.getColumn();
-    TableModel model = (TableModel) e.getSource();
-    String columnName = model.getColumnName(column);
-    Object data = model.getValueAt(row, column);
-
-    model.setValueAt(false, row, 0);
-
-    // Do something with the data...
-  }
-  */
-  /*
-  class SharedListSelectionHandler implements ListSelectionListener {
-    public void valueChanged(ListSelectionEvent e) {
-      ListSelectionModel lsm = (ListSelectionModel) e.getSource();
-
-      int firstIndex = e.getFirstIndex();
-      int lastIndex = e.getLastIndex();
-      boolean isAdjusting = e.getValueIsAdjusting();
-        LOGGER.info(
-      //   "Event for indexes "
-              + firstIndex
-              + " - "
-              + lastIndex
-              + "; isAdjusting is "
-              + isAdjusting
-              + "; selected indexes:");
-
-      if (lsm.isSelectionEmpty()) {
-        LOGGER.info(" <none>");
-      } else {
-        if (!isAdjusting) {
-          // Find out which indexes are selected.
-          int minIndex = lsm.getMinSelectionIndex();
-          int maxIndex = lsm.getMaxSelectionIndex();
-          for (int i = minIndex; i <= maxIndex; i++) {
-            if (lsm.isSelectedIndex(i)) {
-              LOGGER.info(" " + i);
-              javax.swing.table.TableModel tm = ProjectPanel.this.getTable().getModel();
-              if ((boolean) tm.getValueAt(i, 0)) tm.setValueAt(false, i, 0);
-              else tm.setValueAt(true, i, 0);
-              ProjectPanel.this.table.setModel(tm);
-            }
-          }
-        }
-      }
-    }
-  }
-
-  */
 }
