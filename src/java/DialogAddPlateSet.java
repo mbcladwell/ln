@@ -47,7 +47,8 @@ public class DialogAddPlateSet extends JDialog {
   static JButton cancelButton;
   final Instant instant = Instant.now();
     final DialogMainFrame dmf;
-  final Session session;
+    final DatabaseManager dbm;
+    final Session session;
   final DateFormat df = new SimpleDateFormat("MM/dd/yyyy");
   private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
   // final EntityManager em;

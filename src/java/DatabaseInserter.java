@@ -20,6 +20,9 @@ import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 
+import clojure.java.api.Clojure;
+import clojure.lang.IFn;
+
 /** */
 public class DatabaseInserter {
   DatabaseManager dbm;
@@ -28,16 +31,21 @@ public class DatabaseInserter {
   Connection conn;
   JTable table;
   Utilities utils;
-    Session session;
+    int session_id; 
+    //  Session session;
     private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+    private IFn require = Clojure.var("clojure.core", "require");
 
   /** */
   public DatabaseInserter(DatabaseManager _dbm) {
     this.dbm = _dbm;
     this.conn = dbm.getConnection();
     // this.dbr = dbm.getDatabaseRetriever();
-    session = dbm.getSession();
-    this.dmf = session.getDialogMainFrame();
+    //session = dbm.getSession();
+    this.dmf = dbm.getDialogMainFrame();
+    require.invoke(Clojure.read("ln.session"));
+    	 IFn getSessionID = Clojure.var("ln.session", "get-session-id");
+	 session_id = (int)getSessionID.invoke();
     // this.utils = dmf.getUtilities();
     //this.session = dmf.getSession();
   }
@@ -138,6 +146,7 @@ public class DatabaseInserter {
       int new_plate_set_id;
 
     try {
+   
       String insertSql = "SELECT new_plate_set ( ?, ?, ?, ?, ?, ?, ?, ?);";
       PreparedStatement insertPs =
           conn.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS);
@@ -147,7 +156,7 @@ public class DatabaseInserter {
       insertPs.setString(4, _plate_size_id);
       insertPs.setString(5, _plate_type_id);
       insertPs.setString(6, _project_id);
-      insertPs.setInt(7, session.getSessionID());
+      insertPs.setInt(7,  session_id);
       insertPs.setString(8, _withSamples);
       LOGGER.info(insertPs.toString());
       insertPs.executeUpdate();
@@ -187,7 +196,7 @@ public int insertPlateSet(
       insertPs.setInt(5, _plate_type_id);
       insertPs.setInt(6, _project_id);
       insertPs.setInt(7, _plate_layout_name_id);
-      insertPs.setInt(8, session.getSessionID());
+      insertPs.setInt(8, session_id);
       
       insertPs.setBoolean(9, _withSamples);
 
@@ -267,7 +276,7 @@ public int insertPlateSet(
     Integer[] plate_ids =
         dbm.getDatabaseRetriever()
             .getIDsForSysNames(
-			       session.getDialogMainFrame().getUtilities().getStringArrayForStringSet(new HashSet<String>(plate_sys_names)),
+			       dbm.getDialogMainFrame().getUtilities().getStringArrayForStringSet(new HashSet<String>(plate_sys_names)),
                 "plate",
                 "plate_sys_name");
 
@@ -318,7 +327,9 @@ public int insertPlateSet(
     LOGGER.info("keys: " + plate_ids);
 
     this.associatePlateIDsWithPlateSetID(all_plate_ids, new_plate_set_id);
-    session.getDialogMainFrame().showPlateSetTable(session.getProjectSysName());
+     IFn getProjectSysName = Clojure.var("ln.session", "get-project-sys-name");
+   
+     dbm.getDialogMainFrame().showPlateSetTable((String)getProjectSysName.invoke());
   }
 
   /** Called from DialogGroupPlates from the plate panel/menubar */
@@ -381,14 +392,16 @@ public int insertPlateSet(
     LOGGER.info("keys: " + plate_ids);
 
     this.associatePlateIDsWithPlateSetID(plate_ids, new_plate_set_id);
-    session.getDialogMainFrame().showPlateSetTable(session.getProjectSysName());
+     IFn getProjectSysName = Clojure.var("ln.session", "get-project-sys-name");
+   
+    dbm.getDialogMainFrame().showPlateSetTable((String)getProjectSysName.invoke());
   }
 
   public void associatePlateIDsWithPlateSetID(Set<Integer> _plateIDs, int _plate_set_id) {
     Set<Integer> plateIDs = _plateIDs;
     int plate_set_id = _plate_set_id;
     Integer[] plate_ids =
-        Arrays.stream(session.getDialogMainFrame().getUtilities().getIntArrayForIntegerSet(plateIDs))
+        Arrays.stream(dbm.getDialogMainFrame().getUtilities().getIntArrayForIntegerSet(plateIDs))
             .boxed()
             .toArray(Integer[]::new);
 
@@ -448,10 +461,10 @@ Integer[] plate_set_id =
         dbm.getDatabaseRetriever()
             .getIDsForSysNames(plate_set_sys_name, "plate_set", "plate_set_sys_name");
 
- int num_of_plate_ids = session.getDatabaseRetriever().getAllPlateIDsForPlateSetID(plate_set_id[0]).size();
+ int num_of_plate_ids = dbm.getDatabaseRetriever().getAllPlateIDsForPlateSetID(plate_set_id[0]).size();
 //check that there are the correct number of rows in the table
 if(num_of_plate_ids*format_id!=table.size()-1){
-    	JOptionPane.showMessageDialog(session.getDialogMainFrame(), new String("Expecting " + String.valueOf(num_of_plate_ids*format_id) + " rows but found " + (table.size()-1) + " rows." ), "Import Error", JOptionPane.ERROR_MESSAGE);
+    	JOptionPane.showMessageDialog(dbm.getDialogMainFrame(), new String("Expecting " + String.valueOf(num_of_plate_ids*format_id) + " rows but found " + (table.size()-1) + " rows." ), "Import Error", JOptionPane.ERROR_MESSAGE);
 	return;
 }
 
@@ -489,7 +502,7 @@ if(num_of_plate_ids*format_id!=table.size()-1){
     } catch (SQLException sqle) {
       LOGGER.warning("Failed to properly prepare  prepared statement: " + sqle);
       JOptionPane.showMessageDialog(
-          session.getDialogMainFrame(), "Problems parsing data file!.", "Error", JOptionPane.ERROR_MESSAGE);
+          dbm.getDialogMainFrame(), "Problems parsing data file!.", "Error", JOptionPane.ERROR_MESSAGE);
       return;
     }
 
@@ -549,7 +562,7 @@ if(num_of_plate_ids*format_id!=table.size()-1){
     
     if(auto_select_hits){
 
-	ResponseWrangler rw = new ResponseWrangler(session.getDatabaseRetriever().getDataForScatterPlot(assay_run_id),ResponseWrangler.NORM);
+	ResponseWrangler rw = new ResponseWrangler(dbm.getDatabaseRetriever().getDataForScatterPlot(assay_run_id),ResponseWrangler.NORM);
 	double[][] sorted_response = rw.getSortedResponse();
 	int number_of_hits = 0;
        
@@ -570,7 +583,7 @@ if(num_of_plate_ids*format_id!=table.size()-1){
 	    break;
 	    
 	}
-	DialogNewHitList dnhl = new DialogNewHitList(session, assay_run_id, sorted_response, number_of_hits);
+	DialogNewHitList dnhl = new DialogNewHitList(dbm, assay_run_id, sorted_response, number_of_hits);
 	
     }
   
@@ -605,7 +618,7 @@ if(num_of_plate_ids*format_id!=table.size()-1){
       preparedStatement.setInt(3, assay_type_id);
       preparedStatement.setInt(4, plate_set_id);
       preparedStatement.setInt(5, plate_layout_name_id);
-      preparedStatement.setInt(6, session.getSessionID());
+      preparedStatement.setInt(6, session_id);
       
 
       preparedStatement.execute(); // executeUpdate expects no returns!!!
@@ -636,7 +649,7 @@ if(num_of_plate_ids*format_id!=table.size()-1){
     } catch (SQLException sqle) {
       LOGGER.warning("Failed to properly prepare  prepared statement: " + sqle);
     }
-    session.getDialogMainFrame().showProjectTable();
+    dbm.getDialogMainFrame().showProjectTable();
   }
 
 
@@ -657,7 +670,8 @@ if(num_of_plate_ids*format_id!=table.size()-1){
 	int n_reps_source = _n_reps_source;
        
 	int dest_plate_num = (int)Math.ceil(source_plate_num*n_reps_source/4.0);
-	int project_id = dbm.getSession().getProjectID();
+	IFn getProjectID = Clojure.var("ln.session", "get-project-id");
+   	int project_id = (int)getProjectID.invoke();
 	int dest_plate_set_id=0;
 
       // method signature:  reformat_plate_set(source_plate_set_id INTEGER, source_num_plates INTEGER, n_reps_source INTEGER, dest_descr VARCHAR(30), dest_plate_set_name VARCHAR(30), dest_num_plates INTEGER, dest_plate_format_id INTEGER, dest_plate_type_id INTEGER, project_id INTEGER, dest_plate_layout_name_id INTEGER )
@@ -684,8 +698,9 @@ if(num_of_plate_ids*format_id!=table.size()-1){
       ResultSet resultSet = insertPs.getResultSet();
       resultSet.next();
       dest_plate_set_id = resultSet.getInt("reformat_plate_set");
-      
-      session.getDialogMainFrame().showPlateSetTable(session.getProjectSysName());
+       IFn getProjectSysName = Clojure.var("ln.session", "get-project-sys-name");
+   
+      dbm.getDialogMainFrame().showPlateSetTable((String)getProjectSysName.invoke());
     } catch (SQLException sqle) {
 	LOGGER.warning("SQLE at reformat plate set: " + sqle);
     }
@@ -718,9 +733,9 @@ if(num_of_plate_ids*format_id!=table.size()-1){
 	String name = _name;
 	String descr = _descr;
 	int format = 0;
-	ArrayList<String[]> data = session.getDialogMainFrame().getUtilities().loadDataFile(_file_name);
+	ArrayList<String[]> data = dbm.getDialogMainFrame().getUtilities().loadDataFile(_file_name);
 
-	Object[][]  dataObject = session.getDialogMainFrame().getUtilities().getObjectArrayForArrayList(data); 
+	Object[][]  dataObject = dbm.getDialogMainFrame().getUtilities().getObjectArrayForArrayList(data); 
 
 	switch(data.size()-1){
 	case 96:
@@ -736,7 +751,7 @@ if(num_of_plate_ids*format_id!=table.size()-1){
 	    
 	    break;
 	default:
-	    JOptionPane.showMessageDialog( session.getDialogMainFrame(), "Expecting 96, 384, or 1536 lines of data. Found " + (data.size()-1) +  "!", "Error", JOptionPane.ERROR_MESSAGE);	    
+	    JOptionPane.showMessageDialog( dbm.getDialogMainFrame(), "Expecting 96, 384, or 1536 lines of data. Found " + (data.size()-1) +  "!", "Error", JOptionPane.ERROR_MESSAGE);	    
 	}
 	      
 	    String sqlString = "SELECT new_plate_layout(?,?, ?, ?)";
@@ -806,10 +821,10 @@ if(num_of_plate_ids*format_id!=table.size()-1){
     public void importAccessionsByPlateSet(int _plate_set_id){
 	int plate_set_id = _plate_set_id;
 	String plate_set_sys_name = new String("PS-" + String.valueOf(plate_set_id));
-	int plate_num = session.getDatabaseRetriever().getNumberOfPlatesForPlateSetID(plate_set_id);
-	int format_id = session.getDatabaseRetriever().getFormatForPlateSetID(plate_set_id);
+	int plate_num = dbm.getDatabaseRetriever().getNumberOfPlatesForPlateSetID(plate_set_id);
+	int format_id = dbm.getDatabaseRetriever().getFormatForPlateSetID(plate_set_id);
 	   
-		new DialogImportPlateSetAccessionIDs(session.getDialogMainFrame(), plate_set_sys_name, plate_set_id, format_id, plate_num);
+		new DialogImportPlateSetAccessionIDs(dbm.getDialogMainFrame(), plate_set_sys_name, plate_set_id, format_id, plate_num);
 	
 	
     }
@@ -851,7 +866,7 @@ if(num_of_plate_ids*format_id!=table.size()-1){
     }
     }else{
     JOptionPane.showMessageDialog(
-				  session.getDialogMainFrame(), "Expecting the headers \"plate\", \"well\", and \"accs.id\", but found\n" + accessions.get(0)[0] + ", " +  accessions.get(0)[1] +  ", and " + accessions.get(0)[2] + "." , "Error", JOptionPane.ERROR_MESSAGE);
+				  dbm.getDialogMainFrame(), "Expecting the headers \"plate\", \"well\", and \"accs.id\", but found\n" + accessions.get(0)[0] + ", " +  accessions.get(0)[1] +  ", and " + accessions.get(0)[2] + "." , "Error", JOptionPane.ERROR_MESSAGE);
     return;
   	
     }
@@ -890,7 +905,9 @@ if(num_of_plate_ids*format_id!=table.size()-1){
       int hit_list_id = _hit_list_id;
       int dest_plate_set_id =0;
     try {
-      int project_id = session.getProjectID();
+	 IFn getProjectID = Clojure.var("ln.session", "get-project-id");
+   
+	int project_id = (int)getProjectID.invoke();
       int plate_format_id = _plate_format_id;
       int plate_type_id = _plate_type_id;
       int plate_layout_id = _plate_layout_id;
@@ -906,7 +923,7 @@ if(num_of_plate_ids*format_id!=table.size()-1){
       insertPs.setInt(5, plate_type_id);
       insertPs.setInt(6, project_id);
       insertPs.setInt(7, plate_layout_id);
-      insertPs.setInt(8, session.getSessionID());
+      insertPs.setInt(8, session_id);
       insertPs.setBoolean(9, false);      
       // LOGGER.info(insertPs.toString());
       insertPs.execute();  //executeUpdate() expects no returns
@@ -1036,7 +1053,7 @@ if(num_of_plate_ids*format_id!=table.size()-1){
         }
 	    
 	}
-	new DialogNewHitListFromFile(session, assay_run_id, s_ids);
+	new DialogNewHitListFromFile(dbm, assay_run_id, s_ids);
     }
 
     /**
@@ -1085,7 +1102,9 @@ if(num_of_plate_ids*format_id!=table.size()-1){
       int _plate_layout_id) {
 
     try {
-      int project_id = session.getProjectID();
+	 IFn getProjectID = Clojure.var("ln.session", "get-project-id");
+   
+	int project_id = (int)getProjectID.invoke();
       int plate_format_id =
           Integer.parseInt(_plate_format_id);
       int plate_type_id = _plate_type_id;
@@ -1114,8 +1133,9 @@ if(num_of_plate_ids*format_id!=table.size()-1){
     } catch (SQLException sqle) {
       LOGGER.severe("Failed to create plate set: " + sqle);
     }
-
-    session.getDialogMainFrame().showPlateSetTable(session.getProjectSysName());    
+ IFn getProjectSysName = Clojure.var("ln.session", "get-project-sys-name");
+   
+    dbm.getDialogMainFrame().showPlateSetTable((String)getProjectSysName.invoke());    
   }
 
 }

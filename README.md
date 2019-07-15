@@ -55,13 +55,15 @@ import clojure.lang.IFn;
     IFn getUserGroup = Clojure.var("ln.session", "get-user-group");
     IFn setAuthenticated = Clojure.var("ln.session", "set-authenticated");
     IFn setSessionID = Clojure.var("ln.session", "set-session-id");
+    IFn getSessionID = Clojure.var("ln.session", "get-session-id");
     IFn setPlateID = Clojure.var("ln.session", "set-plate-id");
     IFn setPlateSetID = Clojure.var("ln.session", "set-plate-set-id");
     IFn setPlateSetSysName = Clojure.var("ln.session", "set-plate-set-sys-name");
     IFn getHelpURLPrefix = Clojure.var("ln.session", "get-help-url-prefix");
     IFn getProjectSysName = Clojure.var("ln.session", "get-project-sys-name");
+    IFn setProjectSysName = Clojure.var("ln.session", "set-project-sys-name");
     IFn getProjectID = Clojure.var("ln.session", "get-project-id");
- IFn setProjectID = Clojure.var("ln.session", "set-project-id");
+   IFn setProjectID = Clojure.var("ln.session", "set-project-id");
 
     require.invoke(Clojure.read("ln.db"));
     IFn dropAllTables = Clojure.var("ln.db", "drop-all-tables");

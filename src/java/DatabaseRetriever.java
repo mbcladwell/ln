@@ -4,25 +4,24 @@ import java.sql.Array;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.logging.Logger;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.util.Set;
 import java.util.Vector;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
+import java.util.logging.Logger;
 
 import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
+
+import clojure.java.api.Clojure;
+import clojure.lang.IFn;
 
 /** */
 public class DatabaseRetriever {
@@ -30,15 +29,17 @@ public class DatabaseRetriever {
     DialogMainFrame dmf;
   Connection conn;
   JTable table;
-    Session session;
+    //    Session session;
   private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+    private IFn require = Clojure.var("clojure.core", "require");
 
   /** */
   public DatabaseRetriever(DatabaseManager _dbm) {
     this.dbm = _dbm;
     this.conn = dbm.getConnection();
-    session = dbm.getSession();
-    dmf = session.getDialogMainFrame();
+    //session = dbm.getSession();
+    dmf = dbm.getDialogMainFrame();
+    require.invoke(Clojure.read("ln.session"));
     
   }
 

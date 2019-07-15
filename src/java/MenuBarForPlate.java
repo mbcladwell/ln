@@ -52,7 +52,7 @@ public class MenuBarForPlate extends JMenuBar {
     menuItem.addActionListener(
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
-            new DialogAddPlateSet(dmf);
+            new DialogAddPlateSet(dbm);
           }
         });
     menu.add(menuItem);
@@ -120,7 +120,7 @@ public class MenuBarForPlate extends JMenuBar {
   
               dmf.showWellTable(plate_sys_name);
             } catch (ArrayIndexOutOfBoundsException s) {
-			JOptionPane.showMessageDialog(session.getDialogMainFrame(),
+			JOptionPane.showMessageDialog(dbm.getDialogMainFrame(),
 					      "Select a row!","Error",JOptionPane.ERROR_MESSAGE);
           
             } catch (IndexOutOfBoundsException s) {
@@ -149,12 +149,12 @@ public class MenuBarForPlate extends JMenuBar {
 
     this.add(upbutton);
 
-        menu = new ViewerMenu(dmf);
+        menu = new ViewerMenu(dbm);
     this.add(menu);
 
     this.add(Box.createHorizontalGlue());
 
-        menu = new HelpMenu(dbm);
+        menu = new HelpMenu();
     this.add(menu);
   
 

@@ -1,24 +1,35 @@
 package ln;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.util.logging.*;
-import javax.swing.*;
-import javax.swing.JComponent.*;
-import javax.swing.event.*;
-import javax.swing.table.*;
+import java.awt.BorderLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.util.logging.Logger;
+
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
+import javax.swing.SwingConstants;
+import javax.swing.table.DefaultTableModel;
+
+import clojure.java.api.Clojure;
+import clojure.lang.IFn;
 
 public class ProjectPanel extends JPanel {
 
   private static final long serialVersionUID = 1L;
   private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+    private IFn require = Clojure.var("clojure.core", "require");
 
   private CustomTable table;
   private JScrollPane scrollPane;
   private DialogMainFrame dmf;
-  private JPanel textPanel;
+    private DatabaseManager dbm;
+    private JPanel textPanel;
   private ListSelectionModel listSelectionModel;
-    private Session session;
+    // private Session session;
       // private SharedListSelectionHandler sharedListSelectionHandler;
   /**
    * To accomodate all components place panels within panels.
@@ -31,11 +42,13 @@ public class ProjectPanel extends JPanel {
    * NORTH: table<br>
    * SOUTH: filter<br>
    */
-  public ProjectPanel(DialogMainFrame _dmf, CustomTable _table) {
+  public ProjectPanel(DatabaseManager _dbm, CustomTable _table) {
     this.setLayout(new BorderLayout());
-    dmf = _dmf;
-    session = dmf.getSession();
+    dbm = _dbm;
+    dmf = dbm.getDialogMainFrame();
+    // session = dmf.getSession();
     table = _table;
+    require.invoke(Clojure.read("ln.session"));
     /*
         listSelectionModel = table.getSelectionModel();
         sharedListSelectionHandler = new SharedListSelectionHandler();
@@ -56,7 +69,7 @@ public class ProjectPanel extends JPanel {
 
     JPanel headerPanel = new JPanel();
     headerPanel.setLayout(new BorderLayout());
-    headerPanel.add(new MenuBarForProject(dmf, table), BorderLayout.NORTH);
+    headerPanel.add(new MenuBarForProject(dbm, table), BorderLayout.NORTH);
 
     textPanel = new JPanel();
     textPanel.setLayout(new GridBagLayout());
@@ -73,7 +86,9 @@ public class ProjectPanel extends JPanel {
     c.gridy = 1;
     textPanel.add(label, c);
 
-    JLabel userLabel = new JLabel(dmf.getSession().getUserName(), SwingConstants.LEFT);
+         IFn getUser = Clojure.var("ln.session", "get-user");
+
+	 JLabel userLabel = new JLabel((String)getUser.invoke(), SwingConstants.LEFT);
     c.gridx = 1;
     c.gridy = 0;
     // c.gridwidth = 3;
@@ -82,7 +97,9 @@ public class ProjectPanel extends JPanel {
     c.anchor = GridBagConstraints.LINE_START;
     textPanel.add(userLabel, c);
 
-    JLabel groupLabel = new JLabel(dmf.getSession().getUserGroup(), SwingConstants.LEFT);
+        IFn getUserGroup = Clojure.var("ln.session", "get-user-group");
+
+	JLabel groupLabel = new JLabel((String)getUserGroup.invoke(), SwingConstants.LEFT);
     c.gridx = 1;
     c.gridy = 1;
     textPanel.add(groupLabel, c);
@@ -93,7 +110,7 @@ public class ProjectPanel extends JPanel {
     scrollPane = new JScrollPane(table);
     this.add(scrollPane, BorderLayout.CENTER);
     table.setFillsViewportHeight(true);
-    FilterPanel fp = new FilterPanel(dmf, table, 0, DialogMainFrame.PROJECT );
+    FilterPanel fp = new FilterPanel(dbm, table, 0, DialogMainFrame.PROJECT );
     this.add(fp, BorderLayout.SOUTH);
   }
 
@@ -103,7 +120,7 @@ public class ProjectPanel extends JPanel {
 
   public void updatePanel() {
       //CustomTable table = session.getDatabaseManager().getProjectTableData();
-      CustomTable table = session.getDatabaseRetriever().getDMFTableData(0, DialogMainFrame.PROJECT);
+      CustomTable table = dbm.getDatabaseRetriever().getDMFTableData(0, DialogMainFrame.PROJECT);
     DefaultTableModel model = (DefaultTableModel) table.getModel();
     this.table.setModel(model);
   }

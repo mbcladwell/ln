@@ -1,10 +1,16 @@
 package ln;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.util.logging.*;
-import javax.swing.*;
-import javax.swing.JComponent.*;
+import java.awt.BorderLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.util.logging.Logger;
+
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.SwingConstants;
 import javax.swing.table.TableModel;
 
 
@@ -19,17 +25,19 @@ public class WellPanel extends JPanel {
   private JPanel textPanel;
   private String plateset_sys_name;
   private String plate_sys_name;
-    private Session session;    
-
-  public WellPanel(DialogMainFrame _dmf, CustomTable _table) {
+    //   private Session session;    
+    private DatabaseManager dbm;
+    
+  public WellPanel(DatabaseManager _dbm, CustomTable _table) {
     this.setLayout(new BorderLayout());
-    dmf = _dmf;
+    dbm = _dbm;
+    dmf = dbm.getDialogMainFrame();
     table = _table;
-    session = dmf.getSession();
+    //  session = dmf.getSession();
     
     JPanel headerPanel = new JPanel();
     headerPanel.setLayout(new BorderLayout());
-    headerPanel.add(new MenuBarForWell(session, table), BorderLayout.NORTH);
+    headerPanel.add(new MenuBarForWell(dbm, table), BorderLayout.NORTH);
 
     textPanel = new JPanel();
     textPanel.setLayout(new GridBagLayout());
@@ -66,7 +74,7 @@ public class WellPanel extends JPanel {
     plate_sys_name = (String) table.getValueAt(1, 0);
     
     plateset_sys_name =
-        session.getDatabaseRetriever()
+        dbm.getDatabaseRetriever()
 	.getPlateSetSysNameForPlateSysName(plate_sys_name);
 
     
@@ -82,7 +90,7 @@ public class WellPanel extends JPanel {
 
     JLabel descriptionLabel =
         new JLabel(
-            session.getDatabaseRetriever()
+            dbm.getDatabaseRetriever()
                 .getDescriptionForPlateSet(plateset_sys_name),
             SwingConstants.LEFT);
     c.gridx = 1;
@@ -95,7 +103,7 @@ public class WellPanel extends JPanel {
     scrollPane = new JScrollPane(table);
     this.add(scrollPane, BorderLayout.CENTER);
     table.setFillsViewportHeight(true);
-    FilterPanel fp = new FilterPanel(dmf, (JTable)table, Integer.parseInt(plate_sys_name.substring(4)) , DialogMainFrame.WELL );
+    FilterPanel fp = new FilterPanel(dbm, (JTable)table, Integer.parseInt(plate_sys_name.substring(4)) , DialogMainFrame.WELL );
     this.add(fp, BorderLayout.SOUTH);
   }
 
@@ -106,7 +114,7 @@ public class WellPanel extends JPanel {
     public void updatePanel(String _plate_sys_name) {
     String plate_sys_name = _plate_sys_name;
       int plate_id = Integer.parseInt(plate_sys_name.substring(4));
-    JTable table = session.getDatabaseManager().getDatabaseRetriever().getDMFTableData(plate_id, DialogMainFrame.WELL);
+    JTable table = dbm.getDatabaseRetriever().getDMFTableData(plate_id, DialogMainFrame.WELL);
     TableModel model = table.getModel();
     this.table.setModel(model);
   }

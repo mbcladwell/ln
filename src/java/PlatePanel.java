@@ -21,19 +21,21 @@ public class PlatePanel extends JPanel {
   private CustomTable table;
   private JScrollPane scrollPane;
   private DialogMainFrame dmf;
+    private DatabaseManager dbm;
   private JPanel textPanel;
   private String plateset_sys_name;
-    private Session session;
+    // private Session session;
     
-  public PlatePanel(DialogMainFrame _dmf, CustomTable _table) {
+  public PlatePanel(DatabaseManager _dbm, CustomTable _table) {
     this.setLayout(new BorderLayout());
-    dmf = _dmf;
-    session = dmf.getSession();
+    dbm = _dbm;
+    dmf = dbm.getDialogMainFrame();
+    // session = dmf.getSession();
     table = _table;
 
     JPanel headerPanel = new JPanel();
     headerPanel.setLayout(new BorderLayout());
-    headerPanel.add(new MenuBarForPlate(session, table), BorderLayout.NORTH);
+    headerPanel.add(new MenuBarForPlate(dbm, table), BorderLayout.NORTH);
 
     textPanel = new JPanel();
     textPanel.setLayout(new GridBagLayout());
@@ -69,7 +71,7 @@ public class PlatePanel extends JPanel {
     //LOGGER.info("table.getValueAt(0, 0)" + table.getValueAt(0, 0));
 
     plateset_sys_name =
-        session.getDatabaseRetriever()
+        dbm.getDatabaseRetriever()
             .getPlateSetSysNameForPlateSysName((String) table.getValueAt(0, 0));
     JLabel platesetLabel = new JLabel(plateset_sys_name, SwingConstants.LEFT);
     c.gridx = 1;
@@ -83,7 +85,7 @@ public class PlatePanel extends JPanel {
 
     JLabel descriptionLabel =
         new JLabel(
-            session.getDatabaseRetriever()
+            dbm.getDatabaseRetriever()
                 .getDescriptionForPlateSet(plateset_sys_name),
             SwingConstants.LEFT);
     c.gridx = 1;
@@ -96,7 +98,7 @@ public class PlatePanel extends JPanel {
     scrollPane = new JScrollPane(table);
     this.add(scrollPane, BorderLayout.CENTER);
     table.setFillsViewportHeight(true);
-    FilterPanel fp = new FilterPanel(dmf, table, Integer.parseInt(plateset_sys_name.substring(3)) ,DialogMainFrame.PLATE );
+    FilterPanel fp = new FilterPanel(dbm, table, Integer.parseInt(plateset_sys_name.substring(3)) ,DialogMainFrame.PLATE );
     this.add(fp, BorderLayout.SOUTH);
   }
 
@@ -107,7 +109,7 @@ public class PlatePanel extends JPanel {
   public void updatePanel(String _plate_set_sys_name) {
     String plate_set_sys_name = _plate_set_sys_name;
       int plate_set_id = Integer.parseInt(plate_set_sys_name.substring(3));
-    JTable table = session.getDatabaseManager().getDatabaseRetriever().getDMFTableData(plate_set_id, DialogMainFrame.PLATE);
+    JTable table = dbm.getDatabaseRetriever().getDMFTableData(plate_set_id, DialogMainFrame.PLATE);
     TableModel model = table.getModel();
     this.table.setModel(model);
   }

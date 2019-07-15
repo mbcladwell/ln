@@ -1,11 +1,17 @@
 package ln;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.util.logging.*;
-import javax.swing.*;
-import javax.swing.JComponent.*;
-import javax.swing.table.*;
+import java.awt.BorderLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.util.logging.Logger;
+
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.SwingConstants;
+import javax.swing.table.TableModel;
 
 public class PlateSetPanel extends JPanel {
 
@@ -15,20 +21,22 @@ public class PlateSetPanel extends JPanel {
   private CustomTable table;
   private JScrollPane scrollPane;
   private DialogMainFrame dmf;
+    private DatabaseManager dbm;
   private JPanel textPanel;
   private String project_sys_name;
-    private Session session;
+    // private Session session;
 
-  public PlateSetPanel(DialogMainFrame _dmf, CustomTable _table, String _project_sys_name) {
+  public PlateSetPanel(DatabaseManager _dbm, CustomTable _table, String _project_sys_name) {
     this.setLayout(new BorderLayout());
-    dmf = _dmf;
-    session = dmf.getSession();
+    dbm = _dbm;
+    dmf = dbm.getDialogMainFrame();
+    //session = dmf.getSession();
     table = _table;
     project_sys_name = _project_sys_name;
 
     JPanel headerPanel = new JPanel();
     headerPanel.setLayout(new BorderLayout());
-    headerPanel.add(new MenuBarForPlateSet(dmf, table), BorderLayout.NORTH);
+    headerPanel.add(new MenuBarForPlateSet(dbm, table), BorderLayout.NORTH);
 
     textPanel = new JPanel();
     textPanel.setLayout(new GridBagLayout());
@@ -57,7 +65,7 @@ public class PlateSetPanel extends JPanel {
 
     JLabel descriptionLabel =
         new JLabel(
-            session.getDatabaseRetriever()
+            dbm.getDatabaseRetriever()
                 .getDescriptionForProject(project_sys_name),
             SwingConstants.LEFT);
     c.gridx = 1;
@@ -70,7 +78,7 @@ public class PlateSetPanel extends JPanel {
     scrollPane = new JScrollPane(table);
     table.setFillsViewportHeight(true);
     this.add(scrollPane, BorderLayout.CENTER);
-    FilterPanel fp = new FilterPanel(dmf, table, Integer.parseInt(project_sys_name.substring(4)), DialogMainFrame.PLATESET );
+    FilterPanel fp = new FilterPanel(dbm, table, Integer.parseInt(project_sys_name.substring(4)), DialogMainFrame.PLATESET );
     this.add(fp, BorderLayout.SOUTH);
   }
 
@@ -81,7 +89,7 @@ public class PlateSetPanel extends JPanel {
   public void updatePanel(String _project_sys_name) {
     String project_sys_name = _project_sys_name;
     int project_id = Integer.parseInt(project_sys_name.substring(4));
-    JTable table = session.getDatabaseManager().getDatabaseRetriever().getDMFTableData(project_id, DialogMainFrame.PLATESET);
+    JTable table = dbm.getDatabaseRetriever().getDMFTableData(project_id, DialogMainFrame.PLATESET);
     TableModel model = table.getModel();
 
 

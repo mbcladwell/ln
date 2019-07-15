@@ -25,6 +25,9 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
+import clojure.java.api.Clojure;
+import clojure.lang.IFn;
+
 public class DialogRearrayHitList extends JDialog {
   static JButton button;
   static JLabel label;
@@ -49,18 +52,21 @@ public class DialogRearrayHitList extends JDialog {
     private int unknowns_per_dest_plate;
     private String hit_list_sys_name;
     private String plate_set_sys_name;
+    private IFn require = Clojure.var("clojure.core", "require");
     
   static JButton okButton;
   static JButton cancelButton;
   final Instant instant = Instant.now();
     final DialogMainFrame dmf;
-  final Session session;
+    final DatabaseManager dbm;
+    //  final Session session;
   final DateFormat df = new SimpleDateFormat("MM/dd/yyyy");
   private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
   // final EntityManager em;
 
-    public DialogRearrayHitList(DialogMainFrame _dmf, int _plate_set_id, String _plate_set_sys_name, int _source_plate_set_format, int _hit_list_id, String _hit_list_sys_name, int _unknown_count) {
-    this.dmf = _dmf;
+    public DialogRearrayHitList(DatabaseManager _dbm, int _plate_set_id, String _plate_set_sys_name, int _source_plate_set_format, int _hit_list_id, String _hit_list_sys_name, int _unknown_count) {
+	dbm = _dbm;
+	this.dmf = dbm.getDialogMainFrame();
     plate_set_id = _plate_set_id;
     plate_set_sys_name = _plate_set_sys_name;
     source_plate_set_format = _source_plate_set_format;
@@ -68,9 +74,11 @@ public class DialogRearrayHitList extends JDialog {
     hit_list_sys_name = _hit_list_sys_name;
     dest_plate_set_format = source_plate_set_format;
     unknown_count = _unknown_count;
+    require.invoke(Clojure.read("ln.session"));
+     IFn getUser = Clojure.var("ln.session", "get-user");
     
-    this.session = dmf.getSession();
-    owner = session.getUserName();
+     //    this.session = dmf.getSession();
+     owner = (String)getUser.invoke();
     // Create and set up the window.
     // JFrame frame = new JFrame("Add Project");
     // this.em = em;
@@ -175,7 +183,7 @@ public class DialogRearrayHitList extends JDialog {
     formatList.addActionListener(
         (new ActionListener() {
           public void actionPerformed(ActionEvent e) {
-	      layoutNames = session.getDatabaseManager().getDatabaseRetriever().getSourcePlateLayoutNames((int)formatList.getSelectedItem());
+	      layoutNames = dbm.getDatabaseRetriever().getSourcePlateLayoutNames((int)formatList.getSelectedItem());
 	      layout_names_list_model = new DefaultComboBoxModel<ComboItem>( layoutNames );
 	      layoutList.setModel(layout_names_list_model );
 	      layoutList.setSelectedIndex(0);
@@ -192,7 +200,7 @@ public class DialogRearrayHitList extends JDialog {
     c.anchor = GridBagConstraints.LINE_END;
     pane.add(label, c);
 
-    ComboItem[] plateTypes = session.getDatabaseManager().getDatabaseRetriever().getPlateTypes();
+    ComboItem[] plateTypes = dbm.getDatabaseRetriever().getPlateTypes();
 
     typeList = new JComboBox<ComboItem>(plateTypes);
      for(int i=0; i < typeList.getItemCount(); i++){
@@ -213,7 +221,7 @@ public class DialogRearrayHitList extends JDialog {
     c.anchor = GridBagConstraints.LINE_END;
     pane.add(label, c);
 
-    ComboItem[] layoutTypes = session.getDatabaseManager().getDatabaseRetriever().getSourcePlateLayoutNames((int)formatList.getSelectedItem());
+    ComboItem[] layoutTypes = dbm.getDatabaseRetriever().getSourcePlateLayoutNames((int)formatList.getSelectedItem());
     //LOGGER.info("layoutTypes: " + layoutTypes[0].toString());
     layoutList = new JComboBox<ComboItem>(layoutTypes);
     layoutList.setSelectedIndex(0);
@@ -246,7 +254,7 @@ public class DialogRearrayHitList extends JDialog {
           public void actionPerformed(ActionEvent e) {
 
      
-                session.getDatabaseManager().getDatabaseInserter()
+                dbm.getDatabaseInserter()
                 .insertRearrayedPlateSet(
                     nameField.getText(),
                     descriptionField.getText(),
@@ -287,7 +295,7 @@ public class DialogRearrayHitList extends JDialog {
   }
 
   private void refreshPlateNumberLabel() {
-      unknowns_per_dest_plate = session.getDatabaseManager().getDatabaseRetriever().getUnknownCountForLayoutID(((ComboItem)layoutList.getSelectedItem()).getKey());
+      unknowns_per_dest_plate = dbm.getDatabaseRetriever().getUnknownCountForLayoutID(((ComboItem)layoutList.getSelectedItem()).getKey());
       num_dest_plates = (int)Math.ceil(unknown_count/(double)unknowns_per_dest_plate);
       numberLabel.setText(String.valueOf(num_dest_plates));
   }

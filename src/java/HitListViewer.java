@@ -1,14 +1,14 @@
 package ln;
 
 import java.awt.BorderLayout;
+import java.awt.Desktop;
 import java.awt.GridBagConstraints;
 import java.awt.GridLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
-import java.util.logging.Logger;
-import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
+import java.util.logging.Logger;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -19,7 +19,10 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.table.*;
+import javax.swing.table.TableModel;
+
+import clojure.java.api.Clojure;
+import clojure.lang.IFn;
 
 
 public class HitListViewer extends JDialog implements java.awt.event.ActionListener {
@@ -33,7 +36,8 @@ public class HitListViewer extends JDialog implements java.awt.event.ActionListe
     //  static JComboBox<ComboItem> projectList;
     private  JComboBox<ComboItem> all_hit_lists_in_project;
   final DialogMainFrame dmf;
-    final Session session;
+    //    final Session session;
+    private DatabaseManager dbm;
     private int project_id;
     private int hit_list_id;
     
@@ -51,18 +55,27 @@ public class HitListViewer extends JDialog implements java.awt.event.ActionListe
     private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
   // final EntityManager em;
   private static final long serialVersionUID = 1L;
+        private IFn require = Clojure.var("clojure.core", "require");
+
     
-    
-    public HitListViewer(DialogMainFrame _dmf, int _hit_list_id) {
-    this.dmf = _dmf;
-    this.session = dmf.getSession();
-      this.setTitle("Hit List Viewer - " + session.getProjectSysName());
-    project_id = session.getProjectID();
-    owner = session.getUserName();
+    public HitListViewer(DatabseManager _dbm, int _hit_list_id) {
+	dbm = _dbm;
+	this.dmf = dbm.getDialogMainFrame();
+	// this.session = dmf.getSession();
+	require.invoke(Clojure.read("ln.session"));
+	IFn getProjectSysName = Clojure.var("ln.session", "get-project-sys-name");
+
+	this.setTitle("Hit List Viewer - " + (String)getProjectSysName.invoke());
+	IFn getProjectID = Clojure.var("ln.session", "get-project-id");
+
+	project_id = (int)getProjectID.invoke();
+      IFn getUser = Clojure.var("ln.session", "get-user");
+
+      owner = (String)getUser.invoke();
     hit_list_id = _hit_list_id;
     parent_pane = new JPanel(new BorderLayout());
 
-        hits_table = session.getDatabaseManager().getDatabaseRetriever().getSamplesForHitList(hit_list_id);
+        hits_table = dbm.getDatabaseRetriever().getSamplesForHitList(hit_list_id);
 
     hits_pane = new JPanel(new BorderLayout());
     hits_pane.setBorder(BorderFactory.createRaisedBevelBorder());
@@ -81,8 +94,8 @@ public class HitListViewer extends JDialog implements java.awt.event.ActionListe
       JPanel     hits_buttons = new JPanel(buttonLayout);
       
       //get all the hit lists in the current project       
-      current_project_id = session.getProjectID();
-      all_hit_lists_in_project = new JComboBox(session.getDatabaseManager().getDatabaseRetriever().getHitListsForProject(current_project_id));
+      current_project_id = (int)getProjectID.invoke();
+      all_hit_lists_in_project = new JComboBox(dbm.getDatabaseRetriever().getHitListsForProject(current_project_id));
     for(int i=0; i < all_hit_lists_in_project.getItemCount(); i++){
 	if(((ComboItem)all_hit_lists_in_project.getItemAt(i)).getKey() == current_project_id){
 		all_hit_lists_in_project.setSelectedIndex(i);
@@ -123,7 +136,7 @@ public class HitListViewer extends JDialog implements java.awt.event.ActionListe
     counts_paneBorder.setTitlePosition(javax.swing.border.TitledBorder.TOP);
     counts_pane.setBorder(counts_paneBorder);
 
-    counts_table = session.getDatabaseManager().getDatabaseRetriever().getHitCountPerPlateSet(session.getProjectID(), hit_list_id);
+    counts_table = dbm.getDatabaseRetriever().getHitCountPerPlateSet((int)getProjectID.invoke(), hit_list_id);
 
     counts_scroll_pane = new JScrollPane(counts_table);
     counts_table.setFillsViewportHeight(true);
@@ -164,11 +177,12 @@ public class HitListViewer extends JDialog implements java.awt.event.ActionListe
 
     if (e.getSource() == all_hit_lists_in_project) {
 	int selected_hit_list_id = ((ComboItem)all_hit_lists_in_project.getSelectedItem()).getKey();
-	JTable new_hits_table = session.getDatabaseManager().getDatabaseRetriever().getSamplesForHitList(selected_hit_list_id);
+	JTable new_hits_table = dbm.getDatabaseRetriever().getSamplesForHitList(selected_hit_list_id);
 	TableModel new_model = new_hits_table.getModel();
 	hits_table.setModel(new_model); 
-
-	JTable new_counts_table = session.getDatabaseManager().getDatabaseRetriever().getHitCountPerPlateSet(session.getProjectID(), selected_hit_list_id);
+	IFn getProjectID = Clojure.var("ln.session", "get-project-id");
+ 
+	JTable new_counts_table = dbm.getDatabaseRetriever().getHitCountPerPlateSet((int)getProjectID.invoke(), selected_hit_list_id);
 	TableModel new_model2 = new_counts_table.getModel();
 	counts_table.setModel(new_model2);
 
@@ -242,7 +256,7 @@ public class HitListViewer extends JDialog implements java.awt.event.ActionListe
     		 TableModel hit_list_model = hits_table.getModel();		 
 		 int hit_list_id =  Integer.valueOf(hits_table.getModel().getValueAt(0, 0).toString());
 		 String hit_list_sys_name =  new String("HL-" + hit_list_id);
-		 new DialogRearrayHitList(dmf, plate_set_id, plate_set_sys_name, source_plate_set_format, hit_list_id, hit_list_sys_name, sample_count);
+		 new DialogRearrayHitList(dbm, plate_set_id, plate_set_sys_name, source_plate_set_format, hit_list_id, hit_list_sys_name, sample_count);
 	
     }
 
