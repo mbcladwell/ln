@@ -23,6 +23,9 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
+import clojure.java.api.Clojure;
+import clojure.lang.IFn;
+
 /**
  * Called from: ScatterPlot genHits Button
  */
@@ -41,18 +44,23 @@ public class DialogNewHitList extends JDialog {
   static JButton cancelButton;
   final Instant instant = Instant.now();
     final DialogMainFrame dmf;
-  final Session session;
+    final DatabaseManager dbm;
+    //final Session session;
   final DateFormat df = new SimpleDateFormat("MM/dd/yyyy");
   private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
   // final EntityManager em;
     private int  assay_run_id;
     private double[][] selected_response;
     private int num_hits;
+    private IFn require = Clojure.var("clojure.core", "require");
 
-    public DialogNewHitList(Session _session, int  _assay_run_id, double[][] _selected_response, int _num_hits) {
-    this.session = _session;
-    this.dmf = session.getDialogMainFrame();
-    owner = session.getUserName();
+    public DialogNewHitList(DatabaseManager _dbm, int  _assay_run_id, double[][] _selected_response, int _num_hits) {
+    dbm = _dbm;
+    this.dmf = dbm.getDialogMainFrame();
+    require.invoke(Clojure.read("ln.session"));
+         IFn getUser = Clojure.var("ln.session", "get-user");
+
+    owner = (String)getUser.invoke();
     assay_run_id = _assay_run_id;
     selected_response = _selected_response;
     num_hits = _num_hits;
@@ -150,7 +158,7 @@ public class DialogNewHitList extends JDialog {
     okButton.addActionListener(
         (new ActionListener() {
           public void actionPerformed(ActionEvent e) {
-	      session.getDatabaseManager().getDatabaseInserter()
+	      dbm.getDatabaseInserter()
 		  .insertHitList( nameField.getText(),
 				  descriptionField.getText(),
 				  num_hits,

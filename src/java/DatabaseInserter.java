@@ -824,7 +824,7 @@ if(num_of_plate_ids*format_id!=table.size()-1){
 	int plate_num = dbm.getDatabaseRetriever().getNumberOfPlatesForPlateSetID(plate_set_id);
 	int format_id = dbm.getDatabaseRetriever().getFormatForPlateSetID(plate_set_id);
 	   
-		new DialogImportPlateSetAccessionIDs(dbm.getDialogMainFrame(), plate_set_sys_name, plate_set_id, format_id, plate_num);
+		new DialogImportPlateSetAccessionIDs(dbm, plate_set_sys_name, plate_set_id, format_id, plate_num);
 	
 	
     }

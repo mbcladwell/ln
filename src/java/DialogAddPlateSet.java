@@ -48,7 +48,7 @@ public class DialogAddPlateSet extends JDialog {
   final Instant instant = Instant.now();
     final DialogMainFrame dmf;
     final DatabaseManager dbm;
-    final Session session;
+    //    final Session session;
   final DateFormat df = new SimpleDateFormat("MM/dd/yyyy");
   private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
   // final EntityManager em;
@@ -231,7 +231,9 @@ public class DialogAddPlateSet extends JDialog {
 		    (int)getProjectID.invoke(),
 		    ((ComboItem)layoutList.getSelectedItem()).getKey(),
 							  true);
-		dbm.getDialogMainFrame().showPlateSetTable(session.getProjectSysName());
+		    IFn getProjectSysName = Clojure.var("ln.session", "get-project-sys-name");
+
+		    dbm.getDialogMainFrame().showPlateSetTable((String)getProjectSysName.invoke());
             dispose();
           }
         }));

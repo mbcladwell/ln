@@ -33,7 +33,7 @@ public class FilterPanel extends JPanel {
     private int entity_type;
     private int id;
     private JTextField textField;
-    private Session session;    
+    //    private Session session;    
 
   /**
    * @param id the project/plateset/plate etc id for fetching the main table

@@ -44,7 +44,7 @@ public class DialogMainFrame extends JFrame {
   public DialogMainFrame(DatabaseManager _dbm ) throws SQLException {
       // session = _s;
       dbm = _dbm;
-    require.invoke(Clojure.read("ln.session"));
+     require.invoke(Clojure.read("ln.session"));
        utils = new Utilities(this);
       this.setTitle("LIMS*Nucleus");
     this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -57,7 +57,7 @@ public class DialogMainFrame extends JFrame {
    
     cards = new JPanel(new CardLayout());
     card_layout = (CardLayout) cards.getLayout();
-    project_card = new ProjectPanel(this, dbm.getDatabaseRetriever().getDMFTableData(0, DialogMainFrame.PROJECT));
+    project_card = new ProjectPanel(dbm, dbm.getDatabaseRetriever().getDMFTableData(0, DialogMainFrame.PROJECT));
     cards.add(project_card, "ProjectPanel");
   
     
@@ -81,7 +81,7 @@ public class DialogMainFrame extends JFrame {
 
 
   public void showProjectTable() {
-    project_card = new ProjectPanel(this, dbm.getDatabaseRetriever().getDMFTableData(0, DialogMainFrame.PROJECT));
+    project_card = new ProjectPanel(dbm, dbm.getDatabaseRetriever().getDMFTableData(0, DialogMainFrame.PROJECT));
     cards.add(project_card, "ProjectPanel");
     card_layout.show(cards, "ProjectPanel");
   }
@@ -90,8 +90,8 @@ public class DialogMainFrame extends JFrame {
   public void showPlateSetTable(String _project_sys_name) {
       int project_id = Integer.parseInt(_project_sys_name.substring(4));
      
-      //  plate_set_card = new PlateSetPanel(this, dbm.getPlateSetTableData(_project_sys_name), _project_sys_name);
-      plate_set_card = new PlateSetPanel(this, dbm.getDatabaseRetriever().getDMFTableData(project_id, DialogMainFrame.PLATESET), _project_sys_name);
+      //  plate_set_card = new PlateSetPanel(dbm, dbm.getPlateSetTableData(_project_sys_name), _project_sys_name);
+      plate_set_card = new PlateSetPanel(dbm, dbm.getDatabaseRetriever().getDMFTableData(project_id, DialogMainFrame.PLATESET), _project_sys_name);
 
     cards.add(plate_set_card, "PlateSetPanel");
     card_layout.show(cards, "PlateSetPanel");
@@ -101,7 +101,7 @@ public class DialogMainFrame extends JFrame {
   public void showPlateTable(String _plate_set_sys_name) {
       int plate_set_id = Integer.parseInt(_plate_set_sys_name.substring(3));
       
-      plate_card = new PlatePanel(this, dbm.getDatabaseRetriever().getDMFTableData(plate_set_id, DialogMainFrame.PLATE));
+      plate_card = new PlatePanel(dbm, dbm.getDatabaseRetriever().getDMFTableData(plate_set_id, DialogMainFrame.PLATE));
     
     cards.add(plate_card, "PlatePanel");
     card_layout.show(cards, "PlatePanel");
@@ -111,7 +111,7 @@ public class DialogMainFrame extends JFrame {
   public void showWellTable(String _plate_sys_name) {
       int plate_id = Integer.parseInt(_plate_sys_name.substring(4));
       
-      well_card = new WellPanel(this, dbm.getDatabaseRetriever().getDMFTableData(plate_id, DialogMainFrame.WELL));
+      well_card = new WellPanel(dbm, dbm.getDatabaseRetriever().getDMFTableData(plate_id, DialogMainFrame.WELL));
     cards.add(well_card, "Well");
     card_layout.show(cards, "Well");
   }

@@ -58,7 +58,7 @@ public class HitListViewer extends JDialog implements java.awt.event.ActionListe
         private IFn require = Clojure.var("clojure.core", "require");
 
     
-    public HitListViewer(DatabseManager _dbm, int _hit_list_id) {
+    public HitListViewer(DatabaseManager _dbm, int _hit_list_id) {
 	dbm = _dbm;
 	this.dmf = dbm.getDialogMainFrame();
 	// this.session = dmf.getSession();

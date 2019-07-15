@@ -2,6 +2,7 @@ package ln;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Desktop;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -9,10 +10,11 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.logging.Logger;
-import java.net.*;
-import java.awt.Desktop;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -27,6 +29,9 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.event.DocumentEvent;
+
+import clojure.java.api.Clojure;
+import clojure.lang.IFn;
 
 public class DialogImportPlateSetAccessionIDs extends JDialog
     implements java.awt.event.ActionListener, javax.swing.event.DocumentListener {
@@ -64,12 +69,13 @@ public class DialogImportPlateSetAccessionIDs extends JDialog
   private JFileChooser fileChooser;
     private JCheckBox checkBox;
     private ArrayList<String[]>  accessions; 
-    private Session session;
+    //    private Session session;
+    private IFn require = Clojure.var("clojure.core", "require");
         
   private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
   public DialogImportPlateSetAccessionIDs(
-      DialogMainFrame _dmf,
+      DatabaseManager _dbm,
       String _plate_set_sys_name,
       int _plate_set_id,
       int _format_id,
@@ -78,12 +84,13 @@ public class DialogImportPlateSetAccessionIDs extends JDialog
     plate_set = new ComboItem(_plate_set_id, _plate_set_sys_name);
     format = new ComboItem(_format_id, String.valueOf(_format_id));
     plate_num = _plate_num;
+    require.invoke(Clojure.read("ln.session"));
     //    expected_rows = dbr.getNumberOfSamplesForPlateSetID(_plate_set_id);
     // Create and set up the window.
     // JFrame frame = new JFrame("Add Project");
-    this.dmf = _dmf;
-    this.session = dmf.getSession();
-    this.dbm = session.getDatabaseManager();
+    this.dbm = _dbm;
+    //  this.session = dmf.getSession();
+    // this.dbm = session.getDatabaseManager();
     this.dbr = dbm.getDatabaseRetriever();
     this.dbi = dbm.getDatabaseInserter();
     expected_rows = dbr.getNumberOfSamplesForPlateSetID(_plate_set_id);
@@ -239,7 +246,9 @@ public class DialogImportPlateSetAccessionIDs extends JDialog
     helpButton.addActionListener(
         (new ActionListener() {
           public void actionPerformed(ActionEvent e) {
-	      openWebpage(URI.create(session.getHelpURLPrefix() + "accesionids"));
+	          IFn getHelpURLPrefix = Clojure.var("ln.session", "get-help-url-prefix");
+
+		  openWebpage(URI.create((String)getHelpURLPrefix.invoke() + "accesionids"));
             
           }
         }));

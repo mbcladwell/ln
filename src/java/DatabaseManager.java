@@ -53,7 +53,6 @@ public class DatabaseManager {
     IFn getUserID = Clojure.var("ln.session", "get-user-id");
     IFn setUserGroup = Clojure.var("ln.session", "set-user-group");
     IFn setAuthenticated = Clojure.var("ln.session", "set-authenticated");
-    IFn setSessionID = Clojure.var("ln.session", "set-session-id");
     
    
       Long insertKey = 0L;
@@ -99,6 +98,7 @@ public class DatabaseManager {
 
         if (rsKey.next()) {
           insertKey = rsKey.getLong(1);
+	  IFn setSessionID = Clojure.var("ln.session", "set-session-id");
 	  setSessionID.invoke(insertKey.intValue());
 
           // LOGGER.info("rsKey: " + insertKey);
@@ -137,7 +137,8 @@ public class DatabaseManager {
       rs.next();
       results = rs.getInt("id");
       // LOGGER.info("projectID: " + results);
-      this.getSession().setProjectID(results);
+    IFn setProjectID = Clojure.var("ln.session", "set-project-id");
+      setProjectID.invoke(results);
 
       rs.close();
       st.close();
@@ -283,7 +284,7 @@ public class DatabaseManager {
       for (Iterator<String> it = plateFormatSet.iterator(); it.hasNext(); ) {
         format = it.next();
       }
-      new DialogGroupPlateSet(session, numberOfPlatesInPlateSets, format, plateSet);
+      new DialogGroupPlateSet(this, numberOfPlatesInPlateSets, format, plateSet);
     } else {
       JOptionPane.showMessageDialog(
           dmf,
@@ -322,7 +323,7 @@ public class DatabaseManager {
     }
     String format = new String();
     format = results[1][3];
-    new DialogGroupPlates(dmf, plateSet, format);
+    new DialogGroupPlates(this, plateSet, format);
   }
 
      /**
@@ -354,10 +355,10 @@ public class DatabaseManager {
 	    LOGGER.info("plate_set_id[0]: " + plate_set_id[0]);
 	    switch(format){
 	    case "96":
-			DialogReformatPlateSet drps = new DialogReformatPlateSet( session, (int)plate_set_id[0], plate_set_sys_name[0], descr, num_plates, num_samples, plate_type, format, plate_layout_name_id);
+			DialogReformatPlateSet drps = new DialogReformatPlateSet( this, (int)plate_set_id[0], plate_set_sys_name[0], descr, num_plates, num_samples, plate_type, format, plate_layout_name_id);
 		
 		    break;
-	    case "384":	 drps = new DialogReformatPlateSet( session, (int)plate_set_id[0], plate_set_sys_name[0], descr, num_plates, num_samples, plate_type, format, plate_layout_name_id);
+	    case "384":	 drps = new DialogReformatPlateSet( this, (int)plate_set_id[0], plate_set_sys_name[0], descr, num_plates, num_samples, plate_type, format, plate_layout_name_id);
 		
 		    break;
 	    case "1536":  JOptionPane.showMessageDialog(dmf,

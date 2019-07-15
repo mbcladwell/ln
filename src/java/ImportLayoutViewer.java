@@ -34,7 +34,7 @@ public class ImportLayoutViewer extends JDialog implements java.awt.event.Action
   static JButton okButton;
   static JButton cancelButton;
   final DialogMainFrame dmf;
-  final Session session;
+    // final Session session;
     private String owner;
   private JTable table;
   private JScrollPane scrollPane;

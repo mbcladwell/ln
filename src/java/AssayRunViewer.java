@@ -329,7 +329,7 @@ public class AssayRunViewer extends JDialog implements java.awt.event.ActionList
 		 int row = hit_lists_table.getSelectedRow();
 		 String hit_list_sys_name =  hit_lists_table.getModel().getValueAt(row, 0).toString();
 		 int  hit_list_id = Integer.parseInt(hit_list_sys_name.substring(3));
-		 new HitListViewer( dmf, hit_list_id);}
+		 new HitListViewer( dbm, hit_list_id);}
   else{
 	      JOptionPane.showMessageDialog(dmf, "Select a Hit List!");	      
 	    }
