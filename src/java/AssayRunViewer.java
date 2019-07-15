@@ -298,7 +298,7 @@ public class AssayRunViewer extends JDialog implements java.awt.event.ActionList
 	    int row = assay_runs_table.getSelectedRow();
 	    String assay_runs_sys_name =  assay_runs_table.getModel().getValueAt(row, 0).toString();
 	    int  assay_runs_id = Integer.parseInt(assay_runs_sys_name.substring(3));
-	    new ScatterPlot(dmf, assay_runs_id);
+	    new ScatterPlot(dbm, assay_runs_id);
 	}
 	else{
 	    JOptionPane.showMessageDialog(dmf, "Select an Assay Run!");	      

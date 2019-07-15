@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.logging.Logger;
 
 import javax.swing.JFileChooser;
-import javax.swing.JFileChooser.*;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;

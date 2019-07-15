@@ -11,12 +11,13 @@ import javax.swing.KeyStroke;
 
 public class ViewerMenu extends JMenu{
     DialogMainFrame dmf;
+    DatabaseManager dbm;
   // J/Table table;
   private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
-  public ViewerMenu(DialogMainFrame _dmf) {
-
-      this.dmf = _dmf;
+  public ViewerMenu(DatabaseManager _dbm) {
+      dbm = _dbm;
+      this.dmf = dbm.getDialogMainFrame();
     this.setText("Viewers");
     this.setMnemonic(KeyEvent.VK_V);
     this.getAccessibleContext().setAccessibleDescription("Viewers");
@@ -36,7 +37,7 @@ public class ViewerMenu extends JMenu{
     menuItem.addActionListener(
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
-	      AssayRunViewer arv = new AssayRunViewer(dmf);
+	      AssayRunViewer arv = new AssayRunViewer(dbm);
           }
         });
     this.add(menuItem);

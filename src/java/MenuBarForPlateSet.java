@@ -50,7 +50,7 @@ public class MenuBarForPlateSet extends JMenuBar {
     menuItem.addActionListener(
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
-            new DialogAddPlateSet(dmf);
+            new DialogAddPlateSet(dbm);
           }
         });
     menu.add(menuItem);
@@ -307,7 +307,7 @@ public class MenuBarForPlateSet extends JMenuBar {
           }
         });
     this.add(upbutton);
-    menu = new ViewerMenu(dmf);
+    menu = new ViewerMenu(dbm);
     this.add(menu);
    
     this.add(Box.createHorizontalGlue());

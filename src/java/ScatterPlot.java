@@ -34,6 +34,10 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
+import clojure.java.api.Clojure;
+import clojure.lang.IFn;
+
+
 public class ScatterPlot extends JFrame {
     private JButton genHitsBtn = new JButton("Generate hit list");
     private JButton close_button = new JButton("Close");
@@ -83,20 +87,22 @@ public class ScatterPlot extends JFrame {
     private JPanel panel;
     private JPanel panel2;
     private JPanel panel3;
-    private Session session;
-    
+    //    private Session session;
+        private IFn require = Clojure.var("clojure.core", "require");
+    private DatabaseManager dbm;
     private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
-    public ScatterPlot(DialogMainFrame _dmf, int _assay_run_id) {
+    public ScatterPlot(DatabaseManager _dbm, int _assay_run_id) {
 	super("Scatter Plot for AR-" + String.valueOf(_assay_run_id));
+	dbm = _dbm;
 	setSize(800, 600);
 	//setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	this.setLayout(new BorderLayout());
-	this.dmf = _dmf;
-	session = dmf.getSession();
+	this.dmf = dbm.getDialogMainFrame();
+	//session = dmf.getSession();
 	assay_run_id = _assay_run_id;
 	//need the assay run id
-	table = session.getDatabaseManager().getDatabaseRetriever().getDataForScatterPlot(assay_run_id);
+	table = dbm.getDatabaseRetriever().getDataForScatterPlot(assay_run_id);
 	//LOGGER.info("row count: " + table.getRowCount());	    
 
 	raw_response = new ResponseWrangler(table, ResponseWrangler.RAW);
@@ -190,7 +196,7 @@ public class ScatterPlot extends JFrame {
     panel2.add(genHitsBtn, c);
     genHitsBtn.addActionListener(new ActionListener() { 
         public void actionPerformed(ActionEvent evt) {
-            new DialogNewHitList(session, assay_run_id, sortedResponse, num_hits);
+            new DialogNewHitList(dbm, assay_run_id, sortedResponse, num_hits);
         }
     });
 

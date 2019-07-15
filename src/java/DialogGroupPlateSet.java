@@ -1,19 +1,13 @@
 package ln;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.logging.Logger;
 
@@ -43,7 +37,8 @@ public class DialogGroupPlateSet extends JDialog {
   static JButton cancelButton;
   final Instant instant = Instant.now();
   final DialogMainFrame dmf;
-  final Session session;
+    final DatabaseManager dbm;
+    //final Session session;
   final DateFormat df = new SimpleDateFormat("yyyy/MM/dd");
 
   private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
@@ -55,12 +50,12 @@ public class DialogGroupPlateSet extends JDialog {
    * @param _plate_set_num_plates plate set id and the number of plates in the plate set
    * @param _format number of wells per plate
    */
-  public DialogGroupPlateSet(
-      Session _session,
+    public DialogGroupPlateSet(DatabaseManager _dbm,
       HashMap<String, String> _plate_set_num_plates,
       String _format,
       ArrayList<String> _plate_sys_names) {
-    this.session = _session;
+      //this.session = _session;
+      dbm = _dbm;
     this.dmf = session.getDialogMainFrame();
     
     owner = session.getUserName();
@@ -188,7 +183,7 @@ public class DialogGroupPlateSet extends JDialog {
     c.anchor = GridBagConstraints.LINE_END;
     pane.add(label, c);
 
-    ComboItem[] plateTypes = session.getDatabaseRetriever().getPlateTypes();
+    ComboItem[] plateTypes = dbm.getDatabaseRetriever().getPlateTypes();
 
     typeList = new JComboBox<ComboItem>(plateTypes);
     typeList.setSelectedIndex(0);
@@ -207,7 +202,7 @@ public class DialogGroupPlateSet extends JDialog {
     c.anchor = GridBagConstraints.LINE_END;
     pane.add(label, c);
     LOGGER.info("format: " + format);
-    ComboItem[] plateLayouts = session.getDatabaseRetriever().getSourcePlateLayoutNames(Integer.parseInt(format));
+    ComboItem[] plateLayouts = dbm.getDatabaseRetriever().getSourcePlateLayoutNames(Integer.parseInt(format));
     LOGGER.info("plateLayout: " + plateLayouts);
 
     layoutList = new JComboBox<ComboItem>(plateLayouts);
@@ -232,8 +227,9 @@ public class DialogGroupPlateSet extends JDialog {
     okButton.addActionListener(
         (new ActionListener() {
           public void actionPerformed(ActionEvent e) {
+	      IFn getProjectID = Clojure.var("ln.session", "get-project-id");
 
-            session
+            dbm
                 .getDatabaseInserter()
                 .groupPlateSetsIntoNewPlateSet(
                     descriptionField.getText(),
@@ -241,7 +237,7 @@ public class DialogGroupPlateSet extends JDialog {
                     plate_set_num_plates,
                     format,
                     typeList.getSelectedItem().toString(),
-                    dmf.getSession().getProjectID(),             
+                    (int)getProjectID.invoke(),             
 		    ((ComboItem)layoutList.getSelectedItem()).getKey(),
 		    plate_sys_names);
             dispose();

@@ -25,6 +25,9 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
+import clojure.java.api.Clojure;
+import clojure.lang.IFn;
+
 public class DialogAddPlateSet extends JDialog {
   static JButton button;
   static JLabel label;
@@ -48,11 +51,15 @@ public class DialogAddPlateSet extends JDialog {
   final DateFormat df = new SimpleDateFormat("MM/dd/yyyy");
   private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
   // final EntityManager em;
+  private IFn require = Clojure.var("clojure.core", "require");
 
-  public DialogAddPlateSet(DialogMainFrame _dmf) {
-    this.dmf = _dmf;
-    this.session = dmf.getSession();
-    owner = session.getUserName();
+  public DialogAddPlateSet(DatabaseManager _dbm) {
+      dbm = _dbm;
+      this.dmf = dbm.getDialogMainFrame();
+    require.invoke(Clojure.read("ln.session"));
+     IFn getUser = Clojure.var("ln.session", "get-user");
+      //this.session = dmf.getSession();
+     owner = (String)getUser.invoke();
     // Create and set up the window.
     // JFrame frame = new JFrame("Add Project");
     // this.em = em;
@@ -150,7 +157,7 @@ public class DialogAddPlateSet extends JDialog {
  formatList.addActionListener(
         (new ActionListener() {
           public void actionPerformed(ActionEvent e) {
-	      layoutNames = session.getDatabaseRetriever().getPlateLayoutNames((int)formatList.getSelectedItem());
+	      layoutNames = dbm.getDatabaseRetriever().getPlateLayoutNames((int)formatList.getSelectedItem());
 	      layout_names_list_model = new DefaultComboBoxModel<ComboItem>( layoutNames );
 	      layoutList.setModel(layout_names_list_model );
 	      layoutList.setSelectedIndex(-1);
@@ -166,7 +173,7 @@ public class DialogAddPlateSet extends JDialog {
     c.anchor = GridBagConstraints.LINE_END;
     pane.add(label, c);
 
-    ComboItem[] plateTypes = session.getDatabaseRetriever().getPlateTypes();
+    ComboItem[] plateTypes = dbm.getDatabaseRetriever().getPlateTypes();
 
     typeList = new JComboBox<ComboItem>(plateTypes);
     typeList.setSelectedIndex(0);
@@ -183,7 +190,7 @@ public class DialogAddPlateSet extends JDialog {
     c.anchor = GridBagConstraints.LINE_END;
     pane.add(label, c);
 
-    ComboItem[] layoutTypes = session.getDatabaseRetriever().getPlateLayoutNames(96);
+    ComboItem[] layoutTypes = dbm.getDatabaseRetriever().getPlateLayoutNames(96);
     LOGGER.info("layoutTypes: " + layoutTypes[0].toString());
     layoutList = new JComboBox<ComboItem>(layoutTypes);
     layoutList.setSelectedIndex(0);
@@ -211,17 +218,19 @@ public class DialogAddPlateSet extends JDialog {
     okButton.addActionListener(
         (new ActionListener() {
           public void actionPerformed(ActionEvent e) {
-                session
+	        IFn getProjectID = Clojure.var("ln.session", "get-project-id");
+  
+                dbm
 		    .getDatabaseInserter().insertPlateSet(
                     nameField.getText(),
                     descriptionField.getText(),
                     Integer.valueOf(numberField.getText()),
                     Integer.valueOf(formatList.getSelectedItem().toString()),
                     ((ComboItem)typeList.getSelectedItem()).getKey(),
-		    session.getProjectID(),
+		    (int)getProjectID.invoke(),
 		    ((ComboItem)layoutList.getSelectedItem()).getKey(),
 							  true);
-		session.getDialogMainFrame().showPlateSetTable(session.getProjectSysName());
+		dbm.getDialogMainFrame().showPlateSetTable(session.getProjectSysName());
             dispose();
           }
         }));

@@ -9,7 +9,9 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
-import java.net.*;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.logging.Logger;
 
 import javax.swing.BorderFactory;
@@ -22,11 +24,13 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
-import javax.swing.event.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
+
+import clojure.java.api.Clojure;
+import clojure.lang.IFn;
 
 /**
  * parentPane BorderLayout holds other panes
@@ -47,7 +51,7 @@ public class LayoutViewer extends JDialog implements java.awt.event.ActionListen
   static JButton okButton;
   static JButton cancelButton;
   final DialogMainFrame dmf;
-  final Session session;
+    // final Session session;
     private String owner;
   private JTable table;
   private JTable sourceTable;
@@ -68,15 +72,20 @@ public class LayoutViewer extends JDialog implements java.awt.event.ActionListen
   private MyModel tableModel;
     private ComboItem [] layoutNames;
     private Object[][] gridData;
-    
+    private DatabaseManager dbm; 
     // private DefaultComboBoxModel<ComboItem> layout_names_list_model;
+    private IFn require = Clojure.var("clojure.core", "require");
 
 
     
-  public LayoutViewer(DialogMainFrame _dmf) {
-    this.dmf = _dmf;
-    this.session = dmf.getSession();
-    owner = session.getUserName();
+  public LayoutViewer(DatabaseManager _dbm) {
+      dbm = _dbm;
+      this.dmf = dbm.getDialogMainFrame();
+      // this.session = dmf.getSession();
+    require.invoke(Clojure.read("ln.session"));
+       IFn getUser = Clojure.var("ln.session", "get-user");
+  
+       owner = (String)getUser.invoke();
     //layoutNames = session.getDatabaseManager().getDatabaseRetriever().getPlateLayoutNames(96);
     //    layout_names_list_model = new DefaultComboBoxModel<ComboItem>( layoutNames );
     
@@ -150,7 +159,7 @@ public class LayoutViewer extends JDialog implements java.awt.event.ActionListen
    javax.swing.border.TitledBorder sourceLayoutBorder = BorderFactory.createTitledBorder("Source:");
     sourceLayoutBorder.setTitlePosition(javax.swing.border.TitledBorder.TOP);
     pane3.setBorder(sourceLayoutBorder);
-    sourceTable = session.getDatabaseManager().getDatabaseRetriever().getSourceForLayout(96);
+    sourceTable = dbm.getDatabaseRetriever().getSourceForLayout(96);
     sourceTable.getSelectionModel().addListSelectionListener(						     
 	  new ListSelectionListener() {
 	      public void valueChanged(ListSelectionEvent e) {
@@ -161,7 +170,7 @@ public class LayoutViewer extends JDialog implements java.awt.event.ActionListen
 			
 			int source_layout_id = Integer.parseInt(( (String)sourceTable.getModel().getValueAt(row,0)).substring(4));
 			//LOGGER.info("source_layout_id: " + source_layout_id);
-			destTable.setModel(session.getDatabaseManager()
+			destTable.setModel(dbm
 					   .getDatabaseRetriever()
 					   .getDestForLayout(source_layout_id).getModel());
 			refreshLayoutTable(source_layout_id);
@@ -185,7 +194,7 @@ public class LayoutViewer extends JDialog implements java.awt.event.ActionListen
 
     destLayoutBorder.setTitlePosition(javax.swing.border.TitledBorder.TOP);
     pane4.setBorder(destLayoutBorder);
-    destTable = session.getDatabaseManager().getDatabaseRetriever().getDestForLayout(1);
+    destTable = dbm.getDatabaseRetriever().getDestForLayout(1);
     destTable.getSelectionModel().addListSelectionListener(						     
 	  new ListSelectionListener() {
 	      public void valueChanged(ListSelectionEvent e) {
@@ -237,7 +246,7 @@ public class LayoutViewer extends JDialog implements java.awt.event.ActionListen
 
     if (e.getSource() == formatList) {
       
-	sourceTable.setModel(session.getDatabaseManager()
+	sourceTable.setModel(dbm
 			     .getDatabaseRetriever()
 			     .getSourceForLayout((int)formatList.getSelectedItem()).getModel());
       
@@ -245,7 +254,9 @@ public class LayoutViewer extends JDialog implements java.awt.event.ActionListen
     }
 
     if (e.getSource() == helpButton) {
-	openWebpage(URI.create(session.getHelpURLPrefix() + "layouts"));
+	  IFn getHelpURLPrefix = Clojure.var("ln.session", "get-help-url-prefix");
+  
+	openWebpage(URI.create((String)getHelpURLPrefix.invoke() + "layouts"));
     }
     }
     
@@ -254,13 +265,13 @@ public class LayoutViewer extends JDialog implements java.awt.event.ActionListen
 	CustomTable  table2 = null;
 	switch(displayList.getSelectedIndex()){
 	case 0:
-	table2 = session.getDatabaseManager().getDatabaseRetriever().getPlateLayout(_plate_layout_id);
+	table2 = dbm.getDatabaseRetriever().getPlateLayout(_plate_layout_id);
 	    break;
 	case 1:
-	table2 = session.getDatabaseManager().getDatabaseRetriever().getSampleReplicatesLayout(_plate_layout_id);
+	table2 = dbm.getDatabaseRetriever().getSampleReplicatesLayout(_plate_layout_id);
 	    break;
 	case 2:
-	table2 = session.getDatabaseManager().getDatabaseRetriever().getTargetReplicatesLayout(_plate_layout_id);
+	table2 = dbm.getDatabaseRetriever().getTargetReplicatesLayout(_plate_layout_id);
 	    break;
 
 	    
