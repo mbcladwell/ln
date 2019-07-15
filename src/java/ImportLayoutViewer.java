@@ -22,6 +22,9 @@ import javax.swing.SwingConstants;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 
+import clojure.java.api.Clojure;
+import clojure.lang.IFn;
+
 public class ImportLayoutViewer extends JDialog implements java.awt.event.ActionListener {
   static JButton button;
   static JLabel label;
@@ -43,21 +46,23 @@ public class ImportLayoutViewer extends JDialog implements java.awt.event.Action
   private MyModel tableModel;
     private ComboItem [] layoutNames;
     private Object[][] gridData;
+    private IFn require = Clojure.var("clojure.core", "require");
     
     private DefaultComboBoxModel<ComboItem> layout_names_list_model;
-
-
     
-    public ImportLayoutViewer(DialogMainFrame _dmf, Object[][] _gridData) {
-    this.dmf = _dmf;
+    public ImportLayoutViewer(DatabaseManager dbm, Object[][] _gridData) {
+	dbm= _dbm;
+	this.dmf = dbm.getDialogMainFrame();
     this.gridData = dmf.getUtilities().convertTableToPlate( _gridData, "type");
-    this.session = dmf.getSession();
+    //this.session = dmf.getSession();
+    require.invoke(Clojure.read("ln.session"));
+     IFn getUser = Clojure.var("ln.session", "get-user");
     
-    owner = session.getUserName();
+     owner = (String)getUser.invoke();
     // Create and set up the window.
     // JFrame frame = new JFrame("Add Project");
     // this.em = em;
-    layoutNames = session.getDatabaseManager().getDatabaseRetriever().getPlateLayoutNames(96);
+    layoutNames = dbm.getDatabaseRetriever().getPlateLayoutNames(96);
     layout_names_list_model = new DefaultComboBoxModel<ComboItem>( layoutNames );
     
     JPanel parentPane = new JPanel(new BorderLayout());
@@ -159,7 +164,7 @@ public class ImportLayoutViewer extends JDialog implements java.awt.event.Action
     public void actionPerformed(ActionEvent e) {
 
     if (e.getSource() == formatList) {
-       layoutNames = session.getDatabaseManager().getDatabaseRetriever().getPlateLayoutNames((int)formatList.getSelectedItem());
+       layoutNames = dbm.getDatabaseRetriever().getPlateLayoutNames((int)formatList.getSelectedItem());
        layout_names_list_model = new DefaultComboBoxModel<ComboItem>( layoutNames );
        layoutList.setModel(layout_names_list_model );
        layoutList.setSelectedIndex(-1);

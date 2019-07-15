@@ -1,14 +1,28 @@
 package ln;
 
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.Date;
-import java.util.logging.*;
-import javax.swing.*;
-import javax.swing.JComponent.*;
+import java.util.logging.Logger;
+
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 
 public class DialogAddUser extends JDialog {
   static JButton button;
@@ -30,10 +44,11 @@ public class DialogAddUser extends JDialog {
   private static final long serialVersionUID = 1L;
   private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
-  public DialogAddUser(DialogMainFrame _dmf) {
-    dmf = _dmf;
-    session = dmf.getSession();
-    dbm = session.getDatabaseManager();
+  public DialogAddUser(DatabaseManager _dbm) {
+      dbm = _dbm;
+      dmf = dbm.getDialogMainFrame();
+      // session = dmf.getSession();
+      //dbm = session.getDatabaseManager();
 
     JPanel pane = new JPanel(new GridBagLayout());
     pane.setBorder(BorderFactory.createRaisedBevelBorder());
@@ -98,7 +113,7 @@ public class DialogAddUser extends JDialog {
     c.gridheight = 1;
     pane.add(passwordField, c);
 
-    ComboItem[] groups = session.getDatabaseRetriever().getUserGroups();
+    ComboItem[] groups = dbm.getDatabaseRetriever().getUserGroups();
 
     groupList = new JComboBox<ComboItem>(groups);
     groupList.setSelectedIndex(0);

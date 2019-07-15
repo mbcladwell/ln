@@ -1,23 +1,34 @@
 package ln;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.io.*;
-import java.util.logging.*;
-import javax.swing.*;
-import javax.swing.JComponent.*;
+import java.awt.Desktop;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.io.File;
+import java.io.IOException;
+import java.util.logging.Logger;
+
+import javax.swing.Box;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.KeyStroke;
 
 public class MenuBarForWell extends JMenuBar {
 
   private static final long serialVersionUID = 1L;
   DialogMainFrame dmf;
+    DatabaseManager dbm;
   CustomTable well_table;
-    Session session;
+    //    Session session;
   private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
-  public MenuBarForWell(Session _s, CustomTable _table) {
-      session = _s;
-      dmf = session.getDialogMainFrame();
+  public MenuBarForWell(DatabaseManager _dbm, CustomTable _table) {
+      dbm = _dbm;
+      //session = _s;
+      //dmf = session.getDialogMainFrame();
     well_table = _table;
     // Create the menu bar.
     // JMenuBar menuBar = new JMenuBar();
@@ -36,7 +47,7 @@ public class MenuBarForWell extends JMenuBar {
     menuItem.addActionListener(
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
-            new DialogAddPlateSet(dmf);
+            new DialogAddPlateSet(dbm);
           }
         });
     menu.add(menuItem);
@@ -87,12 +98,12 @@ public class MenuBarForWell extends JMenuBar {
 
     this.add(upbutton);
 
-      menu = new ViewerMenu(dmf);
+      menu = new ViewerMenu(dbm);
     this.add(menu);
 
     this.add(Box.createHorizontalGlue());
 
-          menu = new HelpMenu(session);
+          menu = new HelpMenu();
     this.add(menu);
   
    }

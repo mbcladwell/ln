@@ -3,6 +3,7 @@ package ln;
 import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Toolkit;
 import java.awt.event.ActionListener;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -19,6 +20,9 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+
+import clojure.java.api.Clojure;
+import clojure.lang.IFn;
 
 public class DialogGroupPlateSet extends JDialog {
   static JButton button;
@@ -40,6 +44,7 @@ public class DialogGroupPlateSet extends JDialog {
     final DatabaseManager dbm;
     //final Session session;
   final DateFormat df = new SimpleDateFormat("yyyy/MM/dd");
+    private IFn require = Clojure.var("clojure.core", "require");
 
   private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
   // final EntityManager em;
@@ -56,9 +61,11 @@ public class DialogGroupPlateSet extends JDialog {
       ArrayList<String> _plate_sys_names) {
       //this.session = _session;
       dbm = _dbm;
-    this.dmf = session.getDialogMainFrame();
+    this.dmf = dbm.getDialogMainFrame();
+    require.invoke(Clojure.read("ln.session"));
+     IFn getUser = Clojure.var("ln.session", "get-user");
     
-    owner = session.getUserName();
+     owner = (String)getUser.invoke();
     HashMap<String, String> plate_set_num_plates = _plate_set_num_plates;
     String format = _format;
     String plateSetsAndNumbers = new String("");

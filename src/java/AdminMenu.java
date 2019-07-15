@@ -12,6 +12,9 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
+import clojure.java.api.Clojure;
+import clojure.lang.IFn;
+
 
 public class AdminMenu extends JMenu {
 
@@ -21,15 +24,18 @@ public class AdminMenu extends JMenu {
     private ArrayList<String[]> imported_layout;;    
     private JFileChooser fileChooser;
     private JMenu projectMenu;
-    private Session session;
+    //    private Session session;
+    private DatabaseManager dbm;
+    private IFn require = Clojure.var("clojure.core", "require");
     
     private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
-  public AdminMenu(DialogMainFrame _dmf, CustomTable _project_table) {
-
-      dmf = _dmf;
+  public AdminMenu(DatabaseManager _dbm, CustomTable _project_table) {
+      dbm = _dbm;
+      dmf = dbm.getDialogMainFrame();
     project_table = _project_table;
-    session = dmf.getSession();
+    //session = dmf.getSession();
+    require.invoke(Clojure.read("ln.session"));
     
     this.setText("Admin");
     this.setMnemonic(KeyEvent.VK_A);
@@ -39,7 +45,7 @@ public class AdminMenu extends JMenu {
     menuItem.addActionListener(
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
-	      new DialogAddUser(dmf);           
+	      new DialogAddUser(dbm);           
           }
         });
     this.add(menuItem);
@@ -52,7 +58,7 @@ public class AdminMenu extends JMenu {
     menuItem.addActionListener(
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
-	      new DialogAddProject(dmf);
+	      new DialogAddProject(dbm);
    
           }
         });
@@ -72,8 +78,10 @@ public class AdminMenu extends JMenu {
 		  String name = project_table.getValueAt(rowIndex, 1).toString();
 		  String owner = project_table.getValueAt(rowIndex, 2).toString();
 		  String description = project_table.getValueAt(rowIndex, 3).toString();
-		  if (owner.equals(dmf.getSession().getUserName())) {
-		      new DialogEditProject(dmf, projectid, name, description);
+		      IFn getUser = Clojure.var("ln.session", "get-user");
+ 
+		      if (owner.equals((String)getUser.invoke())) {
+		      new DialogEditProject(dbm, projectid, name, description);
 	      } else {
                 JOptionPane.showMessageDialog(
                     dmf,
@@ -100,12 +108,14 @@ public class AdminMenu extends JMenu {
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
 	      try{
+		      IFn getUser = Clojure.var("ln.session", "get-user");
+ 
 		  int rowIndex = project_table.getSelectedRow();
 		  String projectid = project_table.getValueAt(rowIndex, 0).toString();
 		  String name = project_table.getValueAt(rowIndex, 1).toString();
 		  String owner = project_table.getValueAt(rowIndex, 2).toString();
 		  String description = project_table.getValueAt(rowIndex, 3).toString();
-		  if (owner.equals(dmf.getSession().getUserName())) {
+		  if (owner.equals((String)getUser.invoke())) {
 		      int n =  JOptionPane.showConfirmDialog(dmf,
 							     "Permanently delete " + projectid + " and all its\n"
 							     + "components? This is a cascading delete\n"
@@ -114,7 +124,7 @@ public class AdminMenu extends JMenu {
 							     JOptionPane.YES_NO_OPTION);
 		      if(n == JOptionPane.YES_OPTION){
 			  int prj_id = Integer.parseInt(projectid.substring(4));
-			  session.getDatabaseInserter().deleteProject(prj_id);
+			  dbm.getDatabaseInserter().deleteProject(prj_id);
 			  
 		      }
 		    
@@ -160,7 +170,7 @@ public class AdminMenu extends JMenu {
 							 "File format Error",
 							 JOptionPane.ERROR_MESSAGE);
 		       }
-		       new DialogImportLayoutViewer(dmf, imported_layout);
+		       new DialogImportLayoutViewer(dbm, imported_layout);
 		 
 		   } else {
 		       LOGGER.info("Open command cancelled by user.\n");

@@ -1,14 +1,15 @@
 package ln;
 
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.Toolkit;
-import java.awt.event.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
@@ -19,18 +20,19 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JOptionPane;
-
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
-import javax.swing.event.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
+
+import clojure.java.api.Clojure;
+import clojure.lang.IFn;
 /**
  * parentPane BorderLayout holds other panes
  * pane2 GridBagLayout holds dropdowns
@@ -46,7 +48,7 @@ public class DialogImportLayoutViewer extends JDialog implements java.awt.event.
   static JLabel label;
 
     final DialogMainFrame dmf;
-  final Session session;
+    // final Session session;
     private String owner;
   private JTable table;
   private JTable sourceTable;
@@ -74,18 +76,23 @@ public class DialogImportLayoutViewer extends JDialog implements java.awt.event.
     private int num_controls;
     private int num_unknowns;
     private int num_edge;
-    
+    private IFn require = Clojure.var("clojure.core", "require");
+    private DatabaseManager dbm; 
     
     // private DefaultComboBoxModel<ComboItem> layout_names_list_model;
 
 
     
-    public DialogImportLayoutViewer(DialogMainFrame _dmf, ArrayList<String[]> _data) {
-    this.dmf = _dmf;
-    this.session = dmf.getSession();
-    owner = session.getUserName();
+    public DialogImportLayoutViewer(DatabaseManager _dbm, ArrayList<String[]> _data) {
+	dbm = _dbm;
+	this.dmf = dbm.getDialogMainFrame();
+	//   this.session = dmf.getSession();
+ require.invoke(Clojure.read("ln.session"));
+    IFn getUser = Clojure.var("ln.session", "get-user");
+    
+    owner = (String)getUser.invoke();
 
-    	ArrayList<String[]> data = _data;
+ ArrayList<String[]> data = _data;
 	Object[][] temp_data = dmf.getUtilities().getObjectArrayForArrayList(data);
 	Object[][] grid_data = dmf.getUtilities().getPlateLayoutGrid(temp_data);
 
@@ -227,7 +234,7 @@ public class DialogImportLayoutViewer extends JDialog implements java.awt.event.
         (new ActionListener() {
 		 public void actionPerformed(ActionEvent e) {
 		//temp_data is Object[][] of 2 columns, well, type, both integers
-		     session.getDatabaseInserter().importPlateLayout(temp_data, nameField.getText(), descriptionField.getText(), control_location.getText(),  Integer.parseInt(num_controls_label.getText()), Integer.parseInt(num_unk_label.getText()), format, num_edge);
+		     dbm.getDatabaseInserter().importPlateLayout(temp_data, nameField.getText(), descriptionField.getText(), control_location.getText(),  Integer.parseInt(num_controls_label.getText()), Integer.parseInt(num_unk_label.getText()), format, num_edge);
             dispose();
           }
         }));

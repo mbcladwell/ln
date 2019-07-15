@@ -21,7 +21,6 @@ import clojure.lang.IFn;
 
 
 
-
 public class MenuBarForProject extends JMenuBar {
 
   DialogMainFrame dmf;
@@ -107,13 +106,13 @@ public class MenuBarForProject extends JMenuBar {
         });
     this.add(downbutton);
 
-    menu = new ViewerMenu(dmf);
+    menu = new ViewerMenu(dbm);
     this.add(menu);
 
     IFn getUserGroup = Clojure.var("ln.session", "get-user-group");
     
     if(getUserGroup.invoke().equals("administrator")){
-    menu = new AdminMenu(dmf, project_table);
+    menu = new AdminMenu(dbm, project_table);
      this.add(menu);
     }
 

@@ -2,6 +2,7 @@ package ln;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Desktop;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -11,13 +12,11 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.logging.Logger;
-import java.awt.Dimension;
-import java.awt.Rectangle;
-import java.net.*;
-import java.awt.Desktop;
 
-import javax.swing.JOptionPane;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -26,10 +25,14 @@ import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.event.DocumentEvent;
+
+import clojure.java.api.Clojure;
+import clojure.lang.IFn;
 
 public class DialogAddPlateSetData extends JDialog
     implements java.awt.event.ActionListener, javax.swing.event.DocumentListener {
@@ -64,12 +67,13 @@ public class DialogAddPlateSetData extends JDialog
     private ComboItem plate_layout;
   private JFileChooser fileChooser;
     private JCheckBox checkBox;
-    private Session session;
+    //    private Session session;
+    private IFn require = Clojure.var("clojure.core", "require");
     
   private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
   public DialogAddPlateSetData(
-      DialogMainFrame _dmf,
+      DatabaseManager _dbm,
       String _plate_set_sys_name,
       int _plate_set_id,
       int _format_id,
@@ -78,13 +82,14 @@ public class DialogAddPlateSetData extends JDialog
     plate_set = new ComboItem(_plate_set_id, _plate_set_sys_name);
     format = new ComboItem(_format_id, String.valueOf(_format_id));
     plate_num = _plate_num;
+    require.invoke(Clojure.read("ln.session"));
     
-   
+    dbm = _dbm;
     // Create and set up the window.
     // JFrame frame = new JFrame("Add Project");
-    this.dmf = _dmf;
-    session = dmf.getSession();
-    this.dbm = session.getDatabaseManager();
+    this.dmf = dbm.getDialogMainFrame();
+    //session = dmf.getSession();
+    //this.dbm = session.getDatabaseManager();
     this.dbr = dbm.getDatabaseRetriever();
     this.dbi = dbm.getDatabaseInserter();
 
@@ -356,7 +361,9 @@ public class DialogAddPlateSetData extends JDialog
     helpButton.addActionListener(
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
-	      openWebpage(URI.create(dmf.getSession().getHelpURLPrefix() + "importassaydata"));
+	          IFn getHelpURLPrefix = Clojure.var("ln.session", "get-help-url-prefix");
+
+		  openWebpage(URI.create((String)getHelpURLPrefix.invoke() + "importassaydata"));
           }
         });
     helpButton.setSize(10, 10);

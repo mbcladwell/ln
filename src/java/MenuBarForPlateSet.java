@@ -128,7 +128,7 @@ public class MenuBarForPlateSet extends JMenuBar {
 		int plate_num = Integer.parseInt((String)results[1][3]);
 		
 		new DialogAddPlateSetData(
-					  dmf, plate_set_sys_name, plate_set_id, format_id, plate_num);}
+					  dbm, plate_set_sys_name, plate_set_id, format_id, plate_num);}
 	    else{
 	      JOptionPane.showMessageDialog(dmf, "Select a Plate Set to populate with data!");	      
 	    }

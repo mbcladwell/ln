@@ -1,14 +1,30 @@
 package ln;
 
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.Date;
-import java.util.logging.*;
-import javax.swing.*;
-import javax.swing.JComponent.*;
+import java.util.logging.Logger;
+
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
+
+import clojure.java.api.Clojure;
+import clojure.lang.IFn;
 
 public class DialogEditProject extends JDialog {
   static JButton button;
@@ -22,18 +38,22 @@ public class DialogEditProject extends JDialog {
   static String projectID;
   final Instant instant = Instant.now();
   static DialogMainFrame dmf;
+ 
   private static Session session;
   private static DatabaseManager dbm;
   final DateFormat df = new SimpleDateFormat("MM/dd/yyyy");
   private static final long serialVersionUID = 1L;
   private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+    private IFn require = Clojure.var("clojure.core", "require");
 
   public DialogEditProject(
-      DialogMainFrame _dmf, String _projectid, String _name, String _description) {
-    dmf = _dmf;
-    session = dmf.getSession();
-    dbm = session.getDatabaseManager();
+      DatabaseManager _dbm, String _projectid, String _name, String _description) {
+      dbm = _dbm;
+      dmf = dbm.getDialogMainFrame();
+      // session = dmf.getSession();
+      //dbm = session.getDatabaseManager();
     projectID = _projectid;
+    require.invoke(Clojure.read("ln.session"));
 
     JPanel pane = new JPanel(new GridBagLayout());
     pane.setBorder(BorderFactory.createRaisedBevelBorder());
@@ -76,7 +96,9 @@ public class DialogEditProject extends JDialog {
     c.anchor = GridBagConstraints.LINE_START;
     pane.add(label, c);
 
-    label = new JLabel(session.getUserName());
+        IFn getUser = Clojure.var("ln.session", "get-user");
+ 
+	label = new JLabel((String)getUser.invoke());
     c.gridx = 1;
     c.gridy = 1;
     c.gridheight = 1;

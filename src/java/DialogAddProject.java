@@ -1,14 +1,30 @@
 package ln;
 
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.Date;
-import java.util.logging.*;
-import javax.swing.*;
-import javax.swing.JComponent.*;
+import java.util.logging.Logger;
+
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
+
+import clojure.java.api.Clojure;
+import clojure.lang.IFn;
 
 public class DialogAddProject extends JDialog {
   static JButton button;
@@ -21,16 +37,19 @@ public class DialogAddProject extends JDialog {
   static JButton cancelButton;
   final Instant instant = Instant.now();
   static DialogMainFrame dmf;
-  private static Session session;
+    //private static Session session;
   private static DatabaseManager dbm;
   final DateFormat df = new SimpleDateFormat("MM/dd/yyyy");
   private static final long serialVersionUID = 1L;
   private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+    private IFn require = Clojure.var("clojure.core", "require");
 
-  public DialogAddProject(DialogMainFrame _dmf) {
-    dmf = _dmf;
-    session = dmf.getSession();
-    dbm = session.getDatabaseManager();
+  public DialogAddProject(DatabaseManager _dbm) {
+      dbm = _dbm;
+      dmf = dbm.getDialogMainFrame();
+    require.invoke(Clojure.read("ln.session"));
+      //session = dmf.getSession();
+      //dbm = session.getDatabaseManager();
 
     JPanel pane = new JPanel(new GridBagLayout());
     pane.setBorder(BorderFactory.createRaisedBevelBorder());
@@ -73,7 +92,9 @@ public class DialogAddProject extends JDialog {
     c.anchor = GridBagConstraints.LINE_START;
     pane.add(label, c);
 
-    label = new JLabel(session.getUserName());
+         IFn getUser = Clojure.var("ln.session", "get-user");
+
+	 label = new JLabel((String)getUser.invoke());
     c.gridx = 1;
     c.gridy = 1;
     c.gridheight = 1;
@@ -104,13 +125,14 @@ public class DialogAddProject extends JDialog {
     okButton.addActionListener(
         (new ActionListener() {
           public void actionPerformed(ActionEvent e) {
+    IFn getUserID = Clojure.var("ln.session", "get-user-id");
 
             // DatabaseManager dm = new DatabaseManager();
             // dbm.persistObject(new Project(descriptionField.getText(), ownerField.getText(),
             // nameField.getText()));
-            session.getDatabaseInserter()
+            dbm.getDatabaseInserter()
                 .insertProject(
-                    nameField.getText(), descriptionField.getText(), session.getUserID());
+			       nameField.getText(), descriptionField.getText(), (int)getUserID.invoke());
             dmf.getProjectPanel().updatePanel();
             dispose();
           }
