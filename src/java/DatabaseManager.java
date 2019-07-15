@@ -47,7 +47,7 @@ public class DatabaseManager {
     require.invoke(Clojure.read("ln.session"));
     IFn getUser = Clojure.var("ln.session", "get-user");
     IFn getPassword = Clojure.var("ln.session", "get-password");
-    IFn getURL = Clojure.var("ln.session", "get-url");
+    IFn getURL = Clojure.var("ln.session", "get-connection-string");
     IFn setUser = Clojure.var("ln.session", "set-user");
     IFn setUserID = Clojure.var("ln.session", "set-user-id");
     IFn getUserID = Clojure.var("ln.session", "get-user-id");

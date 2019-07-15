@@ -2,13 +2,14 @@
    (:use [seesaw core table dev mig border])
 
   (:require [clojure.java.io :as io]
-            [clojure.string ] )
+            [clojure.string ])
+           
   (:import [javax.swing JFileChooser JEditorPane JFrame JScrollPane BorderFactory AbstractButton]
            java.awt.Font java.awt.Toolkit )
   (:import [java.net.URL])
   (:gen-class))
 
-(load "/ln/session")
+
 
 
 (defn login-dialog
@@ -38,7 +39,7 @@
                                                                             (do
                                                                              (ln.session/set-user (config  (select (to-root e)  [:#nameid]) :text))
                                                                              (ln.session/set-password (config  (select (to-root e)  [:#passid]) :text))                                                             
-                                                                             (print-all props)))])]
+                                                                             (print-all props))))])]
                                   
                                   [(button :text "Cancel")]]))) 
 pack!

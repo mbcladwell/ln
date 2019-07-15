@@ -1,5 +1,6 @@
 (ns ln.core
-  (:require [ln.session])
+  (:require [ln.session]
+             [ln.dialog] )
   (:gen-class))
 
 (defn -main

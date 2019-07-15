@@ -4,12 +4,11 @@
             [honeysql.helpers :refer :all :as helpers]
             [clojure.data.csv :as csv]
             [codax.core :as c]
-            [clojure.java.io :as io])
+            [clojure.java.io :as io]
+            [ln.db]
+            [ln.dialog])
   (:import java.sql.DriverManager)
   (:gen-class ))
-
-(load "/ln/db")
-
 
 
 (defn open-props-if-exists
@@ -26,9 +25,14 @@
 ;;https://push-language.hampshire.edu/t/calling-clojure-code-from-java/865
 ;;(open-props-if-exists)
 
-(defn login-user
+(defn login-to-database
   []
-  )
+  (if(clojure.string/blank? (c/get-at! props [:assets :conn :user]))
+  (ln.dialog/login-dialog)
+  (ln.DatabaseManager.)))
+
+;;(login-to-database)
+
 
 (defn setup-local-postgres-session []
 (c/assoc-at! props [:conn] {:host "127.0.0.1"
@@ -130,7 +134,7 @@
 
 
 
-(defn  get-connection-url [target]	  
+(defn  get-connection-string [target]	  
   (case target
   	"heroku" (str "jdbc:postgresql://"  (get-host) ":" (get-port)  "/" (get-dbname) "?sslmode=require&user=" (get-user) "&password="  (get-password))
 	  "local" (str "jdbc:postgresql://" (get-host) "/" (get-dbname));	   
