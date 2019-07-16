@@ -31,6 +31,7 @@ public class DatabaseManager {
      DatabaseInserter dbInserter;
     DatabaseRetriever dbRetriever;
   DialogMainFrame dmf;
+    String source; //the connection source e.g. local, heroku
     // Session session;
   private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
@@ -53,6 +54,7 @@ public class DatabaseManager {
     IFn getUserID = Clojure.var("ln.session", "get-user-id");
     IFn setUserGroup = Clojure.var("ln.session", "set-user-group");
     IFn setAuthenticated = Clojure.var("ln.session", "set-authenticated");
+    IFn getSource = Clojure.var("ln.session", "get-source");
     
    
       Long insertKey = 0L;
@@ -60,7 +62,9 @@ public class DatabaseManager {
 	  Class.forName("org.postgresql.Driver");
 
 	  // String url = "jdbc:postgresql://localhost/postgres";
-	  String url = (String)getURL.invoke();
+	  String source = (String)getSource.invoke();
+	  String url = (String)getURL.invoke(source);
+	  System.out.println("Connection string in dbm: " + url);
 	  Properties props = new Properties();
 	  props.setProperty("user", (String)getUser.invoke());
 	  props.setProperty("password",(String) getPassword.invoke());

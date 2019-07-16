@@ -1,15 +1,12 @@
 (ns ln.dialog
-   (:use [seesaw core table dev mig border])
+  (:use [seesaw core table dev mig border])
 
   (:require [clojure.java.io :as io]
-            [clojure.string ])
-           
+            [clojure.string ])  
   (:import [javax.swing JFileChooser JEditorPane JFrame JScrollPane BorderFactory AbstractButton]
            java.awt.Font java.awt.Toolkit )
   (:import [java.net.URL])
   (:gen-class))
-
-
 
 
 (defn login-dialog
@@ -31,18 +28,18 @@
                                   [ "           " ]
                                   [ "           " ]
                                   [ "           " ]
-                                  [(checkbox :text "Update ln-props?" :id :cbox :selected? true) "span 2"]
+                                  [(checkbox :text "Update ln-props?" :id :cbox :selected? false) "span 2"]
                                   [ "           " ]
                                   
                                   [(button :text "Login"
-                                           :listen [:mouse-clicked (fn [e] (if (config  (select (to-root e)  [:#cbox]) :selected?)
-                                                                            (do
-                                                                             (ln.session/set-user (config  (select (to-root e)  [:#nameid]) :text))
-                                                                             (ln.session/set-password (config  (select (to-root e)  [:#passid]) :text))                                                             
-                                                                             (print-all props))))])]
-                                  
-                                  [(button :text "Cancel")]]))) 
-pack!
-show!))
-(login-dialog)
-
+                                           :listen [:mouse-clicked
+                                                    (fn [e] (def returned-login-map (hash-map
+                                                                               :name (config  (select (to-root e)  [:#nameid]) :text)
+                                                                                                       :password (config  (select (to-root e)  [:#passid]) :text)
+                                                                                                       :store (config  (select (to-root e)  [:#cbox]) :selected?)))
+                                      (hide! (to-root e)) )])]
+                                  [(button :text "Cancel"
+                                           :listen [:mouse-clicked (fn [e] (hide! (to-root e)))] )]]))) 
+      pack!
+      show! (move! :to [ ( - ( / (.getWidth (.getScreenSize (Toolkit/getDefaultToolkit))) 2) 320),
+                                ( - ( / (.getHeight (.getScreenSize (Toolkit/getDefaultToolkit))) 2) 240) ]  ) ))

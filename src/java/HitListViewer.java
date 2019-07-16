@@ -95,7 +95,7 @@ public class HitListViewer extends JDialog implements java.awt.event.ActionListe
       
       //get all the hit lists in the current project       
       current_project_id = (int)getProjectID.invoke();
-      all_hit_lists_in_project = new JComboBox(dbm.getDatabaseRetriever().getHitListsForProject(current_project_id));
+      all_hit_lists_in_project = new JComboBox<ComboItem>(dbm.getDatabaseRetriever().getHitListsForProject(current_project_id));
     for(int i=0; i < all_hit_lists_in_project.getItemCount(); i++){
 	if(((ComboItem)all_hit_lists_in_project.getItemAt(i)).getKey() == current_project_id){
 		all_hit_lists_in_project.setSelectedIndex(i);

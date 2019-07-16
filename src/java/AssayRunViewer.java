@@ -117,7 +117,7 @@ public class AssayRunViewer extends JDialog implements java.awt.event.ActionList
     assay_runs_pane.add(assay_runs_scroll_pane, BorderLayout.CENTER);
 
     GridLayout buttonLayout = new GridLayout(1,4,5,5);
-    projectList = new JComboBox(dbm.getDatabaseRetriever().getAllProjects());
+    projectList = new JComboBox<ComboItem>(dbm.getDatabaseRetriever().getAllProjects());
     for(int i=0; i < projectList.getItemCount(); i++){
 	if(((ComboItem)projectList.getItemAt(i)).getKey() == project_id){
 		projectList.setSelectedIndex(i);

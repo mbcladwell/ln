@@ -1,14 +1,61 @@
 (ns ln.session
+  (:use [ln dialog] :reload)
+
   (:require [clojure.java.jdbc :as sql]
             [honeysql.core :as hsql]
             [honeysql.helpers :refer :all :as helpers]
             [clojure.data.csv :as csv]
             [codax.core :as c]
-            [clojure.java.io :as io]
-            [ln.db]
-            [ln.dialog])
+            [clojure.java.io :as io])
   (:import java.sql.DriverManager)
   (:gen-class ))
+
+(def props "")
+
+(defn set-user [u]
+        (c/assoc-at! props  [:assets :conn :user] u))
+
+
+(defn set-password [p]
+        (c/assoc-at! props  [:assets :conn :password] p))
+
+
+
+(defn get-host []
+   (c/get-at! props [:assets :conn :host]))
+
+(defn get-port []
+  (c/get-at! props [:assets :conn :port]))
+
+(defn get-source []
+  (c/get-at! props [:assets :conn :source]))
+
+(defn get-dbname []
+  (c/get-at! props [:assets :conn :dbname]))
+
+(defn get-user []
+  (c/get-at! props [:assets :conn :user]))
+
+(defn get-password []
+  (c/get-at! props [:assets :conn :password]))
+
+
+(defn set-ln-props [ path-to-db ]
+    (def props (c/open-database! path-to-db))  )
+
+(defn create-ln-props
+  [ host port dbname sslmode user password]
+  (def props (c/open-database! (str (java.lang.System/getProperty "user.dir") "/ln-props")))
+
+  (c/assoc-at! props [:assets :conn] {:host host
+	                              :port port
+	                              :sslmode sslmode	              
+                                      :dbname dbname               
+                                      :password password
+	                              :user user	  })  )
+
+
+;;(create-ln-props "127.0.0.1" "5432" "lndb" false "ln_admin" "welcome")
 
 
 (defn open-props-if-exists
@@ -25,55 +72,34 @@
 ;;https://push-language.hampshire.edu/t/calling-clojure-code-from-java/865
 ;;(open-props-if-exists)
 
+
+(defn  get-connection-string [target]	  
+  (case target
+  	"heroku" (str "jdbc:postgresql://"  (get-host) ":" (get-port)  "/" (get-dbname) "?sslmode=require&user=" (get-user) "&password="  (get-password))
+	  "local" (str "jdbc:postgresql://" (get-host) "/" (get-dbname))	   
+	  "elephantsql" (str "jdbc:postgresql://" (get-host) ":" (get-port) "/" (get-dbname) "?user=" (get-user) "&password=" (get-password) "&SSL=true" )))
+
+
+
 (defn login-to-database
   []
   (if(clojure.string/blank? (c/get-at! props [:assets :conn :user]))
-  (ln.dialog/login-dialog)
-  (ln.DatabaseManager.)))
-
-;;(login-to-database)
-
-
-(defn setup-local-postgres-session []
-(c/assoc-at! props [:conn] {:host "127.0.0.1"
-	              :port "5432"
-	              :sslmode "false"
-	              :source "local"
-                      :dbname "lndb"
-                      :help-url-prefix "labsolns.com/software"
-                      :password "welcome"
-	              :user "ln-admin"	  
-	              :temp-dir  (java.lang.System/getProperty "java.io.tmpdir")
-	              :working-dir  (java.lang.System/getProperty "user.dir")
-                      :home-dir  (java.lang.System/getProperty "user.home")}))
-                                     
-;;(c/get-at! props [:conn :port])
-
-;;(c/update-at! props [:conn :source ]  {:source "dooby"})
-;;(c/assoc-at! props [:conn :source ]  {:source "dooby"})
+    (do
+      (println "before login dialog request")
+       (login-dialog)
+      (println "after login dialog request")
+       (if(ln.dialog/returned-login-map :store)
+           (do
+             (set-user (ln.dialog/returned-login-map :name))
+             (set-password (ln.dialog/returned-login-map :password))
+             (ln.DatabaseManager. ) ;;login after storing user/pass
+             (ln.DatabaseManager. )) ;;ELSE login without storing
+           ) ;;if store name is blank
+    (ln.DatabaseManager. ))  ;;if store has no user
+    (ln.DatabaseManager. )  ;;there is a user
+    ))
 
 
-(defn set-ln-props [ path-to-db ]
-    (def props (c/open-database! path-to-db))  )
-
-(defn create-ln-props
-  ;;
-  [ host port sslmode user password]
-  (def props (c/open-database! (str (java.lang.System/getProperty "user.dir") "/ln-props")))
-
-(c/assoc-at! props [:assets :conn] {:host host
-	              :port port
-	              :sslmode sslmode
-	              :source "local"
-                      :dbname "lndb"
-                      :help-url-prefix "labsolns.com/software"
-                      :password password
-	              :user user  
-	              :temp-dir  (java.lang.System/getProperty "java.io.tmpdir")
-	              :working-dir  (java.lang.System/getProperty "user.dir")
-                            :home-dir  (java.lang.System/getProperty "user.home")}))
-
-;;(create-ln-props "127.0.0.1" "5432" "false" "ln_admin" "welcome")
 
 (defn get-all-props
   ;;note that the keys must be quoted for java
@@ -101,6 +127,7 @@
     :user (c/get-at! props [:assets :conn :user])}))
 
 
+
 (defn print-all-props []
   (do
     (println ":conn in ln-props")
@@ -114,81 +141,16 @@
     (println (str "password: " (c/get-at! props [:assets :conn :password]) ))
     (println (str "user: " (c/get-at! props [:assets :conn :user]) ))))
 
-(defn get-host []
-   (c/get-at! props [:assets :conn :host]))
 
-(defn get-port []
-  (c/get-at! props [:assets :conn :port]))
+  (defn print-ap 
+    "This version prints everything"
+    []
+    (println (str "Whole map: " (c/get-at! props []) )))
 
-(defn get-source []
-  (c/get-at! props [:assets :conn :source]))
-
-(defn get-dbname []
-  (c/get-at! props [:assets :conn :dbname]))
-
-(defn get-user []
-  (c/get-at! props [:assets :conn :user]))
-
-(defn get-password []
-  (c/get-at! props [:assets :conn :password]))
-
-
-
-(defn  get-connection-string [target]	  
-  (case target
-  	"heroku" (str "jdbc:postgresql://"  (get-host) ":" (get-port)  "/" (get-dbname) "?sslmode=require&user=" (get-user) "&password="  (get-password))
-	  "local" (str "jdbc:postgresql://" (get-host) "/" (get-dbname));	   
-	  "elephantsql" (str "jdbc:postgresql://" (get-host) ":" (get-port) "/" (get-dbname) "?user=" (get-user) "&password=" (get-password) "&SSL=true" )))
-
-
-
-(defn set-user [u]
-        (c/assoc-at! props  [:assets :conn :user] u))
-
-
-(defn set-password [p]
-        (c/assoc-at! props  [:assets :conn :password] p))
-
-
-;;(set-user "dopey")
-;;(print-all-props)
-;;(c/close-database! props)
-
-
-(defn load-props
-  [file-name]
-  (with-open [^java.io.Reader reader (clojure.java.io/reader file-name)] 
-    (let [props (java.util.Properties.)]
-      (.load props reader)
-      (into {} (for [[k v] props] [(keyword k) (read-string v)])))))
-
-
-
-
-(defn setup-heroku []
-:host  "ec2-50-19-114-27.compute-1.amazonaws.com";
-:port  "5432";
-:sslmode  "require";	   
-  :dbname  "d6dmueahka0hch";
-  :help_url_prefix  "http://labsolns.com/software/";
-		:password  "c5644d221fa636d8d8065d336014723f66df0c6b78e7a5390453c4a18c9b20b2";
-		:user  "dpstpnuvjslqch";
-		:URL  (str "jdbc:postgresql://"  :host  ":" :port "/" :dbname  "?sslmode=require&user=" :user "&password=" :password ))
-
-
-(defn setup-elephant-sql []
-		:host  "raja.db.elephantsql.com";
-		:port  "5432";
-		:sslmode  "require";	      
-		:dbname  "klohymim";
-		:source  "elephantsql";
-		:help_url_prefix "http://labsolns.com/software/";
-		:password  "hwc3v4_rbkT-1EL2KI-JBaqFq0thCXM_";
-		:user  "klohymim";
-	    	:URL  (str "jdbc:postgresql://"  :host  ":" :port  "/" :dbname  "?user=" :user  "&password=" :password  "&SSL=true" ))
-
-	;;	(post-load-properties "elephantsql"))
-
+  ;;(print-ap)
+  ;;(print-all-props)
+  
+;;(get-connection-string "heroku")
 
 
 (defn set-user-id [i]
@@ -273,3 +235,12 @@
   (c/get-at! props [:assets :session :authenticated ]))
 
 
+(defn -main
+  "I don't do a whole lot ... yet."
+  [& args]
+  (open-props-if-exists)
+  (println "opened-props")
+  (login-to-database)
+  (println "logged in to db"))
+
+;;(-main)

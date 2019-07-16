@@ -34,7 +34,6 @@ import javax.swing.event.DocumentEvent;
 
 import clojure.java.api.Clojure;
 import clojure.lang.IFn;
-import ln.DatabaseSetupPanel;
 
 
 
@@ -54,8 +53,8 @@ public class DialogPropertiesNotFound extends JDialog
     static JTextField passwordField;
     static JTextField hostField;
     static JTextField portField;
-    static JComboBox vendorBox;
-    static JComboBox sourceBox;
+    static JComboBox<ComboItem> vendorBox;
+    static JComboBox<ComboItem> sourceBox;
     static JButton createLnProps;  
     static JRadioButton trueButton;
     static JRadioButton falseButton;
@@ -550,6 +549,7 @@ label = new JLabel("User Directory:", SwingConstants.RIGHT);
 	IFn createLnPropsMethod  = Clojure.var("ln.session", "create-ln-props");	  
 	createLnPropsMethod.invoke( hostField.getText(),
 				      portField.getText(),
+				    "lndb",
 				      Boolean.toString(trueButton.isSelected()),
 				      userField.getText(),
 				      passwordField.getText() );

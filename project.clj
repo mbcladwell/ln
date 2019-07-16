@@ -6,6 +6,7 @@
   :source-paths ["src/clojure/"]
   :java-source-paths ["src/java"]
   :resource-paths ["resources"]
+ ;; :prep-tasks ["javac" "compile"]
   :javac-options     ["-target" "1.8" "-source" "1.8"]
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [cider/cider-nrepl "0.11.0-SNAPSHOT"]
@@ -46,7 +47,7 @@
                   cider.nrepl.middleware.trace/wrap-trace
                   cider.nrepl.middleware.undef/wrap-undef]}
 
-  :main ^:skip-aot ln.core
+  :main ^:skip-aot ln.session
   :aot [ ]
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all}})
