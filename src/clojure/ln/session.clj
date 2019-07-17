@@ -105,7 +105,7 @@
     (ln.DatabaseManager. )  ;;there is a user
     ))
 
-
+;;(login-to-database)
 
 (defn get-all-props
   ;;note that the keys must be quoted for java
@@ -162,6 +162,7 @@
   (c/with-write-transaction [props tx]
         (c/assoc-at tx  [:assets :session :user-id] i)))
 
+;;(set-user-id 100)
 
 (defn get-user-id []
   (c/get-at! props [:assets :session :user-id ]))
@@ -169,7 +170,7 @@
 
 (defn set-user-group [s]
     (c/with-write-transaction [props tx]
-        (c/assoc-at! tx  [:assets :session :user-group] s)))
+        (c/assoc-at tx  [:assets :session :user-group] s)))
 
 (defn get-user-group []
   (c/get-at! props [:assets :session :user-group ]))
@@ -229,7 +230,6 @@
 
   (defn set-session-id [i]
       (c/with-write-transaction [props tx]
-
         (c/assoc-at tx  [:assets :session :session-id] i)))
   
 (defn get-home-dir []

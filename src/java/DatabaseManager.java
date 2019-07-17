@@ -49,7 +49,6 @@ public class DatabaseManager {
     IFn setUser = Clojure.var("ln.session", "set-user");
     IFn setUserID = Clojure.var("ln.session", "set-user-id");
     IFn getUserID = Clojure.var("ln.session", "get-user-id");
-    IFn setUserGroup = Clojure.var("ln.session", "set-user-group");
     IFn setAuthenticated = Clojure.var("ln.session", "set-authenticated");
     
    
@@ -91,9 +90,13 @@ public class DatabaseManager {
 	  String u = (String)getUser.invoke();
 	  int uid = getUserIDForUserName(u);
 	  String ug = getUserGroupForUserName(u);
-	  setUserID.invoke(uid);
-	  setUserGroup.invoke(ug );
+	  LOGGER.info("set auth");
 	  setAuthenticated.invoke( true);
+	  LOGGER.info("user id");
+	  setUserID.invoke(uid);
+	  LOGGER.info("user group");
+	  IFn setUserGroup = Clojure.var("ln.session", "set-user-group");
+	  setUserGroup.invoke(ug );
         
         String insertSql =
 	    "INSERT INTO lnsession (lnuser_id) values (?);";
@@ -145,7 +148,7 @@ public class DatabaseManager {
       ResultSet rs = st.executeQuery(query);
       rs.next();
       results = rs.getInt("id");
-      // LOGGER.info("projectID: " + results);
+      LOGGER.info("projectID: " + results);
     IFn setProjectID = Clojure.var("ln.session", "set-project-id");
       setProjectID.invoke(results);
 
