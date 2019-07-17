@@ -46,23 +46,26 @@ public class DatabaseManager {
       //LOGGER.info("in session: " + _s);
       IFn require = Clojure.var("clojure.core", "require");
     require.invoke(Clojure.read("ln.session"));
-    IFn getUser = Clojure.var("ln.session", "get-user");
-    IFn getPassword = Clojure.var("ln.session", "get-password");
-    IFn getURL = Clojure.var("ln.session", "get-connection-string");
     IFn setUser = Clojure.var("ln.session", "set-user");
     IFn setUserID = Clojure.var("ln.session", "set-user-id");
     IFn getUserID = Clojure.var("ln.session", "get-user-id");
     IFn setUserGroup = Clojure.var("ln.session", "set-user-group");
     IFn setAuthenticated = Clojure.var("ln.session", "set-authenticated");
-    IFn getSource = Clojure.var("ln.session", "get-source");
     
    
       Long insertKey = 0L;
       try {
 	  Class.forName("org.postgresql.Driver");
-
+	  IFn getSource = Clojure.var("ln.session", "get-source");
+  IFn getUser = Clojure.var("ln.session", "get-user");
+    IFn getPassword = Clojure.var("ln.session", "get-password");
+   
 	  // String url = "jdbc:postgresql://localhost/postgres";
-	  String source = (String)getSource.invoke();
+	  //String source = (String)getSource.invoke();
+	  String source = "local";
+	  
+	  System.out.println("source: " + source);
+	  IFn getURL = Clojure.var("ln.session", "get-connection-string");
 	  String url = (String)getURL.invoke(source);
 	  System.out.println("Connection string in dbm: " + url);
 	  Properties props = new Properties();
@@ -85,9 +88,11 @@ public class DatabaseManager {
 	  pstmt.close();
 
       if (pass) {
-	  
-	  setUserID.invoke( getUserIDForUserName((String)getUser.invoke()));
-	  setUserGroup.invoke( getUserGroupForUserName((String)getUser.invoke()));
+	  String u = (String)getUser.invoke();
+	  int uid = getUserIDForUserName(u);
+	  String ug = getUserGroupForUserName(u);
+	  setUserID.invoke(uid);
+	  setUserGroup.invoke(ug );
 	  setAuthenticated.invoke( true);
         
         String insertSql =

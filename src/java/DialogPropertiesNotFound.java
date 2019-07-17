@@ -25,6 +25,7 @@ import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTabbedPane;
@@ -46,7 +47,7 @@ public class DialogPropertiesNotFound extends JDialog
   static JTextField nameField;
   static JTextField descrField;
   static JTextField layoutField;
-  static JTextField nField;
+    //static JTextField nField;
 
     //panel 2 components
     static JTextField userField;
@@ -67,7 +68,7 @@ public class DialogPropertiesNotFound extends JDialog
     
   static JButton okButton;
   static JButton elephantsql;
-
+    static String sourceDescription; //for ln-props: local, elephantsql etc. a clue for populating other variables
   static JButton select;
   static JButton cancelButton;
   private static final long serialVersionUID = 1L;
@@ -318,20 +319,24 @@ tabbedPane.setMnemonicAt(2, KeyEvent.VK_3);
 	    switch(((ComboItem)sourceBox.getSelectedItem()).getKey()){
 	    case 4:
 		hostField.setText("");
+		sourceDescription = "heroku";
 		//updateAllVariables();
 		break;
 		
 	    case 3:
 		hostField.setText("");
+		sourceDescription = "elephantsql";
 		//updateAllVariables();
 		break;
 	    case 2:
 		hostField.setText("");
+		sourceDescription = "internal";
 		//updateAllVariables();
 		break;
 	    case 1:
 		hostField.setText("127.0.0.1");
 		falseButton.setSelected(true);
+		sourceDescription = "local";
 		//updateAllVariables();
 		break;
 	    }
@@ -488,6 +493,7 @@ label = new JLabel("User Directory:", SwingConstants.RIGHT);
     createLnProps.addActionListener(this);
     panel2.add(createLnProps, c);
 
+    /*
   okButton = new JButton("Connect (ln-props database)" );
     okButton.setMnemonic(KeyEvent.VK_P);
     okButton.setActionCommand("ok");
@@ -500,7 +506,7 @@ label = new JLabel("User Directory:", SwingConstants.RIGHT);
     panel2.add(okButton, c);
     okButton.setEnabled(false);
     okButton.addActionListener(this);
-
+    */
     c.gridx = 5;
     c.gridy = 11;
     panel2.add(cancelButton, c);
@@ -532,12 +538,12 @@ label = new JLabel("User Directory:", SwingConstants.RIGHT);
 
   public void actionPerformed(ActionEvent e) {
       int top_n_number = 0;
-       
+      /*   
       if (e.getSource() == okButton) {  
 	 
 
       }
-  
+      */
 	
   if (e.getSource() == elephantsql) {
       // session.setupElephantSQL();
@@ -550,12 +556,17 @@ label = new JLabel("User Directory:", SwingConstants.RIGHT);
 	createLnPropsMethod.invoke( hostField.getText(),
 				      portField.getText(),
 				    "lndb",
+				    sourceDescription,
 				      Boolean.toString(trueButton.isSelected()),
 				      userField.getText(),
 				      passwordField.getText() );
+	JOptionPane.showMessageDialog(this,
+				      new String(System.getProperty("user.dir").toString() + "/ln-props created."));
+	
+	
 	select.setEnabled(false);
 	createLnProps.setEnabled(false);
-	okButton.setEnabled(true);
+	//okButton.setEnabled(true);
 	selectedLabel.setText("Created:");
 	selectedLabel.setForeground(Color.GREEN);
 	String newDirLocation = new String(System.getProperty("user.dir").toString() + "/ln-props");

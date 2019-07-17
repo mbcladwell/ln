@@ -8,6 +8,7 @@
   (:import [java.net.URL])
   (:gen-class))
 
+(def returned-login-map {})
 
 (defn login-dialog
   ;;

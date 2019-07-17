@@ -12,12 +12,15 @@
 
 (def props "")
 
+
 (defn set-user [u]
-        (c/assoc-at! props  [:assets :conn :user] u))
+  (c/with-write-transaction [props tx]
+        (c/assoc-at tx [:assets :conn :user] u)))
 
 
 (defn set-password [p]
-        (c/assoc-at! props  [:assets :conn :password] p))
+  (c/with-write-transaction [props tx]
+        (c/assoc-at! tx  [:assets :conn :password] p)))
 
 
 
@@ -44,18 +47,27 @@
     (def props (c/open-database! path-to-db))  )
 
 (defn create-ln-props
-  [ host port dbname sslmode user password]
+  [ host port dbname source sslmode user password]
   (def props (c/open-database! (str (java.lang.System/getProperty "user.dir") "/ln-props")))
-
-  (c/assoc-at! props [:assets :conn] {:host host
+  (c/with-write-transaction [props tx]
+  (c/assoc-at tx [:assets :conn] {:host host
 	                              :port port
 	                              :sslmode sslmode	              
-                                      :dbname dbname               
+                                      :dbname dbname
+                                      :source source
                                       :password password
-	                              :user user	  })  )
+	                              :user user	  })))
 
 
 ;;(create-ln-props "127.0.0.1" "5432" "lndb" false "ln_admin" "welcome")
+
+(defn  get-connection-string [target]	  
+  (case target
+  	"heroku" (str "jdbc:postgresql://"  (get-host) ":" (get-port)  "/" (get-dbname) "?sslmode=require&user=" (get-user) "&password="  (get-password))
+	  "local" (str "jdbc:postgresql://" (get-host) "/" (get-dbname))	   
+	  "elephantsql" (str "jdbc:postgresql://" (get-host) ":" (get-port) "/" (get-dbname) "?user=" (get-user) "&password=" (get-password) "&SSL=true" )))
+
+;;(get-connection-string "heroku")
 
 
 (defn open-props-if-exists
@@ -72,12 +84,6 @@
 ;;https://push-language.hampshire.edu/t/calling-clojure-code-from-java/865
 ;;(open-props-if-exists)
 
-
-(defn  get-connection-string [target]	  
-  (case target
-  	"heroku" (str "jdbc:postgresql://"  (get-host) ":" (get-port)  "/" (get-dbname) "?sslmode=require&user=" (get-user) "&password="  (get-password))
-	  "local" (str "jdbc:postgresql://" (get-host) "/" (get-dbname))	   
-	  "elephantsql" (str "jdbc:postgresql://" (get-host) ":" (get-port) "/" (get-dbname) "?user=" (get-user) "&password=" (get-password) "&SSL=true" )))
 
 
 
@@ -150,11 +156,11 @@
   ;;(print-ap)
   ;;(print-all-props)
   
-;;(get-connection-string "heroku")
 
 
 (defn set-user-id [i]
-        (c/assoc-at! props  [:assets :session :user-id i]))
+  (c/with-write-transaction [props tx]
+        (c/assoc-at tx  [:assets :session :user-id] i)))
 
 
 (defn get-user-id []
@@ -162,7 +168,8 @@
 
 
 (defn set-user-group [s]
-        (c/assoc-at! props  [:assets :session :user-group s]))
+    (c/with-write-transaction [props tx]
+        (c/assoc-at! tx  [:assets :session :user-group] s)))
 
 (defn get-user-group []
   (c/get-at! props [:assets :session :user-group ]))
@@ -172,35 +179,46 @@
   (c/get-at! props [:assets :session :user-group-id ]))
 
 (defn set-user-group-id [i]
-        (c/assoc-at! props  [:assets :session :user-group-id i]))
+    (c/with-write-transaction [props tx]
+        (c/assoc-at tx  [:assets :session :user-group-id] i)))
+
 
 (defn set-project-id [i]
-        (c/assoc-at! props  [:assets :session :project-id i]))
+  (c/with-write-transaction [props tx]
+    (c/assoc-at  [:assets :session :project-id] i)))
 
 (defn get-project-id []
   (c/get-at! props [:assets :session :project-id ]))
 
 (defn set-project-sys-name [s]
-        (c/assoc-at! props  [:assets :session :project-sys-name s]))
+    (c/with-write-transaction [props tx]
+
+        (c/assoc-at tx  [:assets :session :project-sys-name] s)))
 
 (defn get-project-sys-name []
-  (c/get-at! props [:assets :session :project-sys-name ]))
+  (c/with-write-transaction [props tx]
+    (c/get-at tx [:assets :session :project-sys-name ])))
 
-(defn set-plate-set-sys-name [s]
-        (c/assoc-at! props  [:assets :session :plate-set-sys-name s]))
+  (defn set-plate-set-sys-name [s]
+      (c/with-write-transaction [props tx]
+
+        (c/assoc-at tx  [:assets :session :plate-set-sys-name] s)))
 
 (defn get-plate-set-sys-name []
   (c/get-at! props [:assets :session :plate-set-sys-name ]))
 
-(defn set-plate-set-id [i]
-        (c/assoc-at! props  [:assets :session :plate-set-id i]))
+  (defn set-plate-set-id [i]
+      (c/with-write-transaction [props tx]
+
+        (c/assoc-at tx  [:assets :session :plate-set-id ] i)))
 
 (defn get-plate-set-id []
   (c/get-at! props [:assets :session :plate-set-id ]))
 
 
 (defn set-plate-id [i]
-        (c/assoc-at! props  [:assets :session :plate-id i]))
+   (c/with-write-transaction [props tx]
+        (c/assoc-at tx  [:assets :session :plate-id ] i)))
 
 (defn get-plate-id []
   (c/get-at! props [:assets :session :plate-id ]))
@@ -209,8 +227,10 @@
 (defn get-session-id []
   (c/get-at! props [:assets :session :session-id ]))
 
-(defn set-session-id [i]
-        (c/assoc-at! props  [:assets :session :session-id i]))
+  (defn set-session-id [i]
+      (c/with-write-transaction [props tx]
+
+        (c/assoc-at tx  [:assets :session :session-id] i)))
   
 (defn get-home-dir []
    (java.lang.System/getProperty "user.home"))
@@ -223,13 +243,15 @@
    (java.lang.System/getProperty "user.dir"))
 
 
-(defn get-help-url-prefix []
-  (c/get-at! props [:assets :props :help-url-prefix ]))
+    (defn get-help-url-prefix []
+        (c/with-write-transaction [props tx]
+          (c/assoc-at tx [:assets :props :help-url-prefix ])))
 
 
 
-  (defn set-authenticated [b]
-        (c/assoc-at! props  [:assets :session :authenticated b]))
+      (defn set-authenticated [b]
+          (c/with-write-transaction [props tx]
+        (c/assoc-at tx  [:assets :session :authenticated] b)))
 
 (defn get-authenticated []
   (c/get-at! props [:assets :session :authenticated ]))
@@ -244,3 +266,5 @@
   (println "logged in to db"))
 
 ;;(-main)
+
+;;(c/close-database! props)
