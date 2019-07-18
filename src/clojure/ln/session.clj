@@ -42,6 +42,10 @@
 (defn get-password []
   (c/get-at! props [:assets :conn :password]))
 
+(defn set-uid-ug-auth [ uid ug auth ]
+  (c/with-write-transaction [props tx]
+    (c/merge-at tx [:assets] {:session {:user-id uid :user-group ug :authenticated auth}})))
+  
 
 (defn set-ln-props [ path-to-db ]
     (def props (c/open-database! path-to-db))  )
@@ -59,7 +63,7 @@
 	                              :user user	  })))
 
 
-;;(create-ln-props "127.0.0.1" "5432" "lndb" false "ln_admin" "welcome")
+;;(create-ln-props "127.0.0.1" "5432" "lndb" "local" "false" "ln_admin" "welcome")
 
 (defn  get-connection-string [target]	  
   (case target
@@ -268,3 +272,4 @@
 ;;(-main)
 
 ;;(c/close-database! props)
+

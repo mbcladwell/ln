@@ -90,13 +90,13 @@ public class DatabaseManager {
 	  String u = (String)getUser.invoke();
 	  int uid = getUserIDForUserName(u);
 	  String ug = getUserGroupForUserName(u);
+	  IFn setUidUgAuth = Clojure.var("ln.session", "set-uid-ug-auth");
 	  LOGGER.info("set auth");
-	  setAuthenticated.invoke( true);
+	  //	  setAuthenticated.invoke( true);
 	  LOGGER.info("user id");
-	  setUserID.invoke(uid);
+	  //setUserID.invoke(uid);
 	  LOGGER.info("user group");
-	  IFn setUserGroup = Clojure.var("ln.session", "set-user-group");
-	  setUserGroup.invoke(ug );
+	  setUidUgAuth.invoke(uid, ug, true);
         
         String insertSql =
 	    "INSERT INTO lnsession (lnuser_id) values (?);";
