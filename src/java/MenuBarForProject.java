@@ -93,8 +93,8 @@ public class MenuBarForProject extends JMenuBar {
               //dmf.showPlateSetTable(results[1][0]);
 	     
               dbm.updateSessionWithProject(project_sys_name);
-	      dmf.setMainFrameTitle(project_sys_name);
-              dmf.showPlateSetTable(project_sys_name);
+	      dbm.getDialogMainFrame().setMainFrameTitle(project_sys_name);
+              dbm.getDialogMainFrame().showPlateSetTable(project_sys_name);
             } catch (ArrayIndexOutOfBoundsException s) {
 		JOptionPane.showMessageDialog( dmf,
 					      "Select a row!","Error",JOptionPane.ERROR_MESSAGE);

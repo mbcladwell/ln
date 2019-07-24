@@ -1,5 +1,5 @@
 (ns ln.session
-  (:use [ln dialog] :reload)
+  (:use ln.dialog ln.db-inserter :reload)
 
   (:require [clojure.java.jdbc :as sql]
             [honeysql.core :as hsql]
@@ -7,10 +7,40 @@
             [clojure.data.csv :as csv]
             [codax.core :as c]
             [clojure.java.io :as io])
-  (:import java.sql.DriverManager)
+  (:import java.sql.DriverManager javax.swing.JOptionPane)
   (:gen-class ))
 
 (def props "")
+
+
+(defn read-props-text-file []
+  (read-string (slurp "limsnucleus.properties")))
+
+;;(read-props-text-file)
+
+(defn set-ln-props [ path-to-db ]
+    (def props (c/open-database! path-to-db))  )
+
+
+(defn create-ln-props-from-text []
+ (let [props (c/open-database! "ln-props")]
+  (c/with-write-transaction [props tx]
+    (-> tx
+  (c/assoc-at [:assets ] (read-props-text-file))
+  (c/assoc-at [:assets :session] {:project-id 0
+	                          :project-sys-name ""
+	                          :user-id 0	              
+                                  :user-sys-name ""
+                                  :plateset-id 0
+                                  :plateset-sys-name ""
+	                             :user-group-id 0
+	                             :session-id 0
+                                     :working-dir ""
+                                  })))
+ (c/close-database! props)))
+
+;;(create-ln-props-from-text)
+  ;;(print-ap)
 
 
 (defn set-user [u]
@@ -190,14 +220,13 @@
 
 (defn set-project-id [i]
   (c/with-write-transaction [props tx]
-    (c/assoc-at  [:assets :session :project-id] i)))
+    (c/assoc-at tx  [:assets :session :project-id] i)))
 
 (defn get-project-id []
   (c/get-at! props [:assets :session :project-id ]))
 
 (defn set-project-sys-name [s]
     (c/with-write-transaction [props tx]
-
         (c/assoc-at tx  [:assets :session :project-sys-name] s)))
 
 (defn get-project-sys-name []
@@ -264,10 +293,15 @@
 (defn -main
   "I don't do a whole lot ... yet."
   [& args]
-  (open-props-if-exists)
-  (println "opened-props")
-  (login-to-database)
-  (println "logged in to db"))
+  (if (not (.exists (io/as-file "ln-props")))
+    
+    (if (not (.exists (io/as-file (str (java.lang.System/getProperty "user.dir") "/limsnucleus.properties") )))
+      (JOptionPane/showMessageDialog nil "limsnucleus.properties file is missing!"  )
+      (create-ln-props-from-text))
+
+    )  
+  (def props (c/open-database! "ln-props"))
+  (login-to-database ))
 
 ;;(-main)
 
