@@ -35,7 +35,7 @@ public class MenuBarForProject extends JMenuBar {
       dbm = _dbm;
       dmf = dbm.getDialogMainFrame();
     project_table = _project_table;
-    //session = dmf.getSession();
+    //session = dbm.getDialogMainFrame().getSession();
      IFn require = Clojure.var("clojure.core", "require");
     require.invoke(Clojure.read("ln.session"));
 
@@ -47,13 +47,13 @@ public class MenuBarForProject extends JMenuBar {
     JMenuItem    menuItem = new JMenuItem("Export", KeyEvent.VK_E);
     // menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_1, ActionEvent.ALT_MASK));
     menuItem.getAccessibleContext().setAccessibleDescription("Export as .csv.");
-    menuItem.putClientProperty("mf", dmf);
+    menuItem.putClientProperty("mf", dbm);
     menuItem.addActionListener(
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
 
             String[][] results = project_table.getSelectedRowsAndHeaderAsStringArray();
-            POIUtilities poi = new POIUtilities(dmf);
+            POIUtilities poi = new POIUtilities(dbm);
             poi.writeJTableToSpreadsheet("Projects", results);
             try {
               Desktop d = Desktop.getDesktop();
@@ -89,17 +89,17 @@ public class MenuBarForProject extends JMenuBar {
               // LOGGER.info("down button results: " + results);
               // LOGGER.info("down button results: " + results[1][0]);
 	      //session.getDatabaseManager().updateSessionWithProject(results[1][0]);
-	      //dmf.setMainFrameTitle(results[1][0]);
-              //dmf.showPlateSetTable(results[1][0]);
+	      //dbm.getDialogMainFrame().setMainFrameTitle(results[1][0]);
+              //dbm.getDialogMainFrame().showPlateSetTable(results[1][0]);
 	     
               dbm.updateSessionWithProject(project_sys_name);
 	      dbm.getDialogMainFrame().setMainFrameTitle(project_sys_name);
               dbm.getDialogMainFrame().showPlateSetTable(project_sys_name);
             } catch (ArrayIndexOutOfBoundsException s) {
-		JOptionPane.showMessageDialog( dmf,
+		JOptionPane.showMessageDialog( dbm.getDialogMainFrame(),
 					      "Select a row!","Error",JOptionPane.ERROR_MESSAGE);
             } catch (IndexOutOfBoundsException s) {
-		JOptionPane.showMessageDialog(dmf,
+		JOptionPane.showMessageDialog(dbm.getDialogMainFrame(),
 					      "Select a row!","Error",JOptionPane.ERROR_MESSAGE);
             }
           }

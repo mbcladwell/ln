@@ -26,7 +26,7 @@
                  [com.google.guava/guava "23.0"]
                  [org.apache/poi "4.0.1"]
                  [org.apache/poi-ooxml "4.0.1"]
-                 [org.apache.xmlbeans/xmlbeans "2.6.0"]
+                 [org.apache.xmlbeans/xmlbeans "3.1.0"]
                  [org.apache.commons/commons-collections4 "4.2"]
                  [org.apache.commons/commons-compress"1.18"]
                  [org.apache.poi/ooxml-schemas "1.4"]

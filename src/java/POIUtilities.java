@@ -1,25 +1,27 @@
 package ln;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.io.*;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.util.logging.*;
-import org.apache.poi.ss.usermodel.Cell;
+import java.io.IOException;
+import java.util.logging.Logger;
+
+import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.xmlbeans.XmlOptions;
+
 
 public class POIUtilities {
 
-  private DialogMainFrame dmf;
+ 
   private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
   private File file;
   private static final String newline = "\n";
+    private DatabaseManager dbm;
 
-  public POIUtilities(DialogMainFrame _dmf) {
-    dmf = _dmf;
+  public POIUtilities(DatabaseManager _dbm) {
+      dbm = _dbm;    
   }
   /**
    * Convert any table to a spreadsheet. This first row is a header. Use the first column in
@@ -44,7 +46,7 @@ public class POIUtilities {
       if (rowid == 0) { // the headers
         row = spreadsheet.createRow(rowcounter);
         for (int colid = 0; colid < colsize; colid++) {
-          Cell cell = row.createCell(colid);
+          XSSFCell cell = row.createCell(colid);
           cell.setCellValue((String) tableData[rowid][colid]);
         }
         rowcounter++;
@@ -53,7 +55,7 @@ public class POIUtilities {
         row = spreadsheet.createRow(rowcounter);
 
         for (int colid = 0; colid < colsize; colid++) {
-          Cell cell = row.createCell(colid);
+          XSSFCell cell = row.createCell(colid);
           cell.setCellValue((String) tableData[rowid][colid]);
         }
         rowcounter++;

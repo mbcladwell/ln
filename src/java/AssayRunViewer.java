@@ -188,10 +188,10 @@ public class AssayRunViewer extends JDialog implements java.awt.event.ActionList
 	menuItem.setMnemonic(KeyEvent.VK_R);
 	menuItem.addActionListener(new ActionListener() {
 		public void actionPerformed(ActionEvent e) {
-		    Object[][] results = dmf.getUtilities().getSelectedRowsAndHeaderAsStringArray(assay_runs_table);
+		    Object[][] results = dbm.getDialogMainFrame().getUtilities().getSelectedRowsAndHeaderAsStringArray(assay_runs_table);
 		    if(results.length>1){
-			//   LOGGER.info("hit list table: " + results);
-			POIUtilities poi = new POIUtilities(dmf);
+			   LOGGER.info("hit list table: " + results);
+			POIUtilities poi = new POIUtilities(dbm);
 			poi.writeJTableToSpreadsheet("Assay Runs", results);
 			try {
 			    Desktop d = Desktop.getDesktop();
@@ -199,7 +199,7 @@ public class AssayRunViewer extends JDialog implements java.awt.event.ActionList
 			} catch (IOException ioe) {
 			}	 
 		    }else{
-			JOptionPane.showMessageDialog(dmf, "Select one or more  Assay Runs!");	
+			JOptionPane.showMessageDialog(dbm.getDialogMainFrame(), "Select one or more  Assay Runs!");	
 		    }   
 		}
 	    });
@@ -214,7 +214,7 @@ public class AssayRunViewer extends JDialog implements java.awt.event.ActionList
 			int assay_run_id = Integer.parseInt(( (String)assay_runs_table.getModel().getValueAt(row,0)).substring(3));
 
 			/*
-		    Object[][] results = dmf.getUtilities().getSelectedRowsAndHeaderAsStringArray(assay_runs_table);
+		    Object[][] results = dbm.getDialogMainFrame().getUtilities().getSelectedRowsAndHeaderAsStringArray(assay_runs_table);
 		    if(results.length>1){
 			String[] assay_run_ids = new String[results.length];
 			try{
@@ -233,7 +233,7 @@ public class AssayRunViewer extends JDialog implements java.awt.event.ActionList
 			    int assay_run_id = Integer.parseInt(assay_run_ids[0]);
 			*/
 			    Object[][] assay_run_data = dbm.getDatabaseRetriever().getAssayRunData(assay_run_id);
-			    POIUtilities poi = new POIUtilities(dmf);
+			    POIUtilities poi = new POIUtilities(dbm);
 			    
 			    poi.writeJTableToSpreadsheet("Assay Run Data", assay_run_data);
 			    //poi.writeJTableToSpreadsheet("Assay Run Data for " + assay_runs_sys_name, assay_run_data);
@@ -241,10 +241,10 @@ public class AssayRunViewer extends JDialog implements java.awt.event.ActionList
 			    Desktop d = Desktop.getDesktop();
 			    d.open(new File("./Writesheet.xlsx"));
 			}catch(IOException ioe){
-			    JOptionPane.showMessageDialog(dmf, "Assay Run has no data!");   
+			    JOptionPane.showMessageDialog(dbm.getDialogMainFrame(), "Assay Run has no data!");   
 			}    
 		    }else{
-			JOptionPane.showMessageDialog(dmf, "Select one or more  Assay Runs!");	
+			JOptionPane.showMessageDialog(dbm.getDialogMainFrame(), "Select one or more  Assay Runs!");	
 		    }
 		}
 	    }
@@ -263,7 +263,7 @@ public class AssayRunViewer extends JDialog implements java.awt.event.ActionList
 	    int  assay_runs_id = Integer.parseInt(assay_runs_sys_name.substring(3));
 
 	    JFileChooser fileChooser = new JFileChooser();
-	    int returnVal = fileChooser.showOpenDialog(dmf);
+	    int returnVal = fileChooser.showOpenDialog(dbm.getDialogMainFrame());
 	
 	    if (returnVal == JFileChooser.APPROVE_OPTION) {
 		java.io.File file = fileChooser.getSelectedFile();
@@ -286,7 +286,7 @@ public class AssayRunViewer extends JDialog implements java.awt.event.ActionList
         // This is where a real application would open the file.
 	    }
 	} else{
-	    JOptionPane.showMessageDialog(dmf, "Select an Assay Run!");	      
+	    JOptionPane.showMessageDialog(dbm.getDialogMainFrame(), "Select an Assay Run!");	      
 	}	
 
     }
@@ -301,16 +301,16 @@ public class AssayRunViewer extends JDialog implements java.awt.event.ActionList
 	    new ScatterPlot(dbm, assay_runs_id);
 	}
 	else{
-	    JOptionPane.showMessageDialog(dmf, "Select an Assay Run!");	      
+	    JOptionPane.showMessageDialog(dbm.getDialogMainFrame(), "Select an Assay Run!");	      
 	}	
     }
     
     if (e.getSource() == exportHitListTable) {
 	
-	Object[][] results = dmf.getUtilities().getSelectedRowsAndHeaderAsStringArray(hit_lists_table);
+	Object[][] results = dbm.getDialogMainFrame().getUtilities().getSelectedRowsAndHeaderAsStringArray(hit_lists_table);
 	if(results.length>1){
 	//   LOGGER.info("hit list table: " + results);
-	       POIUtilities poi = new POIUtilities(dmf);
+	       POIUtilities poi = new POIUtilities(dbm);
             poi.writeJTableToSpreadsheet("Hit Lists", results);
             try {
               Desktop d = Desktop.getDesktop();
@@ -319,7 +319,7 @@ public class AssayRunViewer extends JDialog implements java.awt.event.ActionList
             }	 
 	
 	}else{
-	    JOptionPane.showMessageDialog(dmf, "Select one or more  Hit Lists!");	
+	    JOptionPane.showMessageDialog(dbm.getDialogMainFrame(), "Select one or more  Hit Lists!");	
 	}
     	
     }
@@ -331,7 +331,7 @@ public class AssayRunViewer extends JDialog implements java.awt.event.ActionList
 		 int  hit_list_id = Integer.parseInt(hit_list_sys_name.substring(3));
 		 new HitListViewer( dbm, hit_list_id);}
   else{
-	      JOptionPane.showMessageDialog(dmf, "Select a Hit List!");	      
+	      JOptionPane.showMessageDialog(dbm.getDialogMainFrame(), "Select a Hit List!");	      
 	    }
 
 	

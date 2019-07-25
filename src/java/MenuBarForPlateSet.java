@@ -73,7 +73,7 @@ public class MenuBarForPlateSet extends JMenuBar {
 		      new DialogEditPlateSet(dbm, plate_set_sys_name, name, description);
 	      } else {
                 JOptionPane.showMessageDialog(
-                    dmf,
+                    dbm.getDialogMainFrame(),
                     "Only the owner can modify a plate set.",
                     "Error",
                     JOptionPane.ERROR_MESSAGE);
@@ -81,10 +81,10 @@ public class MenuBarForPlateSet extends JMenuBar {
 		  
             } catch(ArrayIndexOutOfBoundsException aioob) {
               JOptionPane.showMessageDialog(
-                  dmf, "Please select a plate set!", "Error", JOptionPane.ERROR_MESSAGE);
+                  dbm.getDialogMainFrame(), "Please select a plate set!", "Error", JOptionPane.ERROR_MESSAGE);
             }catch(IndexOutOfBoundsException ioob) {
               JOptionPane.showMessageDialog(
-                  dmf, "Please select a plate set!", "Error", JOptionPane.ERROR_MESSAGE);
+                  dbm.getDialogMainFrame(), "Please select a plate set!", "Error", JOptionPane.ERROR_MESSAGE);
             }
 	 	
           }
@@ -130,7 +130,7 @@ public class MenuBarForPlateSet extends JMenuBar {
 		new DialogAddPlateSetData(
 					  dbm, plate_set_sys_name, plate_set_id, format_id, plate_num);}
 	    else{
-	      JOptionPane.showMessageDialog(dmf, "Select a Plate Set to populate with data!");	      
+	      JOptionPane.showMessageDialog(dbm.getDialogMainFrame(), "Select a Plate Set to populate with data!");	      
 	    }
           }
         });
@@ -147,7 +147,7 @@ public class MenuBarForPlateSet extends JMenuBar {
 		    int  plate_set_id = Integer.parseInt(plate_set_sys_name.substring(3));
 		    dbm.getDatabaseInserter().importAccessionsByPlateSet(plate_set_id);
 		}else{
-			JOptionPane.showMessageDialog(dmf, "Select a Plate Set for which to populate with accession IDs!");	      
+			JOptionPane.showMessageDialog(dbm.getDialogMainFrame(), "Select a Plate Set for which to populate with accession IDs!");	      
 		    } 
 		   
 	    }
@@ -166,7 +166,7 @@ public class MenuBarForPlateSet extends JMenuBar {
 		try{
 	       	int worklist_id = Integer.parseInt((String)results[1][7]);
 		Object[][] worklist = dbm.getDatabaseRetriever().getWorklist(worklist_id);
-		POIUtilities poi = new POIUtilities(dmf);
+		POIUtilities poi = new POIUtilities(dbm);
 		poi.writeJTableToSpreadsheet("Plate Sets", worklist);
 		try{
 		Desktop d = Desktop.getDesktop();
@@ -175,12 +175,12 @@ public class MenuBarForPlateSet extends JMenuBar {
 		catch (IOException ioe) {
 		}
 		}catch(NumberFormatException nfe){
-		    JOptionPane.showMessageDialog(dmf, "Plate Set must have an associated worklist!");   
+		    JOptionPane.showMessageDialog(dbm.getDialogMainFrame(), "Plate Set must have an associated worklist!");   
 		}
 	     
 	    }
 	    else{
-	      JOptionPane.showMessageDialog(dmf, "Select a Plate Set with an associated worklist!");	      
+	      JOptionPane.showMessageDialog(dbm.getDialogMainFrame(), "Select a Plate Set with an associated worklist!");	      
 	    }
           }
         });
@@ -195,10 +195,10 @@ public class MenuBarForPlateSet extends JMenuBar {
     menuItem.addActionListener(
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
-		    Object[][] results = dmf.getUtilities().getSelectedRowsAndHeaderAsStringArray(plate_set_table);
+		    Object[][] results = dbm.getDialogMainFrame().getUtilities().getSelectedRowsAndHeaderAsStringArray(plate_set_table);
 		    if(results.length>1){
 			//   LOGGER.info("hit list table: " + results);
-			POIUtilities poi = new POIUtilities(dmf);
+			POIUtilities poi = new POIUtilities(dbm);
 			poi.writeJTableToSpreadsheet("Plate Sets", results);
 			try {
 			    Desktop d = Desktop.getDesktop();
@@ -206,7 +206,7 @@ public class MenuBarForPlateSet extends JMenuBar {
 			} catch (IOException ioe) {
 			}	 
 		    }else{
-			JOptionPane.showMessageDialog(dmf, "Select one or more rows!");	
+			JOptionPane.showMessageDialog(dbm.getDialogMainFrame(), "Select one or more rows!");	
 		    }   
 
           }
@@ -221,7 +221,7 @@ public class MenuBarForPlateSet extends JMenuBar {
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
 		if(!plate_set_table.getSelectionModel().isSelectionEmpty()){
-		    Object[][] results = dmf.getUtilities().getSelectedRowsAndHeaderAsStringArray(plate_set_table);
+		    Object[][] results = dbm.getDialogMainFrame().getUtilities().getSelectedRowsAndHeaderAsStringArray(plate_set_table);
 		    if(results.length>1){
 			String[] plate_set_ids = new String[results.length];
 			try{
@@ -232,7 +232,7 @@ public class MenuBarForPlateSet extends JMenuBar {
 			    }
 
 			    Object[][] plate_set_data = dbm.getDatabaseRetriever().getPlateSetData(plate_set_ids);
-			    POIUtilities poi = new POIUtilities(dmf);
+			    POIUtilities poi = new POIUtilities(dbm);
 			    
 			    poi.writeJTableToSpreadsheet("Plate Set Information", plate_set_data);
 			    //poi.writeJTableToSpreadsheet("Assay Run Data for " + assay_runs_sys_name, assay_run_data);
@@ -240,10 +240,10 @@ public class MenuBarForPlateSet extends JMenuBar {
 			    Desktop d = Desktop.getDesktop();
 			    d.open(new File("./Writesheet.xlsx"));
 			}catch(IOException ioe){
-			    JOptionPane.showMessageDialog(dmf, "IOException!: " + ioe);   
+			    JOptionPane.showMessageDialog(dbm.getDialogMainFrame(), "IOException!: " + ioe);   
 			}    
 		    }else{
-			JOptionPane.showMessageDialog(dmf, "Select one or more  Plate Sets!");	
+			JOptionPane.showMessageDialog(dbm.getDialogMainFrame(), "Select one or more  Plate Sets!");	
 		    }
 		}
 	  
@@ -276,7 +276,7 @@ public class MenuBarForPlateSet extends JMenuBar {
 
 	      setPlateSetID.invoke(Integer.parseInt(plate_set_sys_name.substring(3)));
               //System.out.println("plate_set_sys_name: " + plate_set_sys_name);
-              dmf.showPlateTable(plate_set_sys_name);
+              dbm.getDialogMainFrame().showPlateTable(plate_set_sys_name);
             } catch (ArrayIndexOutOfBoundsException s) {
 			JOptionPane.showMessageDialog(dbm.getDialogMainFrame(),
 					      "Select a row!","Error",JOptionPane.ERROR_MESSAGE);
@@ -301,8 +301,8 @@ public class MenuBarForPlateSet extends JMenuBar {
     upbutton.addActionListener(
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
-            dmf.flipToProjectTable();
-	    	    	      dmf.setMainFrameTitle("");
+            dbm.getDialogMainFrame().flipToProjectTable();
+	    	    	      dbm.getDialogMainFrame().setMainFrameTitle("");
 
           }
         });

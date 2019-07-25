@@ -194,10 +194,10 @@ public class HitListViewer extends JDialog implements java.awt.event.ActionListe
 
 	
     if (e.getSource() == export_hits_button) {
-	Object[][] results = dmf.getUtilities().getSelectedRowsAndHeaderAsStringArray(hits_table);
+	Object[][] results = dbm.getDialogMainFrame().getUtilities().getSelectedRowsAndHeaderAsStringArray(hits_table);
 	if(results.length>1){
 	   LOGGER.info("hit list table: " + results);
-	       POIUtilities poi = new POIUtilities(dmf);
+	   POIUtilities poi = new POIUtilities(dbm);
             poi.writeJTableToSpreadsheet("Hits", results);
             try {
               Desktop d = Desktop.getDesktop();
@@ -224,7 +224,7 @@ public class HitListViewer extends JDialog implements java.awt.event.ActionListe
 	Object[][] results = dmf.getUtilities().getSelectedRowsAndHeaderAsStringArray(counts_table);
 	if(results.length>1){
 	//   LOGGER.info("hit list table: " + results);
-	       POIUtilities poi = new POIUtilities(dmf);
+	    POIUtilities poi = new POIUtilities(dbm);
             poi.writeJTableToSpreadsheet("Counts", results);
             try {
               Desktop d = Desktop.getDesktop();

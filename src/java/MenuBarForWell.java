@@ -66,7 +66,7 @@ public class MenuBarForWell extends JMenuBar {
           public void actionPerformed(ActionEvent e) {
 
             String[][] results = well_table.getSelectedRowsAndHeaderAsStringArray();
-            POIUtilities poi = new POIUtilities(dmf);
+            POIUtilities poi = new POIUtilities(dbm);
             poi.writeJTableToSpreadsheet("Projects", results);
             try {
               Desktop d = Desktop.getDesktop();

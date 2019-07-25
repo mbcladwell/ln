@@ -14,6 +14,7 @@ import javax.swing.table.DefaultTableModel;
 
 import com.google.common.math.Stats;
 
+
 public class ResponseWrangler {
 
    private double max_response;
@@ -110,6 +111,7 @@ public class ResponseWrangler {
 	    }
 	    if(well_type_id==2){  //if it is a positive control
 		pos_list.add(Double.valueOf((float)dtm.getValueAt(row, 2)));
+		LOGGER.info("Positives: " + Double.valueOf((float)dtm.getValueAt(row, 2)));
 	    }
 	    if(well_type_id==1){  //if it is an unknown
 		unknowns_list.add(Double.valueOf((float)dtm.getValueAt(row, 2)));
@@ -252,14 +254,14 @@ public class ResponseWrangler {
      */
     public int getHitsAboveThreshold(double _threshold){
 	double threshold = _threshold;
-	    LOGGER.info("threshold: " + threshold);
+	//LOGGER.info("threshold: " + threshold);
 	
 	int results = 0;
 	for(int i = 0; i < sorted_response_unknowns_only.length; i++){
 	    if(sorted_response_unknowns_only[i][0] > threshold){
 		    results++;   
 	    }
-	    LOGGER.info("sorted_response_unknowns_only[i][0] " + sorted_response_unknowns_only[i][0]  + " results: " + results );
+	    //  LOGGER.info("sorted_response_unknowns_only[i][0] " + sorted_response_unknowns_only[i][0]  + " results: " + results );
 	}
 	return results;
     }

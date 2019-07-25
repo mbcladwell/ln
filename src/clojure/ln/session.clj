@@ -230,8 +230,7 @@
         (c/assoc-at tx  [:assets :session :project-sys-name] s)))
 
 (defn get-project-sys-name []
-  (c/with-write-transaction [props tx]
-    (c/get-at tx [:assets :session :project-sys-name ])))
+    (c/get-at! props [:assets :session :project-sys-name ]))
 
   (defn set-plate-set-sys-name [s]
       (c/with-write-transaction [props tx]

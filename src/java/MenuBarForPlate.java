@@ -34,7 +34,7 @@ public class MenuBarForPlate extends JMenuBar {
   public MenuBarForPlate(DatabaseManager _dbm, CustomTable _table) {
       dbm = _dbm;
     plate_table = _table;
-    dmf = dbm.getDialogMainFrame();
+    //dmf = dbm.getDialogMainFrame();
     // Create the menu bar.
     // JMenuBar menuBar = new JMenuBar();
     //    this.em = em;
@@ -76,14 +76,14 @@ public class MenuBarForPlate extends JMenuBar {
     menuItem = new JMenuItem("Export", KeyEvent.VK_E);
     // menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_1, ActionEvent.ALT_MASK));
     menuItem.getAccessibleContext().setAccessibleDescription("Export as .csv.");
-    menuItem.putClientProperty("mf", dmf);
+    menuItem.putClientProperty("mf", dbm.getDialogMainFrame());
     menuItem.addActionListener(
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
 
             String[][] results = plate_table.getSelectedRowsAndHeaderAsStringArray();
             LOGGER.info("results(plate): " + results);
-            POIUtilities poi = new POIUtilities(dmf);
+            POIUtilities poi = new POIUtilities(dbm);
             poi.writeJTableToSpreadsheet("Plates", results);
             try {
               Desktop d = Desktop.getDesktop();
@@ -118,7 +118,7 @@ public class MenuBarForPlate extends JMenuBar {
 
 	      setPlateID.invoke(Integer.parseInt(plate_sys_name.substring(3)));
   
-              dmf.showWellTable(plate_sys_name);
+              dbm.getDialogMainFrame().showWellTable(plate_sys_name);
             } catch (ArrayIndexOutOfBoundsException s) {
 			JOptionPane.showMessageDialog(dbm.getDialogMainFrame(),
 					      "Select a row!","Error",JOptionPane.ERROR_MESSAGE);
@@ -143,7 +143,7 @@ public class MenuBarForPlate extends JMenuBar {
     upbutton.addActionListener(
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
-            dmf.flipToPlateSet();
+            dbm.getDialogMainFrame().flipToPlateSet();
           }
         });
 
