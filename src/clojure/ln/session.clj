@@ -1,12 +1,11 @@
 (ns ln.session
-  (:use ln.dialog ln.db-inserter ln.db-retriever :reload)
-
   (:require [clojure.java.jdbc :as sql]
             [honeysql.core :as hsql]
             [honeysql.helpers :refer :all :as helpers]
             [clojure.data.csv :as csv]
             [codax.core :as c]
-            [clojure.java.io :as io])
+            [clojure.java.io :as io]
+            [ln.dialog] [ln.db-inserter] [ln.db-retriever])
   (:import java.sql.DriverManager javax.swing.JOptionPane)
   (:gen-class ))
 
@@ -31,7 +30,7 @@
   (c/assoc-at [:assets ] (read-props-text-file))
   (c/assoc-at [:assets :session] {:project-id 0
 	                          :project-sys-name ""
-	                          :user-id 0	              
+	                          :user-id 0
                                   :user-sys-name ""
                                   :plateset-id 0
                                   :plateset-sys-name ""
@@ -74,26 +73,30 @@
 (defn get-password []
   (c/get-at! props [:assets :conn :password]))
 
+(defn get-sslmode []
+  (c/get-at! props [:assets :conn :sslmode]))
+
 (defn get-auto-login []
   (c/get-at! props [:assets :conn :auto-login]))
 
 (defn set-auto-login [b]
   (c/with-write-transaction [props tx]
-        (c/assoc-at tx  [:assets :session :auto-login] b)))
+        (c/assoc-at tx  [:assets :conn :auto-login] b)))
 
 (defn set-u-p-al
   ;;user name, password, auto-login
   ;;only used during login
   [u p al]
   (c/with-write-transaction [props tx]
-    (c/merge-at tx [:assets] {:session {:user u :password p :auto-login al}})))
+    (c/merge-at tx [:assets] {:conn {:user u :password p :auto-login al}})))
   
  
 
 
-(defn set-uid-ug-auth [ uid ug auth ]
+(defn set-uid-ugid-ug-auth [ uid ugid ug auth ]
+  ;; user-id user-group-id user-group-name authenticated
   (c/with-write-transaction [props tx]
-    (c/merge-at tx [:assets] {:session {:user-id uid :user-group ug :authenticated auth}})))
+      (c/merge-at tx  [:assets] {:session {:user-id uid :user-group-id ugid :user-group ug :authenticated auth}})))
 
 
 
@@ -114,16 +117,6 @@
 
 
 ;;(create-ln-props "127.0.0.1" "5432" "lndb" "local" "false" "ln_admin" "welcome")
-
-
-(def pg-db  {:dbtype "postgresql"
-            :dbname "lndb"
-            :host (get-host)
-            :user (get-user)
-             :password (get-password)
-             :port (get-port)
-            :ssl (get-sslmode)
-            :sslfactory "org.postgresql.ssl.NonValidatingFactory"})
 
 
 
@@ -152,8 +145,18 @@
 
 
 
+      (defn set-authenticated [b]
+          (c/with-write-transaction [props tx]
+        (c/assoc-at tx  [:assets :session :authenticated] b)))
+
+(defn get-authenticated []
+  (c/get-at! props [:assets :session :authenticated ]))
+
+
 
 (defn login-to-database
+  ;;if user is blank or auto-login is false, pop up the login dialog
+  ;;store results, validate results, and start dbm
   []
   (if(or (clojure.string/blank? (c/get-at! props [:assets :conn :user]))
          (not (c/get-at! props [:assets :conn :auto-login])))
@@ -162,22 +165,12 @@
       (set-u-p-al (ln.dialog/returned-login-map :name)
                   (ln.dialog/returned-login-map :password)
                   (ln.dialog/returned-login-map :store))
-      (ln.db-retriever/authenticate-user));; the if is true
-    )
-   
+      (ln.db-retriever/authenticate-user)
+      (if(get-authenticated)
+        (ln.DatabaseManager.)
+        (JOptionPane/showMessageDialog nil "Login credentials are invalid!" )));; the if is true i.e. need a login dialog
+    (ln.DatabaseManager. )))  ;;if is false - can auto-login
     
-    (do
-      (println "before login dialog request")
-      
-      (println "after login dialog request")
-       (if(ln.dialog/returned-login-map :store)
-           (do
-             (ln.DatabaseManager. ) ;;login after storing user/pass
-             (ln.DatabaseManager. )) ;;ELSE login without storing
-           ) ;;if store name is blank
-    (ln.DatabaseManager. ))  ;;if store has no user
-    (ln.DatabaseManager. )  ;;there is a user
-    ))
 
 ;;(login-to-database)
 
@@ -205,21 +198,6 @@
     :help-url-prefix (c/get-at! props [:assets :conn :help-url-prefix])
     :password (c/get-at! props [:assets :conn :password])
     :user (c/get-at! props [:assets :conn :user])}))
-
-
-
-(defn print-all-props []
-  (do
-    (println ":conn in ln-props")
-    (println "------------")
-    (println (str "Host: " (c/get-at! props [:assets :conn :host]) ))
-    (println (str "Port: " (c/get-at! props [:assets :conn :port]) ))
-    (println (str "ssl-mode: " (c/get-at! props [:assets :conn :sslmode]) ))
-    (println (str "Source: " (c/get-at! props [:assets :conn :source]) ))
-    (println (str "dbname: " (c/get-at! props [:assets :conn :dbname]) ))
-    (println (str "help-url-prefix: " (c/get-at! props [:assets :conn :help-url-prefix]) ))
-    (println (str "password: " (c/get-at! props [:assets :conn :password]) ))
-    (println (str "user: " (c/get-at! props [:assets :conn :user]) ))))
 
 
   (defn print-ap 
@@ -321,14 +299,6 @@
 
 
 
-      (defn set-authenticated [b]
-          (c/with-write-transaction [props tx]
-        (c/assoc-at tx  [:assets :session :authenticated] b)))
-
-(defn get-authenticated []
-  (c/get-at! props [:assets :session :authenticated ]))
-
-
 (defn -main
   "I don't do a whole lot ... yet."
   [& args]
@@ -343,6 +313,8 @@
   (login-to-database ))
 
 ;;(-main)
-
+;;(print-ap)
 ;;(c/close-database! props)
+
+;;https://cb.codes/a-tutorial-of-stuart-sierras-component-for-clojure/
 

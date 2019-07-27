@@ -1,7 +1,6 @@
 package ln;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -11,7 +10,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Properties;
 import java.util.Set;
 import java.util.Vector;
 import java.util.logging.Logger;
@@ -59,44 +57,6 @@ public class DatabaseManager {
   IFn getUser = Clojure.var("ln.session", "get-user");
     IFn getPassword = Clojure.var("ln.session", "get-password");
    
-	  // String url = "jdbc:postgresql://localhost/postgres";
-	  //String source = (String)getSource.invoke();
-	  String source = "local";
-	  
-	  System.out.println("source: " + source);
-	  IFn getURL = Clojure.var("ln.session", "get-connection-string");
-	  String url = (String)getURL.invoke(source);
-	  System.out.println("Connection string in dbm: " + url);
-	  Properties props = new Properties();
-	  props.setProperty("user", (String)getUser.invoke());
-	  props.setProperty("password",(String) getPassword.invoke());
-
-	  conn = DriverManager.getConnection(url, props);
-	  //LOGGER.info("conn: " + conn);
-	  PreparedStatement pstmt = conn.prepareStatement(
-              //  "SELECT password = crypt( ?,password) FROM lnuser WHERE lnuser_name = ?;");
-              "SELECT password = ?, password FROM lnuser WHERE lnuser_name = ?;");
-	  pstmt.setString(1,(String) getPassword.invoke());
-	  pstmt.setString(2, (String)getUser.invoke());
-	  //LOGGER.info("pstmnt: " + pstmt);
-	  ResultSet rs = pstmt.executeQuery();
-	  rs.next();
-	  boolean pass = rs.getBoolean(1);
-
-	  rs.close();
-	  pstmt.close();
-
-      if (pass) {
-	  String u = (String)getUser.invoke();
-	  int uid = getUserIDForUserName(u);
-	  String ug = getUserGroupForUserName(u);
-	  IFn setUidUgAuth = Clojure.var("ln.session", "set-uid-ug-auth");
-	  LOGGER.info("set auth");
-	  //	  setAuthenticated.invoke( true);
-	  LOGGER.info("user id");
-	  //setUserID.invoke(uid);
-	  LOGGER.info("user group");
-	  setUidUgAuth.invoke(uid, ug, true);
         
         String insertSql =
 	    "INSERT INTO lnsession (lnuser_id) values (?);";
