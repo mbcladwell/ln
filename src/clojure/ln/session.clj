@@ -1,5 +1,5 @@
 (ns ln.session
-  (:use ln.dialog ln.db-inserter :reload)
+  (:use ln.dialog ln.db-inserter ln.db-retriever :reload)
 
   (:require [clojure.java.jdbc :as sql]
             [honeysql.core :as hsql]
@@ -19,7 +19,9 @@
 ;;(read-props-text-file)
 
 (defn set-ln-props [ path-to-db ]
-    (def props (c/open-database! path-to-db))  )
+  (def props (c/open-database! path-to-db))  )
+
+;;(set-ln-props "./ln-props")
 
 
 (defn create-ln-props-from-text []
@@ -72,10 +74,28 @@
 (defn get-password []
   (c/get-at! props [:assets :conn :password]))
 
+(defn get-auto-login []
+  (c/get-at! props [:assets :conn :auto-login]))
+
+(defn set-auto-login [b]
+  (c/with-write-transaction [props tx]
+        (c/assoc-at tx  [:assets :session :auto-login] b)))
+
+(defn set-u-p-al
+  ;;user name, password, auto-login
+  ;;only used during login
+  [u p al]
+  (c/with-write-transaction [props tx]
+    (c/merge-at tx [:assets] {:session {:user u :password p :auto-login al}})))
+  
+ 
+
+
 (defn set-uid-ug-auth [ uid ug auth ]
   (c/with-write-transaction [props tx]
     (c/merge-at tx [:assets] {:session {:user-id uid :user-group ug :authenticated auth}})))
-  
+
+
 
 (defn set-ln-props [ path-to-db ]
     (def props (c/open-database! path-to-db))  )
@@ -94,6 +114,18 @@
 
 
 ;;(create-ln-props "127.0.0.1" "5432" "lndb" "local" "false" "ln_admin" "welcome")
+
+
+(def pg-db  {:dbtype "postgresql"
+            :dbname "lndb"
+            :host (get-host)
+            :user (get-user)
+             :password (get-password)
+             :port (get-port)
+            :ssl (get-sslmode)
+            :sslfactory "org.postgresql.ssl.NonValidatingFactory"})
+
+
 
 (defn  get-connection-string [target]	  
   (case target
@@ -123,15 +155,23 @@
 
 (defn login-to-database
   []
-  (if(clojure.string/blank? (c/get-at! props [:assets :conn :user]))
+  (if(or (clojure.string/blank? (c/get-at! props [:assets :conn :user]))
+         (not (c/get-at! props [:assets :conn :auto-login])))
+    (do
+      (login-dialog)
+      (set-u-p-al (ln.dialog/returned-login-map :name)
+                  (ln.dialog/returned-login-map :password)
+                  (ln.dialog/returned-login-map :store))
+      (ln.db-retriever/authenticate-user));; the if is true
+    )
+   
+    
     (do
       (println "before login dialog request")
-       (login-dialog)
+      
       (println "after login dialog request")
        (if(ln.dialog/returned-login-map :store)
            (do
-             (set-user (ln.dialog/returned-login-map :name))
-             (set-password (ln.dialog/returned-login-map :password))
              (ln.DatabaseManager. ) ;;login after storing user/pass
              (ln.DatabaseManager. )) ;;ELSE login without storing
            ) ;;if store name is blank
@@ -189,7 +229,7 @@
 
   ;;(print-ap)
   ;;(print-all-props)
-  
+
 
 
 (defn set-user-id [i]
