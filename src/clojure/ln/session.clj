@@ -1,11 +1,11 @@
 (ns ln.session
   (:require [clojure.java.jdbc :as sql]
-            [honeysql.core :as hsql]
-            [honeysql.helpers :refer :all :as helpers]
+            ;;[honeysql.core :as hsql]
+            ;;[honeysql.helpers :refer :all :as helpers]
             [clojure.data.csv :as csv]
             [codax.core :as c]
             [clojure.java.io :as io]
-            [ln.dialog] [ln.db-inserter] [ln.db-retriever])
+            [ln.dialog] [ln.db-inserter] [ln.db-retriever] [ln.codax-manager])
   (:import java.sql.DriverManager javax.swing.JOptionPane)
   (:gen-class ))
 
@@ -142,6 +142,17 @@
 
 ;;https://push-language.hampshire.edu/t/calling-clojure-code-from-java/865
 ;;(open-props-if-exists)
+
+
+(def pg-db  {:dbtype "postgresql"
+            :dbname "lndb"
+            :host (get-host)
+            :user (get-user)
+             :password (get-password)
+             :port (get-port)
+            :ssl (get-sslmode)
+            :sslfactory "org.postgresql.ssl.NonValidatingFactory"})
+
 
 
 

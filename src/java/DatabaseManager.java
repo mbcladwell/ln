@@ -58,29 +58,10 @@ public class DatabaseManager {
     IFn getPassword = Clojure.var("ln.session", "get-password");
    
         
-        String insertSql =
-	    "INSERT INTO lnsession (lnuser_id) values (?);";
-       
-	// "INSERT INTO lnsession (lnuser_id) SELECT id FROM lnuser WHERE lnuser_name = ?;";
-        PreparedStatement insertPs =
-            conn.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS);
-        insertPs.setInt(1, (int)getUserID.invoke());
-        insertPs.executeUpdate();
-        ResultSet rsKey = insertPs.getGeneratedKeys();
-
-        if (rsKey.next()) {
-          insertKey = rsKey.getLong(1);
-	  IFn setSessionID = Clojure.var("ln.session", "set-session-id");
-	  setSessionID.invoke(insertKey.intValue());
-
-          // LOGGER.info("rsKey: " + insertKey);
-        }
-
-      } else {
-        LOGGER.info("Authentication failed, no session generated.");
-
+      
+     
 	
-      }
+      
 
       //This is the first initialization of  DatabaseRetriever, DatabaseInserter
       dbRetriever = new DatabaseRetriever(this);
