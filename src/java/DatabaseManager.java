@@ -1,6 +1,7 @@
 package ln;
 
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -43,22 +44,28 @@ public class DatabaseManager {
   public DatabaseManager() {
       //LOGGER.info("in session: " + _s);
       IFn require = Clojure.var("clojure.core", "require");
-    require.invoke(Clojure.read("ln.session"));
-    IFn setUser = Clojure.var("ln.session", "set-user");
-    IFn setUserID = Clojure.var("ln.session", "set-user-id");
-    IFn getUserID = Clojure.var("ln.session", "get-user-id");
-    IFn setAuthenticated = Clojure.var("ln.session", "set-authenticated");
+    require.invoke(Clojure.read("ln.codax-manager"));
+    IFn setUser = Clojure.var("ln.codax-manager", "set-user");
+    IFn setUserID = Clojure.var("ln.codax-manager", "set-user-id");
+    IFn getUserID = Clojure.var("ln.codax-manager", "get-user-id");
+    IFn setAuthenticated = Clojure.var("ln.codax-manager", "set-authenticated");
     
    
       Long insertKey = 0L;
       try {
 	  Class.forName("org.postgresql.Driver");
-	  IFn getSource = Clojure.var("ln.session", "get-source");
-  IFn getUser = Clojure.var("ln.session", "get-user");
-    IFn getPassword = Clojure.var("ln.session", "get-password");
+	  IFn getSource = Clojure.var("ln.codax-manager", "get-source");
+  IFn getUser = Clojure.var("ln.codax-manager", "get-user");
+    IFn getPassword = Clojure.var("ln.codax-manager", "get-password");
    
         
-      
+        String url = session.getURL();
+	  Properties props = new Properties();
+	  props.setProperty("user", "ln_admin");
+	  props.setProperty("password", "welcome");
+
+	  conn = DriverManager.getConnection(url, props);
+	
      
 	
       
@@ -78,7 +85,7 @@ public class DatabaseManager {
   public void updateSessionWithProject(String _project_sys_name) {
     int results = 0;
     String project_sys_name = _project_sys_name;
-      IFn setProjectSysName = Clojure.var("ln.session", "set-project-sys-name");
+      IFn setProjectSysName = Clojure.var("ln.codax-manager", "set-project-sys-name");
   
     setProjectSysName.invoke(project_sys_name);
 
@@ -90,7 +97,7 @@ public class DatabaseManager {
       rs.next();
       results = rs.getInt("id");
       LOGGER.info("projectID: " + results);
-    IFn setProjectID = Clojure.var("ln.session", "set-project-id");
+    IFn setProjectID = Clojure.var("ln.codax-manager", "set-project-id");
       setProjectID.invoke(results);
 
       rs.close();

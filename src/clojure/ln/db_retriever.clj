@@ -2,9 +2,11 @@
   (:require [clojure.java.jdbc :as j]
             [honeysql.core :as hsql]
             [honeysql.helpers :refer :all :as helpers]
-            [clojure.data.csv :as csv]
-            [clojure.java.io :as io]
-            [ln.session :as s])         
+            [ln.db-manager :as dbm]
+            [ln.codax-manager :as cm])
+         ;;   [clojure.data.csv :as csv]
+          ;;  [clojure.java.io :as io])
+            
   (:import java.sql.DriverManager))
 
 
@@ -13,21 +15,21 @@
 (defn authenticate-user
   ;;variable from codax
   []
-  (let [user (s/get-user)
-        password (s/get-password)
-        results (j/query s/pg-db ["SELECT lnuser.id, lnuser.password, lnuser_groups.id, lnuser_groups.groupname  FROM lnuser, lnuser_groups  WHERE lnuser_groups.id = lnuser.usergroup and lnuser_name = ?"  user ])]
+  (let [user (cm/get-user)
+        password (cm/get-password)
+        results (j/query dbm/pg-db ["SELECT lnuser.id, lnuser.password, lnuser_groups.id, lnuser_groups.groupname  FROM lnuser, lnuser_groups  WHERE lnuser_groups.id = lnuser.usergroup and lnuser_name = ?"  user ])]
     (if (= password (get (first results) :password))
-      (do (s/set-uid-ugid-ug-auth
+      (do (cm/set-uid-ugid-ug-auth
            (get (first results) :id)         
            (get (first results) :id_2)
            (get (first results) :groupname)
            true)
-          (let [ result2 (j/insert! s/pg-db :lnsession {:lnuser_id  (get (first results) :id) } )]
-           (s/set-session-id (get (first result2) :id)) ));;valid
-    (s/set-authenticated false);;invalid
+          (let [ result2 (j/insert! dbm/pg-db :lnsession {:lnuser_id  (get (first results) :id) } )]
+           (cm/set-session-id (get (first result2) :id)) ));;valid
+    (cm/set-authenticated false);;invalid
     )))
 
 ;;(authenticate-user)
-;;(s/print-ap)
+;;(cm/print-ap)
 
-(j/insert! pg-db :lnsession {:lnuser_id  1 } )
+;;(j/insert! dbm/pg-db :lnsession {:lnuser_id  1 } )
