@@ -55,8 +55,8 @@ public class ImportLayoutViewer extends JDialog implements java.awt.event.Action
 	this.dmf = dbm.getDialogMainFrame();
     this.gridData = dmf.getUtilities().convertTableToPlate( _gridData, "type");
     //this.session = dmf.getSession();
-    require.invoke(Clojure.read("ln.session"));
-     IFn getUser = Clojure.var("ln.session", "get-user");
+    require.invoke(Clojure.read("ln.codax-manager"));
+     IFn getUser = Clojure.var("ln.codax-manager", "get-user");
     
      owner = (String)getUser.invoke();
     // Create and set up the window.

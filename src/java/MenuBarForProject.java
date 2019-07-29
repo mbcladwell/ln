@@ -37,7 +37,7 @@ public class MenuBarForProject extends JMenuBar {
     project_table = _project_table;
     //session = dbm.getDialogMainFrame().getSession();
      IFn require = Clojure.var("clojure.core", "require");
-    require.invoke(Clojure.read("ln.session"));
+    require.invoke(Clojure.read("ln.codax-manager"));
 
     JMenu menu = new JMenu("Project");
     menu.setMnemonic(KeyEvent.VK_P);
@@ -109,7 +109,7 @@ public class MenuBarForProject extends JMenuBar {
     menu = new ViewerMenu(dbm);
     this.add(menu);
 
-    IFn getUserGroup = Clojure.var("ln.session", "get-user-group");
+    IFn getUserGroup = Clojure.var("ln.codax-manager", "get-user-group");
     
     if(getUserGroup.invoke().equals("administrator")){
     menu = new AdminMenu(dbm, project_table);

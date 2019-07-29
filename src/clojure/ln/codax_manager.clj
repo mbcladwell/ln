@@ -19,12 +19,14 @@
   (c/assoc-at [:assets :session] {:project-id 0
 	                          :project-sys-name ""
 	                          :user-id 0
-                                  :user-sys-name ""
+                                  :user-name ""
                                   :plateset-id 0
                                   :plateset-sys-name ""
-	                          :user-group-id 0
+	                          :user-group-id 2
+                                  :user-group "user"
 	                          :session-id 0
                                   :working-dir ""
+                                  :authenticated false
                                   })))
  (c/close-database! props)))
 
@@ -44,10 +46,12 @@
         (JOptionPane/showMessageDialog nil "limsnucleus.properties file is missing!"  )))))
 
 
+(open-or-create-props)
 ;;(create-ln-props-from-text)
 ;;(open-or-create-props)
 ;;(print-ap)
 ;;(c/close-database! props)
+;;
 
 
 (defn set-user [u]
@@ -94,9 +98,17 @@
   ;;only used during login
   [u p al]
   (c/with-write-transaction [props tx]
-    (c/merge-at tx [:assets] {:conn {:user u :password p :auto-login al}})))
-  
- 
+    (-> tx
+     (c/assoc-at   [:assets :conn :user] u)
+     (c/assoc-at  [:assets :conn :password] p) 
+     (c/assoc-at  [:assets :conn :auto-login] al))))
+
+;;(set-u-p-al "ln_admin" "welcome" true)
+;;(str props)
+;;(print-ap)
+;;(open-or-create-props)
+;;(c/close-database! props)
+;;(c/destroy-database! props)
 
 
 (defn set-uid-ugid-ug-auth [ uid ugid ug auth ]
@@ -106,8 +118,8 @@
 
 
 (defn set-authenticated [b]
-          (c/with-write-transaction [props tx]
-        (c/assoc-at tx  [:assets :session :authenticated] b)))
+  (c/with-write-transaction [props tx]
+    (c/assoc-at tx  [:assets :session :authenticated] b)))
 
 (defn get-authenticated []
   (c/get-at! props [:assets :session :authenticated ]))
@@ -163,7 +175,7 @@
 (defn get-user-group []
   (c/get-at! props [:assets :session :user-group ]))
 
-
+;;(get-user-group)
 (defn get-user-group-id []
   (c/get-at! props [:assets :session :user-group-id ]))
 
@@ -182,6 +194,9 @@
 (defn set-project-sys-name [s]
     (c/with-write-transaction [props tx]
         (c/assoc-at tx  [:assets :session :project-sys-name] s)))
+;;(set-project-sys-name "PRJ-??")
+  ;;(print-ap)
+
 
 (defn get-project-sys-name []
     (c/get-at! props [:assets :session :project-sys-name ]))
@@ -214,9 +229,9 @@
 (defn get-session-id []
   (c/get-at! props [:assets :session :session-id ]))
 
-  (defn set-session-id [i]
-      (c/with-write-transaction [props tx]
-        (c/assoc-at tx  [:assets :session :session-id] i)))
+(defn set-session-id [i]
+  (c/with-write-transaction [props tx]
+    (c/assoc-at tx  [:assets :session :session-id] i)))
   
 (defn get-home-dir []
    (java.lang.System/getProperty "user.home"))

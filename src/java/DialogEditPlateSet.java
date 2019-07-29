@@ -52,9 +52,9 @@ public class DialogEditPlateSet extends JDialog {
       DatabaseManager _dbm, String _plate_set_sys_name, String _name, String _description) {
       dbm = _dbm;
       dmf = dbm.getDialogMainFrame();
-      require.invoke(Clojure.read("ln.session"));
+      require.invoke(Clojure.read("ln.codax-manager"));
       //session = dmf.getSession();
-        IFn getProjectSysName = Clojure.var("ln.session", "get-project-sys-name");
+        IFn getProjectSysName = Clojure.var("ln.codax-manager", "get-project-sys-name");
 
 	project_sys_name = (String)getProjectSysName.invoke();
     //dbm = session.getDatabaseManager();
@@ -101,7 +101,7 @@ public class DialogEditPlateSet extends JDialog {
     c.anchor = GridBagConstraints.LINE_START;
     pane.add(label, c);
 
-      IFn getUser = Clojure.var("ln.session", "get-user");
+      IFn getUser = Clojure.var("ln.codax-manager", "get-user");
    
       label = new JLabel((String)getUser.invoke());
     c.gridx = 1;

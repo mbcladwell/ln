@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Properties;
 import java.util.Set;
 import java.util.Vector;
 import java.util.logging.Logger;
@@ -25,12 +26,12 @@ import clojure.lang.IFn;
 
 /** */
 public class DatabaseManager {
-  Connection conn;
+    Connection conn;
   // CustomTable table;
-     DatabaseInserter dbInserter;
+    DatabaseInserter dbInserter;
     DatabaseRetriever dbRetriever;
-  DialogMainFrame dmf;
-    String source; //the connection source e.g. local, heroku
+    DialogMainFrame dmf;
+    String source; // The connection source e.g. local, heroku
     // Session session;
   private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
@@ -55,19 +56,17 @@ public class DatabaseManager {
       try {
 	  Class.forName("org.postgresql.Driver");
 	  IFn getSource = Clojure.var("ln.codax-manager", "get-source");
-  IFn getUser = Clojure.var("ln.codax-manager", "get-user");
-    IFn getPassword = Clojure.var("ln.codax-manager", "get-password");
+	  IFn getUser = Clojure.var("ln.codax-manager", "get-user");
+	  IFn getPassword = Clojure.var("ln.codax-manager", "get-password");
+	  IFn getURL = Clojure.var("ln.db-manager", "get-connection-string");
    
-        
-        String url = session.getURL();
+	  String target = (String)getSource.invoke();
+	  String url = (String)getURL.invoke(target);
 	  Properties props = new Properties();
 	  props.setProperty("user", "ln_admin");
 	  props.setProperty("password", "welcome");
 
-	  conn = DriverManager.getConnection(url, props);
-	
-     
-	
+	  conn = DriverManager.getConnection(url, props);	
       
 
       //This is the first initialization of  DatabaseRetriever, DatabaseInserter
@@ -88,7 +87,7 @@ public class DatabaseManager {
       IFn setProjectSysName = Clojure.var("ln.codax-manager", "set-project-sys-name");
   
     setProjectSysName.invoke(project_sys_name);
-
+    LOGGER.info("Project sys name: " + project_sys_name);
     try {
       String query =
           new String("SELECT id FROM project WHERE project_sys_name = '" + project_sys_name + "';");
@@ -96,12 +95,12 @@ public class DatabaseManager {
       ResultSet rs = st.executeQuery(query);
       rs.next();
       results = rs.getInt("id");
-      LOGGER.info("projectID: " + results);
-    IFn setProjectID = Clojure.var("ln.codax-manager", "set-project-id");
-      setProjectID.invoke(results);
-
       rs.close();
       st.close();
+      LOGGER.info("projectID: " + results);
+      IFn setProjectID = Clojure.var("ln.codax-manager", "set-project-id");
+      setProjectID.invoke(results);
+
     } catch (SQLException sqle) {
       LOGGER.warning("Failed to properly prepare  prepared statement: " + sqle);
     }

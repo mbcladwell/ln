@@ -43,9 +43,9 @@ public class DatabaseInserter {
     // this.dbr = dbm.getDatabaseRetriever();
     //session = dbm.getSession();
     this.dmf = dbm.getDialogMainFrame();
-    require.invoke(Clojure.read("ln.session"));
-    	 IFn getSessionID = Clojure.var("ln.session", "get-session-id");
-	 session_id = (int)getSessionID.invoke();
+    require.invoke(Clojure.read("ln.codax-manager"));
+    	 IFn getSessionID = Clojure.var("ln.codax-manager", "get-session-id");
+	 session_id = ((Long)getSessionID.invoke()).intValue();
     // this.utils = dmf.getUtilities();
     //this.session = dmf.getSession();
   }
@@ -327,7 +327,7 @@ public int insertPlateSet(
     LOGGER.info("keys: " + plate_ids);
 
     this.associatePlateIDsWithPlateSetID(all_plate_ids, new_plate_set_id);
-     IFn getProjectSysName = Clojure.var("ln.session", "get-project-sys-name");
+     IFn getProjectSysName = Clojure.var("ln.codax-manager", "get-project-sys-name");
    
      dbm.getDialogMainFrame().showPlateSetTable((String)getProjectSysName.invoke());
   }
@@ -392,7 +392,7 @@ public int insertPlateSet(
     LOGGER.info("keys: " + plate_ids);
 
     this.associatePlateIDsWithPlateSetID(plate_ids, new_plate_set_id);
-     IFn getProjectSysName = Clojure.var("ln.session", "get-project-sys-name");
+     IFn getProjectSysName = Clojure.var("ln.codax-manager", "get-project-sys-name");
    
     dbm.getDialogMainFrame().showPlateSetTable((String)getProjectSysName.invoke());
   }
@@ -670,7 +670,7 @@ if(num_of_plate_ids*format_id!=table.size()-1){
 	int n_reps_source = _n_reps_source;
        
 	int dest_plate_num = (int)Math.ceil(source_plate_num*n_reps_source/4.0);
-	IFn getProjectID = Clojure.var("ln.session", "get-project-id");
+	IFn getProjectID = Clojure.var("ln.codax-manager", "get-project-id");
    	int project_id = (int)getProjectID.invoke();
 	int dest_plate_set_id=0;
 
@@ -698,7 +698,7 @@ if(num_of_plate_ids*format_id!=table.size()-1){
       ResultSet resultSet = insertPs.getResultSet();
       resultSet.next();
       dest_plate_set_id = resultSet.getInt("reformat_plate_set");
-       IFn getProjectSysName = Clojure.var("ln.session", "get-project-sys-name");
+       IFn getProjectSysName = Clojure.var("ln.codax-manager", "get-project-sys-name");
    
       dbm.getDialogMainFrame().showPlateSetTable((String)getProjectSysName.invoke());
     } catch (SQLException sqle) {
@@ -905,7 +905,7 @@ if(num_of_plate_ids*format_id!=table.size()-1){
       int hit_list_id = _hit_list_id;
       int dest_plate_set_id =0;
     try {
-	 IFn getProjectID = Clojure.var("ln.session", "get-project-id");
+	 IFn getProjectID = Clojure.var("ln.codax-manager", "get-project-id");
    
 	int project_id = (int)getProjectID.invoke();
       int plate_format_id = _plate_format_id;
@@ -1102,7 +1102,7 @@ if(num_of_plate_ids*format_id!=table.size()-1){
       int _plate_layout_id) {
 
     try {
-	 IFn getProjectID = Clojure.var("ln.session", "get-project-id");
+	 IFn getProjectID = Clojure.var("ln.codax-manager", "get-project-id");
    
 	int project_id = (int)getProjectID.invoke();
       int plate_format_id =
@@ -1133,7 +1133,7 @@ if(num_of_plate_ids*format_id!=table.size()-1){
     } catch (SQLException sqle) {
       LOGGER.severe("Failed to create plate set: " + sqle);
     }
- IFn getProjectSysName = Clojure.var("ln.session", "get-project-sys-name");
+ IFn getProjectSysName = Clojure.var("ln.codax-manager", "get-project-sys-name");
    
     dbm.getDialogMainFrame().showPlateSetTable((String)getProjectSysName.invoke());    
   }

@@ -74,8 +74,8 @@ public class DialogRearrayHitList extends JDialog {
     hit_list_sys_name = _hit_list_sys_name;
     dest_plate_set_format = source_plate_set_format;
     unknown_count = _unknown_count;
-    require.invoke(Clojure.read("ln.session"));
-     IFn getUser = Clojure.var("ln.session", "get-user");
+    require.invoke(Clojure.read("ln.codax-manager"));
+     IFn getUser = Clojure.var("ln.codax-manager", "get-user");
     
      //    this.session = dmf.getSession();
      owner = (String)getUser.invoke();

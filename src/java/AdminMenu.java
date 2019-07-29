@@ -35,7 +35,7 @@ public class AdminMenu extends JMenu {
       dmf = dbm.getDialogMainFrame();
     project_table = _project_table;
     //session = dmf.getSession();
-    require.invoke(Clojure.read("ln.session"));
+    require.invoke(Clojure.read("ln.codax-manager"));
     
     this.setText("Admin");
     this.setMnemonic(KeyEvent.VK_A);
@@ -78,7 +78,7 @@ public class AdminMenu extends JMenu {
 		  String name = project_table.getValueAt(rowIndex, 1).toString();
 		  String owner = project_table.getValueAt(rowIndex, 2).toString();
 		  String description = project_table.getValueAt(rowIndex, 3).toString();
-		      IFn getUser = Clojure.var("ln.session", "get-user");
+		      IFn getUser = Clojure.var("ln.codax-manager", "get-user");
  
 		      if (owner.equals((String)getUser.invoke())) {
 		      new DialogEditProject(dbm, projectid, name, description);
@@ -108,7 +108,7 @@ public class AdminMenu extends JMenu {
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
 	      try{
-		      IFn getUser = Clojure.var("ln.session", "get-user");
+		      IFn getUser = Clojure.var("ln.codax-manager", "get-user");
  
 		  int rowIndex = project_table.getSelectedRow();
 		  String projectid = project_table.getValueAt(rowIndex, 0).toString();

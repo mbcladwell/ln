@@ -57,8 +57,8 @@ public class DialogAddPlateSet extends JDialog {
   public DialogAddPlateSet(DatabaseManager _dbm) {
       dbm = _dbm;
       this.dmf = dbm.getDialogMainFrame();
-    require.invoke(Clojure.read("ln.session"));
-     IFn getUser = Clojure.var("ln.session", "get-user");
+    require.invoke(Clojure.read("ln.codax-manager"));
+     IFn getUser = Clojure.var("ln.codax-manager", "get-user");
       //this.session = dmf.getSession();
      owner = (String)getUser.invoke();
     // Create and set up the window.
@@ -219,7 +219,7 @@ public class DialogAddPlateSet extends JDialog {
     okButton.addActionListener(
         (new ActionListener() {
           public void actionPerformed(ActionEvent e) {
-	        IFn getProjectID = Clojure.var("ln.session", "get-project-id");
+	        IFn getProjectID = Clojure.var("ln.codax-manager", "get-project-id");
   
                 dbm
 		    .getDatabaseInserter().insertPlateSet(
@@ -231,7 +231,7 @@ public class DialogAddPlateSet extends JDialog {
 		    (int)getProjectID.invoke(),
 		    ((ComboItem)layoutList.getSelectedItem()).getKey(),
 							  true);
-		    IFn getProjectSysName = Clojure.var("ln.session", "get-project-sys-name");
+		    IFn getProjectSysName = Clojure.var("ln.codax-manager", "get-project-sys-name");
 
 		    dbm.getDialogMainFrame().showPlateSetTable((String)getProjectSysName.invoke());
             dispose();

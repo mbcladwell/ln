@@ -53,7 +53,7 @@ public class DialogEditProject extends JDialog {
       // session = dmf.getSession();
       //dbm = session.getDatabaseManager();
     projectID = _projectid;
-    require.invoke(Clojure.read("ln.session"));
+    require.invoke(Clojure.read("ln.codax-manager"));
 
     JPanel pane = new JPanel(new GridBagLayout());
     pane.setBorder(BorderFactory.createRaisedBevelBorder());
@@ -96,7 +96,7 @@ public class DialogEditProject extends JDialog {
     c.anchor = GridBagConstraints.LINE_START;
     pane.add(label, c);
 
-        IFn getUser = Clojure.var("ln.session", "get-user");
+        IFn getUser = Clojure.var("ln.codax-manager", "get-user");
  
 	label = new JLabel((String)getUser.invoke());
     c.gridx = 1;

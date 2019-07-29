@@ -4,10 +4,10 @@
             ;;[honeysql.helpers :refer :all :as helpers]
             [clojure.data.csv :as csv]
             [ln.codax-manager :as cm]          
-            [ln.dialog :as d]
-            [ln.db-inserter :as dbi]
-            [ln.db-retriever :as dbr] )
- 
+           ;; [ln.db-inserter :as dbi]
+            [ln.db-retriever :as dbr]
+            [ln.dialog :as d])
+   (:import javax.swing.JOptionPane)
   (:gen-class ))
 
 ;;https://push-language.hampshire.edu/t/calling-clojure-code-from-java/865
@@ -23,22 +23,22 @@
       (d/login-dialog)
       (cm/set-u-p-al (d/returned-login-map :name)
                   (d/returned-login-map :password)
-                  (d/returned-login-map :store))
+                  (str (d/returned-login-map :store)))
+     
       (dbr/authenticate-user)
       (if(cm/get-authenticated)
         (ln.DatabaseManager.)
         (JOptionPane/showMessageDialog nil "Invalid login credentials!" )));; the if is true i.e. need a login dialog
     (ln.DatabaseManager. )))  ;;if is false - can auto-login
-    
+
+;;(cm/set-u-p-al "aaa" "bbb" false)
 
 ;;(login-to-database)
 
 (defn -main
   "I don't do a whole lot ... yet."
-  [& args]
-  (do
-  (cm/open-or-create-props)
-  (login-to-database )))
+  [& args]    
+  (login-to-database ))
 
 ;;(-main)
 

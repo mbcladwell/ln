@@ -82,8 +82,8 @@ public class LayoutViewer extends JDialog implements java.awt.event.ActionListen
       dbm = _dbm;
       this.dmf = dbm.getDialogMainFrame();
       // this.session = dmf.getSession();
-    require.invoke(Clojure.read("ln.session"));
-       IFn getUser = Clojure.var("ln.session", "get-user");
+    require.invoke(Clojure.read("ln.codax-manager"));
+       IFn getUser = Clojure.var("ln.codax-manager", "get-user");
   
        owner = (String)getUser.invoke();
     //layoutNames = session.getDatabaseManager().getDatabaseRetriever().getPlateLayoutNames(96);
@@ -254,7 +254,7 @@ public class LayoutViewer extends JDialog implements java.awt.event.ActionListen
     }
 
     if (e.getSource() == helpButton) {
-	  IFn getHelpURLPrefix = Clojure.var("ln.session", "get-help-url-prefix");
+	  IFn getHelpURLPrefix = Clojure.var("ln.codax-manager", "get-help-url-prefix");
   
 	openWebpage(URI.create((String)getHelpURLPrefix.invoke() + "layouts"));
     }

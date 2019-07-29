@@ -114,7 +114,7 @@ public class MenuBarForPlate extends JMenuBar {
               int i = plate_table.getSelectedRow();
               String plate_sys_name = (String) plate_table.getValueAt(i, 0);
 	      //dbm.setPlateSysName(plate_sys_name);
-	       IFn setPlateID = Clojure.var("ln.session", "set-plate-id");
+	       IFn setPlateID = Clojure.var("ln.codax-manager", "set-plate-id");
 
 	      setPlateID.invoke(Integer.parseInt(plate_sys_name.substring(3)));
   

@@ -57,8 +57,8 @@ public class DialogNewHitList extends JDialog {
     public DialogNewHitList(DatabaseManager _dbm, int  _assay_run_id, double[][] _selected_response, int _num_hits) {
     dbm = _dbm;
     this.dmf = dbm.getDialogMainFrame();
-    require.invoke(Clojure.read("ln.session"));
-         IFn getUser = Clojure.var("ln.session", "get-user");
+    require.invoke(Clojure.read("ln.codax-manager"));
+         IFn getUser = Clojure.var("ln.codax-manager", "get-user");
 
     owner = (String)getUser.invoke();
     assay_run_id = _assay_run_id;

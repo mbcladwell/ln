@@ -36,7 +36,7 @@ public class MenuBarForPlateSet extends JMenuBar {
     plate_set_table = _plate_set_table;
     //session = dmf.getSession();
        IFn require = Clojure.var("clojure.core", "require");
-    require.invoke(Clojure.read("ln.session"));
+    require.invoke(Clojure.read("ln.codax-manager"));
 
     JMenu menu = new JMenu("Plate Set");
     menu.setMnemonic(KeyEvent.VK_P);
@@ -67,7 +67,7 @@ public class MenuBarForPlateSet extends JMenuBar {
 		  String name = plate_set_table.getValueAt(rowIndex, 1).toString();
 		  int plate_set_owner_id = dbm.getDatabaseRetriever().getPlateSetOwnerID(plate_set_id);
 		  String description = plate_set_table.getValueAt(rowIndex, 6).toString();
-		  IFn getUserID = Clojure.var("ln.session", "get-user-id");
+		  IFn getUserID = Clojure.var("ln.codax-manager", "get-user-id");
    
 		  if ( plate_set_owner_id == (int)getUserID.invoke()) {
 		      new DialogEditPlateSet(dbm, plate_set_sys_name, name, description);
@@ -269,10 +269,10 @@ public class MenuBarForPlateSet extends JMenuBar {
             try {
               int i = plate_set_table.getSelectedRow();
               String plate_set_sys_name = (String) plate_set_table.getValueAt(i, 0);
-	      IFn setPlateSetSysName = Clojure.var("ln.session", "set-plate-set-sys-name");
+	      IFn setPlateSetSysName = Clojure.var("ln.codax-manager", "set-plate-set-sys-name");
 
               setPlateSetSysName.invoke(plate_set_sys_name);
-	         IFn setPlateSetID = Clojure.var("ln.session", "set-plate-set-id");
+	         IFn setPlateSetID = Clojure.var("ln.codax-manager", "set-plate-set-id");
 
 	      setPlateSetID.invoke(Integer.parseInt(plate_set_sys_name.substring(3)));
               //System.out.println("plate_set_sys_name: " + plate_set_sys_name);

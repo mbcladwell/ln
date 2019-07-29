@@ -47,7 +47,7 @@ public class DialogAddProject extends JDialog {
   public DialogAddProject(DatabaseManager _dbm) {
       dbm = _dbm;
       dmf = dbm.getDialogMainFrame();
-    require.invoke(Clojure.read("ln.session"));
+    require.invoke(Clojure.read("ln.codax-manager"));
       //session = dmf.getSession();
       //dbm = session.getDatabaseManager();
 
@@ -92,7 +92,7 @@ public class DialogAddProject extends JDialog {
     c.anchor = GridBagConstraints.LINE_START;
     pane.add(label, c);
 
-         IFn getUser = Clojure.var("ln.session", "get-user");
+         IFn getUser = Clojure.var("ln.codax-manager", "get-user");
 
 	 label = new JLabel((String)getUser.invoke());
     c.gridx = 1;
@@ -125,7 +125,7 @@ public class DialogAddProject extends JDialog {
     okButton.addActionListener(
         (new ActionListener() {
           public void actionPerformed(ActionEvent e) {
-    IFn getUserID = Clojure.var("ln.session", "get-user-id");
+    IFn getUserID = Clojure.var("ln.codax-manager", "get-user-id");
 
             // DatabaseManager dm = new DatabaseManager();
             // dbm.persistObject(new Project(descriptionField.getText(), ownerField.getText(),

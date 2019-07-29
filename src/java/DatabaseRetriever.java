@@ -39,7 +39,7 @@ public class DatabaseRetriever {
     this.conn = dbm.getConnection();
     //session = dbm.getSession();
     dmf = dbm.getDialogMainFrame();
-    require.invoke(Clojure.read("ln.session"));
+    require.invoke(Clojure.read("ln.codax-manager"));
     
   }
 

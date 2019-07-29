@@ -68,8 +68,8 @@ public class DialogGroupPlateSet extends JDialog {
       //this.session = _session;
       dbm = _dbm;
     this.dmf = dbm.getDialogMainFrame();
-    require.invoke(Clojure.read("ln.session"));
-     IFn getUser = Clojure.var("ln.session", "get-user");
+    require.invoke(Clojure.read("ln.codax-manager"));
+     IFn getUser = Clojure.var("ln.codax-manager", "get-user");
     
      owner = (String)getUser.invoke();
     HashMap<String, String> plate_set_num_plates = _plate_set_num_plates;
@@ -240,7 +240,7 @@ public class DialogGroupPlateSet extends JDialog {
     okButton.addActionListener(
         (new ActionListener() {
           public void actionPerformed(ActionEvent e) {
-	      IFn getProjectID = Clojure.var("ln.session", "get-project-id");
+	      IFn getProjectID = Clojure.var("ln.codax-manager", "get-project-id");
 
             dbm.getDatabaseInserter()
                 .groupPlateSetsIntoNewPlateSet(

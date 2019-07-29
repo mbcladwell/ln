@@ -62,14 +62,14 @@ public class HitListViewer extends JDialog implements java.awt.event.ActionListe
 	dbm = _dbm;
 	this.dmf = dbm.getDialogMainFrame();
 	// this.session = dmf.getSession();
-	require.invoke(Clojure.read("ln.session"));
-	IFn getProjectSysName = Clojure.var("ln.session", "get-project-sys-name");
+	require.invoke(Clojure.read("ln.codax-manager"));
+	IFn getProjectSysName = Clojure.var("ln.codax-manager", "get-project-sys-name");
 
 	this.setTitle("Hit List Viewer - " + (String)getProjectSysName.invoke());
-	IFn getProjectID = Clojure.var("ln.session", "get-project-id");
+	IFn getProjectID = Clojure.var("ln.codax-manager", "get-project-id");
 
 	project_id = (int)getProjectID.invoke();
-      IFn getUser = Clojure.var("ln.session", "get-user");
+      IFn getUser = Clojure.var("ln.codax-manager", "get-user");
 
       owner = (String)getUser.invoke();
     hit_list_id = _hit_list_id;
@@ -180,7 +180,7 @@ public class HitListViewer extends JDialog implements java.awt.event.ActionListe
 	JTable new_hits_table = dbm.getDatabaseRetriever().getSamplesForHitList(selected_hit_list_id);
 	TableModel new_model = new_hits_table.getModel();
 	hits_table.setModel(new_model); 
-	IFn getProjectID = Clojure.var("ln.session", "get-project-id");
+	IFn getProjectID = Clojure.var("ln.codax-manager", "get-project-id");
  
 	JTable new_counts_table = dbm.getDatabaseRetriever().getHitCountPerPlateSet((int)getProjectID.invoke(), selected_hit_list_id);
 	TableModel new_model2 = new_counts_table.getModel();

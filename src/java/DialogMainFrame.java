@@ -44,7 +44,7 @@ public class DialogMainFrame extends JFrame {
   public DialogMainFrame(DatabaseManager _dbm ) throws SQLException {
       // session = _s;
       dbm = _dbm;
-     require.invoke(Clojure.read("ln.session"));
+     require.invoke(Clojure.read("ln.codax-manager"));
        utils = new Utilities(this);
       this.setTitle("LIMS*Nucleus");
     this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

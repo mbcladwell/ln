@@ -82,7 +82,7 @@ public class DialogAddPlateSetData extends JDialog
     plate_set = new ComboItem(_plate_set_id, _plate_set_sys_name);
     format = new ComboItem(_format_id, String.valueOf(_format_id));
     plate_num = _plate_num;
-    require.invoke(Clojure.read("ln.session"));
+    require.invoke(Clojure.read("ln.codax-manager"));
     
     dbm = _dbm;
     // Create and set up the window.
@@ -361,7 +361,7 @@ public class DialogAddPlateSetData extends JDialog
     helpButton.addActionListener(
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
-	          IFn getHelpURLPrefix = Clojure.var("ln.session", "get-help-url-prefix");
+	          IFn getHelpURLPrefix = Clojure.var("ln.codax-manager", "get-help-url-prefix");
 
 		  openWebpage(URI.create((String)getHelpURLPrefix.invoke() + "importassaydata"));
           }

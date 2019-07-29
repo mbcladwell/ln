@@ -70,13 +70,13 @@ public class AssayRunViewer extends JDialog implements java.awt.event.ActionList
       dbm = _dbm;
     this.setTitle("Assay Run Viewer");
     this.dmf = dbm.getDialogMainFrame();
-    require.invoke(Clojure.read("ln.session"));
+    require.invoke(Clojure.read("ln.codax-manager"));
 
     //    this.session = dmf.getSession();
-     IFn getProjectID = Clojure.var("ln.session", "get-project-id");
+     IFn getProjectID = Clojure.var("ln.codax-manager", "get-project-id");
 
-    project_id = (int)getProjectID.invoke();
-      IFn getUser = Clojure.var("ln.session", "get-user");
+     project_id = (int)getProjectID.invoke();
+      IFn getUser = Clojure.var("ln.codax-manager", "get-user");
    
     owner = (String)getUser.invoke();
 
@@ -344,10 +344,10 @@ public class AssayRunViewer extends JDialog implements java.awt.event.ActionList
     if (e.getSource() == projectList) {
 	if(projectList.getSelectedIndex() > -1){
 	    project_id  = ((ComboItem)projectList.getSelectedItem()).getKey();
-	    IFn setProjectID = Clojure.var("ln.session", "set-project-id");
+	    IFn setProjectID = Clojure.var("ln.codax-manager", "set-project-id");
 
 	    setProjectID.invoke(project_id);
-	    IFn setProjectSysName = Clojure.var("ln.session", "set-project-sys-name");
+	    IFn setProjectSysName = Clojure.var("ln.codax-manager", "set-project-sys-name");
     
 	    setProjectSysName.invoke(((ComboItem)projectList.getSelectedItem()).toString());
 	    this.refreshTables(); 

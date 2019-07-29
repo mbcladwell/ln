@@ -46,8 +46,8 @@ public class DatabaseSetupPanel extends JPanel {
 
     //setup desired Clojure methods
     IFn require = Clojure.var("clojure.core", "require");
-    require.invoke(Clojure.read("ln.session"));
-    IFn writeMess = Clojure.var("ln.session", "write-out-message");
+    require.invoke(Clojure.read("ln.codax-manager"));
+    IFn writeMess = Clojure.var("ln.codax-manager", "write-out-message");
 
     require.invoke(Clojure.read("ln.db"));
     IFn dropAllTables = Clojure.var("ln.db", "drop-all-tables");
