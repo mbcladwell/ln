@@ -27,13 +27,19 @@
      
       (dbr/authenticate-user)
       (if(cm/get-authenticated)
-        (ln.DatabaseManager.)
+        (do
+        (dbr/register-session (cm/get-user-id))
+        (ln.DatabaseManager.))
         (JOptionPane/showMessageDialog nil "Invalid login credentials!" )));; the if is true i.e. need a login dialog
-    (ln.DatabaseManager. )))  ;;if is false - can auto-login
+    (do
+      (dbr/register-session (cm/get-user-id))
+      (ln.DatabaseManager. ))))  ;;if is false - can auto-login
 
 ;;(cm/set-u-p-al "aaa" "bbb" false)
 
 ;;(login-to-database)
+
+
 
 (defn -main
   "I don't do a whole lot ... yet."

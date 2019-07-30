@@ -241,7 +241,14 @@ public class HitListViewer extends JDialog implements java.awt.event.ActionListe
 	
     if (e.getSource() == rearrayHitList) {
     		 TableModel hits_count_model = counts_table.getModel();
-		 int row = counts_table.getSelectedRow();
+		 int row =0;
+		 try{
+		     row = counts_table.getSelectedRow();}
+		 catch(ArrayIndexOutOfBoundsException aiobe){
+		     JOptionPane.showMessageDialog(dmf, "Select a row!");
+		     return; 
+		 }
+		 
 		 int plate_set_id =  (int)counts_table.getModel().getValueAt(row, 0);
 		 String plate_set_sys_name =  counts_table.getModel().getValueAt(row, 1).toString();
 		 LOGGER.info("counts_table.getModel().getValueAt(row, 4): " + counts_table.getModel().getValueAt(row, 4));

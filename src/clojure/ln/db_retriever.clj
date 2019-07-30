@@ -26,8 +26,7 @@
            (get (first results) :id_2)
            (get (first results) :groupname)
            true)
-          (let [ result2 (j/insert! dbm/pg-db-admin :lnsession {:lnuser_id  (get (first results) :id) } )]
-            (cm/set-session-id (get (first result2) :id)) )
+          
           (dbm/define-pg-db));;valid
     (cm/set-authenticated false);;invalid
     )))
@@ -36,3 +35,11 @@
 ;;(cm/print-ap)
 ;;(println dbm/pg-db)
 ;;(j/insert! dbm/pg-db :lnsession {:lnuser_id  1 } )
+
+
+(defn register-session
+  ;;user id
+  [ uid ]
+  (let [ result (j/insert! dbm/pg-db-admin :lnsession {:lnuser_id  uid } )]
+    (cm/set-session-id (get (first result) :id)) )
+  )

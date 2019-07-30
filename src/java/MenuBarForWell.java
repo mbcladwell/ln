@@ -92,7 +92,7 @@ public class MenuBarForWell extends JMenuBar {
     upbutton.addActionListener(
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
-            dmf.flipToPlate();
+	      dbm.getDialogMainFrame().flipToPlate();
           }
         });
 

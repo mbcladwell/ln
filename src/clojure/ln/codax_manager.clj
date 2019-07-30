@@ -16,15 +16,15 @@
   (c/with-write-transaction [props tx]
     (-> tx
   (c/assoc-at [:assets ] (read-props-text-file))
-  (c/assoc-at [:assets :session] {:project-id 0
+  (c/assoc-at [:assets :session] {:project-id 1
 	                          :project-sys-name ""
-	                          :user-id 0
+	                          :user-id 1
                                   :user-name ""
-                                  :plateset-id 0
+                                  :plateset-id 1
                                   :plateset-sys-name ""
-	                          :user-group-id 2
-                                  :user-group "user"
-	                          :session-id 0
+	                          :user-group-id 1
+                                  :user-group ""
+	                          :session-id 1
                                   :working-dir ""
                                   :authenticated false
                                   })))
@@ -114,8 +114,11 @@
 (defn set-uid-ugid-ug-auth [ uid ugid ug auth ]
   ;; user-id user-group-id user-group-name authenticated
   (c/with-write-transaction [props tx]
-      (c/merge-at tx  [:assets] {:session {:user-id uid :user-group-id ugid :user-group ug :authenticated auth}})))
-
+    (-> tx
+      (c/assoc-at  [:assets :session :user-id] uid)   
+      (c/assoc-at  [:assets :session :user-group-id] ugid)
+      (c/assoc-at  [:assets :session :user-group] ug)
+      (c/assoc-at  [:assets :session :authenticated] auth))))
 
 (defn set-authenticated [b]
   (c/with-write-transaction [props tx]
@@ -248,3 +251,52 @@
         (c/with-write-transaction [props tx]
           (c/assoc-at tx [:assets :props :help-url-prefix ])))
 
+
+(defn pretty-print []
+  (do
+    (println "All values")
+    (println "-------------------")
+    (println "conn")
+    (println (str ":auto-login " (get-auto-login)))
+    (println (str ":dbname     " (get-dbname)))
+    (println (str ":host       " (get-host)))
+    (println (str ":user-name  " (get-user)))
+    (println (str ":password   " (get-password)))
+    (println (str ":source     " (get-source)))
+    (println (str ":sslmode    " (get-sslmode)))
+    (println "-------------------")
+    (println "session")
+    (println (str ":plateset-id       " (get-plate-set-id)))
+    (println (str ":session-id        " (get-session-id)))
+    (println (str ":user-group        " (get-user-group)))
+    (println (str ":authenticated     " (get-authenticated)))
+    (println (str ":plateset-sys-name " (get-plate-set-sys-name)))
+    (println (str ":project-id        " (get-project-id)))
+    (println (str ":user-id           " (get-user-id)))
+    (println (str ":user-group-id     " (get-user-group-id)))
+    (println "-------------------------")
+    
+    ))
+
+
+
+(defn testup []
+  (do
+    (pretty-print)
+    (set-uid-ugid-ug-auth 10 10 "adminy3" false )
+    (set-u-p-al "dodo" "pass1" true)
+    (pretty-print)
+    (print-ap)
+    (println "*****")(println "*****")(println "*****")
+    ))
+
+;;(testup)
+	
+(defn look [] 
+    (def props (c/open-database! "ln-props"))
+   
+    (pretty-print)
+    (println "*****")(println "*****")(println "*****")
+    (c/close-database! props))
+
+;;(look)
