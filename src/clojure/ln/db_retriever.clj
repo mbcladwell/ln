@@ -19,13 +19,18 @@
   (let [user (cm/get-user)
         password (cm/get-password)
         results (j/query dbm/pg-db-admin ["SELECT lnuser.id, lnuser.password, lnuser_groups.id, lnuser_groups.usergroup  FROM lnuser, lnuser_groups  WHERE lnuser_groups.id = lnuser.usergroup and lnuser_name = ?"  user ])]
+        (println (str "user: " user))
+        (println password)
+        (println results)
     (if (= password (get (first results) :password))
       (do
+        (println "before uid ugid ug auth")
         (cm/set-uid-ugid-ug-auth
            (get (first results) :id)         
            (get (first results) :id_2)
-           (get (first results) :groupname)
+           (get (first results) :usergroup)
            true)
+        (println "after uid ugid ug auth")
           
           (dbm/define-pg-db));;valid
     (cm/set-authenticated false);;invalid

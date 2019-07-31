@@ -2,13 +2,14 @@
   (:use [seesaw core table dev mig border])
 
   (:require [clojure.java.io :as io]
-            [clojure.string ])  
+            [clojure.string]
+             [ln.codax-manager :as cm])  
   (:import [javax.swing JFileChooser JEditorPane JFrame JScrollPane BorderFactory AbstractButton]
            java.awt.Font java.awt.Toolkit )
   (:import [java.net.URL])
   (:gen-class))
 
-(def returned-login-map {})
+(def p (promise))
 
 (defn login-dialog
   ;;
@@ -29,16 +30,16 @@
                                   [ "           " ]
                                   [ "           " ]
                                   [ "           " ]
-                                  [(checkbox :text "Update ln-props?" :id :cbox :selected? false) "span 2"]
+                                  [(checkbox :text "Save for future auto-login?" :id :cbox :selected? false) "span 2"]
                                   [ "           " ]
                                   
                                   [(button :text "Login"
                                            :listen [:mouse-clicked
-                                                    (fn [e] (def returned-login-map (hash-map
-                                                                               :name (config  (select (to-root e)  [:#nameid]) :text)
-                                                                                                       :password (config  (select (to-root e)  [:#passid]) :text)
-                                                                                                       :store (config  (select (to-root e)  [:#cbox]) :selected?)))
-                                      (hide! (to-root e)) )])]
+                                                    (fn [e] (deliver p
+                                                               (cm/set-u-p-al (config (select (to-root e)  [:#nameid]) :text)
+                                                                              (config  (select (to-root e)  [:#passid]) :text)
+                                                                              (config  (select (to-root e)  [:#cbox]) :selected?)))
+                                                               (hide! (to-root e)) )])]
                                   [(button :text "Cancel"
                                            :listen [:mouse-clicked (fn [e] (hide! (to-root e)))] )]]))) 
       pack!

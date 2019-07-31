@@ -671,7 +671,7 @@ if(num_of_plate_ids*format_id!=table.size()-1){
        
 	int dest_plate_num = (int)Math.ceil(source_plate_num*n_reps_source/4.0);
 	IFn getProjectID = Clojure.var("ln.codax-manager", "get-project-id");
-   	int project_id = (int)getProjectID.invoke();
+   	int project_id = ((Long)getProjectID.invoke()).intValue();
 	int dest_plate_set_id=0;
 
       // method signature:  reformat_plate_set(source_plate_set_id INTEGER, source_num_plates INTEGER, n_reps_source INTEGER, dest_descr VARCHAR(30), dest_plate_set_name VARCHAR(30), dest_num_plates INTEGER, dest_plate_format_id INTEGER, dest_plate_type_id INTEGER, project_id INTEGER, dest_plate_layout_name_id INTEGER )
@@ -907,7 +907,7 @@ if(num_of_plate_ids*format_id!=table.size()-1){
     try {
 	 IFn getProjectID = Clojure.var("ln.codax-manager", "get-project-id");
    
-	int project_id = (int)getProjectID.invoke();
+	 int project_id = ((Long)getProjectID.invoke()).intValue();
       int plate_format_id = _plate_format_id;
       int plate_type_id = _plate_type_id;
       int plate_layout_id = _plate_layout_id;
@@ -1104,7 +1104,7 @@ if(num_of_plate_ids*format_id!=table.size()-1){
     try {
 	 IFn getProjectID = Clojure.var("ln.codax-manager", "get-project-id");
    
-	int project_id = (int)getProjectID.invoke();
+	 int project_id = ((Long)getProjectID.invoke()).intValue();
       int plate_format_id =
           Integer.parseInt(_plate_format_id);
       int plate_type_id = _plate_type_id;

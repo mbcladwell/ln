@@ -21,16 +21,18 @@
          (not (cm/get-auto-login)))
     (do
       (d/login-dialog)
-      (cm/set-u-p-al (d/returned-login-map :name)
-                  (d/returned-login-map :password)
-                  (str (d/returned-login-map :store)))
-     
-      (dbr/authenticate-user)
-      (if(cm/get-authenticated)
-        (do
-        (dbr/register-session (cm/get-user-id))
-        (ln.DatabaseManager.))
-        (JOptionPane/showMessageDialog nil "Invalid login credentials!" )));; the if is true i.e. need a login dialog
+      (loop [completed? (realized? d/p)]
+      (if (eval completed?)
+      (do
+        (dbr/authenticate-user)
+        (if(cm/get-authenticated)
+          (do
+            (dbr/register-session (cm/get-user-id))
+            (ln.DatabaseManager.))
+          (do
+            (cm/set-auto-login false)
+            (JOptionPane/showMessageDialog nil "Invalid login credentials!" ))))
+      (recur  (realized? d/p)))));; the if is true i.e. need a login dialog
     (do
       (dbr/register-session (cm/get-user-id))
       (ln.DatabaseManager. ))))  ;;if is false - can auto-login

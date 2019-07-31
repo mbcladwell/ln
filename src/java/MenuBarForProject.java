@@ -115,7 +115,7 @@ public class MenuBarForProject extends JMenuBar {
     menu = new AdminMenu(dbm, project_table);
      this.add(menu);
     }
-
+    
      this.add(Box.createHorizontalGlue());
 
     menu = new HelpMenu();
