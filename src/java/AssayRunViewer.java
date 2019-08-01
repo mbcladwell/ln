@@ -88,7 +88,8 @@ public class AssayRunViewer extends JDialog implements java.awt.event.ActionList
     assay_runs_pane_border.setTitlePosition(javax.swing.border.TitledBorder.TOP);
     assay_runs_pane.setBorder(assay_runs_pane_border);
 
-    assay_runs_table = dbm.getDatabaseRetriever().getAssayRuns(((Long)getProjectID.invoke()).intValue());
+    //this failed as Long
+    assay_runs_table = dbm.getDatabaseRetriever().getAssayRuns(((int)getProjectID.invoke()));
   assay_runs_table.getSelectionModel().addListSelectionListener(						     
 	  new ListSelectionListener() {
 	      public void valueChanged(ListSelectionEvent e) {
@@ -145,8 +146,8 @@ public class AssayRunViewer extends JDialog implements java.awt.event.ActionList
     javax.swing.border.TitledBorder hit_lists_pane_border = BorderFactory.createTitledBorder("Hit Lists:");
     hit_lists_pane_border.setTitlePosition(javax.swing.border.TitledBorder.TOP);
     hit_lists_pane.setBorder(hit_lists_pane_border);
-
-    hit_lists_table = dbm.getDatabaseRetriever().getHitLists(((Long)getProjectID.invoke()).intValue());
+    //failed as Long
+    hit_lists_table = dbm.getDatabaseRetriever().getHitLists(((int)getProjectID.invoke()));
 
     hit_lists_scroll_pane = new JScrollPane(hit_lists_table);
     hit_lists_table.setFillsViewportHeight(true);

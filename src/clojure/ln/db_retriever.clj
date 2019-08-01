@@ -45,6 +45,7 @@
 (defn register-session
   ;;user id
   [ uid ]
-  (let [ result (j/insert! dbm/pg-db-admin :lnsession {:lnuser_id  uid } )]
+  (let [db (if (= (cm/get-source) "test") dbm/pg-db-admin-test dbm/pg-db-admin)
+        result (j/insert! db :lnsession {:lnuser_id  uid } )]
     (cm/set-session-id (get (first result) :id)) )
   )

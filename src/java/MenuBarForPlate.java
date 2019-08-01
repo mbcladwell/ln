@@ -39,6 +39,8 @@ public class MenuBarForPlate extends JMenuBar {
     // JMenuBar menuBar = new JMenuBar();
     //    this.em = em;
     // Build the first menu.
+     require.invoke(Clojure.read("ln.codax-manager"));
+    
     JMenu menu = new JMenu("Plate");
     menu.setMnemonic(KeyEvent.VK_P);
     menu.getAccessibleContext()
@@ -68,6 +70,9 @@ public class MenuBarForPlate extends JMenuBar {
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
             dbm.groupPlates(plate_table);
+	    IFn getPlateSetSysName = Clojure.var("ln.codax-manager", "get-plate-set-sys-name");
+
+	    dbm.getDialogMainFrame().showPlateTable((String)getPlateSetSysName.invoke());
           }
         });
     menu.add(menuItem);

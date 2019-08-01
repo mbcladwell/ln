@@ -23,7 +23,9 @@ import javax.swing.table.DefaultTableModel;
 import clojure.java.api.Clojure;
 import clojure.lang.IFn;
 
-/** */
+/** 
+ * executeUpdate expects no returns!!!
+*/
 public class DatabaseInserter {
   DatabaseManager dbm;
   DialogMainFrame dmf;

@@ -30,6 +30,34 @@
                                   })))
  (c/close-database! props)))
 
+(defn login-to-elephantsql []
+ (let [props (c/open-database! "ln-props")]
+  (c/with-write-transaction [props tx]
+    (-> tx
+        (c/assoc-at [:assets :conn] {:source "test"
+  	                             :dbname "klohymim"
+ 	                             :host  "raja.db.elephantsql.com"
+  	                             :port  5432
+  	                             :user  "klohymim"
+  	                             :password  "hwc3v4_rbkT-1EL2KI-JBaqFq0thCXM_"
+ 	                             :sslmode  false
+                                     :auto-login true
+ 	                             :base.help.url  "http://labsolns.com/software/" 
+                                     }) 
+        (c/assoc-at [:assets :session] {:project-id 1
+	                                :project-sys-name "PRJ-1"
+	                                :user-id 3
+                                        :user-name "klohymim"
+                                        :plateset-id 1
+                                        :plateset-sys-name ""
+	                                :user-group-id 2
+                                        :user-group "user"
+	                                :session-id nil
+                                        :working-dir ""
+                                        :authenticated true
+                                        })))
+  (c/close-database! props)))
+
 
 (defn open-or-create-props
   ;;1. check working directory - /home/user/my-working-dir
@@ -43,7 +71,11 @@
         (do
           (create-ln-props-from-text)
           (def props (c/open-database! "ln-props")))
-        (JOptionPane/showMessageDialog nil "limsnucleus.properties file is missing!"  )))))
+        (do            ;;no limsnucleus.properties - login to elephantSQL
+          (login-to-elephantsql)
+          (def props (c/open-database! "ln-props"))
+          (JOptionPane/showMessageDialog nil "limsnucleus.properties file is missing\nLogging in to example database!"  )
+          )))))
 
 
 (open-or-create-props)

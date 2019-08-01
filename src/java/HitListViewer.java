@@ -67,8 +67,8 @@ public class HitListViewer extends JDialog implements java.awt.event.ActionListe
 
 	this.setTitle("Hit List Viewer - " + (String)getProjectSysName.invoke());
 	IFn getProjectID = Clojure.var("ln.codax-manager", "get-project-id");
-
-	project_id = ((Long)getProjectID.invoke()).intValue();
+	//fails as long
+	project_id = ((int)getProjectID.invoke());
       IFn getUser = Clojure.var("ln.codax-manager", "get-user");
 
       owner = (String)getUser.invoke();
@@ -93,8 +93,9 @@ public class HitListViewer extends JDialog implements java.awt.event.ActionListe
 
       JPanel     hits_buttons = new JPanel(buttonLayout);
       
-      //get all the hit lists in the current project       
-      current_project_id = ((Long)getProjectID.invoke()).intValue();
+      //get all the hit lists in the current project
+      //fails as long
+      current_project_id = ((int)getProjectID.invoke());
       all_hit_lists_in_project = new JComboBox<ComboItem>(dbm.getDatabaseRetriever().getHitListsForProject(current_project_id));
     for(int i=0; i < all_hit_lists_in_project.getItemCount(); i++){
 	if(((ComboItem)all_hit_lists_in_project.getItemAt(i)).getKey() == current_project_id){
@@ -135,8 +136,8 @@ public class HitListViewer extends JDialog implements java.awt.event.ActionListe
     javax.swing.border.TitledBorder counts_paneBorder = BorderFactory.createTitledBorder("Hits available in Plate Sets:");
     counts_paneBorder.setTitlePosition(javax.swing.border.TitledBorder.TOP);
     counts_pane.setBorder(counts_paneBorder);
-
-    counts_table = dbm.getDatabaseRetriever().getHitCountPerPlateSet(((Long)getProjectID.invoke()).intValue(), hit_list_id);
+    //fails as long
+    counts_table = dbm.getDatabaseRetriever().getHitCountPerPlateSet(((int)getProjectID.invoke()), hit_list_id);
 
     counts_scroll_pane = new JScrollPane(counts_table);
     counts_table.setFillsViewportHeight(true);
