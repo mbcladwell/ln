@@ -4,7 +4,7 @@
             [honeysql.helpers :refer :all :as helpers]
            
             [ln.codax-manager :as cm]
-            [ln.dbmanager :as dbm])
+            [ln.db-manager :as dbm])
 
          ;;    [ln.db-manager :as dbm])
          ;;   [clojure.data.csv :as csv]

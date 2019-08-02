@@ -908,8 +908,8 @@ if(num_of_plate_ids*format_id!=table.size()-1){
       int dest_plate_set_id =0;
     try {
 	 IFn getProjectID = Clojure.var("ln.codax-manager", "get-project-id");
-   
-	 int project_id = ((Long)getProjectID.invoke()).intValue();
+	 //fails as long   
+	 int project_id = ((int)getProjectID.invoke());
       int plate_format_id = _plate_format_id;
       int plate_type_id = _plate_type_id;
       int plate_layout_id = _plate_layout_id;
@@ -941,9 +941,9 @@ if(num_of_plate_ids*format_id!=table.size()-1){
       LOGGER.severe("Failed to create plate set: " + sqle);
     }
 
-    LOGGER.info("source_plate_set_id: " + source_plate_set_id);
-    LOGGER.info("dest_plate_set_id: " + dest_plate_set_id);
-    LOGGER.info("hit_list_id: " + hit_list_id);
+    //LOGGER.info("source_plate_set_id: " + source_plate_set_id);
+    //LOGGER.info("dest_plate_set_id: " + dest_plate_set_id);
+    //LOGGER.info("hit_list_id: " + hit_list_id);
     
     //plate set has been registered, new plates/empty wells created
     //now copy samples into newly created (empty) plate

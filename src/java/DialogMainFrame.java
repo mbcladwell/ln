@@ -48,7 +48,7 @@ public class DialogMainFrame extends JFrame {
        utils = new Utilities(this);
       this.setTitle("LIMS*Nucleus");
     this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-      ImageIcon img = new ImageIcon(this.getClass().getResource("../images/mwplate.png"));
+      ImageIcon img = new ImageIcon(this.getClass().getResource("/images/mwplate.png"));
       this.setIconImage(img.getImage());
       //dbr = session.getDatabaseRetriever();
    
