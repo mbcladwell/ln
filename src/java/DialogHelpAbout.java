@@ -1,17 +1,19 @@
 package ln;
 
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.io.*;
-import java.net.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
-import java.util.*;
 import java.util.Date;
-import java.util.logging.*;
+import java.util.logging.Logger;
+
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -59,7 +61,7 @@ public class DialogHelpAbout extends JDialog {
     c.insets = new Insets(5, 5, 2, 2);
     pane.add(label, c);
 
-    ImageIcon img = new ImageIcon(this.getClass().getResource("images/las.png"));
+    ImageIcon img = new ImageIcon(this.getClass().getResource("/images/las.png"));
     picLabel = new JLabel(img, SwingConstants.CENTER);
     c.gridx = 0;
     c.gridy = 2;

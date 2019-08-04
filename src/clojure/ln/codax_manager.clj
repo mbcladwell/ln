@@ -280,9 +280,8 @@
 
 
     (defn get-help-url-prefix []
-        (c/with-write-transaction [props tx]
-          (c/assoc-at tx [:assets :props :help-url-prefix ])))
-
+          (c/get-at! props [:assets :conn :help-url-prefix ]))
+;;(get-help-url-prefix)
 
 (defn pretty-print []
   (do
@@ -296,6 +295,7 @@
     (println (str ":password   " (get-password)))
     (println (str ":source     " (get-source)))
     (println (str ":sslmode    " (get-sslmode)))
+    (println (str ":help-url-prefix    " (get-help-url-prefix)))
     (println "-------------------")
     (println "session")
     (println (str ":plateset-id       " (get-plate-set-id)))
