@@ -2,16 +2,12 @@ package ln;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.logging.Logger;
 
 import javax.swing.BorderFactory;
@@ -44,6 +40,7 @@ import clojure.lang.IFn;
 public class LayoutViewer extends JDialog implements java.awt.event.ActionListener {
   static JButton button;
   static JButton helpButton;
+  static JButton repsButton;
   static JLabel label;
   static JComboBox<Integer> formatList;
   static JComboBox<String> displayList;
@@ -75,6 +72,7 @@ public class LayoutViewer extends JDialog implements java.awt.event.ActionListen
     private DatabaseManager dbm; 
     // private DefaultComboBoxModel<ComboItem> layout_names_list_model;
     private IFn require = Clojure.var("clojure.core", "require");
+    private IFn openHelpPage = Clojure.var("ln.session", "open-help-page");
 
 
     
@@ -149,6 +147,13 @@ public class LayoutViewer extends JDialog implements java.awt.event.ActionListen
     c.gridheight = 1;
     helpButton.addActionListener(this);
     pane2.add(helpButton, c);
+
+    repsButton = new JButton("Replicates Help");
+    c.gridx = 5;
+    c.gridy = 1;
+    c.gridheight = 1;
+    repsButton.addActionListener(this);
+    pane2.add(repsButton, c);
 
     
 
@@ -254,10 +259,15 @@ public class LayoutViewer extends JDialog implements java.awt.event.ActionListen
     }
 
     if (e.getSource() == helpButton) {
-	  IFn getHelpURLPrefix = Clojure.var("ln.codax-manager", "get-help-url-prefix");
-  
-	openWebpage(URI.create((String)getHelpURLPrefix.invoke() + "layouts"));
+	      openHelpPage.invoke( "layouts");
+     }
+
+     if (e.getSource() == repsButton) {
+	      openHelpPage.invoke( "replication");
+
     }
+
+    
     }
     
     public void refreshLayoutTable(int _plate_layout_id){
@@ -435,25 +445,4 @@ public class LayoutViewer extends JDialog implements java.awt.event.ActionListen
         }
     }
 
-public static boolean openWebpage(URI uri) {
-    Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
-    if (desktop != null && desktop.isSupported(Desktop.Action.BROWSE)) {
-        try {
-            desktop.browse(uri);
-            return true;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-    return false;
-}
-
-    public static boolean openWebpage(URL url) {
-    try {
-        return openWebpage(url.toURI());
-    } catch (URISyntaxException e) {
-        e.printStackTrace();
-    }
-    return false;
-}
 }

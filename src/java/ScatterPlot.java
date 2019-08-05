@@ -40,7 +40,7 @@ import clojure.lang.IFn;
 
 public class ScatterPlot extends JFrame {
     private JButton genHitsBtn = new JButton("Generate hit list");
-    private JButton close_button = new JButton("Close");
+    private JButton help_button = new JButton("Help");
     private DatabaseRetriever dbr;
     private DialogMainFrame dmf;
     private CustomTable table;
@@ -205,10 +205,12 @@ public class ScatterPlot extends JFrame {
     c.gridheight = 1;
     c.gridwidth = 1;
     c.anchor = GridBagConstraints.LINE_END;
-    panel2.add(close_button, c);
-    close_button.addActionListener(new ActionListener() { 
+    panel2.add(help_button, c);
+    help_button.addActionListener(new ActionListener() { 
         public void actionPerformed(ActionEvent evt) {
-            dispose();
+              IFn openHelpPage = Clojure.var("ln.session", "open-help-page");
+	      openHelpPage.invoke( "scatterplotviewer");
+
         }
     });
 
@@ -559,4 +561,5 @@ public class ScatterPlot extends JFrame {
 	repaint();
     }
     */
+
 }

@@ -223,7 +223,9 @@
   (c/with-write-transaction [props tx]
     (c/assoc-at tx  [:assets :session :project-id] i)))
 
-(defn get-project-id []
+;;https://stackoverflow.com/questions/9457537/why-does-int-10-produce-a-long-instance
+;; dont cast to int, gets promoted to Long upon java interop
+(defn get-project-id ^Integer []
   (c/get-at! props [:assets :session :project-id ]))
 
 (defn set-project-sys-name [s]

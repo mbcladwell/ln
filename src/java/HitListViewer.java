@@ -68,7 +68,7 @@ public class HitListViewer extends JDialog implements java.awt.event.ActionListe
 	this.setTitle("Hit List Viewer - " + (String)getProjectSysName.invoke());
 	IFn getProjectID = Clojure.var("ln.codax-manager", "get-project-id");
 	//fails as long
-	project_id = ((Long)getProjectID.invoke()).intValue();
+	project_id = ((int)getProjectID.invoke());
       IFn getUser = Clojure.var("ln.codax-manager", "get-user");
 
       owner = (String)getUser.invoke();
@@ -212,10 +212,6 @@ public class HitListViewer extends JDialog implements java.awt.event.ActionListe
     	
     }
     
-	        
-	
-    
-
 
         if (e.getSource() == closeButton) {
 	    HitListViewer.this.dispose();
@@ -240,33 +236,33 @@ public class HitListViewer extends JDialog implements java.awt.event.ActionListe
     }
 
 	
-    if (e.getSource() == rearrayHitList) {
-    		 TableModel hits_count_model = counts_table.getModel();
-		 int row =0;
-		 try{
-		     row = counts_table.getSelectedRow();}
-		 catch(ArrayIndexOutOfBoundsException aiobe){
-		     JOptionPane.showMessageDialog(dmf, "Select a row!");
-		     return; 
-		 }
-		 
-		 int plate_set_id =  (int)counts_table.getModel().getValueAt(row, 0);
-		 String plate_set_sys_name =  counts_table.getModel().getValueAt(row, 1).toString();
-		 LOGGER.info("counts_table.getModel().getValueAt(row, 4): " + counts_table.getModel().getValueAt(row, 4));
-		 int sample_count = (int)Integer.valueOf(counts_table.getModel().getValueAt(row, 4).toString());
-		 //int sample_count = 92;
-		 int source_plate_set_format =  (int)counts_table.getModel().getValueAt(row, 3);
-		 if(source_plate_set_format==1536){
-		     JOptionPane.showMessageDialog(dmf, "1536 well plates can't be rarrayed!");
-		     return;
-		 }
-
-    		 TableModel hit_list_model = hits_table.getModel();		 
-		 int hit_list_id =  Integer.valueOf(hits_table.getModel().getValueAt(0, 0).toString());
-		 String hit_list_sys_name =  new String("HL-" + hit_list_id);
-		 new DialogRearrayHitList(dbm, plate_set_id, plate_set_sys_name, source_plate_set_format, hit_list_id, hit_list_sys_name, sample_count);
+	if (e.getSource() == rearrayHitList) {
+	    TableModel hits_count_model = counts_table.getModel();
+	    int row =0;
+	    try{
+		row = counts_table.getSelectedRow();
+		int plate_set_id =  (int)counts_table.getModel().getValueAt(row, 0);
+		String plate_set_sys_name =  counts_table.getModel().getValueAt(row, 1).toString();
+		LOGGER.info("counts_table.getModel().getValueAt(row, 4): " + counts_table.getModel().getValueAt(row, 4));
+		int sample_count = (int)Integer.valueOf(counts_table.getModel().getValueAt(row, 4).toString());
+		//int sample_count = 92;
+		int source_plate_set_format =  (int)counts_table.getModel().getValueAt(row, 3);
+		if(source_plate_set_format==1536){
+		    JOptionPane.showMessageDialog(dmf, "1536 well plates can't be rarrayed!");
+		    return;
+		}
+		TableModel hit_list_model = hits_table.getModel();		 
+		int hit_list_id =  Integer.valueOf(hits_table.getModel().getValueAt(0, 0).toString());
+		String hit_list_sys_name =  new String("HL-" + hit_list_id);
+		new DialogRearrayHitList(dbm, plate_set_id, plate_set_sys_name, source_plate_set_format, hit_list_id, hit_list_sys_name, sample_count);
 	
-    }
+	    }catch(ArrayIndexOutOfBoundsException aiobe){
+		JOptionPane.showMessageDialog(dmf, "Select a row!");
+		return; 
+	    }
+	    
+	
+	}
 
 
     }			 

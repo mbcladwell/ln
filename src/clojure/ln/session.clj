@@ -3,7 +3,8 @@
             ;;[honeysql.core :as hsql]
             ;;[honeysql.helpers :refer :all :as helpers]
             [clojure.data.csv :as csv]
-            [ln.codax-manager :as cm]          
+            [ln.codax-manager :as cm]
+            [clojure.java.browse :as browse]
            ;; [ln.db-inserter :as dbi]
             [ln.db-retriever :as dbr]
             [ln.dialog :as d])
@@ -41,7 +42,8 @@
 
 ;;(login-to-database)
 
-
+(defn open-help-page [s]
+  (browse/browse-url (str (cm/get-help-url-prefix) s)))
 
 (defn -main
   "I don't do a whole lot ... yet."

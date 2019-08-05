@@ -248,7 +248,7 @@ public class DialogImportPlateSetAccessionIDs extends JDialog
           public void actionPerformed(ActionEvent e) {
 	          IFn getHelpURLPrefix = Clojure.var("ln.codax-manager", "get-help-url-prefix");
 
-		  openWebpage(URI.create((String)getHelpURLPrefix.invoke() + "accesionids"));
+		  openWebpage(URI.create((String)getHelpURLPrefix.invoke() + "accessionids"));
             
           }
         }));
@@ -277,7 +277,7 @@ public class DialogImportPlateSetAccessionIDs extends JDialog
 
     if (e.getSource() == okButton) {
 
-	accessions = dmf.getUtilities().loadDataFile(fileField.getText());
+	accessions = dbm.getDialogMainFrame().getUtilities().loadDataFile(fileField.getText());
 	if(!((accessions.size()-1) == expected_rows)){  //If Top N is the algorithm
 	    	JOptionPane.showMessageDialog(dmf,
 					      new String("Expecting " + String.valueOf(expected_rows) + " rows but found " + (accessions.size()-1) + " rows." ), "Import Error",      JOptionPane.ERROR_MESSAGE);
@@ -286,10 +286,7 @@ public class DialogImportPlateSetAccessionIDs extends JDialog
 	    
 	}
 	
-      dbi.associateAccessionsWithPlateSet(
-					  plate_set.getKey(),
-          format.getKey(),
-          accessions);
+      dbi.associateAccessionsWithPlateSet( plate_set.getKey(), format.getKey(), accessions);
       dispose();
     }
 

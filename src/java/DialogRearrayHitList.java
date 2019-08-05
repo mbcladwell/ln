@@ -56,6 +56,7 @@ public class DialogRearrayHitList extends JDialog {
     
   static JButton okButton;
   static JButton cancelButton;
+  static JButton helpButton;
   final Instant instant = Instant.now();
     final DialogMainFrame dmf;
     final DatabaseManager dbm;
@@ -284,6 +285,29 @@ public class DialogRearrayHitList extends JDialog {
             dispose();
           }
         }));
+
+
+    helpButton = new JButton("Help");
+    helpButton.setMnemonic(KeyEvent.VK_H);
+    c.fill = GridBagConstraints.HORIZONTAL;
+    c.gridx = 5;
+    c.gridy = 6;
+    c.gridwidth = 1;
+    c.gridheight = 1;
+    helpButton.addActionListener(
+        (new ActionListener() {
+          public void actionPerformed(ActionEvent e) {
+
+                   IFn openHelpPage = Clojure.var("ln.session", "open-help-page");
+	      openHelpPage.invoke( "rearray");
+
+          }
+        }));
+
+    pane.add(helpButton, c);
+
+
+
     
     refreshPlateNumberLabel();
     this.getContentPane().add(pane, BorderLayout.CENTER);
