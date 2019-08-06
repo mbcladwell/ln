@@ -281,8 +281,18 @@ public class DatabaseManager {
 
     }
     String format = new String();
+    try{
     format = results[1][3];
     new DialogGroupPlates(this, plateSet, format);
+    }catch(ArrayIndexOutOfBoundsException aiob){
+	  JOptionPane.showMessageDialog(
+          dmf,
+          "Select multiple plates!",
+          "Error!",
+          JOptionPane.ERROR_MESSAGE);
+	  
+    }
+    
   }
 
      /**

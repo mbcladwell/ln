@@ -259,6 +259,7 @@ public class HitListViewer extends JDialog implements java.awt.event.ActionListe
 	    }catch(ArrayIndexOutOfBoundsException aiobe){
 		JOptionPane.showMessageDialog(dmf, "Select a row!");
 		return; 
+
 	    }
 	    
 	
