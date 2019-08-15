@@ -7,6 +7,8 @@
             [clojure.java.browse :as browse]
            ;; [ln.db-inserter :as dbi]
             [ln.db-retriever :as dbr]
+            [ln.db-inserter :as dbi]
+            
             [ln.dialog :as d])
    (:import javax.swing.JOptionPane)
   (:gen-class ))

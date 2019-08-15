@@ -45,6 +45,7 @@ public class DatabaseInserter {
     // this.dbr = dbm.getDatabaseRetriever();
     //session = dbm.getSession();
     this.dmf = dbm.getDialogMainFrame();
+    require.invoke(Clojure.read("ln.db-inserter"));
     require.invoke(Clojure.read("ln.codax-manager"));
     	 IFn getSessionID = Clojure.var("ln.codax-manager", "get-session-id");
 	 session_id = (int)getSessionID.invoke();
@@ -893,6 +894,22 @@ if(num_of_plate_ids*format_id!=table.size()-1){
 
     }
 
+
+
+    /**
+     * This method preps variable for displaying the dialog box
+     */
+    public void importBarcodesByPlateSet(int _plate_set_id){
+	int plate_set_id = _plate_set_id;
+	String plate_set_sys_name = new String("PS-" + String.valueOf(plate_set_id));
+	int plate_num = dbm.getDatabaseRetriever().getNumberOfPlatesForPlateSetID(plate_set_id);
+	//	int format_id = dbm.getDatabaseRetriever().getFormatForPlateSetID(plate_set_id);
+	   
+		new DialogImportPlateSetBarcodeIDs(dbm, plate_set_sys_name, plate_set_id,  plate_num);	
+    }
+
+
+    
   public void insertRearrayedPlateSet(
       String _name,
       String _description,
