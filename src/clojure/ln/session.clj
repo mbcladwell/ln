@@ -8,9 +8,7 @@
            ;; [ln.db-inserter :as dbi]
             [ln.db-retriever :as dbr]
             [ln.db-inserter :as dbi]
-            [ln.db-manager :as dbm]
-            
-            
+            [ln.db-manager :as dbm]        
             [ln.dialog :as d])
    (:import javax.swing.JOptionPane)
   (:gen-class ))
