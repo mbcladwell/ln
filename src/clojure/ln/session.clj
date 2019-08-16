@@ -8,6 +8,8 @@
            ;; [ln.db-inserter :as dbi]
             [ln.db-retriever :as dbr]
             [ln.db-inserter :as dbi]
+            [ln.db-manager :as dbm]
+            
             
             [ln.dialog :as d])
    (:import javax.swing.JOptionPane)
@@ -38,6 +40,7 @@
       (recur  (realized? d/p)))));; the if is true i.e. need a login dialog
     (do
       (dbr/register-session (cm/get-user-id))
+      (dbm/define-pg-db)
       (ln.DatabaseManager. ))))  ;;if is false - can auto-login
 
 ;;(cm/set-u-p-al "aaa" "bbb" false)

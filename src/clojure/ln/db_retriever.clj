@@ -1,5 +1,5 @@
 (ns ln.db-retriever
-  (:require [clojure.java.jdbc :as j]
+  (:require [next.jdbc :as j]
             [honeysql.core :as hsql]
             [honeysql.helpers :refer :all :as helpers]
            ;; [ln.db-manager :as dbm]
@@ -18,11 +18,11 @@
   []
   (let [user (cm/get-user)
         password (cm/get-password)
-        results (j/query dbm/pg-db-admin ["SELECT lnuser.id, lnuser.password, lnuser_groups.id, lnuser_groups.usergroup  FROM lnuser, lnuser_groups  WHERE lnuser_groups.id = lnuser.usergroup and lnuser_name = ?"  user ])]
+        results (j/execute-one! dbm/pg-db-admin ["SELECT lnuser.id, lnuser.password, lnuser_groups.id, lnuser_groups.usergroup  FROM lnuser, lnuser_groups  WHERE lnuser_groups.id = lnuser.usergroup and lnuser_name = ?"  user ])]
         (println (str "user: " user))
         (println password)
         (println results)
-    (if (= password (get (first results) :password))
+    (if (= password (:password results) )
       (do
         (println "before uid ugid ug auth")
         (cm/set-uid-ugid-ug-auth
@@ -46,6 +46,8 @@
   ;;user id
   [ uid ]
   (let [db (if (= (cm/get-source) "test") dbm/pg-db-admin-test dbm/pg-db-admin)
-        result (j/insert! db :lnsession {:lnuser_id  uid } )]
-    (cm/set-session-id (get (first result) :id)) )
-  )
+        result (j/execute-one! db ["INSERT INTO lnsession(lnuser_id) values(?)" uid]{:return-keys true} )]
+    (cm/set-session-id  (:lnsession/id result) )))
+
+;;(register-session 3)
+;;(:lnsession/id (j/execute-one! dbm/pg-db-admin ["INSERT INTO lnsession(lnuser_id) values(?)" 2]{:return-keys true} ))

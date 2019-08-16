@@ -1,5 +1,5 @@
 (ns ln.db-manager
-  (:require [clojure.java.jdbc :as j]
+  (:require [next.jdbc :as j]
             [ln.codax-manager :as cm])
   (:gen-class))
 
@@ -25,14 +25,14 @@
 
 (defn define-pg-db []
 ;;connection used for authenticated user
-  (def pg-db  {:dbtype "postgresql"
-               :dbname (cm/get-dbname)
-               :host (cm/get-host)
-               :user (cm/get-user)
-               :password (cm/get-password)
-               :port (cm/get-port)
-               :ssl (cm/get-sslmode)
-               :sslfactory "org.postgresql.ssl.NonValidatingFactory"}))
+  (def pg-db  (j/get-datasource {:dbtype "postgresql"
+                                 :dbname (cm/get-dbname)
+                                 :host (cm/get-host)
+                                 :user (cm/get-user)
+                                 :password (cm/get-password)
+                                 :port (cm/get-port)
+                                 :ssl (cm/get-sslmode)
+                                 :sslfactory "org.postgresql.ssl.NonValidatingFactory"})))
 
 ;;(println pg-db)
 
