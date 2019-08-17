@@ -67,6 +67,9 @@
 
 
 
+(defn process-accs-map [x]
+(into [] [(:accs.id x ) (Integer/parseInt(:plate x)) (Integer/parseInt(:well x ))]))
+
 
 ;;!!!Not yet implemented!!!
 (defn import-accession-ids [ plateset-id accession-file]
@@ -86,25 +89,17 @@
         col3name (nth (get-col-names accession-file) 2)
         
         table (table-to-map accession-file)
-        sql-statement (str "UPDATE plate SET accession = ? WHERE plate.ID IN ( SELECT plate.id FROM plate_set, plate_plate_set, plate  WHERE plate_plate_set.plate_set_id=" (str plateset-id) " AND plate_plate_set.plate_id=plate.id AND plate_plate_set.plate_order=? )")
-        content (into [] (zipmap (map #(:accession.id %) table) (map #(Integer. (:plate %)) table)))
+        content (into [] (map #(process-accs-map %) table))
+        sql-statement (str "UPDATE sample SET accs_id = ? WHERE sample.ID IN ( SELECT sample.id FROM plate_set, plate_plate_set, plate, well, well_sample, sample WHERE plate_plate_set.plate_set_id=" (str plateset-id)   " AND plate_plate_set.plate_id=plate.id AND well.plate_id=plate.ID AND well_sample.well_id=well.ID AND well_sample.sample_id=sample.ID AND plate_plate_set.plate_order=? AND well.by_col=?)")
         ]
-    (if (and (= col1name "plate")(= col2name "accession.id"))
+    (if (and (= col3name "accs.id")(= col1name "plate")(= col2name "well"))
       (with-open [con (j/get-connection dbm/pg-db)
                   ps  (j/prepare con [sql-statement])]
         (p/execute-batch! ps content))    
-      (javax.swing.JOptionPane/showMessageDialog nil  (str "Expecting the headers \"plate\", and \"accession.id\", but found\n" col1name  ", and " col2name  "."  )))))
+      (javax.swing.JOptionPane/showMessageDialog nil  (str "Expecting the headers \"plate\", \"well\", and \"accs.id\", but found\n" col1name ", " col2name  ", and " col3name  "."  )))))
 
 
-;;
-;;UPDATE sample SET accs_id = r.accs_id WHERE sample.ID IN ( SELECT sample.id FROM plate_set, plate_plate_set, plate, well, well_sample, sample WHERE plate_plate_set.plate_set_id=ps_id AND plate_plate_set.plate_id=plate.id AND well.plate_id=plate.ID AND well_sample.well_id=well.ID AND well_sample.sample_id=sample.ID AND plate_plate_set.plate_order=r.plate_order AND well.by_col=r.by_col);
+(import-accession-ids 1 "/home/mbc/accs96x2.txt")
+(get-col-names "/home/mbc/accs96x2.txt")
 
-(def accs "/home/mbc/accs96x2controls4.txt")
-
- (nth (get-col-names accs) 2)
-   (first (rest (get-col-names accs)))
-(def table (table-to-map accs))
-(vals (first table))
-
-(vec (map #(:accs.id %) table)
-         (map #(Integer. (:plate %)) table) (map #(Integer. (:well %)) table))
+(def accs "/home/mbc/accs96x2.txt")

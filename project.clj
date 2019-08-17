@@ -47,7 +47,7 @@
                   cider.nrepl.middleware.test/wrap-test
                   cider.nrepl.middleware.trace/wrap-trace
                   cider.nrepl.middleware.undef/wrap-undef]}
-
+  :jvm-opts ["-Xmx2G"]
   :main ^:skip-aot ln.session
   :aot [ ]
   :target-path "target/%s"
