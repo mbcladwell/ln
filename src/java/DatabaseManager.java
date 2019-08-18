@@ -36,7 +36,7 @@ public class DatabaseManager {
   private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
   // psql -U ln_admin -h 192.168.1.11 -d lndb
-
+  // psql postgres://klohymim:hwc3v4_rbkT-1EL2KI-JBaqFq0thCXM_@raja.db.elephantsql.com:5432/klohymim
 
   /**
    * Use 'lndb' as the database name. Regular users will connect as ln_user and will have restricted

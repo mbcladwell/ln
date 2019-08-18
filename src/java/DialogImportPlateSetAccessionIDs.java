@@ -301,9 +301,6 @@ public class DialogImportPlateSetAccessionIDs extends JDialog
         LOGGER.info("Open command cancelled by user.\n");
       }
     }
- 
-
-
     
   }
     
