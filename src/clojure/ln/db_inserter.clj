@@ -67,7 +67,9 @@
 
 
 
-(defn process-accs-map [x]
+(defn process-accs-map
+;;order is important; must correlate with SQL statement order of ?'s
+  [x]
 (into [] [(:accs.id x ) (Integer/parseInt(:plate x)) (Integer/parseInt(:well x ))]))
 
 
@@ -99,7 +101,7 @@
       (javax.swing.JOptionPane/showMessageDialog nil  (str "Expecting the headers \"plate\", \"well\", and \"accs.id\", but found\n" col1name ", " col2name  ", and " col3name  "."  )))))
 
 
-(import-accession-ids 1 "/home/mbc/accs96x2.txt")
-(get-col-names "/home/mbc/accs96x2.txt")
+;;(import-accession-ids 1 "/home/mbc/accs96x2controls4.txt")
+;;(get-col-names "/home/mbc/accs96x2.txt")
 
-(def accs "/home/mbc/accs96x2.txt")
+;;(def accs "/home/mbc/accs96x2.txt")

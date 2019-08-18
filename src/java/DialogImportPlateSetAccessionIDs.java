@@ -65,6 +65,7 @@ public class DialogImportPlateSetAccessionIDs extends JDialog
     private ComboItem format;
     private int plate_num;
     private int expected_rows;
+    private int plate_set_id;
     private ComboItem plate_layout;
   private JFileChooser fileChooser;
     private JCheckBox checkBox;
@@ -84,6 +85,7 @@ public class DialogImportPlateSetAccessionIDs extends JDialog
     plate_set = new ComboItem(_plate_set_id, _plate_set_sys_name);
     format = new ComboItem(_format_id, String.valueOf(_format_id));
     plate_num = _plate_num;
+    plate_set_id = _plate_set_id;
     require.invoke(Clojure.read("ln.codax-manager"));
     //    expected_rows = dbr.getNumberOfSamplesForPlateSetID(_plate_set_id);
     // Create and set up the window.
@@ -281,16 +283,14 @@ public class DialogImportPlateSetAccessionIDs extends JDialog
 	if(!((accessions.size()-1) == expected_rows)){  //If Top N is the algorithm
 	    	JOptionPane.showMessageDialog(dmf,
 					      new String("Expecting " + String.valueOf(expected_rows) + " rows but found " + (accessions.size()-1) + " rows." ), "Import Error",      JOptionPane.ERROR_MESSAGE);
-		return;
-	    
-	    
+		return;	    
 	}
-	
-      dbi.associateAccessionsWithPlateSet( plate_set.getKey(), format.getKey(), accessions);
-      dispose();
-    }
+		IFn importAccessionIDs = Clojure.var("ln.db-inserter", "import-accession-ids");
+	importAccessionIDs.invoke(plate_set_id, fileField.getText());
+	dispose();
 
-    if (e.getSource() == select) {
+  }
+   if (e.getSource() == select) {
       int returnVal = fileChooser.showOpenDialog(DialogImportPlateSetAccessionIDs.this);
 
       if (returnVal == JFileChooser.APPROVE_OPTION) {
@@ -301,7 +301,12 @@ public class DialogImportPlateSetAccessionIDs extends JDialog
         LOGGER.info("Open command cancelled by user.\n");
       }
     }
+ 
+
+
+    
   }
+    
 
   public void insertUpdate(DocumentEvent e) {
 
