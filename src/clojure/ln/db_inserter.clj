@@ -74,10 +74,8 @@
 
 
 ;;!!!Not yet implemented!!!
-(defn import-accession-ids [ plateset-id accession-file]
-  " Loads table and make the association
-      accessions looks like:
-
+(defn import-accession-ids 
+  " Loads table and make the association accessions looks like:
  plate	well	accs.id
 1	1	AMRVK5473H
 1	2	KMNCX9294W
@@ -85,11 +83,11 @@
 1	4	COZHR7852Q
 1	5	FJVNR6433Q
 1	6	WTCKQ4682U"
-
+  
+[ plateset-id accession-file]
   (let [ col1name (first (get-col-names accession-file))
         col2name (second (get-col-names accession-file))
-        col3name (nth (get-col-names accession-file) 2)
-        
+        col3name (nth (get-col-names accession-file) 2)        
         table (table-to-map accession-file)
         content (into [] (map #(process-accs-map %) table))
         sql-statement (str "UPDATE sample SET accs_id = ? WHERE sample.ID IN ( SELECT sample.id FROM plate_set, plate_plate_set, plate, well, well_sample, sample WHERE plate_plate_set.plate_set_id=" (str plateset-id)   " AND plate_plate_set.plate_id=plate.id AND well.plate_id=plate.ID AND well_sample.well_id=well.ID AND well_sample.sample_id=sample.ID AND plate_plate_set.plate_order=? AND well.by_col=?)")
@@ -101,7 +99,44 @@
       (javax.swing.JOptionPane/showMessageDialog nil  (str "Expecting the headers \"plate\", \"well\", and \"accs.id\", but found\n" col1name ", " col2name  ", and " col3name  "."  )))))
 
 
-;;(import-accession-ids 1 "/home/mbc/accs96x2controls4.txt")
-;;(get-col-names "/home/mbc/accs96x2.txt")
 
-;;(def accs "/home/mbc/accs96x2.txt")
+(def assoc-plate-ids-with-plate-set-id
+  "plate-ids: integer array of plate ids  int[]
+  plate-set-id integer"
+  [plate-ids plate-set-id]
+  (let [
+        sql-statement (str "INSERT INTO plate_plate_set (plate_set_id, plate_id, plate_order) VALUES (" (str plate-set-id)", ?,?)")
+        ]
+      (with-open [con (j/get-connection dbm/pg-db)
+                  ps  (j/prepare con [sql-statement])]
+        (p/execute-batch! ps content))    
+      ))
+
+
+(def assoc-plate-ids-with-plate-set-id ["CREATE OR REPLACE FUNCTION assoc_plate_ids_with_plate_set_id(_plate_ids int[], _plate_set_id int)
+  RETURNS void AS
+$BODY$
+DECLARE
+   pid int;
+   plate_ids int[];
+   counter INTEGER;
+   sql_statement VARCHAR;
+   
+BEGIN
+counter := 1;
+SELECT sort(_plate_ids) INTO plate_ids;
+sql_statement := 'INSERT INTO plate_plate_set (plate_set_id, plate_id, plate_order) VALUES ';
+
+  FOREACH pid IN ARRAY plate_ids
+     LOOP
+     sql_statement := sql_statement || '(' || _plate_set_id || ', '  ||  pid || ', ' || counter || '),';
+     counter = counter + 1;
+    END LOOP;
+
+     sql_statement := SUBSTRING(sql_statement, 1, CHAR_LENGTH(sql_statement)-1) || ';';
+     --RAISE notice 'sqlstatement: (%)', sql_statement;
+     EXECUTE sql_statement;
+
+END;
+$BODY$
+  LANGUAGE plpgsql VOLATILE;"])
