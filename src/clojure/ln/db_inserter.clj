@@ -1,18 +1,11 @@
 (ns ln.db-inserter
   (:require [next.jdbc :as j]
             [next.jdbc.prepare :as p]
-    
             [honeysql.core :as hsql]
             [honeysql.helpers :refer :all :as helpers]
-            [clojure.string :only [split split-lines trim]]
- 
+            [clojure.string :only [split split-lines trim]] 
             [ln.codax-manager :as cm]
             [ln.db-manager :as dbm])
-
-         ;;    [ln.db-manager :as dbm])
-         ;;   [clojure.data.csv :as csv]
-           ;; [clojure.java.io :as io])
-           
   (:import [java.sql.DriverManager] [javax.swing.JOptionPane]))
 
 (defn tokens
@@ -100,11 +93,14 @@
 
 
 
-(def assoc-plate-ids-with-plate-set-id
+(defn assoc-plate-ids-with-plate-set-id
   "plate-ids: integer array of plate ids  int[]
   plate-set-id integer"
-  [plate-ids plate-set-id]
+  [ plate-ids plate-set-id ]
   (let [
+        sorted-plate-ids (sort plate-ids)
+        plate-order (range 1 (+ 1 (count sorted-plate-ids)))
+        content (pairs sorted-plate-ids plate-order)
         sql-statement (str "INSERT INTO plate_plate_set (plate_set_id, plate_id, plate_order) VALUES (" (str plate-set-id)", ?,?)")
         ]
       (with-open [con (j/get-connection dbm/pg-db)
@@ -113,30 +109,45 @@
       ))
 
 
-(def assoc-plate-ids-with-plate-set-id ["CREATE OR REPLACE FUNCTION assoc_plate_ids_with_plate_set_id(_plate_ids int[], _plate_set_id int)
+(defn new-user
+  ;;tags are any keyword
+  ;; group-id is int
+  [ name tags password group-id ]
+  (let [ sql-statement (str "INSERT INTO lnuser(usergroup, lnuser_name, tags, password) VALUES (?, ?, ?, ?)")
+        ]
+  (j/execute-one! dbm/pg-db [sql-statement group-id name tags password])))
+
+(defn new-project
+  ;;tags are any keyword
+  ;; group-id is int
+  [ name description lnuser-id ]
+  (let [ sql-statement (str "INSERT INTO project(descr, project_name, lnsession_id) VALUES (?, ?, ?)")
+        new-project-id-pre (j/execute-one! dbm/pg-db [sql-statement description name lnuser-id]{:return-keys true})
+        new-project-id (:project/id new-project-id-pre)
+        ]
+  (j/execute-one! dbm/pg-db [(str "UPDATE project SET project_sys_name = " (str "PRJ-" new-project-id) " WHERE id=?") new-project-id])))
+
+
+(def name "n1")
+(def description "d1")
+(def lnuser-id 1)
+(def new-project-id 1000)
+(def sql-statement (str "INSERT INTO project(descr, project_name, lnsession_id) VALUES (?, ?, ?)"))
+
+;;(new-project "myproj" "mydesc" 1)
+
+(def new-projectfunction ["CREATE OR REPLACE FUNCTION new_project(_descr character varying, _project_name character VARYING, _lnsession_id INTEGER)
   RETURNS void AS
 $BODY$
 DECLARE
-   pid int;
-   plate_ids int[];
-   counter INTEGER;
-   sql_statement VARCHAR;
-   
+   v_id integer;
 BEGIN
-counter := 1;
-SELECT sort(_plate_ids) INTO plate_ids;
-sql_statement := 'INSERT INTO plate_plate_set (plate_set_id, plate_id, plate_order) VALUES ';
-
-  FOREACH pid IN ARRAY plate_ids
-     LOOP
-     sql_statement := sql_statement || '(' || _plate_set_id || ', '  ||  pid || ', ' || counter || '),';
-     counter = counter + 1;
-    END LOOP;
-
-     sql_statement := SUBSTRING(sql_statement, 1, CHAR_LENGTH(sql_statement)-1) || ';';
-     --RAISE notice 'sqlstatement: (%)', sql_statement;
-     EXECUTE sql_statement;
-
+   INSERT INTO project(descr, project_name, lnsession_id)
+   VALUES (_descr, _project_name, _lnsession_id)
+   RETURNING id INTO v_id;
+   UPDATE project SET project_sys_name = 'PRJ-'||v_id WHERE id=v_id;
 END;
 $BODY$
   LANGUAGE plpgsql VOLATILE;"])
+
+(def drop-new-plate-set ["DROP FUNCTION IF exists new_plate_set(_descr VARCHAR(30), _plate_set_name VARCHAR(30), _num_plates INTEGER, _plate_format_id INTEGER,  _plate_type_id INTEGER, _project_id INTEGER, _plate_layout_name_id INTEGER, _lnsession_id INTEGER,  _with_samples boolean);"])

@@ -47,8 +47,8 @@ public class DatabaseInserter {
     this.dmf = dbm.getDialogMainFrame();
     require.invoke(Clojure.read("ln.db-inserter"));
     require.invoke(Clojure.read("ln.codax-manager"));
-    	 IFn getSessionID = Clojure.var("ln.codax-manager", "get-session-id");
-	 session_id = (int)getSessionID.invoke();
+    IFn getSessionID = Clojure.var("ln.codax-manager", "get-session-id");
+    session_id = (int)getSessionID.invoke();
     // this.utils = dmf.getUtilities();
     //this.session = dmf.getSession();
   }
@@ -266,13 +266,7 @@ public int insertPlateSet(
     // determine type id
     int plateTypeID = dbm.getDatabaseRetriever().getIDForPlateType(plate_type);
 
-    // determine plate.ids for plate_sys_names
-    // use   public Integer[] getIDsForSysNames(String[] _sys_names, String _table, String _column)
-    // {
-    // from DatabaseRetriever
-    //LOGGER.info("plate_sys_names: " + plate_sys_names);
-    //LOGGER.info("hashsetplate_sys_names: " + new HashSet<String>(plate_sys_names));
-
+ 
     //LOGGER.info(
     //  "set: "
     //      + session.getDialogMainFrame().getUtilities().getStringArrayForStringSet(new HashSet<String>(plate_sys_names)));
@@ -282,10 +276,6 @@ public int insertPlateSet(
 			       dbm.getDialogMainFrame().getUtilities().getStringArrayForStringSet(new HashSet<String>(plate_sys_names)),
                 "plate",
                 "plate_sys_name");
-
-    // insert new plate set
-    // INSERT INTO plate_set(descr, plate_set_name, num_plates, plate_size_id, plate_type_id,
-    // project_id)
 
     String sqlstring = "SELECT new_plate_set_from_group (?, ?, ?, ?, ?, ?, ?);";
 
@@ -299,11 +289,7 @@ public int insertPlateSet(
       preparedStatement.setInt(5, plateTypeID);
       preparedStatement.setInt(6, project_id);
        preparedStatement.setInt(7, plate_layout_name_id);
-     
-      //      preparedStatement.setArray(7, conn.createArrayOf("VARCHAR",
-      // (plate_sys_names.toArray())));
-
-      preparedStatement.execute(); // executeUpdate expects no returns!!!
+       preparedStatement.execute(); // executeUpdate expects no returns!!!
 
       ResultSet resultSet = preparedStatement.getResultSet();
       resultSet.next();
@@ -327,9 +313,14 @@ public int insertPlateSet(
       it2.remove(); // avoids a ConcurrentModificationException
     }
 
-    LOGGER.info("keys: " + plate_ids);
+    // LOGGER.info("keys: " + all_plate_ids);
+    //LOGGER.info("new_plate_set_id: " + new_plate_set_id);
 
-    this.associatePlateIDsWithPlateSetID(all_plate_ids, new_plate_set_id);
+     IFn assocPlateIDsWithPlateSetID = Clojure.var("ln.db-inserter", "assoc-plate-ids-with-plate-set-id");
+    assocPlateIDsWithPlateSetID.invoke(all_plate_ids, new_plate_set_id);
+
+    
+    //this.associatePlateIDsWithPlateSetID(all_plate_ids, new_plate_set_id);
      IFn getProjectSysName = Clojure.var("ln.codax-manager", "get-project-sys-name");
    
      dbm.getDialogMainFrame().showPlateSetTable((String)getProjectSysName.invoke());
@@ -393,13 +384,19 @@ public int insertPlateSet(
     }
 
     LOGGER.info("keys: " + plate_ids);
+    LOGGER.info("new_plate_set_id: " + new_plate_set_id);
+    
 
-    this.associatePlateIDsWithPlateSetID(plate_ids, new_plate_set_id);
+     IFn assocPlateIDsWithPlateSetID = Clojure.var("ln.db-inserter", "assoc-plate-ids-with-plate-set-id");
+    assocPlateIDsWithPlateSetID.invoke(plate_ids, new_plate_set_id);
+
+    //this.associatePlateIDsWithPlateSetID(plate_ids, new_plate_set_id);
      IFn getProjectSysName = Clojure.var("ln.codax-manager", "get-project-sys-name");
    
     dbm.getDialogMainFrame().showPlateSetTable((String)getProjectSysName.invoke());
   }
 
+    /*
   public void associatePlateIDsWithPlateSetID(Set<Integer> _plateIDs, int _plate_set_id) {
     Set<Integer> plateIDs = _plateIDs;
     int plate_set_id = _plate_set_id;
@@ -407,7 +404,11 @@ public int insertPlateSet(
         Arrays.stream(dbm.getDialogMainFrame().getUtilities().getIntArrayForIntegerSet(plateIDs))
             .boxed()
             .toArray(Integer[]::new);
+    
+    IFn assocPlateIDsWithPlateSetID = Clojure.var("ln.db-inserter", "assoc-plate-ids-with-plate-set-id");
+    assocPlateIDsWithPlateSetID.invoke(plate_ids, plate_set_id);
 
+    
     String sqlString = "SELECT assoc_plate_ids_with_plate_set_id(?,?)";
     // LOGGER.info("insertSql: " + insertSql);
     try {
@@ -419,8 +420,11 @@ public int insertPlateSet(
     } catch (SQLException sqle) {
       LOGGER.warning("Failed to properly prepare  prepared statement: " + sqle);
     }
+    
   }
-  /* Method signature in DialogAddPlateSetData
+    */
+
+    /* Method signature in DialogAddPlateSetData
       dbi.associateDataWithPlateSet(
           nameField.getText(),
           descrField.getText(),
@@ -714,23 +718,6 @@ if(num_of_plate_ids*format_id!=table.size()-1){
       
 }
     
-    public void insertUser(String _name, String _tags, String _password, int _group){
-
-	    String sqlString = "SELECT new_user(?,?, ?, ?)";
-    // LOGGER.info("insertSql: " + insertSql);
-    try {
-      PreparedStatement preparedStatement = conn.prepareStatement(sqlString);
-      preparedStatement.setString(1, _name);
-      preparedStatement.setString(2, _tags);
-      preparedStatement.setString(3, _password);
-      preparedStatement.setInt(4, _group);
-      preparedStatement.execute(); // executeUpdate expects no returns!!!
-
-    } catch (SQLException sqle) {
-      LOGGER.warning("Failed to properly prepare  prepared statement: " + sqle);
-    }
-	
-    }
 
     public void insertPlateLayout(String _name, String _descr,  String _file_name){
 	String name = _name;

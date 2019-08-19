@@ -203,9 +203,9 @@
   (c/get-at! props [:assets :session :user-id ]))
 
 
-(defn set-user-group [s]
+(defn set-user-group [i]
     (c/with-write-transaction [props tx]
-        (c/assoc-at tx  [:assets :session :user-group] s)))
+        (c/assoc-at tx  [:assets :session :user-group] i)))
 
 (defn get-user-group []
   (c/get-at! props [:assets :session :user-group ]))

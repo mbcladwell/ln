@@ -24,6 +24,10 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
+import clojure.java.api.Clojure;
+import clojure.lang.IFn;
+  
+
 public class DialogAddUser extends JDialog {
   static JButton button;
   static JLabel label;
@@ -43,13 +47,16 @@ public class DialogAddUser extends JDialog {
   final DateFormat df = new SimpleDateFormat("MM/dd/yyyy");
   private static final long serialVersionUID = 1L;
   private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+   private IFn require = Clojure.var("clojure.core", "require");
 
+    
   public DialogAddUser(DatabaseManager _dbm) {
       dbm = _dbm;
       dmf = dbm.getDialogMainFrame();
       // session = dmf.getSession();
       //dbm = session.getDatabaseManager();
-
+  require.invoke(Clojure.read("ln.db-inserter"));
+  
     JPanel pane = new JPanel(new GridBagLayout());
     pane.setBorder(BorderFactory.createRaisedBevelBorder());
 
@@ -138,13 +145,10 @@ public class DialogAddUser extends JDialog {
         (new ActionListener() {
           public void actionPerformed(ActionEvent e) {
 
-            // DatabaseManager dm = new DatabaseManager();
-            // dbm.persistObject(new Project(descriptionField.getText(), ownerField.getText(),
-            // nameField.getText()));
-	      
-            dbm.getDatabaseInserter()
-                .insertUser(
-			    nameField.getText(), tagsField.getText(), passwordField.getText(), ((ComboItem)groupList.getSelectedItem()).getKey() ); 
+	      IFn newUser = Clojure.var("ln.db-inserter", "new-user");
+	      newUser.invoke(nameField.getText(), tagsField.getText(), passwordField.getText(), ((ComboItem)groupList.getSelectedItem()).getKey() );
+       	      
+	      //dbm.getDatabaseInserter().insertUser(   nameField.getText(), tagsField.getText(), passwordField.getText(), ((ComboItem)groupList.getSelectedItem()).getKey() ); 
             dispose();
           }
         }));
@@ -174,5 +178,5 @@ public class DialogAddUser extends JDialog {
     this.setVisible(true);
   }
 
-  private void addToDB() {}
+  
 }

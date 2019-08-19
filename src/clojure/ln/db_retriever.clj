@@ -22,13 +22,14 @@
         (println (str "user: " user))
         (println password)
         (println results)
-    (if (= password (:password results) )
+    (if (= password (:lnuser/password results) )
       (do
         (println "before uid ugid ug auth")
+        (println  ( :lnuser_groups/usergroup results))
         (cm/set-uid-ugid-ug-auth
-           (get (first results) :id)         
-           (get (first results) :id_2)
-           (get (first results) :usergroup)
+           (:lnuser/id  results)          
+           ( :lnuser_groups/id results)
+           ( :lnuser_groups/usergroup results)
            true)
         (println "after uid ugid ug auth")
           
@@ -46,8 +47,14 @@
   ;;user id
   [ uid ]
   (let [db (if (= (cm/get-source) "test") dbm/pg-db-admin-test dbm/pg-db-admin)
-        result (j/execute-one! db ["INSERT INTO lnsession(lnuser_id) values(?)" uid]{:return-keys true} )]
-    (cm/set-session-id  (:lnsession/id result) )))
+        user-id (j/execute-one! db ["INSERT INTO lnsession(lnuser_id) values(?)" uid]{:return-keys true} )
+        ug-id (j/execute! db ["SELECT usergroup FROM lnuser WHERE lnuser.id =?"  (:lnsession/id user-id) ] )
+        ]
+    (cm/set-session-id  (:lnsession/id user-id) )
+    (cm/set-user-group (:lnuser/usergroup ug-id))))
 
 ;;(register-session 3)
 ;;(:lnsession/id (j/execute-one! dbm/pg-db-admin ["INSERT INTO lnsession(lnuser_id) values(?)" 2]{:return-keys true} ))
+
+;;(def db dbm/pg-db-admin)
+;;(def user-id 1)
