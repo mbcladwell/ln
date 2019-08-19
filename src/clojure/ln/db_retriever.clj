@@ -53,8 +53,42 @@
     (cm/set-session-id  (:lnsession/id user-id) )
     (cm/set-user-group (:lnuser/usergroup ug-id))))
 
-;;(register-session 3)
-;;(:lnsession/id (j/execute-one! dbm/pg-db-admin ["INSERT INTO lnsession(lnuser_id) values(?)" 2]{:return-keys true} ))
 
-;;(def db dbm/pg-db-admin)
-;;(def user-id 1)
+(defn get-num-samples-for-plate-set [ plate-set-id ]
+  (let [
+        sql-statement  (str "SELECT sample.id FROM plate, plate_plate_set, well, sample, well_sample WHERE plate_plate_set.plate_set_id = ? AND plate_plate_set.plate_id = plate.id AND well.plate_id = plate.id AND well_sample.well_id = well.id AND well_sample.sample_id = sample.id ORDER BY plate_plate_set.plate_id, plate_plate_set.plate_order, well.id")
+        result (doall (j/execute! dbm/pg-db [ sql-statement plate-set-id]{:return-keys true} ))
+        ]
+    (count (rest result))))
+
+
+
+(get-num-samples-for-plate-set 1)
+
+
+(def get-num-samples-for-plate-setfunction ["CREATE OR REPLACE FUNCTION get_num_samples_for_plate_set(_plate_set_id INTEGER)
+  RETURNS INTEGER AS
+$BODY$
+DECLARE
+   psid int := _plate_set_id;
+   
+   counter INTEGER;
+   sql_statement VARCHAR;
+all_sample_ids INTEGER[];
+num_samples INTEGER;
+   
+BEGIN
+
+sql_statement := 'SELECT ARRAY(SELECT sample.id FROM plate, plate_plate_set, well, sample, well_sample WHERE plate_plate_set.plate_set_id = ' || psid || ' AND plate_plate_set.plate_id = plate.id AND well.plate_id = plate.id AND well_sample.well_id = well.id AND well_sample.sample_id = sample.id ORDER BY plate_plate_set.plate_id, plate_plate_set.plate_order, well.id)';
+
+--    RAISE notice 'sql_statement: (%)', sql_statement;
+
+     EXECUTE sql_statement INTO all_sample_ids;
+     num_samples := array_length(all_sample_ids ,1); 
+ -- RAISE notice 'ids: (%)', all_sample_ids;
+ -- RAISE notice 'num: (%)', num_samples;
+
+RETURN num_samples;
+END;
+$BODY$
+  LANGUAGE plpgsql VOLATILE;"])

@@ -112,42 +112,17 @@
 (defn new-user
   ;;tags are any keyword
   ;; group-id is int
-  [ name tags password group-id ]
+  [ user-name tags password group-id ]
   (let [ sql-statement (str "INSERT INTO lnuser(usergroup, lnuser_name, tags, password) VALUES (?, ?, ?, ?)")
         ]
-  (j/execute-one! dbm/pg-db [sql-statement group-id name tags password])))
+  (j/execute-one! dbm/pg-db [sql-statement group-id user-name tags password])))
 
 (defn new-project
   ;;tags are any keyword
   ;; group-id is int
-  [ name description lnuser-id ]
+  [ project-name description lnuser-id ]
   (let [ sql-statement (str "INSERT INTO project(descr, project_name, lnsession_id) VALUES (?, ?, ?)")
-        new-project-id-pre (j/execute-one! dbm/pg-db [sql-statement description name lnuser-id]{:return-keys true})
+        new-project-id-pre (j/execute-one! dbm/pg-db [sql-statement description project-name lnuser-id]{:return-keys true})
         new-project-id (:project/id new-project-id-pre)
         ]
-  (j/execute-one! dbm/pg-db [(str "UPDATE project SET project_sys_name = " (str "PRJ-" new-project-id) " WHERE id=?") new-project-id])))
-
-
-(def name "n1")
-(def description "d1")
-(def lnuser-id 1)
-(def new-project-id 1000)
-(def sql-statement (str "INSERT INTO project(descr, project_name, lnsession_id) VALUES (?, ?, ?)"))
-
-;;(new-project "myproj" "mydesc" 1)
-
-(def new-projectfunction ["CREATE OR REPLACE FUNCTION new_project(_descr character varying, _project_name character VARYING, _lnsession_id INTEGER)
-  RETURNS void AS
-$BODY$
-DECLARE
-   v_id integer;
-BEGIN
-   INSERT INTO project(descr, project_name, lnsession_id)
-   VALUES (_descr, _project_name, _lnsession_id)
-   RETURNING id INTO v_id;
-   UPDATE project SET project_sys_name = 'PRJ-'||v_id WHERE id=v_id;
-END;
-$BODY$
-  LANGUAGE plpgsql VOLATILE;"])
-
-(def drop-new-plate-set ["DROP FUNCTION IF exists new_plate_set(_descr VARCHAR(30), _plate_set_name VARCHAR(30), _num_plates INTEGER, _plate_format_id INTEGER,  _plate_type_id INTEGER, _project_id INTEGER, _plate_layout_name_id INTEGER, _lnsession_id INTEGER,  _with_samples boolean);"])
+  (j/execute-one! dbm/pg-db [(str "UPDATE project SET project_sys_name = " (str "'PRJ-" new-project-id "'") " WHERE id=?") new-project-id])))
