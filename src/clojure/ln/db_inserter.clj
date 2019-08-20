@@ -126,3 +126,27 @@
         new-project-id (:project/id new-project-id-pre)
         ]
   (j/execute-one! dbm/pg-db [(str "UPDATE project SET project_sys_name = " (str "'PRJ-" new-project-id "'") " WHERE id=?") new-project-id])))
+
+
+;;must get rid of import file in Utilities.java
+
+(defn associate-data-with-plate-set
+  "      String _assayName,
+      String _descr,
+      String _plate_set_sys_name,
+      int _format_id,
+      int _assay_type_id,
+      int _plate_layout_name_id,
+      ArrayList<String[]> _table,
+      boolean _auto_select_hits,
+      int _hit_selection_algorithm,
+      int _top_n_number
+"
+  [assay-name description plate-set-sys-name format-id assay-type-id plate-layout-name-id input-file-name auto-select-hits hit-selection-algorithm top-n-number]
+  (let [ plate-set-ids (get-ids-for-sys-names plate-set-sys-name "plate_set" "plate_set_sys_name")
+
+        ]
+
+    )
+
+  )

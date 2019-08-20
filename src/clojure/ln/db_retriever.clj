@@ -1,5 +1,7 @@
 (ns ln.db-retriever
   (:require [next.jdbc :as j]
+              [next.jdbc.prepare :as p]
+          [next.jdbc.result-set :as rs]
             [honeysql.core :as hsql]
             [honeysql.helpers :refer :all :as helpers]
            ;; [ln.db-manager :as dbm]
@@ -59,36 +61,54 @@
         sql-statement  (str "SELECT sample.id FROM plate, plate_plate_set, well, sample, well_sample WHERE plate_plate_set.plate_set_id = ? AND plate_plate_set.plate_id = plate.id AND well.plate_id = plate.id AND well_sample.well_id = well.id AND well_sample.sample_id = sample.id ORDER BY plate_plate_set.plate_id, plate_plate_set.plate_order, well.id")
         result (doall (j/execute! dbm/pg-db [ sql-statement plate-set-id]{:return-keys true} ))
         ]
-    (count (rest result))))
+    (count  result)))
 
 
+;;https://github.com/seancorfield/next-jdbc/blob/master/test/next/jdbc_test.clj#L53-L105
 
-(get-num-samples-for-plate-set 1)
+(defn get-ids-for-sys-names
+  "sys_names array of system_names
+   table table to be queried
+   column name of the sys_name column e.g. plate_sys_name, plate_set_sys_name
+  execute-multi! not returning the result so this is a hack"
+  [sys-names table column-name]
+  (into [] (map :plate_set/id
+       (flatten
+        (let [ sql-statement (str "SELECT id FROM " table  "  WHERE " column-name  " = ?")
+              ;;content (into [](map vec (partition 1  sys-names)))
+              con (j/get-connection  dbm/pg-db)
+              ;;ps  (j/prepare con [sql-statement ])
+              results nil]
+          (for [x sys-names]  (concat results (j/execute! con  [sql-statement x]))))))))
 
 
-(def get-num-samples-for-plate-setfunction ["CREATE OR REPLACE FUNCTION get_num_samples_for_plate_set(_plate_set_id INTEGER)
-  RETURNS INTEGER AS
+;;(get-ids-for-sys-names ["PS-1" "PS-2" "PS-3" "PS-4" ] "plate_set" "plate_set_sys_name" )
+
+
+(def get-ids-for-sys-names ["CREATE OR REPLACE FUNCTION get_ids_for_sys_names( _sys_names VARCHAR[], _table VARCHAR(30), _sys_name VARCHAR(30))
+  RETURNS integer[] AS
 $BODY$
 DECLARE
-   psid int := _plate_set_id;
-   
-   counter INTEGER;
+   sn varchar(20);
+   an_int integer;
+   sys_ids INTEGER[];
    sql_statement VARCHAR;
-all_sample_ids INTEGER[];
-num_samples INTEGER;
+   sql_statement2 VARCHAR;
    
+   temp INTEGER;
+
 BEGIN
 
-sql_statement := 'SELECT ARRAY(SELECT sample.id FROM plate, plate_plate_set, well, sample, well_sample WHERE plate_plate_set.plate_set_id = ' || psid || ' AND plate_plate_set.plate_id = plate.id AND well.plate_id = plate.id AND well_sample.well_id = well.id AND well_sample.sample_id = sample.id ORDER BY plate_plate_set.plate_id, plate_plate_set.plate_order, well.id)';
+ sql_statement := 'SELECT id FROM ' || _table || ' WHERE ' || _sys_name   || ' = ';
 
---    RAISE notice 'sql_statement: (%)', sql_statement;
+  FOREACH sn IN ARRAY _sys_names
+     LOOP
+     sql_statement2 := sql_statement || quote_literal(sn);
+     EXECUTE sql_statement2 INTO temp;
+     sys_ids := array_append(sys_ids, temp );
+    END LOOP;
 
-     EXECUTE sql_statement INTO all_sample_ids;
-     num_samples := array_length(all_sample_ids ,1); 
- -- RAISE notice 'ids: (%)', all_sample_ids;
- -- RAISE notice 'num: (%)', num_samples;
-
-RETURN num_samples;
+RETURN sys_ids;
 END;
 $BODY$
-  LANGUAGE plpgsql VOLATILE;"])
+  LANGUAGE plpgsql VOLATILE PARALLEL UNSAFE; "])

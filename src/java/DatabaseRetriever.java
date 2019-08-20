@@ -557,6 +557,7 @@ public class DatabaseRetriever {
    * @param _sys_names array of system_names
    * @param _table table to be queried
    * @param _column name of the sys_name column e.g. plate_sys_name, plate_set_sys_name
+
    */
   public Integer[] getIDsForSysNames(String[] _sys_names, String _table, String _column) {
     String[] sys_names = _sys_names;
