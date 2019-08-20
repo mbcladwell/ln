@@ -128,6 +128,34 @@
   (j/execute-one! dbm/pg-db [(str "UPDATE project SET project_sys_name = " (str "'PRJ-" new-project-id "'") " WHERE id=?") new-project-id])))
 
 
+;;https://github.com/seancorfield/next-jdbc/blob/master/test/next/jdbc_test.clj#L53-L105
+
+(defn get-ids-for-sys-names
+  "sys_names array of system_names
+   table table to be queried
+   column name of the sys_name column e.g. plate_sys_name, plate_set_sys_name
+  execute-multi! not returning the result so this is a hack"
+  [sys-names table column-name]
+  (into [] (map :plate_set/id
+       (flatten
+        (let [ sql-statement (str "SELECT id FROM " table  "  WHERE " column-name  " = ?")
+              ;;content (into [](map vec (partition 1  sys-names)))
+              con (j/get-connection  dbm/pg-db)
+              ;;ps  (j/prepare con [sql-statement ])
+              results nil]
+          (for [x sys-names]  (concat results (j/execute! con  [sql-statement x]))))))))
+
+
+;;(get-ids-for-sys-names ["PS-1" "PS-2" "PS-3" "PS-4" ] "plate_set" "plate_set_sys_name" )
+
+
+(defn get-all-plate-ids-for-plate-set-id [ plate-set-id]
+  (let [ sql-statement "SELECT plate_id  FROM  plate_plate_set WHERE plate_plate_set.plate_set_id = ?;"
+         plate-ids-pre (doall (j/execute! dbm/pg-db [sql-statement plate-set-id]{:return-keys true}))
+        ]
+    (into [] (map :plate_plate_set/plate_id (flatten plate-ids-pre)))))
+
+
 ;;must get rid of import file in Utilities.java
 
 (defn associate-data-with-plate-set
@@ -140,13 +168,19 @@
       ArrayList<String[]> _table,
       boolean _auto_select_hits,
       int _hit_selection_algorithm,
-      int _top_n_number
-"
+      int _top_n_number"
   [assay-name description plate-set-sys-name format-id assay-type-id plate-layout-name-id input-file-name auto-select-hits hit-selection-algorithm top-n-number]
-  (let [ plate-set-ids (get-ids-for-sys-names plate-set-sys-name "plate_set" "plate_set_sys_name")
+ (let [ plate-set-ids (get-ids-for-sys-names plate-set-sys-name "plate_set" "plate_set_sys_name")
+       num-of-plate-ids (get-all-plate-ids-for-plate-set-id (first plate-set-ids)) ;;should only be one though method handles array 
+        expected-rows-in-table  (* num-of-plate-ids format-id)
+   table-map (table-to-map filename)
+       ]
+   (if (= expected-rows-in-table (count table-map))
+()
+ (JOptionPane/showMessageDialog nil "test"))
 
-        ]
-
+   
     )
 
-  )
+  
+(count (table-to-map "/home/mbc/ar2data.txt"))
