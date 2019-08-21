@@ -445,7 +445,8 @@ public class DialogAddPlateSetData extends JDialog
           format.getKey(),
           ((ComboItem)assayTypes.getSelectedItem()).getKey(),
           plate_layout.getKey(),
-          dmf.getUtilities().loadDataFile(fileField.getText()),
+	  // dmf.getUtilities().loadDataFile(fileField.getText()),
+	  fileField.getText(),
 	  checkBox.isSelected(),
 	  ((ComboItem)algorithmList.getSelectedItem()).getKey(),
 	  top_n_number);

@@ -1180,7 +1180,7 @@ int plate_layout_name_id = _plate_layout_name_id;
     /**
      * pgPL/SQL: get_number_samples_for_psid( _psid INTEGER )
      */
-
+    /*
     public int getNumberOfSamplesForPlateSetID(int _plate_set_id){
 	int result = 0;
     try {
@@ -1201,6 +1201,7 @@ int plate_layout_name_id = _plate_layout_name_id;
     return result;
 	
     }
+    */
 
       public ComboItem[] getPlateFormats() {
     ComboItem[] output = null;

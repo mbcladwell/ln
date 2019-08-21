@@ -95,7 +95,11 @@ public class DialogImportPlateSetAccessionIDs extends JDialog
     // this.dbm = session.getDatabaseManager();
     this.dbr = dbm.getDatabaseRetriever();
     this.dbi = dbm.getDatabaseInserter();
-    expected_rows = dbr.getNumberOfSamplesForPlateSetID(_plate_set_id);
+
+    require.invoke(Clojure.read("ln.db-retriever"));
+    IFn getNumSamplesForPlate_setID  = Clojure.var("ln.db-retriever", "get-num-samples-for-plate-set-id");
+    expected_rows = (int)getNumSamplesForPlate_setID.invoke(plate_set_id);
+    //expected_rows = dbr.getNumberOfSamplesForPlateSetID(_plate_set_id);
 
     //LOGGER.info("plate_set_id: " + plate_set_id);
     plate_set_description = dbr.getDescriptionForPlateSet(_plate_set_sys_name);

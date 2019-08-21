@@ -56,12 +56,12 @@
     (cm/set-user-group (:lnuser/usergroup ug-id))))
 
 
-(defn get-num-samples-for-plate-set [ plate-set-id ]
+(defn get-num-samples-for-plate-set-id [ plate-set-id ]
   (let [
         sql-statement  (str "SELECT sample.id FROM plate, plate_plate_set, well, sample, well_sample WHERE plate_plate_set.plate_set_id = ? AND plate_plate_set.plate_id = plate.id AND well.plate_id = plate.id AND well_sample.well_id = well.id AND well_sample.sample_id = sample.id ORDER BY plate_plate_set.plate_id, plate_plate_set.plate_order, well.id")
         result (doall (j/execute! dbm/pg-db [ sql-statement plate-set-id]{:return-keys true} ))
         ]
     (count  result)))
 
-
+;;(get-num-samples-for-plate-set 1)
 

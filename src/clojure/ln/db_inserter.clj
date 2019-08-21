@@ -66,7 +66,6 @@
 (into [] [(:accs.id x ) (Integer/parseInt(:plate x)) (Integer/parseInt(:well x ))]))
 
 
-;;!!!Not yet implemented!!!
 (defn import-accession-ids 
   " Loads table and make the association accessions looks like:
  plate	well	accs.id
@@ -131,7 +130,7 @@
 ;;https://github.com/seancorfield/next-jdbc/blob/master/test/next/jdbc_test.clj#L53-L105
 
 (defn get-ids-for-sys-names
-  "sys_names array of system_names
+  "sys_names vector of system_names
    table table to be queried
    column name of the sys_name column e.g. plate_sys_name, plate_set_sys_name
   execute-multi! not returning the result so this is a hack"
@@ -147,6 +146,8 @@
 
 
 ;;(get-ids-for-sys-names ["PS-1" "PS-2" "PS-3" "PS-4" ] "plate_set" "plate_set_sys_name" )
+;;(get-ids-for-sys-names ["PS-10"] "plate_set" "plate_set_sys_name" )
+
 
 
 (defn get-all-plate-ids-for-plate-set-id [ plate-set-id]
@@ -158,10 +159,44 @@
 
 ;;must get rid of import file in Utilities.java
 
+(defn create-assay-run
+  " String _assayName,
+      String _descr,
+      int _assay_type_id,
+      int _plate_set_id,
+      int _plate_layout_name_id
+  "
+  [ assay-run-name description assay-type-id plate-set-id plate-layout-name-id ]
+  (let [ session-id (cm/get-session-id)
+        sql-statement (str "INSERT INTO assay_run(assay_run_name , descr, assay_type_id, plate_set_id, plate_layout_name_id, lnsession_id) VALUES (?, ?, ?, ?, ?, " session-id ")")
+        new-assay-run-id-pre (j/execute-one! dbm/pg-db [sql-statement assay-run-name description assay-type-id plate-set-id plate-layout-name-id ]{:return-keys true})
+        new-assay-run-id (:assay_run/id new-assay-run-id-pre)
+        ]
+    (j/execute-one! dbm/pg-db [(str "UPDATE assay_run SET assay_run_sys_name = " (str "'AR-" new-assay-run-id "'") " WHERE id=?") new-assay-run-id])
+    new-assay-run-id))
+
+;;(create-assay-run "n" "d" 1 1 1)
+
+(defn process-assay-results-map
+;;order is important; must correlate with SQL statement order of ?'s
+  [x]
+(into [] [(Integer/parseInt(:plate x )) (Integer/parseInt(:well x)) (Double/parseDouble(:response x ))]))
+
+
+(defn load-assay-results
+  [ assay-run-id data-table]
+  (let [ sql-statement (str "INSERT INTO assay_result( assay_run_id, plate_order, well, response ) VALUES ( " assay-run-id ", ?, ?, ?)")
+        content (into [] (map #(process-assay-results-map %) data-table))
+        ]
+      (with-open [con (j/get-connection dbm/pg-db)
+                  ps  (j/prepare con [sql-statement])]
+        (p/execute-batch! ps content))))
+
+
 (defn associate-data-with-plate-set
   "      String _assayName,
       String _descr,
-      String _plate_set_sys_name,
+      String _plate_set_sys_name,  a vector of sys-name; 
       int _format_id,
       int _assay_type_id,
       int _plate_layout_name_id,
@@ -169,18 +204,22 @@
       boolean _auto_select_hits,
       int _hit_selection_algorithm,
       int _top_n_number"
-  [assay-name description plate-set-sys-name format-id assay-type-id plate-layout-name-id input-file-name auto-select-hits hit-selection-algorithm top-n-number]
- (let [ plate-set-ids (get-ids-for-sys-names plate-set-sys-name "plate_set" "plate_set_sys_name")
-       num-of-plate-ids (get-all-plate-ids-for-plate-set-id (first plate-set-ids)) ;;should only be one though method handles array 
-        expected-rows-in-table  (* num-of-plate-ids format-id)
-   table-map (table-to-map filename)
+  [assay-run-name description plate-set-sys-names format-id assay-type-id plate-layout-name-id input-file-name auto-select-hits hit-selection-algorithm top-n-number]
+ (let [ plate-set-ids (get-ids-for-sys-names plate-set-sys-names "plate_set" "plate_set_sys_name");;should only be one though method handles array 
+       num-of-plate-ids (count (get-all-plate-ids-for-plate-set-id (first plate-set-ids))) ;;should be only one plate-set-id
+       expected-rows-in-table  (* num-of-plate-ids format-id)
+       table-map (table-to-map input-file-name)
        ]
+   (println plate-set-sys-names)
+   (println (first plate-set-ids))
+   (println num-of-plate-ids)
+   (println format-id)
    (if (= expected-rows-in-table (count table-map))
-()
- (JOptionPane/showMessageDialog nil "test"))
+     ;;plate-set-ids could be a vector with many but for this workflow only expecting one; get it out with (first)
+     (let [new-assay-run-id (create-assay-run  assay-run-name description assay-type-id (first plate-set-ids) plate-layout-name-id )
+           ]
+       (load-assay-results new-assay-run-id table-map)
+         new-assay-run-id)
+ (javax.swing.JOptionPane/showMessageDialog nil (str "Expecting " expected-rows-in-table " rows but found " (count table-map) " rows in data file.") ))))
 
-   
-    )
-
-  
-(count (table-to-map "/home/mbc/ar2data.txt"))
+;;(associate-data-with-plate-set "mynewassay" "descr1" ["PS-2"] 96 1 1 "/home/mbc/ar2data.txt" true 1 10)  

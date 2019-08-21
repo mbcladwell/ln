@@ -24,6 +24,7 @@ import javax.swing.table.TableModel;
 import clojure.java.api.Clojure;
 import clojure.lang.IFn;
 
+
 /** */
 public class DatabaseManager {
     Connection conn;
@@ -34,6 +35,7 @@ public class DatabaseManager {
     String source; // The connection source e.g. local, heroku
     // Session session;
   private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+private IFn require = Clojure.var("clojure.core", "require");
 
   // psql -U ln_admin -h 192.168.1.11 -d lndb
   // psql postgres://klohymim:hwc3v4_rbkT-1EL2KI-JBaqFq0thCXM_@raja.db.elephantsql.com:5432/klohymim
@@ -44,7 +46,7 @@ public class DatabaseManager {
    */
   public DatabaseManager() {
       //LOGGER.info("in session: " + _s);
-      IFn require = Clojure.var("clojure.core", "require");
+      //      IFn require = Clojure.var("clojure.core", "require");
     require.invoke(Clojure.read("ln.codax-manager"));
     IFn setUser = Clojure.var("ln.codax-manager", "set-user");
     IFn setUserID = Clojure.var("ln.codax-manager", "set-user-id");
@@ -319,7 +321,11 @@ public class DatabaseManager {
 	    String descr = (String)tableModel.getValueAt(selection[0], 4);
 	    int num_plates = (int)tableModel.getValueAt(selection[0], 3);
 	    String plate_type = (String)tableModel.getValueAt(selection[0], 4);
-	    int num_samples = this.getDatabaseRetriever().getNumberOfSamplesForPlateSetID(plate_set_id[0]);
+
+	    require.invoke(Clojure.read("ln.db-retriever"));
+	    IFn getNumSamplesForPlate_setID  = Clojure.var("ln.db-retriever", "get-num-samples-for-plate-set-id");
+	    int num_samples = (int)getNumSamplesForPlate_setID.invoke(plate_set_id[0]);
+	    //int num_samples = this.getDatabaseRetriever().getNumberOfSamplesForPlateSetID(plate_set_id[0]);
 	    int plate_layout_name_id = this.getDatabaseRetriever().getPlateLayoutNameIDForPlateSetID((int)plate_set_id[0]);
 	    LOGGER.info("plate_set_id[0]: " + plate_set_id[0]);
 	    switch(format){
