@@ -210,10 +210,6 @@
        expected-rows-in-table  (* num-of-plate-ids format-id)
        table-map (table-to-map input-file-name)
        ]
-   (println plate-set-sys-names)
-   (println (first plate-set-ids))
-   (println num-of-plate-ids)
-   (println format-id)
    (if (= expected-rows-in-table (count table-map))
      ;;plate-set-ids could be a vector with many but for this workflow only expecting one; get it out with (first)
      (let [new-assay-run-id (create-assay-run  assay-run-name description assay-type-id (first plate-set-ids) plate-layout-name-id )
