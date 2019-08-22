@@ -1,11 +1,11 @@
 (ns ln.db-inserter
   (:require [next.jdbc :as j]
-            [next.jdbc.prepare :as prepare]
-                   [next.jdbc.result-set :as rs]
-       [next.jdbc.protocols :as proto]
-       [clojure.set :as s]
-       [honeysql.core :as hsql]
-       [incanter.stats :as is]
+            [next.jdbc.prepare :as p]
+            [next.jdbc.result-set :as rs]
+            [next.jdbc.protocols :as proto]
+            [clojure.set :as s]
+            [honeysql.core :as hsql]
+            [incanter.stats :as is]
             [honeysql.helpers :refer :all :as helpers]
             [clojure.string :only [split split-lines trim]] 
             [ln.codax-manager :as cm]
@@ -228,14 +228,42 @@
            data (set (map #(process-assay-results-map %) (table-to-map "/home/mbc/sample96controls4lowp1.txt")))
            joined-data (s/join data layout {:well :well_by_col})
            plate-list (distinct (map :plate  joined-data))
-           
            ]
-       (load-assay-results new-assay-run-id table-map)
-       new-assay-run-id)
-     ;;end of second let
+       (for [individual-plate (vec plate-list)]
+          (let [
+                plate-data (s/select #(= (:plate %) individual-plate) joined-data)
+                positives (is/mean (map #(get % :response)(into [](s/select #(= (:well_type_id %) 2) plate-data))))
+                negatives (is/mean (map #(get % :response)(into [](s/select #(= (:well_type_id %) 3) plate-data))))
+                background (is/mean (map #(get % :response)(into [](s/select #(= (:well_type_id %) 4) plate-data))))
+                unk-max (last(sort (map #(get % :response)(into [](s/select #(= (:well_type_id %) 1) plate-data)))))
+                processed-results-set #{}
+                ]
+            (for [well-number [(range 1 (+ format-id 1))]]
+              (let [
+                    response (:response (first (into [] (s/select #(= (:well %) well-number) plate-data))))
+                    bkgrnd_sub (- response background)
+                    norm  (/ response unk-max)
+                    norm_pos (/ response positives)
+                    p_enhance (* 100(- (/ (- response negatives) (- positives negatives)) 1))
+                    ]
+                (s/union  processed-results-set #{{:well well-number :response response :bkgrnd_sub bkgrnd_sub :norm norm :norm_pos norm_pos :p_enhance p_enhance}}) processed-results-set))
+            ))
+
+       
+       )      ;;end of second let
  (javax.swing.JOptionPane/showMessageDialog nil (str "Expecting " expected-rows-in-table " rows but found " (count table-map) " rows in data file.") ))));;row count is not correct
 
+;;(associate-data-with-plate-set "run1test" "test-desc" ["PS-2"] 96 1 1 "/home/mbc/sample96controls4lowp1.txt" true 1 10)
+
+
 ;;(associate-data-with-plate-set "mynewassay" "descr1" ["PS-2"] 96 1 1 "/home/mbc/sample96controls4lowp1.txt" true 1 10)  
+
+;;(range 1 96)
+;;;;;;;;;;pullin out
+
+1	1	0.38853400077294
+;;;;;;;;;;;;;;;;
+
 
 
 (def sql-statement "SELECT well_by_col, well_type_id, replicates, target from plate_layout where plate_layout_name_id =?")
@@ -260,7 +288,7 @@
     )
   )
 
-(defn process-well-data [ well-number]
+(defn process-well-data [ well-number plate-data]
   (let [
         response (:response (first (into [] (s/select #(= (:well %) well-number) plate-data))))
         bkgrnd_sub (- response background)
@@ -268,10 +296,10 @@
         norm_pos (/ response positives)
         p_enhance (* 100(- (/ (- response negatives) (- positives negatives)) 1))
         ]
-    (s/union  processed-results-set #{{:well well-number :response response :bkgrnd_sub }}))
+    (s/union  processed-results-set #{{:well well-number :response response :bkgrnd_sub bkgrnd_sub :norm norm :norm_pos norm_pos :p_enhance p_enhance}}))
   )
 
-  (de)
+  
 (def plate-data (s/select #(= (:plate %) 1) joined-data))
 ;;(def plate-data (into [](s/select #(= (:plate %) 1) joined-data)))
 ;;(map #( (:well_type_id %) 2) plate-data)
@@ -286,8 +314,8 @@
 
   (def well-number 20)
   
-(s/select #(= (:well %) well-number) plate-data)
-(s/select  #(= (:well well-number) plate-data)
+;;(s/select #(= (:well %) well-number) plate-data)
+;;(s/select  #(= (:well well-number) plate-data)
 
 
   
@@ -301,9 +329,20 @@
 
 
 
-(println plate-data)
+;;(println plate-data)
 
 (def myset #{{:well 1 :response 298776}})
 (def myset (s/union  myset #{{:well 2 :response 475646}}))
 
-(println myset)
+;;(println myset)
+
+(doseq [x [1 2 3]
+     (prn  (str x))])
+
+(def plate-list '(1 2))
+(println plate-list)
+
+(vec plate-list)
+
+(for [a [plate-list]] a)
+  
