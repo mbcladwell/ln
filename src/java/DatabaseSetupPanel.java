@@ -35,7 +35,7 @@ public class DatabaseSetupPanel extends JPanel {
     static JButton loadEgDataButton;
     static JButton deleteTablesButton;
     static JButton deleteEgDataButton; 
-
+    static JLabel urlLabel;
 
     public DatabaseSetupPanel() {
 	BorderLayout b = new BorderLayout();
@@ -46,14 +46,11 @@ public class DatabaseSetupPanel extends JPanel {
 
     //setup desired Clojure methods
     IFn require = Clojure.var("clojure.core", "require");
-    require.invoke(Clojure.read("ln.codax-manager"));
-    IFn writeMess = Clojure.var("ln.codax-manager", "write-out-message");
-
-    require.invoke(Clojure.read("ln.db"));
-    IFn dropAllTables = Clojure.var("ln.db", "drop-all-tables");
-    IFn initLimsNucleus = Clojure.var("ln.db", "initialize-limsnucleus");
-    IFn addExampleData = Clojure.var("ln.db", "add-example-data");
-    IFn deleteExampleData = Clojure.var("ln.db", "delete-example-data");
+    require.invoke(Clojure.read("lnmanager.db"));
+    IFn dropAllTables = Clojure.var("lnmanager.db", "drop-all-tables");
+    IFn initLimsNucleus = Clojure.var("lnmanager.db", "initialize-limsnucleus");
+    IFn addExampleData = Clojure.var("lnmanager.db", "add-example-data");
+    IFn deleteExampleData = Clojure.var("lnmanager.db", "delete-example-data");
     
     GridBagConstraints c = new GridBagConstraints();
         c.insets = new Insets(5, 5, 2, 2);
@@ -72,6 +69,15 @@ public class DatabaseSetupPanel extends JPanel {
     c.gridheight = 1;
     panel1.add(warningLabel, c);
 
+    JLabel  label = new JLabel("Buttons on this panel will delete your data. Use with caution!", SwingConstants.LEFT);
+    c.gridx = 1;
+    c.gridy = 0;
+    c.anchor = GridBagConstraints.WEST;
+    c.gridwidth = 2;
+    c.gridheight = 1;
+    panel1.add(label, c);
+
+    
     JButton helpButton = new JButton("Help");
     helpButton.setMnemonic(KeyEvent.VK_H);
     helpButton.setActionCommand("help");
@@ -79,7 +85,7 @@ public class DatabaseSetupPanel extends JPanel {
     c.anchor = GridBagConstraints.WEST;
     c.gridx = 0;
     c.gridy = 1;
-    c.gridwidth = 2;
+    c.gridwidth = 1;
     c.gridheight = 1;
     panel1.add(helpButton, c);
       try {
@@ -97,21 +103,21 @@ public class DatabaseSetupPanel extends JPanel {
         });
     //helpButton.setSize(10, 10);
 
-    JLabel  label = new JLabel("Buttons on this panel will delete your data. Use with caution!", SwingConstants.LEFT);
-    c.gridx = 1;
-    c.gridy = 0;
-    c.gridwidth = 1;
-    c.gridheight = 1;
-    panel1.add(label, c);
 
     label = new JLabel("Read the help before proceeding.", SwingConstants.LEFT);
     c.gridx = 1;
     c.gridy = 1;
-    c.gridwidth = 1;
+    c.gridwidth = 2;
     c.gridheight = 1;
     panel1.add(label, c);
 
 
+    urlLabel = new JLabel("");
+    c.gridx = 0;
+    c.gridy = 2;
+    c.gridwidth = 3;
+    c.gridheight = 1;
+    panel1.add(urlLabel, c);
         ////////////////////////////////////////////////
     ////////////////////////////////////////////////
     //Panel 2
@@ -148,7 +154,6 @@ public class DatabaseSetupPanel extends JPanel {
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
 	      dropAllTables.invoke();
-	      //	      openWebpage(URI.create(session.getHelpURLPrefix() + "login"));
           }
         });
     deleteTablesButton.setSize(10, 10);
@@ -234,4 +239,8 @@ public class DatabaseSetupPanel extends JPanel {
 
   }
 
+    public void updateURLLabel (String s){
+	urlLabel.setText("Connection URL: " + s);
+    }
 }
+
