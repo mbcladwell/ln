@@ -1,35 +1,5 @@
 (ns ln.db-functions
    )
-;;
-
-;; (def drop-new-user ["DROP FUNCTION IF EXISTS new_user(_name character varying, _tags character VARYING, _password CHARACTER VARYING, _group INTEGER);"])
-
-
-;; (def new-user ["CREATE OR REPLACE FUNCTION new_user(_name character varying, _tags character VARYING, _password CHARACTER VARYING, _group INTEGER)
-;;   RETURNS void AS
-;; $BODY$
-;; BEGIN
-;;    INSERT INTO lnuser(usergroup, lnuser_name, tags, password)
-;;    VALUES (_group, _name, _tags, _password);
-;; END;
-;; $BODY$
-;;   LANGUAGE plpgsql VOLATILE;"])
-
-;; (def drop-new-project ["DROP FUNCTION IF EXISTS new_project(_descr character varying, _project_name character VARYING, _lnsession_id INTEGER);"])
-
-;; (def new-project ["CREATE OR REPLACE FUNCTION new_project(_descr character varying, _project_name character VARYING, _lnsession_id INTEGER)
-;;   RETURNS void AS
-;; $BODY$
-;; DECLARE
-;;    v_id integer;
-;; BEGIN
-;;    INSERT INTO project(descr, project_name, lnsession_id)
-;;    VALUES (_descr, _project_name, _lnsession_id)
-;;    RETURNING id INTO v_id;
-;;    UPDATE project SET project_sys_name = 'PRJ-'||v_id WHERE id=v_id;
-;; END;
-;; $BODY$
-;;   LANGUAGE plpgsql VOLATILE;"])
 
 (def drop-new-plate-set ["DROP FUNCTION IF exists new_plate_set(_descr VARCHAR(30), _plate_set_name VARCHAR(30), _num_plates INTEGER, _plate_format_id INTEGER,  _plate_type_id INTEGER, _project_id INTEGER, _plate_layout_name_id INTEGER, _lnsession_id INTEGER,  _with_samples boolean);"])
 
@@ -66,90 +36,6 @@ END;
 $BODY$
   LANGUAGE plpgsql VOLATILE;"])
 
-;; (def drop-new-plate-set-from-group ["DROP FUNCTION IF exists new_plate_set_from_group(_descr VARCHAR(30), _plate_set_name VARCHAR(30), _num_plates INTEGER, _plate_format_id INTEGER,  _plate_type_id INTEGER, _project_id INTEGER, _plate_layout_name_id INTEGER, _lnsession_id INTEGER);"])
-
-
-;; (def new-plate-set-from-group ["CREATE OR REPLACE FUNCTION new_plate_set_from_group(_descr VARCHAR(30),_plate_set_name VARCHAR(30), _num_plates INTEGER, _plate_format_id INTEGER, _plate_type_id INTEGER, _project_id INTEGER, _plate_layout_name_id INTEGER, _lnsession_id INTEGER)
-;;   RETURNS integer AS
-;; $BODY$
-;; DECLARE
-;;    ps_id INTEGER;
-    
-;; BEGIN
-   
-;;    INSERT INTO plate_set(descr, plate_set_name, num_plates, plate_format_id, plate_type_id, project_id, plate_layout_name_id, lnsession_id)
-;;    VALUES (_descr, _plate_set_name, _num_plates, _plate_format_id, _plate_type_id, _project_id, _plate_layout_name_id, lnsession_id )
-;;    RETURNING id INTO ps_id;
-;;    UPDATE plate_set SET plate_set_sys_name = 'PS-'||ps_id WHERE id=ps_id;
-
-
-;; RETURN ps_id;
-
-
-;; END;
-;; $BODY$
-;;   LANGUAGE plpgsql VOLATILE;"])
-
-
-;; (def drop-get-num-samples-for-plate-set ["DROP FUNCTION IF exists get_num_samples_for_plate_set( _plate_set_id INTEGER);"])
-
-;; (def get-num-samples-for-plate-set ["CREATE OR REPLACE FUNCTION get_num_samples_for_plate_set(_plate_set_id INTEGER)
-;;   RETURNS INTEGER AS
-;; $BODY$
-;; DECLARE
-;;    psid int := _plate_set_id;
-   
-;;    counter INTEGER;
-;;    sql_statement VARCHAR;
-;; all_sample_ids INTEGER[];
-;; num_samples INTEGER;
-   
-;; BEGIN
-
-;; sql_statement := 'SELECT ARRAY(SELECT sample.id FROM plate, plate_plate_set, well, sample, well_sample WHERE plate_plate_set.plate_set_id = ' || psid || ' AND plate_plate_set.plate_id = plate.id AND well.plate_id = plate.id AND well_sample.well_id = well.id AND well_sample.sample_id = sample.id ORDER BY plate_plate_set.plate_id, plate_plate_set.plate_order, well.id)';
-
-;; --    RAISE notice 'sql_statement: (%)', sql_statement;
-
-;;      EXECUTE sql_statement INTO all_sample_ids;
-;;      num_samples := array_length(all_sample_ids ,1); 
-;;  -- RAISE notice 'ids: (%)', all_sample_ids;
-;;  -- RAISE notice 'num: (%)', num_samples;
-
-;; RETURN num_samples;
-;; END;
-;; $BODY$
-;;   LANGUAGE plpgsql VOLATILE;"])
-
-
-;; (def drop-assoc-plate-ids-with-plate-set-id ["DROP FUNCTION IF exists assoc_plate_ids_with_plate_set_id( _plate_ids INTEGER[], _plate_set_id INTEGER);"])
-
-;; (def assoc-plate-ids-with-plate-set-id ["CREATE OR REPLACE FUNCTION assoc_plate_ids_with_plate_set_id(_plate_ids int[], _plate_set_id int)
-;;   RETURNS void AS
-;; $BODY$
-;; DECLARE
-;;    pid int;
-;;    plate_ids int[];
-;;    counter INTEGER;
-;;    sql_statement VARCHAR;
-   
-;; BEGIN
-;; counter := 1;
-;; SELECT sort(_plate_ids) INTO plate_ids;
-;; sql_statement := 'INSERT INTO plate_plate_set (plate_set_id, plate_id, plate_order) VALUES ';
-
-;;   FOREACH pid IN ARRAY plate_ids
-;;      LOOP
-;;      sql_statement := sql_statement || '(' || _plate_set_id || ', '  ||  pid || ', ' || counter || '),';
-;;      counter = counter + 1;
-;;     END LOOP;
-
-;;      sql_statement := SUBSTRING(sql_statement, 1, CHAR_LENGTH(sql_statement)-1) || ';';
-;;      --RAISE notice 'sqlstatement: (%)', sql_statement;
-;;      EXECUTE sql_statement;
-
-;; END;
-;; $BODY$
-;;   LANGUAGE plpgsql VOLATILE;"])
 
 (def drop-new-plate ["DROP FUNCTION IF EXISTS new_plate(INTEGER, INTEGER,INTEGER,INTEGER, BOOLEAN);"])
 
@@ -220,78 +106,6 @@ END;
 $BODY$
   LANGUAGE plpgsql VOLATILE;"])
 
-;; (def drop-new-assay-run ["DROP FUNCTION IF EXISTS new_assay_run(  VARCHAR(30), VARCHAR(30), INTEGER,  INTEGER, INTEGER);"])
-
-;; (def new-assay-run [" CREATE OR REPLACE FUNCTION new_assay_run( _assay_run_name VARCHAR(30), _descr VARCHAR(30), _assay_type_id INTEGER, _plate_set_id INTEGER, _plate_layout_name_id INTEGER, _lnsession_id INTEGER )
-;;   RETURNS integer AS
-;; $BODY$
-;; DECLARE
-;;    v_id integer;
-;; BEGIN
-   
-;;    INSERT INTO assay_run(assay_run_name , descr, assay_type_id, plate_set_id, plate_layout_name_id, lnsession_id)
-;;    VALUES (_assay_run_name, _descr, _assay_type_id, _plate_set_id, _plate_layout_name_id, _lnsession_id)
-;;    RETURNING id INTO v_id;
-
-;;     UPDATE assay_run SET assay_run_sys_name = 'AR-'||v_id WHERE id=v_id;
-
-;; RETURN v_id;
-;; END;
-;; $BODY$
-;;   LANGUAGE plpgsql VOLATILE;"])
-
-;; (def drop-get-ids-for-sys-names ["DROP FUNCTION IF EXISTS get_ids_for_sys_names( VARCHAR[], VARCHAR(30), VARCHAR(30));"])
-
-;; (def get-ids-for-sys-names ["CREATE OR REPLACE FUNCTION get_ids_for_sys_names( _sys_names VARCHAR[], _table VARCHAR(30), _sys_name VARCHAR(30))
-;;   RETURNS integer[] AS
-;; $BODY$
-;; DECLARE
-;;    sn varchar(20);
-;;    an_int integer;
-;;    sys_ids INTEGER[];
-;;    sql_statement VARCHAR;
-;;    sql_statement2 VARCHAR;
-   
-;;    temp INTEGER;
-
-;; BEGIN
-
-;;  sql_statement := 'SELECT id FROM ' || _table || ' WHERE ' || _sys_name   || ' = ';
-
-;;   FOREACH sn IN ARRAY _sys_names
-;;      LOOP
-;;      sql_statement2 := sql_statement || quote_literal(sn);
-;;      EXECUTE sql_statement2 INTO temp;
-;;      sys_ids := array_append(sys_ids, temp );
-;;     END LOOP;
-
-;; RETURN sys_ids;
-;; END;
-;; $BODY$
-;;   LANGUAGE plpgsql VOLATILE PARALLEL UNSAFE; "])
-
-;; (def drop-get-number-samples-for-psid ["DROP FUNCTION IF EXISTS get_number_samples_for_psid( _psid INTEGER );"])
-
-;; (def get-number-samples-for-psid ["CREATE OR REPLACE FUNCTION get_number_samples_for_psid( _psid INTEGER) 
-;;   RETURNS integer AS
-;; $BODY$
-;; DECLARE
-;;    num_samples INTEGER;
-;;    sql_statement VARCHAR;
-;;   --plate_layout_name_id INTEGER;
-
-;; BEGIN
-
-;;      --sql_statement := 'SELECT plate_layout_name_id FROM plate_set WHERE id = ' || _psid;
-;;      --EXECUTE sql_statement INTO plate_layout_name_id;
-
-;;       sql_statement := 'SELECT count(sample_id) FROM well_sample WHERE well_sample.well_id IN (SELECT well.id FROM well WHERE well.plate_id  IN (SELECT plate_id FROM plate_plate_set WHERE plate_plate_set.plate_set_id = ' || _psid || '))'; 
-;;       EXECUTE sql_statement INTO num_samples;
-
-;; RETURN num_samples;
-;; END;
-;; $BODY$
-;;   LANGUAGE plpgsql VOLATILE PARALLEL UNSAFE;"])
 
 (def drop-new-plate-layout ["DROP FUNCTION IF EXISTS new_plate_layout(  VARCHAR(30), VARCHAR(30), INTEGER,  VARCHAR[][]);"])
 
@@ -471,37 +285,6 @@ $BODY$
 
 
 
-;; (def drop-process-access-ids ["DROP FUNCTION IF EXISTS process_access_ids( INTEGER, VARCHAR);"])
-
-;; (def process-access-ids ["CREATE OR REPLACE FUNCTION process_access_ids(ps_id INTEGER, sql_statement VARCHAR )
-;;  RETURNS SETOF temp_accs_id AS
-;; $BODY$
-;; DECLARE
-;;   r temp_accs_id%rowtype;
-;; BEGIN
-
-;; TRUNCATE temp_accs_id RESTART IDENTITY CASCADE;
-
-;; execute sql_statement;
-
-
-;;    FOR r IN
-;;       SELECT * FROM temp_accs_id
-;;    loop
-
-;; UPDATE sample SET accs_id = r.accs_id WHERE sample.ID IN ( SELECT sample.id FROM plate_set, plate_plate_set, plate, well, well_sample, sample WHERE plate_plate_set.plate_set_id=ps_id AND plate_plate_set.plate_id=plate.id AND well.plate_id=plate.ID AND well_sample.well_id=well.ID AND well_sample.sample_id=sample.ID AND plate_plate_set.plate_order=r.plate_order AND well.by_col=r.by_col);
-
-
-;;        RETURN NEXT r;
-;;    END LOOP;
-
-;; TRUNCATE temp_accs_id RESTART IDENTITY CASCADE;
-
-;; END;
-
-;; $BODY$
-;;   LANGUAGE plpgsql VOLATILE;
-;;   "])
 
 
 

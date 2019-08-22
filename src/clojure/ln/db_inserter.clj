@@ -1,7 +1,11 @@
 (ns ln.db-inserter
   (:require [next.jdbc :as j]
-            [next.jdbc.prepare :as p]
-            [honeysql.core :as hsql]
+            [next.jdbc.prepare :as prepare]
+                   [next.jdbc.result-set :as rs]
+       [next.jdbc.protocols :as proto]
+       [clojure.set :as s]
+       [honeysql.core :as hsql]
+       [incanter.stats :as is]
             [honeysql.helpers :refer :all :as helpers]
             [clojure.string :only [split split-lines trim]] 
             [ln.codax-manager :as cm]
@@ -175,13 +179,17 @@
     (j/execute-one! dbm/pg-db [(str "UPDATE assay_run SET assay_run_sys_name = " (str "'AR-" new-assay-run-id "'") " WHERE id=?") new-assay-run-id])
     new-assay-run-id))
 
-;;(create-assay-run "n" "d" 1 1 1)
+;; used when direct load of assay file with stored procedure processing
+;;(defn process-assay-results-map
+;;order is important; must correlate with SQL statement order of ?'s
+;;  [x]
+;;(into [] [(Integer/parseInt(:plate x )) (Integer/parseInt(:well x)) (Double/parseDouble(:response x ))]))
+
 
 (defn process-assay-results-map
-;;order is important; must correlate with SQL statement order of ?'s
+;;used when manipulating maps before loading postgres
   [x]
-(into [] [(Integer/parseInt(:plate x )) (Integer/parseInt(:well x)) (Double/parseDouble(:response x ))]))
-
+(into {} { :plate (Integer/parseInt(:plate x )) :well (Integer/parseInt(:well x)) :response (Double/parseDouble(:response x ))}))
 
 (defn load-assay-results
   [ assay-run-id data-table]
@@ -211,11 +219,91 @@
        table-map (table-to-map input-file-name)
        ]
    (if (= expected-rows-in-table (count table-map))
+     ;;^^ first let determines if file is valid
      ;;plate-set-ids could be a vector with many but for this workflow only expecting one; get it out with (first)
+     ;;vv second let does processing
      (let [new-assay-run-id (create-assay-run  assay-run-name description assay-type-id (first plate-set-ids) plate-layout-name-id )
+           sql-statement "SELECT well_by_col, well_type_id, replicates, target from plate_layout where plate_layout_name_id =?"
+           layout  (set (proto/-execute-all dbm/pg-db [ sql-statement 1]{:label-fn rs/as-unqualified-maps :builder-fn rs/as-unqualified-maps} ))
+           data (set (map #(process-assay-results-map %) (table-to-map "/home/mbc/sample96controls4lowp1.txt")))
+           joined-data (s/join data layout {:well :well_by_col})
+           plate-list (distinct (map :plate  joined-data))
+           
            ]
        (load-assay-results new-assay-run-id table-map)
-         new-assay-run-id)
- (javax.swing.JOptionPane/showMessageDialog nil (str "Expecting " expected-rows-in-table " rows but found " (count table-map) " rows in data file.") ))))
+       new-assay-run-id)
+     ;;end of second let
+ (javax.swing.JOptionPane/showMessageDialog nil (str "Expecting " expected-rows-in-table " rows but found " (count table-map) " rows in data file.") ))));;row count is not correct
 
-;;(associate-data-with-plate-set "mynewassay" "descr1" ["PS-2"] 96 1 1 "/home/mbc/ar2data.txt" true 1 10)  
+;;(associate-data-with-plate-set "mynewassay" "descr1" ["PS-2"] 96 1 1 "/home/mbc/sample96controls4lowp1.txt" true 1 10)  
+
+
+(def sql-statement "SELECT well_by_col, well_type_id, replicates, target from plate_layout where plate_layout_name_id =?")
+
+(def layout  (set (proto/-execute-all dbm/pg-db [ sql-statement 1]{:label-fn rs/as-unqualified-maps :builder-fn rs/as-unqualified-maps} )))
+
+(def data (set (map #(process-assay-results-map %) (table-to-map "/home/mbc/sample96controls4lowp1.txt"))))
+(def joined-data (s/join data layout {:well :well_by_col}))
+
+(def plate-list (distinct (map :plate  joined-data)))
+
+(defn process-joined-data [ plate-order ]
+  (let [
+        plate-data (s/select #(= (:plate %) plate-order) joined-data)
+        positives (is/mean (map #(get % :response)(into [](s/select #(= (:well_type_id %) 2) plate-data))))
+        negatives (is/mean (map #(get % :response)(into [](s/select #(= (:well_type_id %) 3) plate-data))))
+        background (is/mean (map #(get % :response)(into [](s/select #(= (:well_type_id %) 4) plate-data))))
+        unk-max (last(sort (map #(get % :response)(into [](s/select #(= (:well_type_id %) 1) plate-data)))))
+        processed-results-set #{}
+        ]
+
+    )
+  )
+
+(defn process-well-data [ well-number]
+  (let [
+        response (:response (first (into [] (s/select #(= (:well %) well-number) plate-data))))
+        bkgrnd_sub (- response background)
+        norm  (/ response unk_max)
+        norm_pos (/ response positives)
+        p_enhance (* 100(- (/ (- response negatives) (- positives negatives)) 1))
+        ]
+    (s/union  processed-results-set #{{:well well-number :response response :bkgrnd_sub }}))
+  )
+
+  (de)
+(def plate-data (s/select #(= (:plate %) 1) joined-data))
+;;(def plate-data (into [](s/select #(= (:plate %) 1) joined-data)))
+;;(map #( (:well_type_id %) 2) plate-data)
+
+(def positives (is/mean (map #(get % :response)(into [](s/select #(= (:well_type_id %) 2) plate-data)))))
+(def negatives (is/mean (map #(get % :response)(into [](s/select #(= (:well_type_id %) 3) plate-data)))))
+(def background (is/mean (map #(get % :response)(into [](s/select #(= (:well_type_id %) 4) plate-data)))))
+(def unk-max (last(sort (map #(get % :response)(into [](s/select #(= (:well_type_id %) 1) plate-data))))))
+
+(def processed-results-set #{})
+;;map over wells which is format-id
+
+  (def well-number 20)
+  
+(s/select #(= (:well %) well-number) plate-data)
+(s/select  #(= (:well well-number) plate-data)
+
+
+  
+(:response (first (into [] (s/select #((:well 20) plate-data))))
+  
+(def response (:response (first (into [] (s/select #(= (:well %) 20) plate-data)))))
+(def bkgrnd_sub (- response background))
+(def norm  (/ response unk_max)))
+(def norm_pos (/ response positives))
+(def p_enhance (* 100(- (/ (- response negatives) (- positives negatives)) 1)))
+
+
+
+(println plate-data)
+
+(def myset #{{:well 1 :response 298776}})
+(def myset (s/union  myset #{{:well 2 :response 475646}}))
+
+(println myset)
