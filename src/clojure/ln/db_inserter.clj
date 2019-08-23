@@ -179,11 +179,16 @@
     (j/execute-one! dbm/pg-db [(str "UPDATE assay_run SET assay_run_sys_name = " (str "'AR-" new-assay-run-id "'") " WHERE id=?") new-assay-run-id])
     new-assay-run-id))
 
-;; used when direct load of assay file with stored procedure processing
-;;(defn process-assay-results-map
-;;order is important; must correlate with SQL statement order of ?'s
-;;  [x]
-;;(into [] [(Integer/parseInt(:plate x )) (Integer/parseInt(:well x)) (Double/parseDouble(:response x ))]))
+;; used to process and  load manipulated maps
+;; defn process-assay-results-to-load
+;; "order is important; must correlate with SQL statement order of ?'s"
+;;   [x]
+;;  (into [] [(Integer/parseInt(:plate x )) (Integer/parseInt(:well x)) (Double/parseDouble(:response x ))  (Double/parseDouble(:bkgrnd_sub x )) (Double/parseDouble(:norm x )) (Double/parseDouble(:norm_pos x )) (Double/parseDouble(:p_enhance x ))]))
+
+(defn process-assay-results-to-load
+"order is important; must correlate with SQL statement order of ?'s"
+  [x]
+ (into [] [(:plate x ) (:well x) (:response x ) (:bkgrnd_sub x ) (:norm x ) (:norm_pos x ) (:p_enhance x )]))
 
 
 (defn process-assay-results-map
@@ -225,11 +230,19 @@
      (let [new-assay-run-id (create-assay-run  assay-run-name description assay-type-id (first plate-set-ids) plate-layout-name-id )
            sql-statement "SELECT well_by_col, well_type_id, replicates, target from plate_layout where plate_layout_name_id =?"
            layout  (set (proto/-execute-all dbm/pg-db [ sql-statement 1]{:label-fn rs/as-unqualified-maps :builder-fn rs/as-unqualified-maps} ))
-           data (set (map #(process-assay-results-map %) (table-to-map "/home/mbc/sample96controls4lowp1.txt")))
+           data (set (map #(process-assay-results-map %) (table-to-map input-file-name)))
            joined-data (s/join data layout {:well :well_by_col})
-           plate-list (distinct (map :plate  joined-data))
+           plate-list  (distinct (map :plate  joined-data))
            ]
+       (.println (System/out) new-assay-run-id)
+       
+       (.println (System/out) plate-list)
+       (.println (System/out) (vec plate-list))
+      ;; (.println (System/out) layout)
+      
+
        (for [individual-plate (vec plate-list)]
+  
           (let [
                 plate-data (s/select #(= (:plate %) individual-plate) joined-data)
                 positives (is/mean (map #(get % :response)(into [](s/select #(= (:well_type_id %) 2) plate-data))))
@@ -238,111 +251,39 @@
                 unk-max (last(sort (map #(get % :response)(into [](s/select #(= (:well_type_id %) 1) plate-data)))))
                 processed-results-set #{}
                 ]
-            (for [well-number [(range 1 (+ format-id 1))]]
-              (let [
-                    response (:response (first (into [] (s/select #(= (:well %) well-number) plate-data))))
-                    bkgrnd_sub (- response background)
-                    norm  (/ response unk-max)
-                    norm_pos (/ response positives)
-                    p_enhance (* 100(- (/ (- response negatives) (- positives negatives)) 1))
-                    ]
-                (s/union  processed-results-set #{{:well well-number :response response :bkgrnd_sub bkgrnd_sub :norm norm :norm_pos norm_pos :p_enhance p_enhance}}) processed-results-set))
-            ))
+                    (.println (System/out) plate-data  )
+        (.println (System/out) positives )
+        (.println (System/out) negatives)
+        (.println (System/out) background  )
+        (.println (System/out) unk-max  )
 
-       
-       )      ;;end of second let
+             (loop [
+                   processed-results-set #{}
+                    well-number 1]
+     
+              (if (> well-number format-id);;once all wells processed, join and insert to db
+                (let [  a (s/join joined-data processed-results-set)
+                      b (s/project a [:plate :well :response :bkgrnd_sub :norm :norm_pos :p_enhance])
+                      c (into [] b)
+                      content (into [] (map #(process-assay-results-to-load %) c))
+                      sql-statement (str "INSERT INTO assay_result( assay_run_id, plate_order, well, response, bkgrnd_sub, norm, norm_pos, p_enhance ) VALUES ( "  new-assay-run-id ", ?, ?, ?, ?, ?, ?, ?)")
+                      ]
+                   
+                    (with-open [con (j/get-connection dbm/pg-db)
+                              ps  (j/prepare con [sql-statement])]
+                      (p/execute-batch! ps content))
+                    (.println (System/out) (str "new assay id: " new-assay-run-id))
+ 
+                  new-assay-run-id ) ;;must return new id for auto-select-hits when true
+                (let [
+                      response (:response (first (into [] (s/select #(= (:well %) well-number) plate-data))))
+                      bkgrnd_sub (- response background)
+                      norm  (/ response unk-max)
+                      norm_pos (/ response positives)
+                      p_enhance (* 100(- (/ (- response negatives) (- positives negatives)) 1))
+                      ]
+                  
+                  (recur (s/union  processed-results-set #{{:well well-number :response response :bkgrnd_sub bkgrnd_sub :norm norm :norm_pos norm_pos :p_enhance p_enhance}}) (inc well-number))))))))      ;;end of second let
  (javax.swing.JOptionPane/showMessageDialog nil (str "Expecting " expected-rows-in-table " rows but found " (count table-map) " rows in data file.") ))));;row count is not correct
 
 ;;(associate-data-with-plate-set "run1test" "test-desc" ["PS-2"] 96 1 1 "/home/mbc/sample96controls4lowp1.txt" true 1 10)
-
-
-;;(associate-data-with-plate-set "mynewassay" "descr1" ["PS-2"] 96 1 1 "/home/mbc/sample96controls4lowp1.txt" true 1 10)  
-
-;;(range 1 96)
-;;;;;;;;;;pullin out
-
-1	1	0.38853400077294
-;;;;;;;;;;;;;;;;
-
-
-
-(def sql-statement "SELECT well_by_col, well_type_id, replicates, target from plate_layout where plate_layout_name_id =?")
-
-(def layout  (set (proto/-execute-all dbm/pg-db [ sql-statement 1]{:label-fn rs/as-unqualified-maps :builder-fn rs/as-unqualified-maps} )))
-
-(def data (set (map #(process-assay-results-map %) (table-to-map "/home/mbc/sample96controls4lowp1.txt"))))
-(def joined-data (s/join data layout {:well :well_by_col}))
-
-(def plate-list (distinct (map :plate  joined-data)))
-
-(defn process-joined-data [ plate-order ]
-  (let [
-        plate-data (s/select #(= (:plate %) plate-order) joined-data)
-        positives (is/mean (map #(get % :response)(into [](s/select #(= (:well_type_id %) 2) plate-data))))
-        negatives (is/mean (map #(get % :response)(into [](s/select #(= (:well_type_id %) 3) plate-data))))
-        background (is/mean (map #(get % :response)(into [](s/select #(= (:well_type_id %) 4) plate-data))))
-        unk-max (last(sort (map #(get % :response)(into [](s/select #(= (:well_type_id %) 1) plate-data)))))
-        processed-results-set #{}
-        ]
-
-    )
-  )
-
-(defn process-well-data [ well-number plate-data]
-  (let [
-        response (:response (first (into [] (s/select #(= (:well %) well-number) plate-data))))
-        bkgrnd_sub (- response background)
-        norm  (/ response unk_max)
-        norm_pos (/ response positives)
-        p_enhance (* 100(- (/ (- response negatives) (- positives negatives)) 1))
-        ]
-    (s/union  processed-results-set #{{:well well-number :response response :bkgrnd_sub bkgrnd_sub :norm norm :norm_pos norm_pos :p_enhance p_enhance}}))
-  )
-
-  
-(def plate-data (s/select #(= (:plate %) 1) joined-data))
-;;(def plate-data (into [](s/select #(= (:plate %) 1) joined-data)))
-;;(map #( (:well_type_id %) 2) plate-data)
-
-(def positives (is/mean (map #(get % :response)(into [](s/select #(= (:well_type_id %) 2) plate-data)))))
-(def negatives (is/mean (map #(get % :response)(into [](s/select #(= (:well_type_id %) 3) plate-data)))))
-(def background (is/mean (map #(get % :response)(into [](s/select #(= (:well_type_id %) 4) plate-data)))))
-(def unk-max (last(sort (map #(get % :response)(into [](s/select #(= (:well_type_id %) 1) plate-data))))))
-
-(def processed-results-set #{})
-;;map over wells which is format-id
-
-  (def well-number 20)
-  
-;;(s/select #(= (:well %) well-number) plate-data)
-;;(s/select  #(= (:well well-number) plate-data)
-
-
-  
-(:response (first (into [] (s/select #((:well 20) plate-data))))
-  
-(def response (:response (first (into [] (s/select #(= (:well %) 20) plate-data)))))
-(def bkgrnd_sub (- response background))
-(def norm  (/ response unk_max)))
-(def norm_pos (/ response positives))
-(def p_enhance (* 100(- (/ (- response negatives) (- positives negatives)) 1)))
-
-
-
-;;(println plate-data)
-
-(def myset #{{:well 1 :response 298776}})
-(def myset (s/union  myset #{{:well 2 :response 475646}}))
-
-;;(println myset)
-
-(doseq [x [1 2 3]
-     (prn  (str x))])
-
-(def plate-list '(1 2))
-(println plate-list)
-
-(vec plate-list)
-
-(for [a [plate-list]] a)
-  

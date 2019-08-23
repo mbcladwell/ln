@@ -463,104 +463,16 @@ public int insertPlateSet(
     boolean auto_select_hits = _auto_select_hits;
     int hit_selection_algorithm = _hit_selection_algorithm;
     int top_n_number = _top_n_number;
-
+    int assay_run_id =0;
     IFn associateDataWithPlateSet = Clojure.var("ln.db-inserter", "associate-data-with-plate-set");
-    int assay_run_id = (int)associateDataWithPlateSet.invoke(assayName, descr, plate_set_sys_name, format_id, assay_type_id,plate_layout_name_id, file_name, auto_select_hits, hit_selection_algorithm, top_n_number);
+    // assay_run_id = (int)associateDataWithPlateSet.invoke(assayName, descr, plate_set_sys_name, format_id, assay_type_id,plate_layout_name_id, file_name, auto_select_hits, hit_selection_algorithm, top_n_number);
+
+    //System.out.println("stuff: "  +  assayName + ", " +  descr + ", " +  plate_set_sys_name + ", " + format_id + ", " + assay_type_id + ", " + plate_layout_name_id + ", " + file_name + ", " + auto_select_hits + ", " + hit_selection_algorithm + ", "+ top_n_number);
     
-// Integer[] plate_set_id =
-//         dbm.getDatabaseRetriever()
-//             .getIDsForSysNames(plate_set_sys_name, "plate_set", "plate_set_sys_name");
-
-//  int num_of_plate_ids = dbm.getDatabaseRetriever().getAllPlateIDsForPlateSetID(plate_set_id[0]).size();
-// //check that there are the correct number of rows in the table
-// if(num_of_plate_ids*format_id!=table.size()-1){
-//     	JOptionPane.showMessageDialog(dbm.getDialogMainFrame(), new String("Expecting " + String.valueOf(num_of_plate_ids*format_id) + " rows but found " + (table.size()-1) + " rows." ), "Import Error", JOptionPane.ERROR_MESSAGE);
-// 	return;
-// }
-
-//     int assay_run_id =
-//         createAssayRun(assayName, descr, assay_type_id, plate_set_id[0], plate_layout_name_id);
-
+    associateDataWithPlateSet.invoke(assayName, descr, plate_set_sys_name, format_id, assay_type_id,plate_layout_name_id, file_name, auto_select_hits, hit_selection_algorithm, top_n_number);
+    
 
     
-//     // read in data file an populate assay_result with data;
-//     // only continue if successful
-//     // if (table.get(0)[0] == "plate" & table.get(0)[1] == "plate" & table.get(0)[2] == "plate") {
-//     String sql_statement = new String("INSERT INTO assay_result (assay_run_id, plate_order, well, response) VALUES ");
-
-//     table.remove(0); // get rid of the header
-//     for (String[] row : table) {
-//       sql_statement =
-//           sql_statement
-// 	  + "("
-// 	  + assay_run_id
-// 	  + ", "
-// 	  + Integer.parseInt(row[0])
-// 	  + ", "
-// 	  + Integer.parseInt(row[1])
-// 	  + ", "
-// 	  + Double.parseDouble(row[2])
-// 	  + "), ";
-//     }
-
-//     String insertSql = sql_statement.substring(0, sql_statement.length() - 2) + ";";
-
-//     PreparedStatement insertPs;
-//     try {
-//       insertPs = conn.prepareStatement(insertSql);
-//       insertPreparedStatement(insertPs);
-//     } catch (SQLException sqle) {
-//       LOGGER.warning("Failed to properly prepare  prepared statement: " + sqle);
-//       JOptionPane.showMessageDialog(
-//           dbm.getDialogMainFrame(), "Problems parsing data file!.", "Error", JOptionPane.ERROR_MESSAGE);
-//       return;
-//     }
-
-    
-    
-    /**
-     *
-     * <p>Diagnostic query
-     *
-     * <p>SELECT temp_data.plate, temp_data.well, temp_data.response ,plate_plate_set.plate_order ,
-     * plate_set.plate_set_sys_name , plate.plate_sys_name, well.id, well.well_name,
-     * sample.sample_sys_name FROM temp_data, plate_plate_set, plate_set, plate, well,sample,
-     * well_sample, well_numbers WHERE temp_data.plate = plate_plate_set.plate_order AND
-     * plate_plate_set.plate_id = plate.id AND well.plate_id = plate.id AND well_sample.well_id =
-     * well.id AND well_sample.sample_id = sample.id AND plate_plate_set.plate_set_id = plate_set.id
-     * AND plate_plate_set.plate_set_id = 21 AND temp_data.well = well_numbers.by_col AND
-     * well_numbers.well_name = well.well_name AND well_numbers.plate_format = 96 ORDER BY
-     * plate_plate_set.plate_order, well_numbers.by_col;
-     */
-    // table assay_result: sample_id, response, assay_run_id
-    // table temp_data: plate, well, response, bkgrnd_sub, norm, norm_pos
-    //                                plate is the plate number
-    //                                norm is normalized to max signal of unknowns
-    //                                norm_pos is normalised setting mean of positives to 1
-    // table assay_run: id, plate_set_id, plate_layout_name_id
-    // plate_layout:  plate_layout_name_id, well_by_col, well_type_id
-    // plate:  id
-    // well: plate_id id
-    // sample: id
-    // well_sample:  well_id  sample_id
-    // well_numbers: format  well_name  by_col
-
-
-    //here I need to call process_assay_run_data(_assay_run_id integer) to normalize and background subtract
-    //normalized data is in existing columns in assay_result
-    
-    String sql1 =
-        "SELECT process_assay_run_data( " + assay_run_id + ");";
-
-    LOGGER.info("insertSql: " + sql1);
-    PreparedStatement insertPs2;
-    try {
-      insertPs2 = conn.prepareStatement(sql1);
-      insertPreparedStatement(insertPs2);
-    } catch (SQLException sqle) {
-      LOGGER.warning("Failed to properly prepare  prepared statement: " + sqle);
-    }
-
     //Now I need to select hits if requested by user.  I have the assay_run_id, and the algorithm for hit selection.
     // stored procedure: new_hit_list(_name VARCHAR, _descr VARCHAR, _num_hits INTEGER, _assay_run_id INTEGER, hit_list integer[])
     // DialogNewHitList(DialogMainFrame _session.getDialogMainFrame(), int  _assay_run_id, double[][] _selected_response, int _num_hits)
@@ -569,82 +481,34 @@ public int insertPlateSet(
    //    double[][]  sortedResponse [response] [well] [type_id] [sample_id];
     // selected_response.getHitsAboveThreshold(threshold))
  
-    
-    if(auto_select_hits){
+    if(assay_run_id != 0){ 
+	if(auto_select_hits){
 
-	ResponseWrangler rw = new ResponseWrangler(dbm.getDatabaseRetriever().getDataForScatterPlot(assay_run_id),ResponseWrangler.NORM);
-	double[][] sorted_response = rw.getSortedResponse();
-	int number_of_hits = 0;
-       
+	    ResponseWrangler rw = new ResponseWrangler(dbm.getDatabaseRetriever().getDataForScatterPlot(assay_run_id),ResponseWrangler.NORM);
+	    double[][] sorted_response = rw.getSortedResponse();
+	    int number_of_hits = 0;
 	
-	switch(hit_selection_algorithm){
-	case 1: //Top N
-	    number_of_hits = top_n_number;
-	    break;
-	case 2: // mean(background) + 2SD
+	    switch(hit_selection_algorithm){
+	    case 1: //Top N
+		number_of_hits = top_n_number;
+		break;
+	    case 2: // mean(background) + 2SD
     
-	    number_of_hits =  rw.getHitsAboveThreshold(rw.getMean_neg_2_sd() );
-	    break;
-	case 3:  // mean(background) + 3SD
-	    number_of_hits =  rw.getHitsAboveThreshold(rw.getMean_neg_3_sd() );
-	    break;
-	case 4:  // >0% enhanced
-	    number_of_hits =  rw.getHitsAboveThreshold(rw.getMean_pos() );
-	    break;
+		number_of_hits =  rw.getHitsAboveThreshold(rw.getMean_neg_2_sd() );
+		break;
+	    case 3:  // mean(background) + 3SD
+		number_of_hits =  rw.getHitsAboveThreshold(rw.getMean_neg_3_sd() );
+		break;
+	    case 4:  // >0% enhanced
+		number_of_hits =  rw.getHitsAboveThreshold(rw.getMean_pos() );
+		break;
 	    
+	    }
+	    DialogNewHitList dnhl = new DialogNewHitList(dbm, assay_run_id, sorted_response, number_of_hits);	
 	}
-	DialogNewHitList dnhl = new DialogNewHitList(dbm, assay_run_id, sorted_response, number_of_hits);
-	
     }
-  
     
   }
-
-    /*   
-  public int createAssayRun(
-      String _assayName,
-      String _descr,
-      int _assay_type_id,
-      int _plate_set_id,
-      int _plate_layout_name_id) {
-
-    String assayName = _assayName;
-    String descr = _descr;
-
-    int plate_set_id = _plate_set_id;
-    int assay_type_id = _assay_type_id;
-    int plate_layout_name_id = _plate_layout_name_id;
-
-    int new_assay_run_id = 0;
-
-    String sqlstring = "SELECT new_assay_run(?, ?, ?, ?, ?, ?);";
-    // LOGGER.info("sql: " + sqlstring);
-
-    try {
-      PreparedStatement preparedStatement =
-          conn.prepareStatement(sqlstring, Statement.RETURN_GENERATED_KEYS);
-      preparedStatement.setString(1, assayName);
-      preparedStatement.setString(2, descr);
-      preparedStatement.setInt(3, assay_type_id);
-      preparedStatement.setInt(4, plate_set_id);
-      preparedStatement.setInt(5, plate_layout_name_id);
-      preparedStatement.setInt(6, session_id);
-      
-
-      preparedStatement.execute(); // executeUpdate expects no returns!!!
-
-      ResultSet resultSet = preparedStatement.getResultSet();
-      resultSet.next();
-      new_assay_run_id = resultSet.getInt("new_assay_run");
-      // LOGGER.info("resultset: " + result);
-
-    } catch (SQLException sqle) {
-      LOGGER.warning("SQLE at inserting plate set from group: " + sqle);
-    }
-    // LOGGER.info("new assay id: " + new_assay_run_id);
-    return new_assay_run_id;
-  }
-    */
 
     
     /**
