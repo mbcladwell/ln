@@ -633,46 +633,48 @@ public int insertPlateSet(
      * the number of hits are "unknown" hits so must screen for type_id == 1
      * an object array must be passed to the stored procedure
      */
-      public void insertHitList(String _name,
-				String _description,
-				int _num_hits,
-				int  _assay_run_id,
-				double[][] sorted_response) {
+      // public void insertHitList(String _name,
+      // 				String _description,
+      // 				int _num_hits,
+      // 				int  _assay_run_id,
+      // 				double[][] sorted_response) {
 	  
-      int new_hit_list_id;
+      // int new_hit_list_id;
       
-      Object[] hit_list = new Object[_num_hits];
-      int counter = 0;
-      for(int i = 0; i < sorted_response.length; i++){
-	  if(sorted_response[i][2]== 1 && counter < _num_hits){
-	  hit_list[counter] = (Object)Math.round(sorted_response[i][3]);
-	  counter++;
-      }
-	  //System.out.println("i: " + i + " " + hit_list[i]);
-      }
+      // Object[] hit_list = new Object[_num_hits];
+      // int counter = 0;
+      // for(int i = 0; i < sorted_response.length; i++){
+      // 	  if(sorted_response[i][2]== 1 && counter < _num_hits){
+      // 	  hit_list[counter] = (Object)Math.round(sorted_response[i][3]);
+      // 	  counter++;
+      // }
+      // 	  //System.out.println("i: " + i + " " + hit_list[i]);
+      // }
       
+    //   IFn newHitList = Clojure.var("ln.db-inserter", "new-hit-list");
+    //newHitList.invoke(_name, _description, _num_hits, _assay_run_id, hit_list);
       
-    try {
-      String insertSql = "SELECT new_hit_list ( ?, ?, ?, ?, ?);";
-      PreparedStatement insertPs =
-          conn.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS);
-      insertPs.setString(1, _name);
-      insertPs.setString(2, _description);
-      insertPs.setInt(3, _num_hits);
-      insertPs.setInt(4, _assay_run_id);
-      insertPs.setArray(5, conn.createArrayOf("INTEGER", hit_list));
+    // try {
+    //   String insertSql = "SELECT new_hit_list ( ?, ?, ?, ?, ?);";
+    //   PreparedStatement insertPs =
+    //       conn.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS);
+    //   insertPs.setString(1, _name);
+    //   insertPs.setString(2, _description);
+    //   insertPs.setInt(3, _num_hits);
+    //   insertPs.setInt(4, _assay_run_id);
+    //   insertPs.setArray(5, conn.createArrayOf("INTEGER", hit_list));
    
-      LOGGER.info(insertPs.toString());
-      insertPs.executeUpdate();
-      //ResultSet resultSet = insertPs.getResultSet();
-      //resultSet.next();
-      //new_plate_set_id = resultSet.getInt("new_plate_set");
+    //   LOGGER.info(insertPs.toString());
+    //   insertPs.executeUpdate();
+    //   //ResultSet resultSet = insertPs.getResultSet();
+    //   //resultSet.next();
+    //   //new_plate_set_id = resultSet.getInt("new_plate_set");
      
-    } catch (SQLException sqle) {
-	LOGGER.warning("SQLE at inserting new plate set: " + sqle);
-    }
+    // } catch (SQLException sqle) {
+    // 	LOGGER.warning("SQLE at inserting new plate set: " + sqle);
+    // }
     
-  }
+    //}
 
     /**
      * This method preps variable for displaying the dialog box

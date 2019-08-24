@@ -1,18 +1,13 @@
 package ln;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
-import java.util.Date;
 import java.util.logging.Logger;
 
 import javax.swing.BorderFactory;
@@ -57,8 +52,9 @@ public class DialogNewHitList extends JDialog {
     public DialogNewHitList(DatabaseManager _dbm, int  _assay_run_id, double[][] _selected_response, int _num_hits) {
     dbm = _dbm;
     this.dmf = dbm.getDialogMainFrame();
+    require.invoke(Clojure.read("ln.db-inserter"));
     require.invoke(Clojure.read("ln.codax-manager"));
-         IFn getUser = Clojure.var("ln.codax-manager", "get-user");
+    IFn getUser = Clojure.var("ln.codax-manager", "get-user");
 
     owner = (String)getUser.invoke();
     assay_run_id = _assay_run_id;
@@ -66,7 +62,7 @@ public class DialogNewHitList extends JDialog {
     num_hits = _num_hits;
 
     JPanel pane = new JPanel(new GridBagLayout());
-    pane.setBorder(BorderFactory.createRaisedBevelBorder());
+     pane.setBorder(BorderFactory.createRaisedBevelBorder());
 
     GridBagConstraints c = new GridBagConstraints();
     // Image img = new
@@ -143,8 +139,12 @@ public class DialogNewHitList extends JDialog {
     c.gridheight = 1;
     pane.add(descriptionField, c);
 
-
-
+   /**
+     * @param sorted_response  [response] [well] [type_id] [sample_id]
+     * the number of hits are "unknown" hits so must screen for type_id == 1
+     * an object array must be passed to the stored procedure
+     * (this note was for the stored procedure version)
+     */
     
     okButton = new JButton("OK");
     okButton.setMnemonic(KeyEvent.VK_O);
@@ -158,15 +158,27 @@ public class DialogNewHitList extends JDialog {
     okButton.addActionListener(
         (new ActionListener() {
           public void actionPerformed(ActionEvent e) {
-	      dbm.getDatabaseInserter()
-		  .insertHitList( nameField.getText(),
-				  descriptionField.getText(),
-				  num_hits,
-				  assay_run_id,
-				  selected_response);
-            dispose();
-          }
-        }));
+	      // dbm.getDatabaseInserter()
+	      // 	  .insertHitList( nameField.getText(),
+	      // 			  descriptionField.getText(),
+	      // 			  num_hits,
+	      // 			  assay_run_id,
+	      // 			  selected_response);		  
+	      //   int new_hit_list_id;
+      
+	      Object[] hit_list = new Object[num_hits];
+	      int counter = 0;
+	      for(int i = 0; i < selected_response.length; i++){
+		  if(selected_response[i][2]== 1 && counter < num_hits){
+		      hit_list[counter] = (Object)Math.round(selected_response[i][3]);
+		      counter++;
+		  }
+	      }
+	      IFn newHitList = Clojure.var("ln.db-inserter", "new-hit-list");
+	      newHitList.invoke( nameField.getText(), descriptionField.getText(), num_hits, assay_run_id, hit_list);
+	      dispose();
+	      
+	  }}));
 
     pane.add(okButton, c);
 

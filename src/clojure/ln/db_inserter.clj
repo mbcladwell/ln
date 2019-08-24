@@ -287,3 +287,22 @@
  (javax.swing.JOptionPane/showMessageDialog nil (str "Expecting " expected-rows-in-table " rows but found " (count table-map) " rows in data file.") ))));;row count is not correct
 
 ;;(associate-data-with-plate-set "run1test" "test-desc" ["PS-2"] 96 1 1 "/home/mbc/sample96controls4lowp1.txt" true 1 10)
+
+
+(defn new-hit-list
+"hit-list is a vector of integers"
+  [ hit-list-name description number-of-hits assay-run-id hit-list]
+  (let [
+        lnsession-id (cm/get-session-id)
+        sql-statement (str "INSERT INTO hit_list(hitlist_name, descr, n, assay_run_id, lnsession_id) VALUES ('" hit-list-name "', '" description "', " (str number-of-hits) ", " (str assay-run-id) ", " (str lnsession-id) ")")
+        new-hit-list-id-pre (j/execute-one! dbm/pg-db [sql-statement]{:return-keys true})
+        new-hit-list-id (:hit_list/id new-hit-list-id-pre)
+        sql-statement2 (str "UPDATE hit_list SET hitlist_sys_name = 'HL-" (str new-hit-list-id) "' WHERE id=" (str new-hit-list-id))
+        dummy (j/execute-one! dbm/pg-db [sql-statement2])
+        sql-statement3 (str "INSERT INTO hit_sample(hitlist_id, sample_id) VALUES(" (str new-hit-list-id) ", ?)")
+        content (into [](map vector hit-list))
+        ]  
+     (with-open [con (j/get-connection dbm/pg-db)
+                 ps  (j/prepare con [sql-statement3])]
+      (p/execute-batch! ps content))
+     ))
