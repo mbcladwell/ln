@@ -217,33 +217,6 @@ END;
 $BODY$
   LANGUAGE plpgsql VOLATILE;"])
 
-(def drop-new-hit-list ["DROP FUNCTION IF EXISTS new_hit_list(_name VARCHAR(250), _descr VARCHAR(250), _num_hits INTEGER, _assay_run_id INTEGER, _lnsession_id INTEGER, hit_list integer[]);"])
-
-(def new-hit-list ["CREATE OR REPLACE FUNCTION new_hit_list(_name VARCHAR(250), _descr VARCHAR(250), _num_hits INTEGER, _assay_run_id INTEGER, _lnsession_id INTEGER, hit_list integer[])
-  RETURNS void AS
-$BODY$
-DECLARE
- hl_id INTEGER;
- hl_sys_name VARCHAR(10);
- s_id INTEGER;
-BEGIN
-
-
-  INSERT INTO hit_list(hitlist_name, descr, n, assay_run_id, lnsession_id)
-   VALUES (_name, _descr, _num_hits, _assay_run_id, _lnsession_id)
-   RETURNING id INTO hl_id;
-
-    UPDATE hit_list SET hitlist_sys_name = 'HL-'|| hl_id WHERE id=hl_id;
-    
-FOR i IN 1.._num_hits loop
- INSERT INTO hit_sample(hitlist_id, sample_id)VALUES(hl_id, hit_list[i]);
-END LOOP;
-
-END;
-$BODY$
-  LANGUAGE plpgsql VOLATILE;"])
-
-
 
 
 
@@ -399,10 +372,10 @@ $BODY$
 
 
 (def drop-all-functions
-[ drop-new-plate-set  drop-new-plate drop-new-sample  drop-new-plate-layout drop-reformat-plate-set  drop-get-scatter-plot-data drop-new-hit-list  drop-rearray-transfer-samples drop-create-layout-records drop-get-all-data-for-assay-run])
+[ drop-new-plate-set  drop-new-plate drop-new-sample  drop-new-plate-layout drop-reformat-plate-set  drop-get-scatter-plot-data drop-rearray-transfer-samples drop-create-layout-records drop-get-all-data-for-assay-run])
 
 (def all-functions
   ;;for use in a map function that will create all functions
   ;;single command looks like:  (jdbc/drop-table-ddl :lnuser {:conditional? true } )
-  [ new-plate-set new-plate new-sample  new-plate-layout reformat-plate-set get-scatter-plot-data new-hit-list  rearray-transfer-samples create-layout-records get-all-data-for-assay-run])
+  [ new-plate-set new-plate new-sample  new-plate-layout reformat-plate-set get-scatter-plot-data rearray-transfer-samples create-layout-records get-all-data-for-assay-run])
 
