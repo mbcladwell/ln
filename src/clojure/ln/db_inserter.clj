@@ -307,6 +307,11 @@
       (p/execute-batch! ps content))
      ))
 
+(defn process-rearray-map-to-load
+"order is important; must correlate with SQL statement order of ?'s"
+  [x]
+ (into [] [ (:id x ) (:source_plate_sys_name x) (:source_by_col x ) (:plate_sys_name x ) (:by_col x )]))
+
 
 (defn rearray-transfer-samples 
   "used during rearray process
@@ -317,38 +322,22 @@ first selection: select get in plate, well order, not necessarily sample order "
         num-hits (count all-hit-sample-ids)
         sql-statement2 "SELECT well.ID FROM plate_set, plate_plate_set, plate, well, plate_layout WHERE plate_plate_set.plate_set_id=plate_set.ID AND plate_plate_set.plate_id=plate.id AND well.plate_id=plate.ID AND plate_set.plate_layout_name_id=plate_layout.plate_layout_name_id AND plate_layout.well_by_col= well.by_col AND plate_set.id= ? AND plate_layout.well_type_id=1 ORDER BY well.ID"
         dest-wells (take num-hits (first (sorted-set (proto/-execute-all dbm/pg-db [ sql-statement2 dest-plate-set-id]{:label-fn rs/as-unqualified-maps :builder-fn rs/as-unqualified-maps} ))))
-        hit-well (pairs (map :id all-hit-sample-ids) (map :id dest-wells))
+        hit-well (pairs  (map :id dest-wells) (map :id all-hit-sample-ids))
+        sql-statement3 " INSERT INTO well_sample (well_id, sample_id) VALUES (?,?)"
+        a      (with-open [con (j/get-connection dbm/pg-db)
+                           ps  (j/prepare con [sql-statement3])]
+                 (p/execute-batch! ps hit-well))
+        sql-statement4 "INSERT INTO rearray_pairs (src, dest) VALUES (?,?)"
+        rearray-pairs-id-pre (j/execute-one! dbm/pg-db [sql-statement4 source-plate-set-id dest-plate-set-id]{:return-keys true}) 
+        rearray-pairs-id (:rearray_pairs/id rearray-pairs-id-pre)
+        sql-statement5 "SELECT  plate.plate_sys_name AS \"source_plate_sys_name\", well.by_col AS \"source_by_col\", sample.ID   FROM plate_set, plate_plate_set, plate, well, well_sample, sample  WHERE plate_plate_set.plate_set_id=plate_set.ID AND plate_plate_set.plate_id=plate.id AND well.plate_id=plate.ID AND well_sample.well_id=well.ID AND well_sample.sample_id=sample.ID and plate_set.id= ?  AND sample.ID IN  (SELECT hit_sample.sample_id FROM hit_sample WHERE hit_sample.hitlist_id = ? ORDER BY sample.ID)"
+        orig-plates-with-hits (set (proto/-execute-all dbm/pg-db [ sql-statement5 source-plate-set-id hit-list-id]{:label-fn rs/as-unqualified-maps :builder-fn rs/as-unqualified-maps} ))
+        sql-statement6 "SELECT plate.plate_sys_name, well.by_col, sample.ID  FROM plate_set, plate_plate_set, plate, well, well_sample, sample  WHERE plate_plate_set.plate_set_id=plate_set.ID AND plate_plate_set.plate_id=plate.id AND well.plate_id=plate.ID AND well_sample.well_id=well.ID AND well_sample.sample_id=sample.ID and plate_set.id= ?  ORDER BY sample.ID"
+        new-plates-of-hits (set (proto/-execute-all dbm/pg-db [ sql-statement6 dest-plate-set-id]{:label-fn rs/as-unqualified-maps :builder-fn rs/as-unqualified-maps} ))
+        joined-data (s/join orig-plates-with-hits new-plates-of-hits{:id :id})     
+        sql-statement7 (str "INSERT INTO worklists ( rearray_pairs_id, sample_id, source_plate, source_well, dest_plate, dest_well) VALUES (" (str rearray-pairs-id) ", ?, ?, ?, ?, ? )")
+        content (into [] (map #(process-rearray-map-to-load %) joined-data))
         ]
-    (println all-hit-sample-ids)
-    (println dest-wells)
-    (println hit-well)
-    )
-  )
-
-;;(rearray-transfer-samples 1 2 1 )
-
-;; SELECT ARRAY (SELECT  sample.id FROM plate_set, plate_plate_set, plate, well, well_sample, sample WHERE plate_plate_set.plate_set_id=plate_set.ID AND plate_plate_set.plate_id=plate.id AND well.plate_id=plate.ID AND well_sample.well_id=well.ID AND well_sample.sample_id=sample.ID and plate_set.id=source_plate_set_id AND sample.ID  IN  (SELECT hit_sample.sample_id FROM hit_sample WHERE hit_sample.hitlist_id = hit_list_id) ORDER BY plate.ID, well.ID) INTO all_hit_sample_ids;
-
-;; num_hits := array_length(all_hit_sample_ids, 1);
-;; --raise NOTice 'num_hits: (%)', num_hits;
-
-;; SELECT ARRAY (SELECT well.ID FROM plate_set, plate_plate_set, plate, well, plate_layout WHERE plate_plate_set.plate_set_id=plate_set.ID AND plate_plate_set.plate_id=plate.id AND well.plate_id=plate.ID AND plate_set.plate_layout_name_id=plate_layout.plate_layout_name_id AND plate_layout.well_by_col= well.by_col AND plate_set.id=dest_plate_set_id AND plate_layout.well_type_id=1 ORDER BY well.ID) INTO dest_wells;
-
-
-;;   for i IN 1..num_hits
-;;   loop
-;;   INSERT INTO well_sample (well_id, sample_id) VALUES ( dest_wells[i], all_hit_sample_ids[i]);   
-
-;; END LOOP;
-
-;; INSERT INTO rearray_pairs (src, dest) VALUES (source_plate_set_id, dest_plate_set_id)  returning id INTO rp_id;
-
-;; CREATE TEMP TABLE temp1 (plate_sys_name VARCHAR(10), by_col INTEGER, sample_id INTEGER);
-
-;; INSERT INTO temp1 SELECT  plate.plate_sys_name, well.by_col, sample.ID AS \"sample_id\"  FROM plate_set, plate_plate_set, plate, well, well_sample, sample  WHERE plate_plate_set.plate_set_id=plate_set.ID AND plate_plate_set.plate_id=plate.id AND well.plate_id=plate.ID AND well_sample.well_id=well.ID AND well_sample.sample_id=sample.ID and plate_set.id=source_plate_set_id  AND sample.ID IN  (SELECT hit_sample.sample_id FROM hit_sample WHERE hit_sample.hitlist_id = hit_list_id ORDER BY sample.ID);
-
-;; CREATE TEMP TABLE temp2 (plate_sys_name VARCHAR(10), by_col INTEGER, sample_id INTEGER);
-
-;; INSERT INTO temp2 SELECT  plate.plate_sys_name, well.by_col, sample.ID AS \"sample_id\" FROM plate_set, plate_plate_set, plate, well, well_sample, sample  WHERE plate_plate_set.plate_set_id=plate_set.ID AND plate_plate_set.plate_id=plate.id AND well.plate_id=plate.ID AND well_sample.well_id=well.ID AND well_sample.sample_id=sample.ID and plate_set.id=dest_plate_set_id  ORDER BY sample.ID;
-
-;; INSERT INTO worklists ( rearray_pairs_id, sample_id, source_plate, source_well, dest_plate, dest_well) SELECT rp_id, temp1.sample_id, temp1.plate_sys_name, temp1.by_col, temp2.plate_sys_name, temp2.by_col FROM temp1, temp2 WHERE temp1.sample_id = temp2.sample_id;
+      (with-open [con (j/get-connection dbm/pg-db)
+                 ps  (j/prepare con [sql-statement7])]
+      (p/execute-batch! ps content))))

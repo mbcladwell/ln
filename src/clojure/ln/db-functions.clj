@@ -319,63 +319,12 @@ LANGUAGE plpgsql VOLATILE;"] )
 
 
 
-(def drop-rearray-transfer-samples ["DROP FUNCTION IF EXISTS rearray_transfer_samples(integer, INTEGER, integer);"])
-
-
-(def rearray-transfer-samples ["CREATE OR REPLACE FUNCTION rearray_transfer_samples(source_plate_set_id INTEGER, dest_plate_set_id INTEGER, hit_list_id integer)
- RETURNS void AS
-$BODY$
-DECLARE
-   i INTEGER;
-all_hit_sample_ids INTEGER[];
-dest_wells INTEGER[];
-num_hits INTEGER;
-rp_id INTEGER;
-
-
-BEGIN
---select get in plate, well order, not necessarily sample order 
-SELECT ARRAY (SELECT  sample.id FROM plate_set, plate_plate_set, plate, well, well_sample, sample WHERE plate_plate_set.plate_set_id=plate_set.ID AND plate_plate_set.plate_id=plate.id AND well.plate_id=plate.ID AND well_sample.well_id=well.ID AND well_sample.sample_id=sample.ID and plate_set.id=source_plate_set_id AND sample.ID  IN  (SELECT hit_sample.sample_id FROM hit_sample WHERE hit_sample.hitlist_id = hit_list_id) ORDER BY plate.ID, well.ID) INTO all_hit_sample_ids;
-
-num_hits := array_length(all_hit_sample_ids, 1);
---raise NOTice 'num_hits: (%)', num_hits;
-
-SELECT ARRAY (SELECT well.ID FROM plate_set, plate_plate_set, plate, well, plate_layout WHERE plate_plate_set.plate_set_id=plate_set.ID AND plate_plate_set.plate_id=plate.id AND well.plate_id=plate.ID AND plate_set.plate_layout_name_id=plate_layout.plate_layout_name_id AND plate_layout.well_by_col= well.by_col AND plate_set.id=dest_plate_set_id AND plate_layout.well_type_id=1 ORDER BY well.ID) INTO dest_wells;
-
-
-  for i IN 1..num_hits
-  loop
-  INSERT INTO well_sample (well_id, sample_id) VALUES ( dest_wells[i], all_hit_sample_ids[i]);   
-raise NOTice 'dest_well: (%)', dest_wells[i];
-raise NOTice 'sample: (%)', all_hit_sample_ids[i];
-
-
-END LOOP;
-
-INSERT INTO rearray_pairs (src, dest) VALUES (source_plate_set_id, dest_plate_set_id)  returning id INTO rp_id;
-
-CREATE TEMP TABLE temp1 (plate_sys_name VARCHAR(10), by_col INTEGER, sample_id INTEGER);
-
-INSERT INTO temp1 SELECT  plate.plate_sys_name, well.by_col, sample.ID AS \"sample_id\"  FROM plate_set, plate_plate_set, plate, well, well_sample, sample  WHERE plate_plate_set.plate_set_id=plate_set.ID AND plate_plate_set.plate_id=plate.id AND well.plate_id=plate.ID AND well_sample.well_id=well.ID AND well_sample.sample_id=sample.ID and plate_set.id=source_plate_set_id  AND sample.ID IN  (SELECT hit_sample.sample_id FROM hit_sample WHERE hit_sample.hitlist_id = hit_list_id ORDER BY sample.ID);
-
-CREATE TEMP TABLE temp2 (plate_sys_name VARCHAR(10), by_col INTEGER, sample_id INTEGER);
-
-INSERT INTO temp2 SELECT  plate.plate_sys_name, well.by_col, sample.ID AS \"sample_id\" FROM plate_set, plate_plate_set, plate, well, well_sample, sample  WHERE plate_plate_set.plate_set_id=plate_set.ID AND plate_plate_set.plate_id=plate.id AND well.plate_id=plate.ID AND well_sample.well_id=well.ID AND well_sample.sample_id=sample.ID and plate_set.id=dest_plate_set_id  ORDER BY sample.ID;
-
-INSERT INTO worklists ( rearray_pairs_id, sample_id, source_plate, source_well, dest_plate, dest_well) SELECT rp_id, temp1.sample_id, temp1.plate_sys_name, temp1.by_col, temp2.plate_sys_name, temp2.by_col FROM temp1, temp2 WHERE temp1.sample_id = temp2.sample_id;
-
-DROP TABLE temp1, temp2;
-
-END;
-$BODY$
-  LANGUAGE plpgsql VOLATILE;"])
-
 
 (def drop-all-functions
-[ drop-new-plate-set  drop-new-plate drop-new-sample  drop-new-plate-layout drop-reformat-plate-set  drop-get-scatter-plot-data drop-rearray-transfer-samples drop-create-layout-records drop-get-all-data-for-assay-run])
+[ drop-new-plate-set  drop-new-plate drop-new-sample  drop-new-plate-layout drop-reformat-plate-set  drop-get-scatter-plot-data  drop-create-layout-records drop-get-all-data-for-assay-run])
 
 (def all-functions
   ;;for use in a map function that will create all functions
   ;;single command looks like:  (jdbc/drop-table-ddl :lnuser {:conditional? true } )
-  [ new-plate-set new-plate new-sample  new-plate-layout reformat-plate-set get-scatter-plot-data rearray-transfer-samples create-layout-records get-all-data-for-assay-run])
+  [ new-plate-set new-plate new-sample  new-plate-layout reformat-plate-set get-scatter-plot-data  create-layout-records get-all-data-for-assay-run])
 

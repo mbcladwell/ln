@@ -823,21 +823,24 @@ public int insertPlateSet(
     //plate set has been registered, new plates/empty wells created
     //now copy samples into newly created (empty) plate
     //  SELECT rearray_transfer_samples(source_plate_set, dest_plate_set, hit_list)
-  try {
-      String insertSql2 = "SELECT rearray_transfer_samples( ?, ?, ?);";
-      PreparedStatement insertPs =
-          conn.prepareStatement(insertSql2, Statement.RETURN_GENERATED_KEYS);
-      insertPs.setInt(1, source_plate_set_id);
-      insertPs.setInt(2, dest_plate_set_id);
-      insertPs.setInt(3, hit_list_id);
-   int rowsAffected   = insertPs.executeUpdate();
-       ResultSet rsKey = insertPs.getGeneratedKeys();
-       rsKey.next();
-       insertPs.close();
+        IFn rearrayTransferSamples = Clojure.var("ln.db-inserter", "rearray-transfer-samples");
+	rearrayTransferSamples.invoke(source_plate_set_id, dest_plate_set_id, hit_list_id);
+    
+  // try {
+  //     String insertSql2 = "SELECT rearray_transfer_samples( ?, ?, ?);";
+  //     PreparedStatement insertPs =
+  //         conn.prepareStatement(insertSql2, Statement.RETURN_GENERATED_KEYS);
+  //     insertPs.setInt(1, source_plate_set_id);
+  //     insertPs.setInt(2, dest_plate_set_id);
+  //     insertPs.setInt(3, hit_list_id);
+  //  int rowsAffected   = insertPs.executeUpdate();
+  //      ResultSet rsKey = insertPs.getGeneratedKeys();
+  //      rsKey.next();
+  //      insertPs.close();
      
-  } catch (SQLException sqle) {
-      LOGGER.severe("Failed to create plate set: " + sqle);
-    }
+  // } catch (SQLException sqle) {
+  //     LOGGER.severe("Failed to create plate set: " + sqle);
+  //   }
     
     
   }
