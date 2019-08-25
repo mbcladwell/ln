@@ -341,3 +341,41 @@ first selection: select get in plate, well order, not necessarily sample order "
       (with-open [con (j/get-connection dbm/pg-db)
                  ps  (j/prepare con [sql-statement7])]
       (p/execute-batch! ps content))))
+
+(defn new-sample [ project-id plate-id accs-id ]
+  (let [
+        sql-statement "INSERT INTO sample(project_id, plate_id, accs_id) VALUES (?, ?, ?)"
+        new-sample-id-pre (j/execute-one! dbm/pg-db [sql-statement project-id plaste-id accs-id ]{:return-keys true})
+        new-sample-id (:sample/id new-sample-id-pre)
+        sql-statement2 (str "UPDATE sample SET sample_sys_name = 'SPL-" (str new-sample-id)  "' WHERE id=?")
+        a (j/execute-one! dbm/pg-db [sql-statement2 new-sample-id ]) 
+        ]
+    new-sample-id))
+
+(defn new-plate
+  "only add samples if include-sample is true"
+  [ plate-type-id plate-set-id plate-format-id plate-layout-name-id include-sample]
+  (let [ sql-statement1 "INSERT INTO plate(plate_type_id,   plate_format_id, plate_layout_name_id) VALUES (?,  ?, ?)"
+        new-plate-id-pre (j/execute-one! dbm/pg-db [sql-statement1 plate-type-id plate-format-id plate-layout-name-id ]{:return-keys true})
+        new-plate-id (:plate/id new-plate-id-pre)
+        sql-statement2 (str "UPDATE plate SET plate_sys_name = 'PLT- " (str new-plate-id) "' WHERE id=?")
+        a (j/execute-one! dbm/pg-db [sql-statement2 new-plate-id ])
+        sql-statement3 (str "INSERT INTO well(by_col, plate_id) VALUES(?, " (str new-plate-id) ")")
+        content (into [] (map vector (range 1 (+ 1 plate-format-id))))
+       ;; well-ids  (with-open [con (j/get-connection dbm/pg-db)
+         ;;                  ps  (j/prepare con [sql-statement3]{:return-keys true})]
+           ;;         (p/execute-batch! ps content))
+        well-ids  (first (sorted-set (proto/-execute-all dbm/pg-db [ sql-statement3 content]{:label-fn rs/as-unqualified-maps :builder-fn rs/as-unqualified-maps} )))
+        ]
+  (println well-ids)
+  )
+  )
+
+;;(new-plate 1 1 96 1 false)
+
+
+(for [x [(range 1 96)]]  x)
+
+(into [] (map vector (range 1 97)))
+
+(map vector [1 2 3])
