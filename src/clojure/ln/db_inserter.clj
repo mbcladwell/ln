@@ -342,10 +342,10 @@ first selection: select get in plate, well order, not necessarily sample order "
                  ps  (j/prepare con [sql-statement7])]
       (p/execute-batch! ps content))))
 
-(defn new-sample [ project-id plate-id accs-id ]
+(defn new-sample [ project-id  ]
   (let [
-        sql-statement "INSERT INTO sample(project_id, plate_id, accs_id) VALUES (?, ?, ?)"
-        new-sample-id-pre (j/execute-one! dbm/pg-db [sql-statement project-id plaste-id accs-id ]{:return-keys true})
+        sql-statement "INSERT INTO sample(project_id) VALUES (?)"
+        new-sample-id-pre (j/execute-one! dbm/pg-db [sql-statement project-id  ]{:return-keys true})
         new-sample-id (:sample/id new-sample-id-pre)
         sql-statement2 (str "UPDATE sample SET sample_sys_name = 'SPL-" (str new-sample-id)  "' WHERE id=?")
         a (j/execute-one! dbm/pg-db [sql-statement2 new-sample-id ]) 
@@ -353,29 +353,83 @@ first selection: select get in plate, well order, not necessarily sample order "
     new-sample-id))
 
 (defn new-plate
-  "only add samples if include-sample is true"
-  [ plate-type-id plate-set-id plate-format-id plate-layout-name-id include-sample]
-  (let [ sql-statement1 "INSERT INTO plate(plate_type_id,   plate_format_id, plate_layout_name_id) VALUES (?,  ?, ?)"
+  "only add samples if include-samples is true"
+  [plate-type-id plate-set-id plate-format-id plate-layout-name-id include-samples]
+  (let [sql-statement1 "INSERT INTO plate(plate_type_id, plate_format_id, plate_layout_name_id) VALUES (?, ?, ?)"
         new-plate-id-pre (j/execute-one! dbm/pg-db [sql-statement1 plate-type-id plate-format-id plate-layout-name-id ]{:return-keys true})
         new-plate-id (:plate/id new-plate-id-pre)
         sql-statement2 (str "UPDATE plate SET plate_sys_name = 'PLT- " (str new-plate-id) "' WHERE id=?")
         a (j/execute-one! dbm/pg-db [sql-statement2 new-plate-id ])
         sql-statement3 (str "INSERT INTO well(by_col, plate_id) VALUES(?, " (str new-plate-id) ")")
         content (into [] (map vector (range 1 (+ 1 plate-format-id))))
-       ;; well-ids  (with-open [con (j/get-connection dbm/pg-db)
-         ;;                  ps  (j/prepare con [sql-statement3]{:return-keys true})]
-           ;;         (p/execute-batch! ps content))
-        well-ids  (first (sorted-set (proto/-execute-all dbm/pg-db [ sql-statement3 content]{:label-fn rs/as-unqualified-maps :builder-fn rs/as-unqualified-maps} )))
+        b  (with-open [con (j/get-connection dbm/pg-db)
+                       ps  (j/prepare con [sql-statement3])]
+             (p/execute-batch! ps content))      
         ]
-  (println well-ids)
-  )
-  )
+    (if (= include-samples true)
+      (let [  sql-statement4  (str "SELECT well.id  FROM plate_layout, plate_layout_name, plate, well  WHERE plate_layout.plate_layout_name_id = plate_layout_name.id AND plate_layout.well_type_id = 1 AND well.plate_id=plate.id AND plate_layout.plate_layout_name_id = ? AND plate_layout.well_by_col=well.by_col AND plate.id= ?")
+            wells-need-samples (into [] (map vector (map :id (first (sorted-set (proto/-execute-all dbm/pg-db [ sql-statement4 plate-layout-name-id new-plate-id]{:label-fn rs/as-unqualified-maps :builder-fn rs/as-unqualified-maps} ))))))
+            project-id (cm/get-project-id)
+           ;; new-sample-ids (map (new-sample project-id) wells-need-samples)
+            ]
+        (loop [
+               new-sample-ids #{}
+               sample-number 1]
+          ;; (println "==================================")
+          ;; (println "==================================")
+          ;; (println "==========new sample ids========================")
+          ;; (println new-sample-ids)
+          ;; (println "===========sample number=======================")
+          ;; (println sample-number )
+          ;; (println "=========wells-need-samples=========================")
+          ;; (println wells-need-samples)
+          (if (< sample-number (+ 1 (count wells-need-samples)))
+         ;; (if (< sample-number  10)
+            (recur (s/union  new-sample-ids #{ (new-sample project-id)}) (inc sample-number))
+            (let [ ;;once set is full
+                  sql-statement5 "UPDATE sample SET sample_sys_name = CONCAT('SPL-', ?) WHERE id=?"
+                  content (into [] (pairs (flatten (sort (map vector new-sample-ids))) (flatten (sort (map vector new-sample-ids))) ))
+                  a  (with-open [con (j/get-connection dbm/pg-db)
+                                 ps  (j/prepare con [sql-statement5])]
+                       (p/execute-batch! ps content)) 
+                  sql-statement6 "INSERT INTO well_sample(well_id, sample_id)VALUES(?,?)"
+                  well-sample-pairs (into [] (pairs  (flatten wells-need-samples) (flatten (sort (map vector new-sample-ids)))))
+                  ]
+                (with-open [con (j/get-connection dbm/pg-db)
+                         ps  (j/prepare con [sql-statement6])]
+               (p/execute-batch! ps well-sample-pairs)) 
 
-;;(new-plate 1 1 96 1 false)
+              )))))new-plate-id))
 
 
-(for [x [(range 1 96)]]  x)
+;;(new-plate 1 50 96 1 true)
 
-(into [] (map vector (range 1 97)))
+(defn new-plate-set [ description, plate-set-name, num-plates, plate-format-id, plate-type-id, project-id, plate-layout-name-id, with-samples ]
+  (let [
+        lnsession-id (cm/get-session-id)
+        sql-statement "INSERT INTO plate_set(descr, plate_set_name, num_plates, plate_format_id, plate_type_id, project_id, plate_layout_name_id, lnsession_id) VALUES (?, ?, ?, ?, ?, ?, ?, ? )"
+        new-plate-set-id-pre (j/execute-one! dbm/pg-db [sql-statement description plate-set-name num-plates plate-format-id plate-type-id project-id plate-layout-name-id lnsession-id ]{:return-keys true})
+        new-plate-set-id (:plate_set/id new-plate-set-id-pre)
+        sql-statement2 (str "UPDATE plate_set SET plate_set_sys_name = 'PS-" (str new-plate-set-id)  "'WHERE id=?")
+        a (j/execute-one! dbm/pg-db [sql-statement2 new-plate-set-id ]) 
+        ]
+        (loop [
+               new-plate-ids #{}
+               plate-counter 1]
+          (if (< plate-counter (+ 1 num-plates))
+            (recur (s/union  new-plate-ids #{ (new-plate plate-type-id new-plate-set-id plate-format-id plate-layout-name-id with-samples)}) (inc plate-counter))
+            (let [ ;;once set is full
+                  sql-statement5 "UPDATE plate SET plate_sys_name = CONCAT('PLT-', ?) WHERE id=?"
+                   content (into [] (pairs (flatten (sort (map vector new-plate-ids)))(flatten (sort (map vector new-plate-ids)))))
+                  a  (with-open [con (j/get-connection dbm/pg-db)
+                                ps  (j/prepare con [sql-statement5])]
+                       (p/execute-batch! ps content )) 
+                  sql-statement6 (str "INSERT INTO plate_plate_set(plate_set_id, plate_id, plate_order) VALUES(" (str new-plate-set-id) ",?,?)")
+                  plate-id-order (into [] (pairs  (flatten (sort (map vector new-plate-ids))) (range 1 (+ 1 num-plates))))
+                  ]
+               (with-open [con (j/get-connection dbm/pg-db)
+                        ps  (j/prepare con [sql-statement6])]
+                  (p/execute-batch! ps plate-id-order)))))   ;;remove 3
+  new-plate-set-id))
 
-(map vector [1 2 3])
+;;(new-plate-set "des" "ps name" 3 96 1 1 1 1 false)

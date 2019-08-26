@@ -138,40 +138,40 @@ public class DatabaseInserter {
     return new DefaultTableModel(data, columnNames);
   }
 
-  public void insertPlateSet2(
-      String _name,
-      String _description,
-      String _num_plates,
-      String _plate_size_id,
-      String _plate_type_id,
-      String _project_id,
-      String _withSamples) {
-      int new_plate_set_id;
+  // public void insertPlateSet2(
+  //     String _name,
+  //     String _description,
+  //     String _num_plates,
+  //     String _plate_size_id,
+  //     String _plate_type_id,
+  //     String _project_id,
+  //     String _withSamples) {
+  //     int new_plate_set_id;
 
-    try {
+  //   try {
    
-      String insertSql = "SELECT new_plate_set ( ?, ?, ?, ?, ?, ?, ?, ?);";
-      PreparedStatement insertPs =
-          conn.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS);
-      insertPs.setString(1, _description);
-      insertPs.setString(2, _name);
-      insertPs.setString(3, _num_plates);
-      insertPs.setString(4, _plate_size_id);
-      insertPs.setString(5, _plate_type_id);
-      insertPs.setString(6, _project_id);
-      insertPs.setInt(7,  session_id);
-      insertPs.setString(8, _withSamples);
-      LOGGER.info(insertPs.toString());
-      insertPs.executeUpdate();
-      //ResultSet resultSet = insertPs.getResultSet();
-      //resultSet.next();
-      //new_plate_set_id = resultSet.getInt("new_plate_set");
+  //     String insertSql = "SELECT new_plate_set ( ?, ?, ?, ?, ?, ?, ?, ?);";
+  //     PreparedStatement insertPs =
+  //         conn.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS);
+  //     insertPs.setString(1, _description);
+  //     insertPs.setString(2, _name);
+  //     insertPs.setString(3, _num_plates);
+  //     insertPs.setString(4, _plate_size_id);
+  //     insertPs.setString(5, _plate_type_id);
+  //     insertPs.setString(6, _project_id);
+  //     insertPs.setInt(7,  session_id);
+  //     insertPs.setString(8, _withSamples);
+  //     LOGGER.info(insertPs.toString());
+  //     insertPs.executeUpdate();
+  //     //ResultSet resultSet = insertPs.getResultSet();
+  //     //resultSet.next();
+  //     //new_plate_set_id = resultSet.getInt("new_plate_set");
      
-    } catch (SQLException sqle) {
-	LOGGER.warning("SQLE at inserting new plate set: " + sqle);
-    }
+  //   } catch (SQLException sqle) {
+  // 	LOGGER.warning("SQLE at inserting new plate set: " + sqle);
+  //   }
     
-  }
+  // }
 
     /**
      * Modification of insertPlateSet using integers and returning ps_id
@@ -811,7 +811,6 @@ public int insertPlateSet(
       LOGGER.info("dest_plate_set_id: " + dest_plate_set_id);
 
        insertPs.close();
-      //  SELECT new_plate_set ( 'descrip', 'myname', '10', '96', 'assay', 0, 't')
     } catch (SQLException sqle) {
       LOGGER.severe("Failed to create plate set: " + sqle);
     }
@@ -1009,7 +1008,6 @@ public int insertPlateSet(
        rsKey.next();
        int new_ps_id = rsKey.getInt(1);
        insertPs.close();
-      //  SELECT new_plate_set ( 'descrip', 'myname', '10', '96', 'assay', 0, 't')
     } catch (SQLException sqle) {
       LOGGER.severe("Failed to create plate set: " + sqle);
     }

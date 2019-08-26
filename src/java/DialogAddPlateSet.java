@@ -57,6 +57,9 @@ public class DialogAddPlateSet extends JDialog {
   public DialogAddPlateSet(DatabaseManager _dbm) {
       dbm = _dbm;
       this.dmf = dbm.getDialogMainFrame();
+    require.invoke(Clojure.read("ln.db-inserter"));
+     IFn newPlateSet = Clojure.var("ln.db-inserter", "new-plate-set");
+    
     require.invoke(Clojure.read("ln.codax-manager"));
      IFn getUser = Clojure.var("ln.codax-manager", "get-user");
       //this.session = dmf.getSession();
@@ -220,17 +223,27 @@ public class DialogAddPlateSet extends JDialog {
         (new ActionListener() {
           public void actionPerformed(ActionEvent e) {
 	        IFn getProjectID = Clojure.var("ln.codax-manager", "get-project-id");
-  
-                dbm
-		    .getDatabaseInserter().insertPlateSet(
-                    nameField.getText(),
-                    descriptionField.getText(),
-                    Integer.valueOf(numberField.getText()),
-                    Integer.valueOf(formatList.getSelectedItem().toString()),
-                    ((ComboItem)typeList.getSelectedItem()).getKey(),
-		    (int)getProjectID.invoke(),
-		    ((ComboItem)layoutList.getSelectedItem()).getKey(),
-							  true);
+		newPlateSet.invoke(
+				   descriptionField.getText(),
+				   nameField.getText(),
+				   Integer.valueOf(numberField.getText()),
+				   Integer.valueOf(formatList.getSelectedItem().toString()),
+				   ((ComboItem)typeList.getSelectedItem()).getKey(),
+				   (int)getProjectID.invoke(),
+				   ((ComboItem)layoutList.getSelectedItem()).getKey(),
+				   true);
+	      		   
+				   
+                // dbm
+		//     .getDatabaseInserter().insertPlateSet(
+                //     nameField.getText(),
+                //     descriptionField.getText(),
+                //     Integer.valueOf(numberField.getText()),
+                //     Integer.valueOf(formatList.getSelectedItem().toString()),
+                //     ((ComboItem)typeList.getSelectedItem()).getKey(),
+		//     (int)getProjectID.invoke(),
+		//     ((ComboItem)layoutList.getSelectedItem()).getKey(),
+		// 					  true);
 		    IFn getProjectSysName = Clojure.var("ln.codax-manager", "get-project-sys-name");
 
 		    dbm.getDialogMainFrame().showPlateSetTable((String)getProjectSysName.invoke());
