@@ -4,9 +4,9 @@
             [next.jdbc.result-set :as rs]
             [next.jdbc.protocols :as proto]
             [clojure.set :as s]
-            [honeysql.core :as hsql]
+           ;; [honeysql.core :as hsql]
             [incanter.stats :as is]
-            [honeysql.helpers :refer :all :as helpers]
+           ;; [honeysql.helpers :refer :all :as helpers]
             [clojure.string :only [split split-lines trim]] 
             [ln.codax-manager :as cm]
             [ln.db-manager :as dbm])
@@ -342,7 +342,9 @@ first selection: select get in plate, well order, not necessarily sample order "
                  ps  (j/prepare con [sql-statement7])]
       (p/execute-batch! ps content))))
 
-(defn new-sample [ project-id  ]
+(defn new-sample
+  "not using this during plate creation.  Batching instead."
+  [ project-id  ]
   (let [
         sql-statement "INSERT INTO sample(project_id) VALUES (?)"
         new-sample-id-pre (j/execute-one! dbm/pg-db [sql-statement project-id  ]{:return-keys true})
@@ -370,39 +372,31 @@ first selection: select get in plate, well order, not necessarily sample order "
       (let [  sql-statement4  (str "SELECT well.id  FROM plate_layout, plate_layout_name, plate, well  WHERE plate_layout.plate_layout_name_id = plate_layout_name.id AND plate_layout.well_type_id = 1 AND well.plate_id=plate.id AND plate_layout.plate_layout_name_id = ? AND plate_layout.well_by_col=well.by_col AND plate.id= ?")
             wells-need-samples (into [] (map vector (map :id (first (sorted-set (proto/-execute-all dbm/pg-db [ sql-statement4 plate-layout-name-id new-plate-id]{:label-fn rs/as-unqualified-maps :builder-fn rs/as-unqualified-maps} ))))))
             project-id (cm/get-project-id)
-           ;; new-sample-ids (map (new-sample project-id) wells-need-samples)
+            sql-statement5  "INSERT INTO sample( project_id, plate_id) VALUES(?, ?)"
+            prj-plt (into []  (repeat (count wells-need-samples) [(cm/get-project-id) new-plate-id] ))
+            c  (with-open [con (j/get-connection dbm/pg-db)
+                           ps  (j/prepare con [sql-statement5])]
+                 (p/execute-batch! ps prj-plt))
+            sql-statement6 "SELECT id FROM  sample WHERE  plate_id=?"
+            new-sample-ids-pre (set (proto/-execute-all dbm/pg-db [ sql-statement6 new-plate-id ]{:label-fn rs/as-unqualified-maps :builder-fn rs/as-unqualified-maps} ))
+            new-sample-ids  (map :id new-sample-ids-pre)
+            sql-statement7 "UPDATE sample SET sample_sys_name = CONCAT('SPL-', ?) WHERE id=?"
+            content (into [] (pairs  (sort  new-sample-ids)  (sort  new-sample-ids)))
+            d  (with-open [con (j/get-connection dbm/pg-db)
+                           ps  (j/prepare con [sql-statement7])]
+                 (p/execute-batch! ps content)) 
+            sql-statement8 "INSERT INTO well_sample(well_id, sample_id)VALUES(?,?)"
+            well-sample-pairs (into [] (pairs  (flatten wells-need-samples)  (sort  new-sample-ids)))
             ]
-        (loop [
-               new-sample-ids #{}
-               sample-number 1]
-          ;; (println "==================================")
-          ;; (println "==================================")
-          ;; (println "==========new sample ids========================")
-          ;; (println new-sample-ids)
-          ;; (println "===========sample number=======================")
-          ;; (println sample-number )
-          ;; (println "=========wells-need-samples=========================")
-          ;; (println wells-need-samples)
-          (if (< sample-number (+ 1 (count wells-need-samples)))
-         ;; (if (< sample-number  10)
-            (recur (s/union  new-sample-ids #{ (new-sample project-id)}) (inc sample-number))
-            (let [ ;;once set is full
-                  sql-statement5 "UPDATE sample SET sample_sys_name = CONCAT('SPL-', ?) WHERE id=?"
-                  content (into [] (pairs (flatten (sort (map vector new-sample-ids))) (flatten (sort (map vector new-sample-ids))) ))
-                  a  (with-open [con (j/get-connection dbm/pg-db)
-                                 ps  (j/prepare con [sql-statement5])]
-                       (p/execute-batch! ps content)) 
-                  sql-statement6 "INSERT INTO well_sample(well_id, sample_id)VALUES(?,?)"
-                  well-sample-pairs (into [] (pairs  (flatten wells-need-samples) (flatten (sort (map vector new-sample-ids)))))
-                  ]
-                (with-open [con (j/get-connection dbm/pg-db)
-                         ps  (j/prepare con [sql-statement6])]
-               (p/execute-batch! ps well-sample-pairs)) 
+        (with-open [con (j/get-connection dbm/pg-db)
+                    ps  (j/prepare con [sql-statement8])]
+          (p/execute-batch! ps well-sample-pairs)) 
 
-              )))))new-plate-id))
-
+              ))new-plate-id))
 
 ;;(new-plate 1 50 96 1 true)
+
+
 
 (defn new-plate-set [ description, plate-set-name, num-plates, plate-format-id, plate-type-id, project-id, plate-layout-name-id, with-samples ]
   (let [
