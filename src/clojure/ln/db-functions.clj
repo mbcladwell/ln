@@ -1,110 +1,7 @@
 (ns ln.db-functions
    )
 
-(def drop-new-plate-set ["DROP FUNCTION IF exists new_plate_set(_descr VARCHAR(30), _plate_set_name VARCHAR(30), _num_plates INTEGER, _plate_format_id INTEGER,  _plate_type_id INTEGER, _project_id INTEGER, _plate_layout_name_id INTEGER, _lnsession_id INTEGER,  _with_samples boolean);"])
 
-
-(def new-plate-set ["CREATE OR REPLACE FUNCTION new_plate_set(_descr VARCHAR(30),_plate_set_name VARCHAR(30), _num_plates INTEGER, _plate_format_id INTEGER, _plate_type_id INTEGER, _project_id INTEGER, _plate_layout_name_id INTEGER, _lnsession_id INTEGER, _with_samples boolean)
-  RETURNS integer AS
-$BODY$
-DECLARE
-   ps_id INTEGER;
-   n_plates INTEGER;
-   p_type INTEGER;
-   p_form INTEGER;
-   prj_id INTEGER;
-   plt_id INTEGER;
-   play_n_id INTEGER;
-   w_spls BOOLEAN := _with_samples;
-BEGIN
-   
-   INSERT INTO plate_set(descr, plate_set_name, num_plates, plate_format_id, plate_type_id, project_id, plate_layout_name_id, lnsession_id)
-   VALUES (_descr, _plate_set_name, _num_plates, _plate_format_id, _plate_type_id, _project_id, _plate_layout_name_id, _lnsession_id )
-   RETURNING ID, plate_format_id, num_plates, project_id, plate_type_id, plate_layout_name_id INTO ps_id, p_form, n_plates, prj_id, p_type, play_n_id;
-   UPDATE plate_set SET plate_set_sys_name = 'PS-'||ps_id WHERE id=ps_id;
-
-FOR i IN 1..n_plates loop
-	     -- _plate_type_id INTEGER, _plate_set_id INTEGER, _project_id INTEGER, _plate_format_id INTEGER, include_sample BOOLEAN
-	    SELECT new_plate(p_type, ps_id, p_form, play_n_id, w_spls) INTO plt_id;
-	    UPDATE plate_plate_set SET plate_order = i WHERE plate_set_id = ps_id AND plate_id = plt_id;
-
-END LOOP;
-
-RETURN ps_id;
-
-END;
-$BODY$
-  LANGUAGE plpgsql VOLATILE;"])
-
-
-(def drop-new-plate ["DROP FUNCTION IF EXISTS new_plate(INTEGER, INTEGER,INTEGER,INTEGER, BOOLEAN);"])
-
-(def new-plate ["CREATE OR REPLACE FUNCTION new_plate(_plate_type_id INTEGER, _plate_set_id INTEGER, _plate_format_id INTEGER, _plate_layout_name_id INTEGER,  _include_sample BOOLEAN)
-  RETURNS integer AS
-$BODY$
-DECLARE
-   plt_id INTEGER;
-   ps_id INTEGER = _plate_set_id;
-   pf_id INTEGER;
-   w_id INTEGER;
-   s_id INTEGER;
-   spl_include BOOLEAN := _include_sample;
-   w integer;	
-
-BEGIN
-
-   INSERT INTO plate(plate_type_id,   plate_format_id, plate_layout_name_id)
-   VALUES (_plate_type_id,  _plate_format_id, _plate_layout_name_id)
-   RETURNING id  INTO plt_id;
-
-    UPDATE plate SET plate_sys_name = 'PLT-'||plt_id WHERE id=plt_id;
-
-
-FOR w IN 1.._plate_format_id LOOP
-
-  --RAISE notice 'w: (%)', w;
-       INSERT INTO well(by_col, plate_id) VALUES(w, plt_id)
-       RETURNING id INTO w_id;
-       
-       IF spl_include THEN  --check if it is an \"unknown\" well i.e. not a control
-       IF w IN (SELECT well_by_col  FROM plate_layout, plate_layout_name  WHERE plate_layout.plate_layout_name_id = plate_layout_name.id AND plate_layout.well_type_id = 1 AND plate_layout.plate_layout_name_id = _plate_layout_name_id) THEN
-       INSERT INTO sample (sample_sys_name) VALUES (null)
-       RETURNING id INTO s_id;
-       UPDATE sample SET sample_sys_name = 'SPL-'||s_id WHERE id=s_id;
-
-       INSERT INTO well_sample(well_id, sample_id)VALUES(w_id, s_id);
-      END IF;
-       END IF;
-   END LOOP;
-
-   INSERT INTO plate_plate_set(plate_set_id, plate_id)
-   VALUES (ps_id, plt_id );
-
-RETURN plt_id;
-
-END;
-$BODY$
-  LANGUAGE plpgsql VOLATILE;"])
-
-
-
-(def drop-new-sample ["DROP FUNCTION IF EXISTS new_sample(INTEGER,INTEGER,INTEGER);"])
-
-(def new-sample ["CREATE OR REPLACE FUNCTION new_sample(_project_id INTEGER, _plate_id INTEGER,  _accs_id INTEGER)
-  RETURNS void AS
-$BODY$
-DECLARE
-   v_id integer;
-BEGIN
-   
-   INSERT INTO sample(project_id, plate_id, accs_id)
-   VALUES (_project_id, _plate_id,   _accs_id)
-   RETURNING id INTO v_id;
-
-    UPDATE sample SET sample_sys_name = 'SPL-'||v_id WHERE id=v_id RETURNING id;
-END;
-$BODY$
-  LANGUAGE plpgsql VOLATILE;"])
 
 
 (def drop-new-plate-layout ["DROP FUNCTION IF EXISTS new_plate_layout(  VARCHAR(30), VARCHAR(30), INTEGER,  VARCHAR[][]);"])
@@ -156,8 +53,6 @@ BEGIN
 --here I am creating the destination plate set, no samples included
 SELECT new_plate_set(dest_descr ,dest_plate_set_name, dest_num_plates, dest_plate_format_id, dest_plate_type_id, project_id, dest_plate_layout_name_id, lnsession_id, false) INTO dest_plate_set_id;
 
---RAISE notice 'dest_plate_set_id: (%)', dest_plate_set_id;
-
 CREATE TEMP TABLE temp1(counter INT, plate_id INT, plate_order INT, well_by_col INT, well_id INT);
 
 FOR i IN 1..n_reps_source LOOP
@@ -175,15 +70,7 @@ SELECT sample.id FROM sample, well, well_sample WHERE well_sample.well_id=well.i
 INSERT INTO well_sample (well_id, sample_id) VALUES (all_dest_well_ids[w], holder );
 
 
---RAISE notice  'w: (%)', w;
---RAISE notice  'all_source_well_ids[w]: (%)', all_source_well_ids[w];
---RAISE notice  'all_dest_well_ids[w]: (%)', all_dest_well_ids[w];
-
 END LOOP;
-
---RAISE notice  'all_source_well_ids: (%)', all_source_well_ids;
---RAISE notice  'all_dest_well_ids: (%)', all_dest_well_ids;
-
 
 DROP TABLE temp1;
 
@@ -321,10 +208,10 @@ LANGUAGE plpgsql VOLATILE;"] )
 
 
 (def drop-all-functions
-[ drop-new-plate-set  drop-new-plate drop-new-sample  drop-new-plate-layout drop-reformat-plate-set  drop-get-scatter-plot-data  drop-create-layout-records drop-get-all-data-for-assay-run])
+[  drop-new-plate-layout drop-reformat-plate-set  drop-get-scatter-plot-data  drop-create-layout-records drop-get-all-data-for-assay-run])
 
 (def all-functions
   ;;for use in a map function that will create all functions
   ;;single command looks like:  (jdbc/drop-table-ddl :lnuser {:conditional? true } )
-  [ new-plate-set new-plate new-sample  new-plate-layout reformat-plate-set get-scatter-plot-data  create-layout-records get-all-data-for-assay-run])
+  [  new-plate-layout reformat-plate-set get-scatter-plot-data  create-layout-records get-all-data-for-assay-run])
 

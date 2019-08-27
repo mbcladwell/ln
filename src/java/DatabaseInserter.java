@@ -138,84 +138,6 @@ public class DatabaseInserter {
     return new DefaultTableModel(data, columnNames);
   }
 
-  // public void insertPlateSet2(
-  //     String _name,
-  //     String _description,
-  //     String _num_plates,
-  //     String _plate_size_id,
-  //     String _plate_type_id,
-  //     String _project_id,
-  //     String _withSamples) {
-  //     int new_plate_set_id;
-
-  //   try {
-   
-  //     String insertSql = "SELECT new_plate_set ( ?, ?, ?, ?, ?, ?, ?, ?);";
-  //     PreparedStatement insertPs =
-  //         conn.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS);
-  //     insertPs.setString(1, _description);
-  //     insertPs.setString(2, _name);
-  //     insertPs.setString(3, _num_plates);
-  //     insertPs.setString(4, _plate_size_id);
-  //     insertPs.setString(5, _plate_type_id);
-  //     insertPs.setString(6, _project_id);
-  //     insertPs.setInt(7,  session_id);
-  //     insertPs.setString(8, _withSamples);
-  //     LOGGER.info(insertPs.toString());
-  //     insertPs.executeUpdate();
-  //     //ResultSet resultSet = insertPs.getResultSet();
-  //     //resultSet.next();
-  //     //new_plate_set_id = resultSet.getInt("new_plate_set");
-     
-  //   } catch (SQLException sqle) {
-  // 	LOGGER.warning("SQLE at inserting new plate set: " + sqle);
-  //   }
-    
-  // }
-
-    /**
-     * Modification of insertPlateSet using integers and returning ps_id
-     */
-public int insertPlateSet(
-      String _name,
-      String _description,
-      int _num_plates,
-      int _plate_format_id,
-      int _plate_type_id,
-      int _project_id,
-      int _plate_layout_name_id,
-      boolean _withSamples) {
-    
-      int new_plate_set_id=0;
-
-    try {
-      String insertSql = "SELECT new_plate_set( ?, ?, ?, ?, ?, ?, ?, ?, ?);";
-      PreparedStatement insertPs =
-          conn.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS);
-      insertPs.setString(1, _description);
-      insertPs.setString(2, _name);
-      insertPs.setInt(3, _num_plates);
-      insertPs.setInt(4, _plate_format_id);
-      insertPs.setInt(5, _plate_type_id);
-      insertPs.setInt(6, _project_id);
-      insertPs.setInt(7, _plate_layout_name_id);
-      insertPs.setInt(8, session_id);
-      
-      insertPs.setBoolean(9, _withSamples);
-
-      LOGGER.info(insertPs.toString());
-      insertPs.execute();
-      ResultSet resultSet = insertPs.getResultSet();
-      resultSet.next();
-      new_plate_set_id = resultSet.getInt("new_plate_set");
-     
-    } catch (SQLException sqle) {
-	LOGGER.warning("SQLE at inserting new plate set: " + sqle);
-    }
-    return new_plate_set_id;
-  }
-
-
     
   /**
    * called from DialogGroupPlateSet; Performs the creation of a new plate set from existing plate
@@ -396,33 +318,6 @@ public int insertPlateSet(
     dbm.getDialogMainFrame().showPlateSetTable((String)getProjectSysName.invoke());
   }
 
-    /*
-  public void associatePlateIDsWithPlateSetID(Set<Integer> _plateIDs, int _plate_set_id) {
-    Set<Integer> plateIDs = _plateIDs;
-    int plate_set_id = _plate_set_id;
-    Integer[] plate_ids =
-        Arrays.stream(dbm.getDialogMainFrame().getUtilities().getIntArrayForIntegerSet(plateIDs))
-            .boxed()
-            .toArray(Integer[]::new);
-    
-    IFn assocPlateIDsWithPlateSetID = Clojure.var("ln.db-inserter", "assoc-plate-ids-with-plate-set-id");
-    assocPlateIDsWithPlateSetID.invoke(plate_ids, plate_set_id);
-
-    
-    String sqlString = "SELECT assoc_plate_ids_with_plate_set_id(?,?)";
-    // LOGGER.info("insertSql: " + insertSql);
-    try {
-      PreparedStatement preparedStatement = conn.prepareStatement(sqlString);
-      preparedStatement.setArray(1, conn.createArrayOf("INTEGER", plate_ids));
-      preparedStatement.setInt(2, plate_set_id);
-      preparedStatement.execute(); // executeUpdate expects no returns!!!
-
-    } catch (SQLException sqle) {
-      LOGGER.warning("Failed to properly prepare  prepared statement: " + sqle);
-    }
-    
-  }
-    */
 
     /* Method signature in DialogAddPlateSetData
       dbi.associateDataWithPlateSet(
@@ -628,53 +523,6 @@ public int insertPlateSet(
     }
     }
 
-    /**
-     * @param sorted_response  [response] [well] [type_id] [sample_id]
-     * the number of hits are "unknown" hits so must screen for type_id == 1
-     * an object array must be passed to the stored procedure
-     */
-      // public void insertHitList(String _name,
-      // 				String _description,
-      // 				int _num_hits,
-      // 				int  _assay_run_id,
-      // 				double[][] sorted_response) {
-	  
-      // int new_hit_list_id;
-      
-      // Object[] hit_list = new Object[_num_hits];
-      // int counter = 0;
-      // for(int i = 0; i < sorted_response.length; i++){
-      // 	  if(sorted_response[i][2]== 1 && counter < _num_hits){
-      // 	  hit_list[counter] = (Object)Math.round(sorted_response[i][3]);
-      // 	  counter++;
-      // }
-      // 	  //System.out.println("i: " + i + " " + hit_list[i]);
-      // }
-      
-    //   IFn newHitList = Clojure.var("ln.db-inserter", "new-hit-list");
-    //newHitList.invoke(_name, _description, _num_hits, _assay_run_id, hit_list);
-      
-    // try {
-    //   String insertSql = "SELECT new_hit_list ( ?, ?, ?, ?, ?);";
-    //   PreparedStatement insertPs =
-    //       conn.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS);
-    //   insertPs.setString(1, _name);
-    //   insertPs.setString(2, _description);
-    //   insertPs.setInt(3, _num_hits);
-    //   insertPs.setInt(4, _assay_run_id);
-    //   insertPs.setArray(5, conn.createArrayOf("INTEGER", hit_list));
-   
-    //   LOGGER.info(insertPs.toString());
-    //   insertPs.executeUpdate();
-    //   //ResultSet resultSet = insertPs.getResultSet();
-    //   //resultSet.next();
-    //   //new_plate_set_id = resultSet.getInt("new_plate_set");
-     
-    // } catch (SQLException sqle) {
-    // 	LOGGER.warning("SQLE at inserting new plate set: " + sqle);
-    // }
-    
-    //}
 
     /**
      * This method preps variable for displaying the dialog box
@@ -767,82 +615,6 @@ public int insertPlateSet(
     }
 
 
-    
-  public void insertRearrayedPlateSet(
-      String _name,
-      String _description,
-      String _num_plates,
-      int _plate_format_id,
-      int _plate_type_id,
-      int _plate_layout_id,
-      int _hit_list_id,
-      int _source_plate_set_id) {
-
-      int source_plate_set_id = _source_plate_set_id;
-      int hit_list_id = _hit_list_id;
-      int dest_plate_set_id =0;
-    try {
-	 IFn getProjectID = Clojure.var("ln.codax-manager", "get-project-id");
-	 //fails as long   
-	 int project_id = ((int)getProjectID.invoke());
-      int plate_format_id = _plate_format_id;
-      int plate_type_id = _plate_type_id;
-      int plate_layout_id = _plate_layout_id;
-      // new_plate_set(_descr VARCHAR(30),_plate_set_name VARCHAR(30), _num_plates INTEGER, _plate_format_id INTEGER, _plate_type_id INTEGER, _project_id INTEGER, _plate_layout_name_id INTEGER, _lnsession_id INTEGER, _with_samples boolean)         
-
-      String insertSql1 = "SELECT new_plate_set ( ?, ?, ?, ?, ?, ?, ?, ?, ?);";
-      PreparedStatement insertPs =
-          conn.prepareStatement(insertSql1, Statement.RETURN_GENERATED_KEYS);
-      insertPs.setString(1, _description);
-      insertPs.setString(2, _name);
-      insertPs.setInt(3, Integer.valueOf(_num_plates));
-      insertPs.setInt(4, plate_format_id);
-      insertPs.setInt(5, plate_type_id);
-      insertPs.setInt(6, project_id);
-      insertPs.setInt(7, plate_layout_id);
-      insertPs.setInt(8, session_id);
-      insertPs.setBoolean(9, false);      
-      // LOGGER.info(insertPs.toString());
-      insertPs.execute();  //executeUpdate() expects no returns
-      ResultSet resultSet = insertPs.getResultSet();
-      resultSet.next();
-      dest_plate_set_id = resultSet.getInt("new_plate_set");
-
-      LOGGER.info("dest_plate_set_id: " + dest_plate_set_id);
-
-       insertPs.close();
-    } catch (SQLException sqle) {
-      LOGGER.severe("Failed to create plate set: " + sqle);
-    }
-
-    //LOGGER.info("source_plate_set_id: " + source_plate_set_id);
-    //LOGGER.info("dest_plate_set_id: " + dest_plate_set_id);
-    //LOGGER.info("hit_list_id: " + hit_list_id);
-    
-    //plate set has been registered, new plates/empty wells created
-    //now copy samples into newly created (empty) plate
-    //  SELECT rearray_transfer_samples(source_plate_set, dest_plate_set, hit_list)
-        IFn rearrayTransferSamples = Clojure.var("ln.db-inserter", "rearray-transfer-samples");
-	rearrayTransferSamples.invoke(source_plate_set_id, dest_plate_set_id, hit_list_id);
-    
-  // try {
-  //     String insertSql2 = "SELECT rearray_transfer_samples( ?, ?, ?);";
-  //     PreparedStatement insertPs =
-  //         conn.prepareStatement(insertSql2, Statement.RETURN_GENERATED_KEYS);
-  //     insertPs.setInt(1, source_plate_set_id);
-  //     insertPs.setInt(2, dest_plate_set_id);
-  //     insertPs.setInt(3, hit_list_id);
-  //  int rowsAffected   = insertPs.executeUpdate();
-  //      ResultSet rsKey = insertPs.getGeneratedKeys();
-  //      rsKey.next();
-  //      insertPs.close();
-     
-  // } catch (SQLException sqle) {
-  //     LOGGER.severe("Failed to create plate set: " + sqle);
-  //   }
-    
-    
-  }
     /**
      * @param _data
      * batch sql https://www.mkyong.com/jdbc/jdbc-preparedstatement-example-batch-update/
@@ -965,55 +737,5 @@ public int insertPlateSet(
 
       }
 
-      /**
-   * Incoming variables: ( 'plate set name' 'description' '10' '96' 'assay')
-   *
-   * <p>Method signature in Postgres: CREATE OR REPLACE FUNCTION new_plate_set(_descr
-   * VARCHAR(30),_plate_set_name VARCHAR(30), _num_plates INTEGER, _plate_format_id INTEGER,
-   * _plate_type_id INTEGER, _project_id INTEGER, _with_samples boolean)
-   */
-  public void insertPlateSet(
-      String _name,
-      String _description,
-      String _num_plates,
-      String _plate_format_id,
-      int _plate_type_id,
-      int _plate_layout_id) {
-
-    try {
-	 IFn getProjectID = Clojure.var("ln.codax-manager", "get-project-id");
-   
-	 int project_id = ((Long)getProjectID.invoke()).intValue();
-      int plate_format_id =
-          Integer.parseInt(_plate_format_id);
-      int plate_type_id = _plate_type_id;
-      int plate_layout_id = _plate_layout_id;
-         
-
-      String insertSql = "SELECT new_plate_set ( ?, ?, ?, ?, ?, ?, ?, ?);";
-      PreparedStatement insertPs =
-          conn.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS);
-      insertPs.setString(1, _description);
-      insertPs.setString(2, _name);
-      insertPs.setInt(3, Integer.valueOf(_num_plates));
-      insertPs.setInt(4, plate_format_id);
-      insertPs.setInt(5, plate_type_id);
-      insertPs.setInt(6, project_id);
-      insertPs.setInt(7, plate_layout_id);    
-      insertPs.setBoolean(8, true);
-
-      // LOGGER.info(insertPs.toString());
-      int rowsAffected   = insertPs.executeUpdate();
-       ResultSet rsKey = insertPs.getGeneratedKeys();
-       rsKey.next();
-       int new_ps_id = rsKey.getInt(1);
-       insertPs.close();
-    } catch (SQLException sqle) {
-      LOGGER.severe("Failed to create plate set: " + sqle);
-    }
- IFn getProjectSysName = Clojure.var("ln.codax-manager", "get-project-sys-name");
-   
-    dbm.getDialogMainFrame().showPlateSetTable((String)getProjectSysName.invoke());    
-  }
-
+    
 }

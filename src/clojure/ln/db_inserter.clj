@@ -427,3 +427,62 @@ first selection: select get in plate, well order, not necessarily sample order "
   new-plate-set-id))
 
 ;;(new-plate-set "des" "ps name" 3 96 1 1 1 1 false)
+
+
+(defn reformat-plate-set
+  ""
+  [source-plate-set-id  source-num-plates  n-reps-source  dest-descr  dest-plate-set-name  dest-num-plates  dest-plate-format-id  dest-plate-type-id  project-id  dest-plate-layout-name-id ]
+  (let [
+        project-id (cm/get-project-id)
+        dest-plate-set-id (new-plate-set dest-descr, dest-plate-set-name, dest-num-plates, dest-plate-format-id, dest-plate-type-id, project-id, dest-plate-layout-name-id, false )
+        sql-statement1 "select well.plate_id, plate_plate_set.plate_order, well.by_col, well.id AS source_well_id FROM plate_plate_set, well  WHERE plate_plate_set.plate_set_id = ? AND plate_plate_set.plate_id = well.plate_id ORDER BY well.plate_id, well.ID"
+        source-plates (proto/-execute-all dbm/pg-db [ sql-statement1 source-plate-set-id]{:label-fn rs/as-unqualified-maps :builder-fn rs/as-unqualified-maps} )
+        rep-source-plates (loop [  counter 1 temp source-plates]
+                            (if (> counter n-reps-source)  temp
+                                (recur   (+ 1 counter)
+                                         (conj (map #(assoc % :rep counter) source-plates) temp))))
+        sorted-source-pre    (sort-by (juxt :plate_id :rep :source_well_id) (first rep-source-plates))
+        num  (count sorted-source-pre)
+        sorted-source    (loop [  counter 1 temp  sorted-source-pre]
+                         (if (> counter (count sorted-source-pre))  temp
+                              (recur   (+ 1 counter)
+                                      (conj (map #(assoc % :sort-order counter) (first sorted-source-pre)) temp))))
+        ]
+    (clojure.pprint/pprint (first rep-source-plates))
+    (println "==============================")
+    (println "==============================")
+    (println (count (first rep-source-plates)))
+    (println num)
+    (println "==========sorted-source-pre====================")
+;;    (clojure.pprint/pprint sorted-source)
+
+    dest-plate-set-id))
+
+
+(reformat-plate-set 3 2 1 "desr1" "reformatted PS3" 1 384 1 1 19)
+
+;;PS-3 has 2 plates  layout 19 is 384 col 24 controls with edge
+
+
+
+
+
+(def a [{:plate_id 1, :plate_order 3, :by_col 16, :well_id 496} {:plate_id 1, :plate_order 2, :by_col 17, :well_id 497} {:plate_id 6, :plate_order 2, :by_col 18, :well_id 498} {:plate_id 6, :plate_order 2, :by_col 19, :well_id 499} {:plate_id 6, :plate_order 2, :by_col 20, :well_id 500} {:plate_id 6, :plate_order 2, :by_col 21, :well_id 501} {:plate_id 4, :plate_order 2, :by_col 22, :well_id 502} {:plate_id 6, :plate_order 2, :by_col 23, :well_id 503} {:plate_id 6, :plate_order 3, :by_col 24, :well_id 504} {:plate_id 6, :plate_order 2, :by_col 25, :well_id 505}])
+
+(sort-by :plate_id :plate_order a)
+
+(repeat 4 (map #(assoc % :rep 1) a ))
+
+(clojure.pprint/pprint a)
+
+
+SELECT ARRAY (SELECT well_id FROM temp1 ORDER BY plate_id, counter, well_id) INTO all_source_well_ids;
+
+
+SELECT ARRAY (SELECT  dest.id  FROM ( SELECT plate_plate_set.plate_ID, well.by_col,  well.id  FROM well, plate_plate_set  WHERE plate_plate_set.plate_set_id = dest_plate_set_id  AND plate_plate_set.plate_id = well.plate_id) AS dest JOIN (SELECT well_numbers.well_name, well_numbers.by_col, well_numbers.quad FROM well_numbers WHERE well_numbers.plate_format=dest_plate_format_id)  AS foo ON (dest.by_col=foo.by_col) ORDER BY plate_id, quad, dest.by_col) INTO all_dest_well_ids;
+
+
+FOR w IN 1..array_length(all_source_well_ids,1)  LOOP
+SELECT sample.id FROM sample, well, well_sample WHERE well_sample.well_id=well.id AND well_sample.sample_id=sample.id AND well.id= all_source_well_ids[w] INTO holder;
+INSERT INTO well_sample (well_id, sample_id) VALUES (all_dest_well_ids[w], holder );
+

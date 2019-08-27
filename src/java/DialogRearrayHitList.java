@@ -253,18 +253,26 @@ public class DialogRearrayHitList extends JDialog {
     okButton.addActionListener(
         (new ActionListener() {
           public void actionPerformed(ActionEvent e) {
+	 IFn getProjectID = Clojure.var("ln.codax-manager", "get-project-id");
+	 //fails as long   
+	 int project_id = ((int)getProjectID.invoke());
+     IFn newPlateSet      = Clojure.var("ln.db-inserter", "new-plate-set");
 
-     
-                dbm.getDatabaseInserter()
-                .insertRearrayedPlateSet(
-                    nameField.getText(),
-                    descriptionField.getText(),
-                    numberLabel.getText(),
-                    (int)formatList.getSelectedItem(),
-                    ((ComboItem)typeList.getSelectedItem()).getKey(),
-		    ((ComboItem)layoutList.getSelectedItem()).getKey(),
-		    hit_list_id, plate_set_id);
-            dispose();
+   int dest_plate_set_id = (int)newPlateSet.invoke(    
+						descriptionField.getText(),
+						nameField.getText(),
+						Integer.valueOf(numberLabel.getText()),
+						(int)formatList.getSelectedItem(),
+						((ComboItem)typeList.getSelectedItem()).getKey(),
+						project_id,
+						((ComboItem)layoutList.getSelectedItem()).getKey(),
+						false);
+
+        IFn rearrayTransferSamples = Clojure.var("ln.db-inserter", "rearray-transfer-samples");
+	rearrayTransferSamples.invoke(plate_set_id, dest_plate_set_id, hit_list_id);
+    
+
+    dispose();
           }
         }));
 
