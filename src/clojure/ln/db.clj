@@ -3,28 +3,29 @@
             [honeysql.core :as hsql]
             [honeysql.helpers :refer :all :as helpers]
             [clojure.data.csv :as csv]
-            [clojure.java.io :as io])
+            [clojure.java.io :as io]
+            [ln.codax-manager :as cm])
            
   (:import java.sql.DriverManager)
   (:use ln.db-manager)
   (:gen-class))
 
 
-(def pg-db  {:dbtype "postgresql"
+(def pg-db-init  {:dbtype "postgresql"
            :dbname "lndb"
-            :host (get-host)
-           :user (get-user)
-             :password (get-password)
-            :port (get-port)
-          :ssl (get-ssl-mode)
+            :host (cm/get-host)
+           :user (cm/get-user)
+             :password (cm/get-password)
+            :port (cm/get-port)
+          :ssl false
             :sslfactory "org.postgresql.ssl.NonValidatingFactory"})
 
 
 
-(load "/lnmanager/data-sets")
-(load "/lnmanager/db-functions")
-(load "/lnmanager/example-data")
-(load "/lnmanager/plate-layout-data")
+(load "/ln/data-sets")
+(load "/ln/db-functions")
+(load "/ln/example-data")
+(load "/ln/plate-layout-data")
 
 
 
@@ -147,6 +148,7 @@
                             [:sample_sys_name "varchar(30)"]
                             [:project_id :int]
                             [:accs_id "varchar(30)"]
+                            [:plate_id :int]                         
                             ["FOREIGN KEY (project_id) REFERENCES project(id)"]
 		           ])]
    [(jdbc/create-table-ddl :well
@@ -308,8 +310,6 @@
    ["CREATE INDEX ON plate_layout(plate_layout_name_id);"]
    ["CREATE INDEX ON plate_layout(well_type_id);"]
    ["CREATE INDEX ON plate_layout(well_by_col);"]
-   ["CREATE INDEX ON temp_accs_id(plate_order);"]
-   ["CREATE INDEX ON temp_accs_id(by_col);"]
    ["CREATE INDEX ON rearray_pairs(src);"]
    ["CREATE INDEX ON rearray_pairs(dest);"]
    ["CREATE INDEX ON well_numbers(by_col);"]
@@ -325,7 +325,7 @@
     [["administrator"]
      ["user" ]]]
                      
-   [ :lnuser 
+   [ :lnuser
     [ :lnuser_name :tags :usergroup :password ]
     [["ln_admin" "ln_admin@labsolns.com" 1  "welcome"]
      ["ln_user" "ln_user@labsolns.com" 1 "welcome"]
@@ -392,11 +392,11 @@
      [["unknown"]["positive"]["negative"]["blank"]["edge"]]]
    
    [ :well_numbers [:plate_format :well_name :row :row_num :col :total_col_count :by_row :by_col :quad :parent_well ]
-   lnmanager.data-sets/well-numbers
+   ln.data-sets/well-numbers
     ]
 
       [ :plate_layout [ :plate_layout_name_id :well_by_col :well_type_id :replicates :target]
-   lnmanager.plate-layout-data/plate-layout-data
+   ln.plate-layout-data/plate-layout-data
     ]
 
    ])
@@ -404,26 +404,26 @@
 (defn drop-all-tables
 ;;
 []
-  (doall (map #(jdbc/db-do-commands pg-db true  %) (map #(format  "DROP TABLE IF EXISTS %s CASCADE" %)  all-table-names ) )))
+  (doall (map #(jdbc/db-do-commands pg-db-init true  %) (map #(format  "DROP TABLE IF EXISTS %s CASCADE" %)  all-table-names ) )))
 
 ;;(drop-all-tables)
 
 (defn initialize-limsnucleus
-  ;;(map #(jdbc/db-do-commands pg-db (jdbc/drop-table-ddl % {:conditional? true } )) all-table-names)
+  ;;(map #(jdbc/db-do-commands pg-db-init (jdbc/drop-table-ddl % {:conditional? true } )) all-table-names)
   []
-  (doall (map #(jdbc/db-do-commands pg-db true  %) (map #(format  "DROP TABLE IF EXISTS %s CASCADE" %)  all-table-names ) ))
+  (doall (map #(jdbc/db-do-commands pg-db-init true  %) (map #(format  "DROP TABLE IF EXISTS %s CASCADE" %)  all-table-names ) ))
  
-  (doall (map #(jdbc/db-do-commands pg-db true %) all-tables))
-  (doall  (map #(jdbc/db-do-commands pg-db true %) all-indices))
+  (doall (map #(jdbc/db-do-commands pg-db-init true %) all-tables))
+  (doall  (map #(jdbc/db-do-commands pg-db-init true %) all-indices))
 
 
     ;; this errors because brackets not stripped
-    ;;(map #(jdbc/insert-multi! pg-db %) required-data)
-  (doall  (map #(apply jdbc/insert-multi! pg-db % ) required-data))
-  (doall (map #(jdbc/db-do-commands pg-db true  %) lnmanager.db-functions/drop-all-functions))
-  (doall (map #(jdbc/db-do-commands pg-db true  %) lnmanager.db-functions/all-functions)))
+    ;;(map #(jdbc/insert-multi! pg-db-init %) required-data)
+  (doall  (map #(apply jdbc/insert-multi! pg-db-init % ) required-data))
+  (doall (map #(jdbc/db-do-commands pg-db-init true  %) ln.db-functions/drop-all-functions))
+  (doall (map #(jdbc/db-do-commands pg-db-init true  %) ln.db-functions/all-functions)))
  
-
+;;(initialize-limsnucleus)
 
 
 (defn add-example-data
@@ -431,31 +431,22 @@
   []
 
   ;; order important!
-  (jdbc/execute! pg-db "TRUNCATE project, plate_set, plate, hit_sample, hit_list, assay_run, assay_result, sample, well, lnsession RESTART IDENTITY CASCADE;")
-  (jdbc/insert! pg-db :lnsession {:lnuser_id 1})
- (jdbc/insert-multi! pg-db :project [:project_sys_name :descr :project_name :lnsession_id]
-                     [["PRJ-1" "3 plate sets with 2 96 well plates each" "With AR, HL", 1]
-                      ["PRJ-2" "1 plate set with 2 384 well plates each" "With AR" 1]
-                      ["PRJ-3" "1 plate set with 1 1536 well plates" "With AR" 1]
-                      ["PRJ-4" "description 4" "MyTestProj4" 1]
-                      ["PRJ-5" "description 5" "MyTestProj5" 1]
-                      ["PRJ-6" "description 6" "MyTestProj6" 1]
-                      ["PRJ-7" "description 7" "MyTestProj7" 1]
-                      ["PRJ-8" "description 8" "MyTestProj8" 1]
-                      ["PRJ-9" "description 9" "MyTestProj9" 1]
-                      ["PRJ-10" "2 plate sets with 10 96 well plates each" "Plates only, no data" 1]
-                      ] )  
-  (doall (map #(jdbc/db-do-commands pg-db true  %) lnmanager.example-data/add-example-data-pre-assay))
+  (jdbc/execute! pg-db-init "TRUNCATE project, plate_set, plate, hit_sample, hit_list, assay_run, assay_result, sample, well, lnsession RESTART IDENTITY CASCADE;")
+  (jdbc/insert! pg-db-init :lnsession {:lnuser_id 1})
+
+  
+(cm/set-session-id 1)  
+  (doall (map #(jdbc/db-do-commands pg-db-init true  %) ln.example-data/add-example-data-pre-assay))
 
   ;INSERT INTO assay_result (assay_run_id, plate_order, well, response) VALUES
-  (jdbc/insert-multi! pg-db :assay_result [:assay_run_id :plate_order :well :response]
-                                        lnmanager.example-data/assay-data )
+  (jdbc/insert-multi! pg-db-init :assay_result [:assay_run_id :plate_order :well :response]
+                                        ln.example-data/assay-data )
 
-  (doall (map #(jdbc/db-do-commands pg-db true  %) lnmanager.example-data/add-example-data-post-assay)))
+  (doall (map #(jdbc/db-do-commands pg-db-init true  %) ln.example-data/add-example-data-post-assay)))
 
 (defn delete-example-data
   []
-  (doall (map #(jdbc/db-do-commands pg-db true  %) lnmanager.example-data/delete-example-data)))
+  (doall (map #(jdbc/db-do-commands pg-db-init true  %) ln.example-data/delete-example-data)))
 
 
 

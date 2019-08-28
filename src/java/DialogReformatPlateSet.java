@@ -94,7 +94,8 @@ public int new_plate_format_id;
       dbm = _dbm;
       //this.session = _session;
       this.dmf = dbm.getDialogMainFrame();
-    require.invoke(Clojure.read("ln.codax-manager"));
+      require.invoke(Clojure.read("ln.codax-manager"));
+      require.invoke(Clojure.read("ln.db-inserter"));
      IFn getUser = Clojure.var("ln.codax-manager", "get-user");
      owner = (String)getUser.invoke();
     old_plate_set_id = _plate_set_id;
@@ -503,20 +504,33 @@ target_reps_list_model =  new DefaultComboBoxModel<ComboItem>( target_reps );
       public void actionPerformed(ActionEvent e) {
 
     if (e.getSource() == okButton) {
+    IFn reformatPlateSet = Clojure.var("ln.db-inserter", "reformat-plate-set");
+    int n_reps_source = ((ComboItem)sampleRepsList.getSelectedItem()).getKey();
+    
+    	int dest_plate_num = (int)Math.ceil(old_num_plates*n_reps_source/4.0);
 
-	dbm
-	    .getDatabaseInserter()
-	    .reformatPlateSet(old_plate_set_id,
-			      dmf,
-			      nameField.getText(),
-			      old_num_plates,
-			      descriptionField.getText(),			      
-			      new_plate_format_id,
-			      ((ComboItem)typeList.getSelectedItem()).getKey(),
-			      source_layout[0].getKey(),			      
-			      ((ComboItem)sampleRepsList.getSelectedItem()).getKey()
+    reformatPlateSet.invoke(old_plate_set_id,
+			    old_num_plates,
+			    n_reps_source,
+			    descriptionField.getText(),			       
+			    nameField.getText(),
+			    dest_plate_num,
+			    new_plate_format_id,
+			    ((ComboItem)typeList.getSelectedItem()).getKey(),
+			    source_layout[0].getKey()  );
+	// dbm
+	//     .getDatabaseInserter()
+	//     .reformatPlateSet(old_plate_set_id,
+	// 		      dmf,
+	// 		      nameField.getText(),
+	// 		      old_num_plates,
+	// 		      descriptionField.getText(),			      
+	// 		      new_plate_format_id,
+	// 		      ((ComboItem)typeList.getSelectedItem()).getKey(),
+	// 		      source_layout[0].getKey(),			      
+	// 		      ((ComboItem)sampleRepsList.getSelectedItem()).getKey()
 			      
-	    );
+	//     );
 	
             dispose();
 
