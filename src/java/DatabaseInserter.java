@@ -364,7 +364,7 @@ public class DatabaseInserter {
 
     //System.out.println("stuff: "  +  assayName + ", " +  descr + ", " +  plate_set_sys_name + ", " + format_id + ", " + assay_type_id + ", " + plate_layout_name_id + ", " + file_name + ", " + auto_select_hits + ", " + hit_selection_algorithm + ", "+ top_n_number);
     
-    associateDataWithPlateSet.invoke(assayName, descr, plate_set_sys_name, format_id, assay_type_id,plate_layout_name_id, file_name, auto_select_hits, hit_selection_algorithm, top_n_number);
+    assay_run_id = (int)associateDataWithPlateSet.invoke(assayName, descr, plate_set_sys_name, format_id, assay_type_id,plate_layout_name_id, file_name, auto_select_hits, hit_selection_algorithm, top_n_number);
     
 
     
@@ -378,7 +378,6 @@ public class DatabaseInserter {
  
     if(assay_run_id != 0){ 
 	if(auto_select_hits){
-
 	    ResponseWrangler rw = new ResponseWrangler(dbm.getDatabaseRetriever().getDataForScatterPlot(assay_run_id),ResponseWrangler.NORM);
 	    double[][] sorted_response = rw.getSortedResponse();
 	    int number_of_hits = 0;
@@ -425,7 +424,7 @@ public class DatabaseInserter {
 
 
      
-
+    //not used?
     public void insertPlateLayout(String _name, String _descr,  String _file_name){
 	String name = _name;
 	String descr = _descr;

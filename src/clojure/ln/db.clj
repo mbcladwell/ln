@@ -20,7 +20,16 @@
           :ssl false
             :sslfactory "org.postgresql.ssl.NonValidatingFactory"})
 
-
+(def mysql-init {:dbtype "mysql"
+                 :dbname "plapan_lndb"
+                 :host "stihie.net"
+                 :user "plapan_ln_admin"
+                 :password "welcome"
+                 :port 3306
+                 :ssl false})
+               
+;;(doall (map #(jdbc/db-do-commands mysql-init true %) all-tables))
+;;whatismyip.com
 
 (load "/ln/data-sets")
 (load "/ln/db-functions")

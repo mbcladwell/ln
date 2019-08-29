@@ -185,25 +185,15 @@
 ;;   [x]
 ;;  (into [] [(Integer/parseInt(:plate x )) (Integer/parseInt(:well x)) (Double/parseDouble(:response x ))  (Double/parseDouble(:bkgrnd_sub x )) (Double/parseDouble(:norm x )) (Double/parseDouble(:norm_pos x )) (Double/parseDouble(:p_enhance x ))]))
 
-(defn process-assay-results-to-load
-"order is important; must correlate with SQL statement order of ?'s"
-  [x]
- (into [] [(:plate x ) (:well x) (:response x ) (:bkgrnd_sub x ) (:norm x ) (:norm_pos x ) (:p_enhance x )]))
 
-
-(defn process-assay-results-map
-;;used when manipulating maps before loading postgres
-  [x]
-(into {} { :plate (Integer/parseInt(:plate x )) :well (Integer/parseInt(:well x)) :response (Double/parseDouble(:response x ))}))
-
-(defn load-assay-results
-  [ assay-run-id data-table]
-  (let [ sql-statement (str "INSERT INTO assay_result( assay_run_id, plate_order, well, response ) VALUES ( " assay-run-id ", ?, ?, ?)")
-        content (into [] (map #(process-assay-results-map %) data-table))
-        ]
-      (with-open [con (j/get-connection dbm/pg-db)
-                  ps  (j/prepare con [sql-statement])]
-        (p/execute-batch! ps content))))
+;; (defn load-assay-results
+;;   [ assay-run-id data-table]
+;;   (let [ sql-statement (str "INSERT INTO assay_result( assay_run_id, plate_order, well, response ) VALUES ( " assay-run-id ", ?, ?, ?)")
+;;         content (into [] (map #(process-assay-results-map %) data-table))
+;;         ]
+;;       (with-open [con (j/get-connection dbm/pg-db)
+;;                   ps  (j/prepare con [sql-statement])]
+;;         (p/execute-batch! ps content))))
 
 
 
@@ -399,16 +389,48 @@ first selection: select get in plate, well order, not necessarily sample order "
 ;;(reformat-plate-set 3 2 1 "desr1" "reformatted PS3" 1 384 1 1 19)
 
 
+(defn process-assay-results-to-load
+"order is important; must correlate with SQL statement order of ?'s"
+  [x]
+ (into [] [(:plate x ) (:well x) (:response x ) (:bkgrnd_sub x ) (:norm x ) (:norm_pos x ) (:p_enhance x )]))
+
+
+
+(defn process-plate-of-data [plate-data id]
+        (let [ 
+                ;;plate-data (s/select #(= (:plate %) individual-plate) joined-data)
+                positives (is/mean (map #(get % :response)(into [](s/select #(= (:well_type_id %) 2) plate-data))))
+                negatives (is/mean (map #(get % :response)(into [](s/select #(= (:well_type_id %) 3) plate-data))))
+                background (is/mean (map #(get % :response)(into [](s/select #(= (:well_type_id %) 4) plate-data))))
+                unk-max (last(sort (map #(get % :response)(into [](s/select #(= (:well_type_id %) 1) plate-data)))))
+              ]
+           (loop [
+                 processed-results-set #{}
+                 well-number 1]
+            (if (> well-number  (count plate-data));;once all wells processed
+              processed-results-set
+              (let [
+                    response (:response (first (into [] (s/select #(= (:well %) well-number) plate-data))))
+                    bkgrnd_sub (- response background)
+                    norm  (/ response unk-max)
+                    norm_pos (/ response positives)
+                    p_enhance (* 100(- (/ (- response negatives) (- positives negatives)) 1))
+                    ]
+                   (recur 
+                   (s/union  processed-results-set #{{:plate id :well well-number :response response :bkgrnd_sub bkgrnd_sub :norm norm :norm_pos norm_pos :p_enhance p_enhance}})
+                   (+ 1 well-number)))))))
+
+
+
+
+(defn process-assay-results-map
+;;used when manipulating maps before loading postgres
+  [x]
+(into {} { :plate (Integer/parseInt(:plate x )) :well (Integer/parseInt(:well x)) :response (Double/parseDouble(:response x ))}))
+
+  
 (defn associate-data-with-plate-set
-  "      String _assayName,
-      String _descr,
-      String _plate_set_sys_name,  a vector of sys-name; 
-      int _format_id,
-      int _assay_type_id,
-      int _plate_layout_name_id,
-      ArrayList<String[]> _table,
-      boolean _auto_select_hits,
-      int _hit_selection_algorithm,
+  "  String _plate_set_sys_name,  a vector of sys-name; 
       int _top_n_number"
   [assay-run-name description plate-set-sys-names format-id assay-type-id plate-layout-name-id input-file-name auto-select-hits hit-selection-algorithm top-n-number]
  (let [ plate-set-ids (get-ids-for-sys-names plate-set-sys-names "plate_set" "plate_set_sys_name");;should only be one though method handles array 
@@ -420,64 +442,33 @@ first selection: select get in plate, well order, not necessarily sample order "
      ;;^^ first let determines if file is valid
      ;;plate-set-ids could be a vector with many but for this workflow only expecting one; get it out with (first)
      ;;vv second let does processing
-     (let [new-assay-run-id (create-assay-run  assay-run-name description assay-type-id (first plate-set-ids) plate-layout-name-id )
+     (let [
            sql-statement "SELECT well_by_col, well_type_id, replicates, target FROM plate_layout WHERE plate_layout_name_id =?"
            layout  (set (proto/-execute-all dbm/pg-db [ sql-statement 1]{:label-fn rs/as-unqualified-maps :builder-fn rs/as-unqualified-maps} ))
            data (set (map #(process-assay-results-map %) (table-to-map input-file-name)))
            joined-data (s/join data layout {:well :well_by_col})
-           plate-list  (distinct (map :plate  joined-data))
-           ]
-       (.println (System/out) new-assay-run-id)
-       
-       (.println (System/out) plate-list)
-       (.println (System/out) (vec plate-list))
-      ;; (.println (System/out) layout)
-      
-
-       (for [individual-plate (vec plate-list)]
-  
-          (let [
-                plate-data (s/select #(= (:plate %) individual-plate) joined-data)
-                positives (is/mean (map #(get % :response)(into [](s/select #(= (:well_type_id %) 2) plate-data))))
-                negatives (is/mean (map #(get % :response)(into [](s/select #(= (:well_type_id %) 3) plate-data))))
-                background (is/mean (map #(get % :response)(into [](s/select #(= (:well_type_id %) 4) plate-data))))
-                unk-max (last(sort (map #(get % :response)(into [](s/select #(= (:well_type_id %) 1) plate-data)))))
-                processed-results-set #{}
-                ]
-                    (.println (System/out) plate-data  )
-        (.println (System/out) positives )
-        (.println (System/out) negatives)
-        (.println (System/out) background  )
-        (.println (System/out) unk-max  )
-
-             (loop [
-                   processed-results-set #{}
-                    well-number 1]
-     
-              (if (> well-number format-id);;once all wells processed, join and insert to db
-                (let [  a (s/join joined-data processed-results-set)
-                      b (s/project a [:plate :well :response :bkgrnd_sub :norm :norm_pos :p_enhance])
-                      c (into [] b)
-                      content (into [] (map #(process-assay-results-to-load %) c))
-                      sql-statement (str "INSERT INTO assay_result( assay_run_id, plate_order, well, response, bkgrnd_sub, norm, norm_pos, p_enhance ) VALUES ( "  new-assay-run-id ", ?, ?, ?, ?, ?, ?, ?)")
-                      ]
-                   
-                    (with-open [con (j/get-connection dbm/pg-db)
+           num-plates   (count (distinct (map :plate  joined-data)))
+           processed-plates  (loop [plate-counter 1
+                                    plate-of-data  (s/select #(= (:plate %) plate-counter) joined-data)                                
+                                    new-set #{}]
+                               (if (> plate-counter num-plates) new-set
+                                   (recur (+ 1 plate-counter)
+                                          (s/select #(= (:plate %) plate-counter) joined-data)
+                                          (s/union new-set (process-plate-of-data plate-of-data plate-counter)))))
+           a (s/project processed-plates [:plate :well :response :bkgrnd_sub :norm :norm_pos :p_enhance])
+           b (into [] a)
+           content (into [] (map #(process-assay-results-to-load %) b))
+           new-assay-run-id (create-assay-run  assay-run-name description assay-type-id (first plate-set-ids) plate-layout-name-id )
+           sql-statement (str "INSERT INTO assay_result( assay_run_id, plate_order, well, response, bkgrnd_sub, norm, norm_pos, p_enhance ) VALUES ( "  new-assay-run-id ", ?, ?, ?, ?, ?, ?, ?)")
+           ]                                  
+           (with-open [con (j/get-connection dbm/pg-db)
                               ps  (j/prepare con [sql-statement])]
-                      (p/execute-batch! ps content))
-                    (.println (System/out) (str "new assay id: " new-assay-run-id))
- 
-                  new-assay-run-id ) ;;must return new id for auto-select-hits when true
-                (let [
-                      response (:response (first (into [] (s/select #(= (:well %) well-number) plate-data))))
-                      bkgrnd_sub (- response background)
-                      norm  (/ response unk-max)
-                      norm_pos (/ response positives)
-                      p_enhance (* 100(- (/ (- response negatives) (- positives negatives)) 1))
-                      ]
-                  
-                  (recur (s/union  processed-results-set #{{:well well-number :response response :bkgrnd_sub bkgrnd_sub :norm norm :norm_pos norm_pos :p_enhance p_enhance}}) (inc well-number))))))))      ;;end of second let
- (javax.swing.JOptionPane/showMessageDialog nil (str "Expecting " expected-rows-in-table " rows but found " (count table-map) " rows in data file.") ))));;row count is not correct
+             (p/execute-batch! ps content))
+          (println joined-data)
+           new-assay-run-id  ;;must return new id for auto-select-hits when true
+       ;;(clojure.pprint/pprint processed-plates)
+       )      ;;end of second let
+ (javax.swing.JOptionPane/showMessageDialog nil (str "Expecting " expected-rows-in-table " rows but found " (count table-map) " rows in data file." )) )));;row count is not correct
 
 ;;(associate-data-with-plate-set "run1test" "test-desc" ["PS-2"] 96 1 1 "/home/mbc/sample96controls4lowp1.txt" true 1 10)
 
@@ -485,15 +476,20 @@ first selection: select get in plate, well order, not necessarily sample order "
 
 
 
-(def a [{:plate_id 1, :plate_order 3, :by_col 16, :well_id 496}
-        {:plate_id 1, :plate_order 2, :by_col 17, :well_id 497}
-        {:plate_id 6, :plate_order 2, :by_col 18, :well_id 498}
-        {:plate_id 6, :plate_order 2, :by_col 19, :well_id 499}
-        {:plate_id 6, :plate_order 2, :by_col 20, :well_id 500}
-        {:plate_id 6, :plate_order 2, :by_col 21, :well_id 501}
-        {:plate_id 4, :plate_order 2, :by_col 22, :well_id 502}
-        {:plate_id 6, :plate_order 2, :by_col 23, :well_id 503}
-        {:plate_id 6, :plate_order 3, :by_col 24, :well_id 504}
-        {:plate_id 6, :plate_order 2, :by_col 25, :well_id 505}])
-
-
+(defn new-plate-layout
+"data is an array"
+  [  plate-layout-name  description  plate-format-id  data  ]
+  (let [ sql-statement1 "INSERT INTO plate_layout_name(name, descr, plate_format_id) VALUES (?,?,?)"
+        new-plate-layout-name-id-pre (j/execute-one! dbm/pg-db [sql-statement1 plate-layout-name description plate-format-id]{:return-keys true})
+        new-plate-layout-name-id (:plate_layout_name/id new-plate-layout-name-id-pre)
+        sql-statement2  "UPDATE plate_layout_name SET sys_name = CONCAT('LYT-', ?) WHERE id=?" 
+        dummy (j/execute-one! dbm/pg-db [sql-statement2 new-plate-layout-name-id new-plate-layout-name-id])
+        dest-name (str plate-layout-name "-dest")
+        sql-statement3 "INSERT INTO plate_layout_name(name, descr, plate_format_id) VALUES (?,?,?)"     
+        dest-plate-layout-name-id-pre (j/execute-one! dbm/pg-db [sql-statement3 dest-name description plate-format-id]{:return-keys true})
+        dest-plate-layout-name-id (:plate_layout_name/id des-plate-layout-name-id-pre)
+        sql-statement4 "INSERT INTO layout_source_dest(src, dest) VALUES (?,?)"
+        ]
+    (j/execute-one! dbm/pg-db [sql-statement4 new-plate-layout-name-id dest-plate-layout-name-id])
+    )
+  )
