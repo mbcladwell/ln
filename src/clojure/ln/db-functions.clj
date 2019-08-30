@@ -2,42 +2,6 @@
    )
 
 
-
-
-(def drop-new-plate-layout ["DROP FUNCTION IF EXISTS new_plate_layout(  VARCHAR(30), VARCHAR(30), INTEGER,  VARCHAR[][]);"])
-
-(def new-plate-layout ["CREATE OR REPLACE FUNCTION new_plate_layout( _plate_layout_name VARCHAR(30), _descr VARCHAR(30), _plate_format_id INTEGER, _data VARCHAR[][])
-  RETURNS integer AS
-$BODY$
-DECLARE
-   src_id integer;
-   dest_id INTEGER;
-   dest_name VARCHAR(30);
-BEGIN
-
-
-   INSERT INTO plate_layout_name(name, descr, plate_format_id)
-   VALUES (_plate_layout_name, _descr, _plate_format_id)
-   RETURNING id INTO src_id;
-
-dest_name := _plate_layout_name || '-dest';
-
-   INSERT INTO plate_layout_name(name, descr, plate_format_id)
-   VALUES (_plate_layout_name, _descr, _plate_format_id)
-   RETURNING id INTO dest_id;
-
-INSERT INTO layout_source_dest(src, dest) VALUES (src_id, dest_id);
-
-
- 
-RETURN plname_id;
-END;
-$BODY$
-  LANGUAGE plpgsql VOLATILE;"])
-
-
-
-
 (def drop-get-scatter-plot-data ["DROP FUNCTION IF exists get_scatter_plot_data( integer);"])
 
 (def get-scatter-plot-data ["CREATE OR REPLACE FUNCTION get_scatter_plot_data(_assay_run_id INTEGER)
@@ -86,7 +50,7 @@ IF format = 96 THEN
 dest_layout_ids := '{2,3,4,5,6}';
 dest_format := 384;
 END IF;
-
+   
 IF format = 384 THEN
 dest_layout_ids := '{14,15,16,17,18}';
 dest_format := 1536;
@@ -164,10 +128,10 @@ LANGUAGE plpgsql VOLATILE;"] )
 
 
 (def drop-all-functions
-[  drop-new-plate-layout   drop-get-scatter-plot-data  drop-create-layout-records drop-get-all-data-for-assay-run])
+[   drop-get-scatter-plot-data  drop-create-layout-records drop-get-all-data-for-assay-run])
 
 (def all-functions
   ;;for use in a map function that will create all functions
   ;;single command looks like:  (jdbc/drop-table-ddl :lnuser {:conditional? true } )
-  [  new-plate-layout get-scatter-plot-data  create-layout-records get-all-data-for-assay-run])
+  [  get-scatter-plot-data  create-layout-records get-all-data-for-assay-run])
 

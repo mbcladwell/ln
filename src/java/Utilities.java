@@ -49,6 +49,7 @@ public class Utilities {
    */
   public ArrayList<String[]> loadDataFile(String _fileName) {
     String fileName = _fileName;
+    LOGGER.info(fileName);
     Path path = Paths.get(fileName);
     ArrayList<String[]> table = new ArrayList<String[]>();
 
@@ -57,7 +58,7 @@ public class Utilities {
         if (line != null && !line.isEmpty()) {
           String[] values = line.split("\t");
 
-          // LOGGER.info("values: " + values);
+          LOGGER.info("values: " + values);
           table.add(values);
         }
       }

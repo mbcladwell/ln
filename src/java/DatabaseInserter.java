@@ -571,6 +571,15 @@ public class DatabaseInserter {
 	int format = _format;
 	int n_edge = _n_edge;
 
+	// LOGGER.info("data : " + data);
+	// LOGGER.info("name : " + name);
+	// LOGGER.info("descr : " + descr);
+	// LOGGER.info("control_location : " + control_location);
+	// LOGGER.info("n_controls : " + n_controls);
+	// LOGGER.info("n_unknowns : " + n_unknowns);
+	// LOGGER.info(" format: " + format);
+	// LOGGER.info("n_edge : " + n_edge);
+	
 	String sql_statement1="TRUNCATE TABLE import_plate_layout;";
 	
 	String sql_statement2_pre = "INSERT INTO import_plate_layout (well_by_col, well_type_id, replicates, target) VALUES ";
@@ -583,10 +592,12 @@ public class DatabaseInserter {
 	  + Integer.parseInt((String)data[i][1])
 	  + ", 1, 1), ";
     }
-
+	//################Clojure
+	//I will modify so that sql_statement2 update the import temp table proceeds, statement 3
+	//is perfomed in clojure
 	String sql_statement2 = sql_statement2_pre.substring(0, sql_statement2_pre.length() - 2) + ";";
 
-	String sql_statement3 = "SELECT create_layout_records(?,?,?,?,?,?,?);";
+	//	String sql_statement3 = "SELECT create_layout_records(?,?,?,?,?,?,?);";
     //LOGGER.info(insertSql);
     PreparedStatement insertPs;
     try {
@@ -597,19 +608,23 @@ public class DatabaseInserter {
 	
       insertPs = conn.prepareStatement(sql_statement2);
       insertPreparedStatement(insertPs);
-      insertPs = conn.prepareStatement(sql_statement3);
-      insertPs.setString(1, name);
-      insertPs.setString(2, descr);
-      insertPs.setString(3, control_location);
-      insertPs.setInt(4, n_controls);
-      insertPs.setInt(5, n_unknowns);
-      insertPs.setInt(6, format);
-      insertPs.setInt(7, n_edge);
-      insertPreparedStatement(insertPs);
+      // insertPs = conn.prepareStatement(sql_statement3);
+      // insertPs.setString(1, name);
+      // insertPs.setString(2, descr);
+      // insertPs.setString(3, control_location);
+      // insertPs.setInt(4, n_controls);
+      // insertPs.setInt(5, n_unknowns);
+      // insertPs.setInt(6, format);
+      // insertPs.setInt(7, n_edge);
+      // insertPreparedStatement(insertPs);
       //insertPs.addBatch();
       //insertPs.executeBatch();
       //insertPreparedStatement(insertPs);
       conn.commit();
+
+      IFn newPlateLayout = Clojure.var("ln.db-session", "new-plate-layout");
+      newPlateLayout.invoke(data,  name,  descr, control_location, n_controls, n_unknowns, format,  n_edge );
+
     } catch (SQLException sqle) {
       LOGGER.warning("Failed to properly prepare  prepared statement: " + sqle);
       JOptionPane.showMessageDialog(
