@@ -596,7 +596,7 @@ public class DatabaseInserter {
 	//I will modify so that sql_statement2 update the import temp table proceeds, statement 3
 	//is perfomed in clojure
 	String sql_statement2 = sql_statement2_pre.substring(0, sql_statement2_pre.length() - 2) + ";";
-
+	LOGGER.info("ss2: " + sql_statement2);
 	//	String sql_statement3 = "SELECT create_layout_records(?,?,?,?,?,?,?);";
     //LOGGER.info(insertSql);
     PreparedStatement insertPs;
@@ -621,10 +621,11 @@ public class DatabaseInserter {
       //insertPs.executeBatch();
       //insertPreparedStatement(insertPs);
       conn.commit();
-
-      IFn newPlateLayout = Clojure.var("ln.db-session", "new-plate-layout");
+      LOGGER.info("here after commit");
+      IFn newPlateLayout = Clojure.var("ln.db-inserter", "new-plate-layout");
       newPlateLayout.invoke(data,  name,  descr, control_location, n_controls, n_unknowns, format,  n_edge );
-
+     LOGGER.info("here after clojure");
+ 
     } catch (SQLException sqle) {
       LOGGER.warning("Failed to properly prepare  prepared statement: " + sqle);
       JOptionPane.showMessageDialog(
