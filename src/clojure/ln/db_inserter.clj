@@ -494,47 +494,55 @@ first selection: select get in plate, well order, not necessarily sample order "
 (defn new-plate-layout
 "data is an array"
   [ data  source-name  source-description control-loc n-controls n-unk source-format-id  n-edge ]
-  (let [dest-layout-descr [["1S4T"]["2S2T"]["2S4T"]["4S1T"]["4S2T"]]
+  (let [printer (.println (System/out) "in clojure new-plate-layout")
         edge (if (> 0 n-edge) 0 1)
-        dest-layout-ids (if (= 96 source-format-id) [2 3 4 5 6] [14 15 16 17 18]) ;;if not 96 then 384 only options
+        dest-template-layout-ids (if (= 96 source-format-id) [2 3 4 5 6] [14 15 16 17 18]) ;;if not 96 then 384 only options
         dest-format (if (= 96 source-format-id) 384 1536)
-        sql-statement1 (str "INSERT INTO plate_layout_name(name, descr, plate_format_id, replicates, targets, use_edge, num_controls, unknown_n, control_loc, source_dest) VALUES (?,?,?,?,?,?,?,?, 'source')")
+        sql-statement1 (str "INSERT INTO plate_layout_name(name, descr, plate_format_id, replicates, targets, use_edge, num_controls, unknown_n, control_loc, source_dest) VALUES (?,?,?,?,?,?,?,?,?, 'source')")
         source-plate-layout-name-id-pre (j/execute-one! dbm/pg-db [sql-statement1 source-name source-description source-format-id 1 1 edge n-controls n-unk control-loc ]{:return-keys true})
        source-plate-layout-name-id (:plate_layout_name/id source-plate-layout-name-id-pre)
         sql-statement2  "UPDATE plate_layout_name SET sys_name = CONCAT('LYT-', ?) WHERE id=?" 
         a (j/execute-one! dbm/pg-db [sql-statement2 source-plate-layout-name-id source-plate-layout-name-id])
         ;;insert the source layout
        
-        sql-statement3 "INSERT INTO plate_layout( plate_layout_name_id, well_by_col, well_type_id, replicates, target ) VALUES (?,?,?,?,?)"
+        sql-statement3 (str "INSERT INTO plate_layout( plate_layout_name_id, well_by_col, well_type_id, replicates, target ) VALUES (" (str source-plate-layout-name-id )",?,?,?,?)")
         source-data (process-source-layout data)
         b            (with-open [con (j/get-connection dbm/pg-db)
                               ps  (j/prepare con [sql-statement3])]
                        (p/execute-batch! ps source-data))
-        sql-statement-name (str "INSERT INTO plate_layout_name ( descr, plate_format_id, replicates, targets, use_edge, num_controls, unknown_n, control_loc, source_dest) VALUES ( ?, ?, 1, 1, ?, ?, ?, ?, 'dest')")
+        sql-statement-name  "INSERT INTO plate_layout_name ( descr, plate_format_id, replicates, targets, use_edge, num_controls, unknown_n, control_loc, source_dest) VALUES ( ?, ?, 1, 1, ?, ?, ?, ?, 'dest')"
         sql-statement-name-update "UPDATE plate_layout_name SET sys_name = CONCAT('LYT-',?) WHERE id=?"
-        sql-statement-layout (str "INSERT INTO plate_layout (SELECT dest_id AS \"plate_layout_name_id\", well_numbers.by_col AS \"well_by_col\", import_plate_layout.well_type_id, plate_layout.replicates, plate_layout.target FROM well_numbers, import_plate_layout, plate_layout WHERE well_numbers.plate_format = ? AND import_plate_layout.well_by_col=well_numbers.parent_well AND plate_layout.plate_layout_name_id= ?  AND plate_layout.well_by_col=well_numbers.by_col)")
-        sql-statement-src-dest "INSERT INTO layout_source_dest (src, dest) VALUES (source_id, dest_id)"
+        sql-statement-layout (str "INSERT INTO plate_layout (SELECT ? AS \"plate_layout_name_id\", well_numbers.by_col AS \"well_by_col\", import_plate_layout.well_type_id, plate_layout.replicates, plate_layout.target FROM well_numbers, import_plate_layout, plate_layout WHERE well_numbers.plate_format = ? AND import_plate_layout.well_by_col=well_numbers.parent_well AND plate_layout.plate_layout_name_id= ?  AND plate_layout.well_by_col=well_numbers.by_col)")
+        sql-statement-src-dest "INSERT INTO layout_source_dest (src, dest) VALUES (?,?)"
+        dl-descr-first (first dest-layout-descr);;this is a vector so another first to get the string
+        ;;tried to do this with loop recur but id always lags
+        dest-layout-descr [["1S4T"]["2S2T"]["2S4T"]["4S1T"]["4S2T"]]
+        dest-id1 (:plate_layout_name/id (j/execute-one! dbm/pg-db [sql-statement-name "1S4T" dest-format edge n-controls n-unk control-loc ]{:return-keys true}))
+        c (j/execute-one! dbm/pg-db [sql-statement-name-update dest-id1 dest-id1])
+        d (j/execute-one! dbm/pg-db [sql-statement-layout dest-id1 dest-format  (first dest-template-layout-ids) ])
+
+          dest-id2 (:plate_layout_name/id (j/execute-one! dbm/pg-db [sql-statement-name "2S2T" dest-format edge n-controls n-unk control-loc ]{:return-keys true}))
+        e (j/execute-one! dbm/pg-db [sql-statement-name-update dest-id2 dest-id2])
+        f (j/execute-one! dbm/pg-db [sql-statement-layout dest-id2 dest-format  (first (rest dest-template-layout-ids)) ])
+
+          dest-id3 (:plate_layout_name/id (j/execute-one! dbm/pg-db [sql-statement-name "2S4T" dest-format edge n-controls n-unk control-loc ]{:return-keys true}))
+        g (j/execute-one! dbm/pg-db [sql-statement-name-update dest-id3 dest-id3])
+        h (j/execute-one! dbm/pg-db [sql-statement-layout dest-id3 dest-format  (first (rest (rest dest-template-layout-ids))) ])
+
+          dest-id4 (:plate_layout_name/id (j/execute-one! dbm/pg-db [sql-statement-name "4S1T" dest-format edge n-controls n-unk control-loc ]{:return-keys true}))
+        i (j/execute-one! dbm/pg-db [sql-statement-name-update dest-id4 dest-id4])
+        j (j/execute-one! dbm/pg-db [sql-statement-layout dest-id4 dest-format  (first (rest (rest (rest dest-template-layout-ids)))) ])
+
+          dest-id5 (:plate_layout_name/id (j/execute-one! dbm/pg-db [sql-statement-name "4S2T" dest-format edge n-controls n-unk control-loc ]{:return-keys true}))
+        k (j/execute-one! dbm/pg-db [sql-statement-name-update dest-id5 dest-id5])
+        l (j/execute-one! dbm/pg-db [sql-statement-layout dest-id5 dest-format  (first (rest (rest (rest (rest dest-template-layout-ids))))) ])
+        content [[source-plate-layout-name-id dest-id1 ][source-plate-layout-name-id dest-id2][source-plate-layout-name-id dest-id3 ][source-plate-layout-name-id  dest-id4 ][source-plate-layout-name-id dest-id5]]
         ]
-    
-  (loop [
-         dl-descr-first (first dest-layout-descr)
-         dl-desc-rest (rest dest-layout-descr)
-         dest-id (j/execute-one! dbm/pg-db [sql-statement-name dl-descr-first dest-format n-controls n-unk control-loc ]{:return-keys true})
-         dummy  (j/execute-one! dbm/pg-db [sql-statement-name-update dest-id dest-id])
-         dummy2 (j/execute-one! dbm/pg-db [sql-statement-layout dest-format dest-id ])
-         dummy3 (j/execute-one! dbm/pg-db [sql-statement-src-dest source-plate-layout-name-id dest-id])
-         counter 1
-         ]
-    (if (= counter 5) dest-id
-    (recur
-     (first dl-desc-rest)
-     (rest dl-desc-rest)
-     (j/execute-one! dbm/pg-db [sql-statement-name dl-descr-first dest-format n-controls n-unk control-loc ]{:return-keys true})
-     (j/execute-one! dbm/pg-db [sql-statement-name-update dest-id dest-id])
-     (j/execute-one! dbm/pg-db [sql-statement-layout dest-format dest-id ])
-     (j/execute-one! dbm/pg-db [sql-statement-src-dest source-plate-layout-name-id dest-id])
-     (+ 1 counter)
-    )) )))
+        (with-open [con (j/get-connection dbm/pg-db)
+                              ps  (j/prepare con [sql-statement-src-dest])]
+          (p/execute-batch! ps content))
+        source-plate-layout-name-id
+    )) 
 
 ;;(new-plate-layout a "MyLayoutName" "1S1T" "scattered" 8 300 384 76 )
 
@@ -617,31 +625,6 @@ first selection: select get in plate, well order, not necessarily sample order "
  ["375", "5"], ["376", "5"], ["377", "5"], ["378", "5"], ["379", "5"],
         ["380", "5"], ["381", "5"], ["382", "5"], ["383", "5"], ["384", "5"]])
 
-
-(def b  [["well", "type"], ["1", "5"], ["2", "5"], ["3", "5"], ["4", "5"],
-         ["5", "5"]])
-
-(first (first (rest b)))
-(def c (rest b))
-(first c)
-(let [ c (rest b)
-      num (count c)    
-      ]
-  (println num)
-  (loop [ new-set #{}
-         first-item (first c)
-         remaining (rest c)
-         counter 1]
-    (if(= counter num) new-set
-       
-       ( recur
-       
-       (s/union new-set #{[(Integer/parseInt (first first-item)) (Integer/parseInt (first(rest first-item))) 1 1]})
-        (first remaining)
-        (rest remaining)
-        (+ 1 counter)
-        ))
-
-    ))
-
-(Integer/parseInt (first (first c)))(Integer/parseInt (first(rest (first c))))
+(def m  [["1S4T"]["2S2T"]["2S4T"]["4S1T"]["4S2T"]])
+(first m)
+(rest (rest m))

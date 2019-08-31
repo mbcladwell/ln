@@ -623,13 +623,13 @@ public class DatabaseInserter {
       conn.commit();
       LOGGER.info("here after commit");
       IFn newPlateLayout = Clojure.var("ln.db-inserter", "new-plate-layout");
-      newPlateLayout.invoke(data,  name,  descr, control_location, n_controls, n_unknowns, format,  n_edge );
+        newPlateLayout.invoke(data,  name,  descr, control_location, n_controls, n_unknowns, format,  n_edge );
      LOGGER.info("here after clojure");
  
     } catch (SQLException sqle) {
       LOGGER.warning("Failed to properly prepare  prepared statement: " + sqle);
       JOptionPane.showMessageDialog(
-          dmf, "Problems parsing data file!.", "Error", JOptionPane.ERROR_MESSAGE);
+          dmf, "Problems parsing data file!", "Error", JOptionPane.ERROR_MESSAGE);
       return;
     }
 
