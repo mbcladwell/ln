@@ -514,9 +514,9 @@ first selection: select get in plate, well order, not necessarily sample order "
         sql-statement-name-update "UPDATE plate_layout_name SET sys_name = CONCAT('LYT-',?) WHERE id=?"
         sql-statement-layout (str "INSERT INTO plate_layout (SELECT ? AS \"plate_layout_name_id\", well_numbers.by_col AS \"well_by_col\", import_plate_layout.well_type_id, plate_layout.replicates, plate_layout.target FROM well_numbers, import_plate_layout, plate_layout WHERE well_numbers.plate_format = ? AND import_plate_layout.well_by_col=well_numbers.parent_well AND plate_layout.plate_layout_name_id= ?  AND plate_layout.well_by_col=well_numbers.by_col)")
         sql-statement-src-dest "INSERT INTO layout_source_dest (src, dest) VALUES (?,?)"
-        dl-descr-first (first dest-layout-descr);;this is a vector so another first to get the string
         ;;tried to do this with loop recur but id always lags
         dest-layout-descr [["1S4T"]["2S2T"]["2S4T"]["4S1T"]["4S2T"]]
+        dl-descr-first (first dest-layout-descr);;this is a vector so another first to get the string
         dest-id1 (:plate_layout_name/id (j/execute-one! dbm/pg-db [sql-statement-name "1S4T" dest-format edge n-controls n-unk control-loc ]{:return-keys true}))
         c (j/execute-one! dbm/pg-db [sql-statement-name-update dest-id1 dest-id1])
         d (j/execute-one! dbm/pg-db [sql-statement-layout dest-id1 dest-format  (first dest-template-layout-ids) ])
@@ -547,84 +547,20 @@ first selection: select get in plate, well order, not necessarily sample order "
 ;;(new-plate-layout a "MyLayoutName" "1S1T" "scattered" 8 300 384 76 )
 
 
-(def a [["well", "type"], ["1", "5"], ["2", "5"], ["3", "5"], ["4", "5"],
- ["5", "5"], ["6", "5"], ["7", "5"], ["8", "5"], ["9", "5"],
- ["10", "5"], ["11", "5"], ["12", "5"], ["13", "5"], ["14", "5"],
- ["15", "5"], ["16", "5"], ["17", "5"], ["18", "1"], ["19", "1"],
- ["20", "1"], ["21", "1"], ["22", "1"], ["23", "1"], ["24", "1"],
- ["25", "1"], ["26", "1"], ["27", "1"], ["28", "1"], ["29", "1"],
- ["30", "1"], ["31", "1"], ["32", "5"], ["33", "5"], ["34", "1"],
- ["35", "1"], ["36", "1"], ["37", "1"], ["38", "1"], ["39", "1"],
- ["40", "1"], ["41", "1"], ["42", "1"], ["43", "1"], ["44", "1"],
- ["45", "1"], ["46", "1"], ["47", "1"], ["48", "5"], ["49", "5"],
- ["50", "1"], ["51", "1"], ["52", "1"], ["53", "1"], ["54", "1"],
- ["55", "2"], ["56", "1"], ["57", "1"], ["58", "1"], ["59", "1"],
- ["60", "1"], ["61", "1"], ["62", "1"], ["63", "1"], ["64", "5"],
- ["65", "5"], ["66", "1"], ["67", "1"], ["68", "1"], ["69", "1"],
- ["70", "1"], ["71", "1"], ["72", "1"], ["73", "1"], ["74", "1"],
- ["75", "1"], ["76", "1"], ["77", "1"], ["78", "1"], ["79", "1"],
- ["80", "5"], ["81", "5"], ["82", "1"], ["83", "1"], ["84", "1"],
- ["85", "1"], ["86", "1"], ["87", "1"], ["88", "1"], ["89", "1"],
- ["90", "1"], ["91", "1"], ["92", "1"], ["93", "1"], ["94", "1"],
- ["95", "1"], ["96", "5"], ["97", "5"], ["98", "3"], ["99", "1"],
- ["100", "1"], ["101", "1"], ["102", "1"], ["103", "1"], ["104", "1"],
- ["105", "1"], ["106", "1"], ["107", "1"], ["108", "1"], ["109", "1"],
- ["110", "1"], ["111", "1"], ["112", "5"], ["113", "5"], ["114", "1"],
- ["115", "1"], ["116", "1"], ["117", "1"], ["118", "1"], ["119", "1"],
- ["120", "1"], ["121", "1"], ["122", "1"], ["123", "1"], ["124", "1"],
- ["125", "2"], ["126", "1"], ["127", "1"], ["128", "5"], ["129", "5"],
- ["130", "1"], ["131", "1"], ["132", "1"], ["133", "1"], ["134", "1"],
- ["135", "1"], ["136", "1"], ["137", "1"], ["138", "1"], ["139", "1"],
- ["140", "1"], ["141", "1"], ["142", "1"], ["143", "1"], ["144", "5"],
- ["145", "5"], ["146", "1"], ["147", "1"], ["148", "1"], ["149", "1"],
- ["150", "1"], ["151", "1"], ["152", "1"], ["153", "1"], ["154", "1"],
- ["155", "1"], ["156", "1"], ["157", "1"], ["158", "1"], ["159", "1"],
- ["160", "5"], ["161", "5"], ["162", "1"], ["163", "1"], ["164", "1"],
- ["165", "1"], ["166", "1"], ["167", "1"], ["168", "1"], ["169", "1"],
- ["170", "1"], ["171", "1"], ["172", "1"], ["173", "1"], ["174", "1"],
- ["175", "1"], ["176", "5"], ["177", "5"], ["178", "1"], ["179", "1"],
- ["180", "1"], ["181", "1"], ["182", "1"], ["183", "1"], ["184", "4"],
- ["185", "1"], ["186", "1"], ["187", "1"], ["188", "1"], ["189", "1"],
- ["190", "1"], ["191", "1"], ["192", "5"], ["193", "5"], ["194", "1"],
- ["195", "1"], ["196", "1"], ["197", "1"], ["198", "1"], ["199", "1"],
- ["200", "1"], ["201", "1"], ["202", "1"], ["203", "1"], ["204", "1"],
- ["205", "1"], ["206", "1"], ["207", "1"], ["208", "5"], ["209", "5"],
- ["210", "1"], ["211", "1"], ["212", "1"], ["213", "1"], ["214", "1"],
- ["215", "1"], ["216", "1"], ["217", "1"], ["218", "1"], ["219", "1"],
- ["220", "1"], ["221", "1"], ["222", "1"], ["223", "1"], ["224", "5"],
- ["225", "5"], ["226", "1"], ["227", "1"], ["228", "1"], ["229", "1"],
- ["230", "1"], ["231", "1"], ["232", "1"], ["233", "1"], ["234", "1"],
- ["235", "1"], ["236", "1"], ["237", "1"], ["238", "1"], ["239", "1"],
- ["240", "5"], ["241", "5"], ["242", "1"], ["243", "1"], ["244", "1"],
- ["245", "1"], ["246", "1"], ["247", "1"], ["248", "1"], ["249", "1"],
- ["250", "1"], ["251", "1"], ["252", "1"], ["253", "1"], ["254", "1"],
- ["255", "1"], ["256", "5"], ["257", "5"], ["258", "1"], ["259", "1"],
- ["260", "1"], ["261", "1"], ["262", "1"], ["263", "1"], ["264", "1"],
- ["265", "1"], ["266", "1"], ["267", "1"], ["268", "1"], ["269", "1"],
- ["270", "2"], ["271", "1"], ["272", "5"], ["273", "5"], ["274", "1"],
- ["275", "1"], ["276", "1"], ["277", "1"], ["278", "1"], ["279", "1"],
- ["280", "1"], ["281", "1"], ["282", "1"], ["283", "1"], ["284", "1"],
- ["285", "1"], ["286", "1"], ["287", "1"], ["288", "5"], ["289", "5"],
- ["290", "1"], ["291", "1"], ["292", "1"], ["293", "1"], ["294", "1"],
- ["295", "1"], ["296", "1"], ["297", "1"], ["298", "1"], ["299", "1"],
- ["300", "1"], ["301", "1"], ["302", "1"], ["303", "1"], ["304", "5"],
- ["305", "5"], ["306", "1"], ["307", "1"], ["308", "1"], ["309", "1"],
- ["310", "1"], ["311", "1"], ["312", "1"], ["313", "1"], ["314", "1"],
- ["315", "1"], ["316", "1"], ["317", "1"], ["318", "1"], ["319", "1"],
- ["320", "5"], ["321", "5"], ["322", "1"], ["323", "1"], ["324", "2"],
- ["325", "1"], ["326", "1"], ["327", "1"], ["328", "1"], ["329", "1"],
- ["330", "1"], ["331", "1"], ["332", "1"], ["333", "1"], ["334", "1"],
- ["335", "1"], ["336", "5"], ["337", "5"], ["338", "1"], ["339", "1"],
- ["340", "1"], ["341", "1"], ["342", "1"], ["343", "1"], ["344", "1"],
- ["345", "1"], ["346", "4"], ["347", "1"], ["348", "1"], ["349", "1"],
- ["350", "1"], ["351", "1"], ["352", "5"], ["353", "5"], ["354", "1"],
- ["355", "1"], ["356", "3"], ["357", "1"], ["358", "1"], ["359", "1"],
- ["360", "1"], ["361", "1"], ["362", "1"], ["363", "1"], ["364", "1"],
- ["365", "1"], ["366", "1"], ["367", "1"], ["368", "5"], ["369", "5"],
- ["370", "5"], ["371", "5"], ["372", "5"], ["373", "5"], ["374", "5"],
- ["375", "5"], ["376", "5"], ["377", "5"], ["378", "5"], ["379", "5"],
-        ["380", "5"], ["381", "5"], ["382", "5"], ["383", "5"], ["384", "5"]])
+(defn get-all-data-for-assay-run
+  ""
+  [ assay-run-id ]
+  (let [
+        sql-statement "SELECT assay_run.assay_run_sys_name, plate_set.plate_set_sys_name , plate.plate_sys_name, plate_plate_set.plate_order, well_numbers.well_name, well_type.name, well.by_col, well.ID AS \"well_id\", assay_result.response, assay_result.bkgrnd_sub, assay_result.norm, assay_result.norm_pos, assay_result.p_enhance, plate_layout.target, well.ID AS \"well_id\", sample.sample_sys_name, sample.accs_id   FROM  plate_layout_name , plate_set, plate_plate_set, plate, well, assay_result, assay_run, well_numbers, plate_layout, well_type, well_sample, sample WHERE plate_plate_set.plate_set_id=plate_set.id AND plate_plate_set.plate_id=plate.ID and plate.id=well.plate_id  AND plate_set.ID = assay_run.plate_set_id AND assay_result.assay_run_id= assay_run.id AND assay_result.plate_order=plate_plate_set.plate_order AND assay_result.well=well.by_col AND assay_run.ID = ? AND well_numbers.plate_format= plate_layout_name.plate_format_id AND well_numbers.by_col=well.by_col AND plate_layout_name.ID= assay_run.plate_layout_name_id AND plate_layout.plate_layout_name_id= assay_run.plate_layout_name_id AND plate_layout.well_type_id=well_type.ID AND plate_layout.well_by_col=well.by_col AND well_sample.sample_id=sample.ID AND well_sample.well_id=well.ID AND well.ID IN (SELECT well.ID FROM  plate_plate_set, plate, well WHERE plate_plate_set.plate_id = plate.ID AND well.plate_id = plate.ID AND plate_plate_set.plate_set_id = assay_run.plate_set_id)"       
+        a  (proto/-execute-all dbm/pg-db [sql-statement assay-run-id ]{:label-fn rs/as-unqualified-maps :builder-fn rs/as-unqualified-maps} )
+        b (s/project  [:plate :well :response :bkgrnd_sub :norm :norm_pos :p_enhance])
+           b (into [] a)
+           content (into [] (map #(process-assay-results-to-load %) b))
+        
+        
+        ]
+  
+(println plate-set-data )
 
-(def m  [["1S4T"]["2S2T"]["2S4T"]["4S1T"]["4S2T"]])
-(first m)
-(rest (rest m))
+    ))
+(get-all-data-for-assay-run 33)
