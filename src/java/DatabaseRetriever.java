@@ -957,13 +957,13 @@ int plate_layout_name_id = _plate_layout_name_id;
      */
 
     /**
-     * Called from 
+     * Called from AssayRunViewer
      */
    public String[][] getAssayRunData(int  _assay_run_id){
 
 	int assay_run_id = _assay_run_id;
 	CustomTable ct;
-	String sqlstring = "Select * from get_all_data_for_assay_run(?)";
+	String sqlstring = "SELECT assay_run.assay_run_sys_name, plate_set.plate_set_sys_name , plate.plate_sys_name, plate_plate_set.plate_order, well_numbers.well_name, well_type.name, well.by_col, assay_result.response, assay_result.bkgrnd_sub, assay_result.norm, assay_result.norm_pos, assay_result.p_enhance, sample.sample_sys_name, sample.accs_id, plate_layout.target   FROM  plate_layout_name , plate_set, plate_plate_set, plate, well, assay_result, assay_run, well_numbers, plate_layout, well_type, well_sample, sample WHERE plate_plate_set.plate_set_id=plate_set.id AND plate_plate_set.plate_id=plate.ID and plate.id=well.plate_id  AND plate_set.ID = assay_run.plate_set_id AND assay_result.assay_run_id= assay_run.id AND assay_result.plate_order=plate_plate_set.plate_order AND assay_result.well=well.by_col AND assay_run.ID = ? AND well_numbers.plate_format= plate_layout_name.plate_format_id AND well_numbers.by_col=well.by_col AND plate_layout_name.ID= assay_run.plate_layout_name_id AND plate_layout.plate_layout_name_id= assay_run.plate_layout_name_id AND plate_layout.well_type_id=well_type.ID AND plate_layout.well_by_col=well.by_col AND well_sample.sample_id=sample.ID AND well_sample.well_id=well.ID AND well.ID IN (SELECT well.ID FROM  plate_plate_set, plate, well WHERE plate_plate_set.plate_id = plate.ID AND well.plate_id = plate.ID AND plate_plate_set.plate_set_id = assay_run.plate_set_id)";
 
 	//LOGGER.info("SQL : " + sqlstring);
 
@@ -1077,62 +1077,6 @@ int plate_layout_name_id = _plate_layout_name_id;
     }
 
 
-    /*  Before converting to handling int array
-    
-    public String[][] getAssayRunData(int _assay_run_id){
-
-	int assay_run_id = _assay_run_id;
-	CustomTable ct;
-	String sqlstring = "SELECT plate_set.plate_set_sys_name as \"Plate SET\", plate.plate_sys_name as \"Plate\", assay_result.well, assay_result.response, assay_result.bkgrnd_sub,   assay_result.norm,  assay_result.norm_pos  FROM assay_result, assay_run, plate_plate_set, plate_set, plate WHERE assay_run.plate_set_id=plate_plate_set.plate_set_id and assay_result.assay_run_id=assay_run.id AND plate_plate_set.plate_order=assay_result.plate_order AND plate_plate_set.plate_set_id=plate_set.id AND plate_plate_set.plate_id=plate.ID and assay_run.id = ?;";
-	//LOGGER.info("SQL : " + sqlstring);
-
-	try {
-	    PreparedStatement preparedStatement =
-		conn.prepareStatement(sqlstring, Statement.RETURN_GENERATED_KEYS);
-	    preparedStatement.setInt(1, assay_run_id);
-	    preparedStatement.executeQuery(); // executeUpdate expects no returns!!!
-	    ResultSet rs = preparedStatement.getResultSet();
-	     ResultSetMetaData metaData = rs.getMetaData();
-
-    // names of columns
-    Vector<String> columnNames = new Vector<String>();
-    int columnCount = metaData.getColumnCount();
-    for (int column = 1; column <= columnCount; column++) {
-        columnNames.add(metaData.getColumnName(column));
-    }
-
-    //set up a row counter which will generate a vector of selected row indices
-    //used to select all rows for export to a spreadsheet
-    Integer row_counter = 0;
-    Vector<Integer> selected_rows = new Vector<Integer>();
-    // data of the table
-    Vector<Vector<Object>> data = new Vector<Vector<Object>>();
-    while (rs.next()) {
-        Vector<Object> vector = new Vector<Object>();
-        for (int columnIndex = 1; columnIndex <= columnCount; columnIndex++) {
-            vector.add(rs.getObject(columnIndex));
-        }
-        data.add(vector);
-	selected_rows.add(row_counter);
-	row_counter = row_counter + 1;
-    }
-
-    ct = new CustomTable( dmf, new DefaultTableModel(data, columnNames));
-    ct.setSelectedRows(selected_rows);
-
-    return ct.getSelectedRowsAndHeaderAsStringArray();
-    
-	    // LOGGER.info("resultset: " + result);
-
-	} catch (SQLException sqle) {
-	    LOGGER.warning("SQLE at getPlateLayoutNameIDforPlateSetID: " + sqle);
-	}
-	return null;
-    }
-
-    */
-    
-    
     
   public int getAssayIDForAssayType(String _assay_name) {
     int result = 0;
@@ -1295,7 +1239,7 @@ int plate_layout_name_id = _plate_layout_name_id;
 	//ArrayList result = new ArrayList();
  try {
       PreparedStatement pstmt =
-          conn.prepareStatement("SELECT * FROM get_scatter_plot_data(?);");
+          conn.prepareStatement("SELECT  plate_plate_set.plate_order, well_numbers.by_col,   assay_result.response, assay_result.bkgrnd_sub, assay_result.norm, assay_result.norm_pos, assay_result.p_enhance, plate_layout.well_type_id,   plate_layout.replicates, plate_layout.target, sample.id FROM  plate_layout_name , plate_set, plate_plate_set, plate, well, assay_result, assay_run, well_numbers, plate_layout, well_type, well_sample, sample WHERE plate_plate_set.plate_set_id=plate_set.id AND plate_plate_set.plate_id=plate.ID and plate.id=well.plate_id  AND plate_set.ID = assay_run.plate_set_id AND assay_result.assay_run_id= assay_run.id AND assay_result.plate_order=plate_plate_set.plate_order AND assay_result.well=well.by_col AND assay_run.ID = ? AND well_numbers.plate_format= plate_layout_name.plate_format_id AND well_numbers.by_col=well.by_col AND plate_layout_name.ID= assay_run.plate_layout_name_id AND plate_layout.plate_layout_name_id= assay_run.plate_layout_name_id AND plate_layout.well_type_id=well_type.ID AND plate_layout.well_by_col=well.by_col AND well_sample.sample_id=sample.ID AND well_sample.well_id=well.ID AND well.ID IN (SELECT well.ID FROM  plate_plate_set, plate, well WHERE plate_plate_set.plate_id = plate.ID AND well.plate_id = plate.ID AND plate_plate_set.plate_set_id = assay_run.plate_set_id);");
       pstmt.setInt(1, _assay_run_id);
 
       ResultSet rs = pstmt.executeQuery();

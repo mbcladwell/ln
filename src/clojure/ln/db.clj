@@ -32,7 +32,6 @@
 ;;whatismyip.com
 
 (load "/ln/data-sets")
-(load "/ln/db-functions")
 (load "/ln/example-data")
 (load "/ln/plate-layout-data")
 

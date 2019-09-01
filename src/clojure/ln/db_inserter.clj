@@ -546,21 +546,3 @@ first selection: select get in plate, well order, not necessarily sample order "
 
 ;;(new-plate-layout a "MyLayoutName" "1S1T" "scattered" 8 300 384 76 )
 
-
-(defn get-all-data-for-assay-run
-  ""
-  [ assay-run-id ]
-  (let [
-        sql-statement "SELECT assay_run.assay_run_sys_name, plate_set.plate_set_sys_name , plate.plate_sys_name, plate_plate_set.plate_order, well_numbers.well_name, well_type.name, well.by_col, well.ID AS \"well_id\", assay_result.response, assay_result.bkgrnd_sub, assay_result.norm, assay_result.norm_pos, assay_result.p_enhance, plate_layout.target, well.ID AS \"well_id\", sample.sample_sys_name, sample.accs_id   FROM  plate_layout_name , plate_set, plate_plate_set, plate, well, assay_result, assay_run, well_numbers, plate_layout, well_type, well_sample, sample WHERE plate_plate_set.plate_set_id=plate_set.id AND plate_plate_set.plate_id=plate.ID and plate.id=well.plate_id  AND plate_set.ID = assay_run.plate_set_id AND assay_result.assay_run_id= assay_run.id AND assay_result.plate_order=plate_plate_set.plate_order AND assay_result.well=well.by_col AND assay_run.ID = ? AND well_numbers.plate_format= plate_layout_name.plate_format_id AND well_numbers.by_col=well.by_col AND plate_layout_name.ID= assay_run.plate_layout_name_id AND plate_layout.plate_layout_name_id= assay_run.plate_layout_name_id AND plate_layout.well_type_id=well_type.ID AND plate_layout.well_by_col=well.by_col AND well_sample.sample_id=sample.ID AND well_sample.well_id=well.ID AND well.ID IN (SELECT well.ID FROM  plate_plate_set, plate, well WHERE plate_plate_set.plate_id = plate.ID AND well.plate_id = plate.ID AND plate_plate_set.plate_set_id = assay_run.plate_set_id)"       
-        a  (proto/-execute-all dbm/pg-db [sql-statement assay-run-id ]{:label-fn rs/as-unqualified-maps :builder-fn rs/as-unqualified-maps} )
-        b (s/project  [:plate :well :response :bkgrnd_sub :norm :norm_pos :p_enhance])
-           b (into [] a)
-           content (into [] (map #(process-assay-results-to-load %) b))
-        
-        
-        ]
-  
-(println plate-set-data )
-
-    ))
-(get-all-data-for-assay-run 33)
