@@ -396,7 +396,10 @@ first selection: select get in plate, well order, not necessarily sample order "
 
 
 
-(defn process-plate-of-data [plate-data id]
+(defn process-plate-of-data
+  ;;plate-data:
+  ;;id: 
+  [plate-data id]
         (let [ 
                 ;;plate-data (s/select #(= (:plate %) individual-plate) joined-data)
                 positives (is/mean (map #(get % :response)(into [](s/select #(= (:well_type_id %) 2) plate-data))))

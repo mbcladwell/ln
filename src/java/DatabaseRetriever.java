@@ -1240,9 +1240,11 @@ int plate_layout_name_id = _plate_layout_name_id;
 	int assay_run_id = _assay_run_id;
 	//ArrayList result = new ArrayList();
  try {
+     //do not inluce sample.id in query or you get only well_type=1 (unknowns); must do outer join
       PreparedStatement pstmt =
-          conn.prepareStatement("SELECT assay_result.plate_order,assay_result.well, assay_result.response, assay_result.bkgrnd_sub, assay_result.norm, assay_result.norm_pos, assay_result.p_enhance, plate_layout.well_type_id, plate_layout.replicates, plate_layout.target, well_sample.sample_id FROM assay_run, assay_result, plate_layout, plate_plate_set, plate_set, plate,  well,  well_sample, sample WHERE assay_result.plate_order=plate_plate_set.plate_order AND assay_result.well = plate_layout.well_by_col AND assay_result.assay_run_id = assay_run.id AND plate_layout.plate_layout_name_id = assay_run.plate_layout_name_id AND plate_plate_set.plate_set_id = plate_set.ID AND plate_plate_set.plate_id = plate.ID AND well.plate_id = plate.id  and well_sample.well_id=well.ID AND well_sample.sample_id=sample.id AND plate_plate_set.plate_set_id = assay_run.plate_set_id AND assay_run_id =?;");
+          conn.prepareStatement("SELECT * FROM (SELECT  assay_result.plate_order,assay_result.well, assay_result.response, assay_result.bkgrnd_sub, assay_result.norm, assay_result.norm_pos, assay_result.p_enhance, assay_run.plate_set_id, assay_run.plate_layout_name_id, plate_layout.well_type_id, plate_layout.replicates, plate_layout.target FROM assay_run, assay_result JOIN plate_layout ON ( assay_result.well = plate_layout.well_by_col) WHERE assay_result.assay_run_id = assay_run.id  AND assay_run.ID = > AND plate_layout.plate_layout_name_id = assay_run.plate_layout_name_id) temp1 LEFT OUTER JOIN (SELECT plate_plate_set.plate_order, well.by_col, well_sample.sample_id FROM  plate_plate_set, plate_set, plate,  well,  well_sample, assay_run, sample WHERE plate_plate_set.plate_set_id = plate_set.ID AND plate_plate_set.plate_id = plate.ID AND well.plate_id = plate.id  and well_sample.well_id=well.ID AND well_sample.sample_id=sample.id AND plate_plate_set.plate_set_id = assay_run.plate_set_id AND assay_run.ID = ?) temp2 ON (temp1.plate_order=temp2.plate_order AND temp1.well= temp2.by_col);");
       pstmt.setInt(1, _assay_run_id);
+      pstmt.setInt(2, _assay_run_id);
 
       ResultSet rs = pstmt.executeQuery();      
       table = new CustomTable(dmf, dbm.buildTableModel(rs));

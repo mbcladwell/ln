@@ -36,37 +36,41 @@
              ))
 ;;(add-plate-sets)
 
-(defn add-assay-runs []
-  (do    
-    (dbi/create-assay-run "assay_run1", "PS-1 LYT-1;96;4in12", 1, 1, 1)          
-    (dbi/create-assay-run "assay_run2", "PS-2 LYT-1/;96/;4in12", 1, 2, 1) 
-    (dbi/create-assay-run "assay_run3", "PS-3 LYT-1/;96/;4in12", 5, 3, 1) 
-    (dbi/create-assay-run "assay_run4", "PS-4 LYT-13/;384/;8in24", 1, 4, 13) 
-    (dbi/create-assay-run "assay_run5", "PS-5 LYT-37/;1536/;32in47,48", 1, 5, 37) 
-                     ))
-;;(add-assay-runs)
+(defn load-assay-data
+  "hits must be handle separately so name and description can be entered"
+  [] 
+  (do
+    (dbi/associate-data-with-plate-set "assay_run1", "PS-1 LYT-1;96;4in12", ["PS-1"] 96, 1, 1, "resources/raw_plate_data/ar1raw.txt" false nil nil)
+    (dbi/associate-data-with-plate-set "assay_run2", "PS-2 LYT-1;96;4in12", ["PS-2"] 96, 1, 1, "resources/raw_plate_data/ar2raw.txt" false nil nil)
+    (dbi/associate-data-with-plate-set "assay_run3", "PS-3 LYT-1;96;4in12", ["PS-3"] 96, 5, 1, "resources/raw_plate_data/ar3raw.txt" false nil nil)
+    (dbi/associate-data-with-plate-set "assay_run4", "PS-4 LYT-13;384;8in24", ["PS-4"] 384, 1, 13, "resources/raw_plate_data/ar4raw.txt" false nil nil)
+    (dbi/associate-data-with-plate-set "assay_run5", "PS-5 LYT-37;1536;32in47,48", ["PS-5"] 1536, 1, 37, "resources/raw_plate_data/ar5raw.txt" false nil nil)))
+    
+                                   
+    
+;;     (dbi/create-assay-run "assay_run1", "PS-1 LYT-1;96;4in12", 1, 1, 1)          
+;;     (dbi/create-assay-run "assay_run2", "PS-2 LYT-1/;96/;4in12", 1, 2, 1) 
+;;     (dbi/create-assay-run "assay_run3", "PS-3 LYT-1/;96/;4in12", 5, 3, 1) 
+;;     (dbi/create-assay-run "assay_run4", "PS-4 LYT-13/;384/;8in24", 1, 4, 13) 
+;;     (dbi/create-assay-run "assay_run5", "PS-5 LYT-37/;1536/;32in47,48", 1, 5, 37) 
+;;                      ))
+;; ;
+                                        ;(add-assay-runs)  NO!! handled
 
 
-;;(dbi/load-assay-results assay-data)
+(defn add-hit-lists []
+                    (dbi/new-hit-list "hit list 1", "descr1", 10, 1,   [87 39 51 59 16 49 53 73 65 43]) 
+                    (dbi/new-hit-list "hit list 2", "descr2", 20, 1,   [154, 182, 124, 172, 171, 164, 133, 155, 152, 160, 118, 93, 123, 142, 183, 145, 95, 120, 158, 131]) 
+                    (dbi/new-hit-list "hit list 3", "descr3", 10, 2,   [216, 193, 221, 269, 244, 252, 251, 204, 217, 256]) 
+                    (dbi/new-hit-list "hit list 4", "descr4", 20, 2,   [311, 277, 357, 314, 327, 303, 354, 279, 346, 318, 344, 299, 355, 300, 325, 290, 278, 326, 282, 334]) 
+                    (dbi/new-hit-list "hit list 5", "descr5", 10, 3,  [410, 412, 393, 397, 442, 447, 428, 374, 411, 437]) 
+                    (dbi/new-hit-list "hit list 6", "descr6", 20, 3,  [545, 514, 479, 516, 528, 544, 501, 472, 463, 494, 531, 482, 513, 468, 465, 510, 535, 478, 502, 488]))
 
-(def process-assay-run-data [
-                            (process-assay-run-data 1) 
-                            (process-assay-run-data 2) 
-                            (process-assay-run-data 3) 
-                            (process-assay-run-data 4) 
-                            (process-assay-run-data 5) 
-                             ])
-(def add-hit-lists [
-                    (new-hit-list "hit list 1", "descr1", 10, 1, 1,  ARRAY[87, 39, 51, 59, 16, 49, 53, 73, 65, 43]) 
-                    (new-hit-list "hit list 2", "descr2", 20, 1, 1,  ARRAY[154, 182, 124, 172, 171, 164, 133, 155, 152, 160, 118, 93, 123, 142, 183, 145, 95, 120, 158, 131]) 
-                    (new-hit-list "hit list 3", "descr3", 10, 2, 1,  ARRAY[216, 193, 221, 269, 244, 252, 251, 204, 217, 256]) 
-                    (new-hit-list "hit list 4", "descr4", 20, 2, 1,  ARRAY[311, 277, 357, 314, 327, 303, 354, 279, 346, 318, 344, 299, 355, 300, 325, 290, 278, 326, 282, 334]) 
-                    (new-hit-list "hit list 5", "descr5", 10, 3, 1, ARRAY[410, 412, 393, 397, 442, 447, 428, 374, 411, 437]) 
-                    (new-hit-list "hit list 6", "descr6", 20, 3, 1, ARRAY[545, 514, 479, 516, 528, 544, 501, 472, 463, 494, 531, 482, 513, 468, 465, 510, 535, 478, 502, 488]) 
-                 ])
-
-(def add-example-data-pre-assay [ delete-example-data create-session add-projects add-plate-sets add-assay-runs ])
-(def add-example-data-pre-assay [ delete-example-data create-session add-projects  ])
-
-
-(def add-example-data-post-assay [ process-assay-run-data add-hit-lists ])
+(defn add-all-example-data
+  []
+  (do
+    (add-projects)
+    (add-plate-sets)
+    (load-assay-data)
+    (add-hit-lists)
+    ))

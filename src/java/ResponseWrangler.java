@@ -13,6 +13,8 @@ import java.util.logging.Logger;
 import javax.swing.table.DefaultTableModel;
 
 import com.google.common.math.Stats;
+//emacs changes this
+//import com.google.common.math.Stats;
 
 
 public class ResponseWrangler {
@@ -183,12 +185,6 @@ public class ResponseWrangler {
     max_response = Double.valueOf(Collections.max(desired_response_list));
     min_response = Double.valueOf(Collections.min(desired_response_list));
     num_data_points = desired_response_list.size();
-    System.out.println("here");
- 	for (int i = 0; i < blank_list.size(); i++) {
-    System.out.println("here2");
-	    System.out.println(blank_list.get(i));
-	}
-   // System.out.println(blank_list);
     mean_bkgrnd = Stats.meanOf(blank_list);
     stdev_bkgrnd = Stats.of(blank_list).sampleStandardDeviation();
     mean_neg = Stats.meanOf(neg_list);

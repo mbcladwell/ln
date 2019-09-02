@@ -12,13 +12,13 @@
 
 
 (def pg-db-init  {:dbtype "postgresql"
-           :dbname "lndb"
-            :host (cm/get-host)
-           :user (cm/get-user)
-             :password (cm/get-password)
-            :port (cm/get-port)
-          :ssl false
-            :sslfactory "org.postgresql.ssl.NonValidatingFactory"})
+                  :dbname "lndb"
+                  :host (cm/get-host)
+                  :user (cm/get-user)
+                  :password (cm/get-password)
+                  :port (cm/get-port)
+                  :ssl false
+                  :sslfactory "org.postgresql.ssl.NonValidatingFactory"})
 
 (def mysql-init {:dbtype "mysql"
                  :dbname "plapan_lndb"
@@ -242,13 +242,13 @@
                            ["FOREIGN KEY (well_type_id) REFERENCES well_type(id)"]
                            ])]
      
-     [(jdbc/create-table-ddl :import_plate_layout
-                          [   [:plate_layout_name_id :int]
-                            [:well_by_col :int]
-                            [:well_type_id :int]
-                           [:replicates :int]
-                           [:target :int]                        
-                           ])]
+;     [(jdbc/create-table-ddl :import_plate_layout
+ ;                         [   [:plate_layout_name_id :int]
+  ;                          [:well_by_col :int]
+   ;                         [:well_type_id :int]
+    ;                       [:replicates :int]
+     ;                      [:target :int]                        
+      ;                     ])]
 
          ;; [(jdbc/create-table-ddl :temp_accs_id
          ;;                  [   [:plate_order :int]
@@ -427,9 +427,9 @@
 
     ;; this errors because brackets not stripped
     ;;(map #(jdbc/insert-multi! pg-db-init %) required-data)
-  (doall  (map #(apply jdbc/insert-multi! pg-db-init % ) required-data))
-  (doall (map #(jdbc/db-do-commands pg-db-init true  %) ln.db-functions/drop-all-functions))
-  (doall (map #(jdbc/db-do-commands pg-db-init true  %) ln.db-functions/all-functions)))
+  (doall  (map #(apply jdbc/insert-multi! pg-db-init % ) required-data)))
+
+;;(doall (map #(jdbc/db-do-commands pg-db-init true  %) ln.db-functions/all-functions)))
  
 ;;(initialize-limsnucleus)
 
@@ -447,8 +447,8 @@
   (doall (map #(jdbc/db-do-commands pg-db-init true  %) ln.example-data/add-example-data-pre-assay))
 
   ;INSERT INTO assay_result (assay_run_id, plate_order, well, response) VALUES
-  (jdbc/insert-multi! pg-db-init :assay_result [:assay_run_id :plate_order :well :response]
-                                        ln.example-data/assay-data )
+  ;;(jdbc/insert-multi! pg-db-init :assay_result [:assay_run_id :plate_order :well :response]
+                                 ;;       ln.example-data/assay-data )
 
   (doall (map #(jdbc/db-do-commands pg-db-init true  %) ln.example-data/add-example-data-post-assay)))
 

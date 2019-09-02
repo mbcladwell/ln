@@ -21,12 +21,8 @@ FIXME: listing of options this app accepts.
 ...
 
 ### Bugs
-
+LYT-4 target replicates wrong 1 should be 4
 ...
-
-### Any Other Sections
-### That You Think
-### Might be Useful
 
 ## License
 
@@ -43,6 +39,7 @@ excercise reformat-plate-set
 convert all to next.jdbc
 import-plate-layout can be further condensed
 get install routines working with elephantsql
+
 
 
 MySQL?
