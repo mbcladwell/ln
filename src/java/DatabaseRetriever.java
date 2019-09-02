@@ -1232,6 +1232,8 @@ int plate_layout_name_id = _plate_layout_name_id;
     /**
      * Called from Scatterplot.java
      * Called from DatabaseInserter.associateDataWithPlateSet()
+
+     *temp1.plate_order,temp1.well, temp1.response, temp1.bkgrnd_sub, temp1.norm, temp1.norm_pos, temp1.p_enhance, temp1.well_type_id, temp1.replicates, temp1.target, temp2.sample_id
      */
     public CustomTable  getDataForScatterPlot(int _assay_run_id){
 	CustomTable table;
@@ -1239,15 +1241,16 @@ int plate_layout_name_id = _plate_layout_name_id;
 	//ArrayList result = new ArrayList();
  try {
       PreparedStatement pstmt =
-          conn.prepareStatement("SELECT  plate_plate_set.plate_order, well_numbers.by_col,   assay_result.response, assay_result.bkgrnd_sub, assay_result.norm, assay_result.norm_pos, assay_result.p_enhance, plate_layout.well_type_id,   plate_layout.replicates, plate_layout.target, sample.id FROM  plate_layout_name , plate_set, plate_plate_set, plate, well, assay_result, assay_run, well_numbers, plate_layout, well_type, well_sample, sample WHERE plate_plate_set.plate_set_id=plate_set.id AND plate_plate_set.plate_id=plate.ID and plate.id=well.plate_id  AND plate_set.ID = assay_run.plate_set_id AND assay_result.assay_run_id= assay_run.id AND assay_result.plate_order=plate_plate_set.plate_order AND assay_result.well=well.by_col AND assay_run.ID = ? AND well_numbers.plate_format= plate_layout_name.plate_format_id AND well_numbers.by_col=well.by_col AND plate_layout_name.ID= assay_run.plate_layout_name_id AND plate_layout.plate_layout_name_id= assay_run.plate_layout_name_id AND plate_layout.well_type_id=well_type.ID AND plate_layout.well_by_col=well.by_col AND well_sample.sample_id=sample.ID AND well_sample.well_id=well.ID AND well.ID IN (SELECT well.ID FROM  plate_plate_set, plate, well WHERE plate_plate_set.plate_id = plate.ID AND well.plate_id = plate.ID AND plate_plate_set.plate_set_id = assay_run.plate_set_id);");
+          conn.prepareStatement("SELECT assay_result.plate_order,assay_result.well, assay_result.response, assay_result.bkgrnd_sub, assay_result.norm, assay_result.norm_pos, assay_result.p_enhance, plate_layout.well_type_id, plate_layout.replicates, plate_layout.target, well_sample.sample_id FROM assay_run, assay_result, plate_layout, plate_plate_set, plate_set, plate,  well,  well_sample, sample WHERE assay_result.plate_order=plate_plate_set.plate_order AND assay_result.well = plate_layout.well_by_col AND assay_result.assay_run_id = assay_run.id AND plate_layout.plate_layout_name_id = assay_run.plate_layout_name_id AND plate_plate_set.plate_set_id = plate_set.ID AND plate_plate_set.plate_id = plate.ID AND well.plate_id = plate.id  and well_sample.well_id=well.ID AND well_sample.sample_id=sample.id AND plate_plate_set.plate_set_id = assay_run.plate_set_id AND assay_run_id =?;");
       pstmt.setInt(1, _assay_run_id);
 
-      ResultSet rs = pstmt.executeQuery();
-     
+      ResultSet rs = pstmt.executeQuery();      
       table = new CustomTable(dmf, dbm.buildTableModel(rs));
-	
-           rs.close();
+     
+      rs.close();
       pstmt.close();
+
+  
 	return table;
       
     
@@ -1270,7 +1273,8 @@ int project_id = _project_id;
 
       pstmt.setInt(1, project_id);
       ResultSet rs = pstmt.executeQuery();
-
+      
+     
       table = new CustomTable(dmf, dbm.buildTableModel(rs));
       //LOGGER.info("Got assay run table " + table);
       rs.close();

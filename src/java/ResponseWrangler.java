@@ -71,13 +71,14 @@ public class ResponseWrangler {
      */
     public ResponseWrangler(CustomTable _table, int _desired_response){
 	table = _table;
+		    	  
 	DefaultTableModel dtm = (DefaultTableModel)table.getModel();
-	
 	sorted_response = new double[table.getRowCount()][4];
 	for(int row = 0;row < table.getRowCount();row++) {
-	    
+	sorted_response = new double[table.getRowCount()][4];
+	
 	    int plate = (int)dtm.getValueAt(row, 0);
-	    
+ 
 	    plate_set.add((int)dtm.getValueAt(row, 0));
 	    int well = (int)dtm.getValueAt(row, 1);
 	    well_set.add((int)dtm.getValueAt(row, 1));
@@ -94,24 +95,25 @@ public class ResponseWrangler {
 	    int replicates = (int)dtm.getValueAt(row, 8);
 	    int target = (int)dtm.getValueAt(row, 9);
 	    int sample_id = 0;
+
 	    if(dtm.getValueAt(row, 10) != null){
 		sample_id = (int)dtm.getValueAt(row, 10);
 	    }
-		sorted_response[row][3] = sample_id;
-	  
+	    sorted_response[row][3] = sample_id;
 	switch(_desired_response){
 	case 0: //raw
 	    desired_response_list.add(response);
 	    sorted_response[row][0] = response;
 	    if(well_type_id==4){  //if it is a blank
 		blank_list.add(Double.valueOf((float)dtm.getValueAt(row, 2)));
+
 	    }
 	    if(well_type_id==3){  //if it is a negative control
 		neg_list.add(Double.valueOf((float)dtm.getValueAt(row, 2)));
+
 	    }
 	    if(well_type_id==2){  //if it is a positive control
 		pos_list.add(Double.valueOf((float)dtm.getValueAt(row, 2)));
-		LOGGER.info("Positives: " + Double.valueOf((float)dtm.getValueAt(row, 2)));
 	    }
 	    if(well_type_id==1){  //if it is an unknown
 		unknowns_list.add(Double.valueOf((float)dtm.getValueAt(row, 2)));
@@ -120,9 +122,10 @@ public class ResponseWrangler {
 	    break;
 	case 1: //norm
 	    desired_response_list.add(norm);
-	sorted_response[row][0] = norm;
+	    sorted_response[row][0] = norm;
 	    if(well_type_id==4){  //if it is a blank
 		blank_list.add(Double.valueOf((float)dtm.getValueAt(row, 4)));
+	   
 	    }
 	    if(well_type_id==3){  //if it is a negative control
 		neg_list.add(Double.valueOf((float)dtm.getValueAt(row, 4)));
@@ -174,12 +177,18 @@ public class ResponseWrangler {
 	
     	}
 
+	
     format = well_set.size();
     num_plates = plate_set.size();
     max_response = Double.valueOf(Collections.max(desired_response_list));
     min_response = Double.valueOf(Collections.min(desired_response_list));
     num_data_points = desired_response_list.size();
-    
+    System.out.println("here");
+ 	for (int i = 0; i < blank_list.size(); i++) {
+    System.out.println("here2");
+	    System.out.println(blank_list.get(i));
+	}
+   // System.out.println(blank_list);
     mean_bkgrnd = Stats.meanOf(blank_list);
     stdev_bkgrnd = Stats.of(blank_list).sampleStandardDeviation();
     mean_neg = Stats.meanOf(neg_list);
