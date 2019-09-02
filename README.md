@@ -22,6 +22,7 @@ FIXME: listing of options this app accepts.
 
 ### Bugs
 LYT-4 target replicates wrong 1 should be 4
+admin menu not working properly
 ...
 
 ## License
@@ -44,6 +45,8 @@ get install routines working with elephantsql
 
 MySQL?
 
+### Error messages
 
+"nippy":  delete ln-props and start again
 M-x set-buffer-file-coding-system utf-8-unix
 

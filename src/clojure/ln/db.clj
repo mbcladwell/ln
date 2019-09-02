@@ -4,6 +4,7 @@
             [honeysql.helpers :refer :all :as helpers]
             [clojure.data.csv :as csv]
             [clojure.java.io :as io]
+            [ln.db-inserter :as dbi]
             [ln.codax-manager :as cm])
            
   (:import java.sql.DriverManager)
@@ -32,10 +33,12 @@
 ;;whatismyip.com
 
 (load "/ln/data-sets")
-(load "/ln/example-data")
 (load "/ln/plate-layout-data")
 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;Database setup
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
 (def all-table-names
@@ -323,6 +326,9 @@
    ["CREATE INDEX ON well_numbers(by_col);"]
    ])
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;Required data
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
  
 (def required-data
   ;;inserts required data into table using jdbc/insert-multi!
@@ -409,8 +415,74 @@
 
    ])
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;Optional example data
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+(defn add-projects [ ]
+  (do
+                   (dbi/new-project "3 plate sets with 2 96 well plates each", "With AR, HL", 1 ) 
+                   (dbi/new-project "1 plate set with 2 384 well plates each", "With AR", 1 ) 
+                   (dbi/new-project "1 plate set with 1 1536 well plate", "With AR", 1 ) 
+                   (dbi/new-project "description 4", "MyTestProj4", 1 ) 
+                   (dbi/new-project "description 5", "MyTestProj5", 1 ) 
+                   (dbi/new-project "description 6", "MyTestProj6", 1 ) 
+                   (dbi/new-project "description 7", "MyTestProj7", 1 ) 
+                   (dbi/new-project "description 8", "MyTestProj8", 1 ) 
+                   (dbi/new-project "description 9", "MyTestProj9", 1 ) 
+                   (dbi/new-project "2 plate sets with 10 96 well plates each", "Plates only, no data", 1 ) 
+                   ))
+;;(add-projects)
+
+(defn add-plate-sets []
+  (do
+            (dbi/new-plate-set "with AR (low values), HL", "2 96 well plates", 2,96,1,1,1,true) 
+            (dbi/new-plate-set "with AR (low values), HL", "2 96 well plates", 2,96,1,1,1,true) 
+            (dbi/new-plate-set "with AR (high values), HL", "2 96 well plates", 2,96,1,1,1,true) 
+            (dbi/new-plate-set "with AR (low values), HL", "2 384 well plates", 2,384,1,2,13,true) 
+            (dbi/new-plate-set "with AR (low values), HL", "1 1536 well plate", 1, 1536, 1, 3, 37,true) 
+            (dbi/new-plate-set "using LYT-1/;96/;4in12", "Plates only", 10,96,1,10,1,true) 
+             (dbi/new-plate-set "using LYT-1/;96/;4in12", "Plates only", 10,96,1,10,1,true) 
+             ))
+;;(add-plate-sets)
+
+(defn load-assay-data
+  "hits must be handle separately so name and description can be entered"
+  [] 
+  (do
+    (dbi/associate-data-with-plate-set "assay_run1", "PS-1 LYT-1;96;4in12", ["PS-1"] 96, 1, 1, "resources/raw_plate_data/ar1raw.txt" false nil nil)
+    (dbi/associate-data-with-plate-set "assay_run2", "PS-2 LYT-1;96;4in12", ["PS-2"] 96, 1, 1, "resources/raw_plate_data/ar2raw.txt" false nil nil)
+    (dbi/associate-data-with-plate-set "assay_run3", "PS-3 LYT-1;96;4in12", ["PS-3"] 96, 5, 1, "resources/raw_plate_data/ar3raw.txt" false nil nil)
+    (dbi/associate-data-with-plate-set "assay_run4", "PS-4 LYT-13;384;8in24", ["PS-4"] 384, 1, 13, "resources/raw_plate_data/ar4raw.txt" false nil nil)
+    (dbi/associate-data-with-plate-set "assay_run5", "PS-5 LYT-37;1536;32in47,48", ["PS-5"] 1536, 1, 37, "resources/raw_plate_data/ar5raw.txt" false nil nil)))
+    
+                                   
+    
+;;     (dbi/create-assay-run "assay_run1", "PS-1 LYT-1;96;4in12", 1, 1, 1)          
+;;     (dbi/create-assay-run "assay_run2", "PS-2 LYT-1/;96/;4in12", 1, 2, 1) 
+;;     (dbi/create-assay-run "assay_run3", "PS-3 LYT-1/;96/;4in12", 5, 3, 1) 
+;;     (dbi/create-assay-run "assay_run4", "PS-4 LYT-13/;384/;8in24", 1, 4, 13) 
+;;     (dbi/create-assay-run "assay_run5", "PS-5 LYT-37/;1536/;32in47,48", 1, 5, 37) 
+;;                      ))
+;; ;
+                                        ;(add-assay-runs)  NO!! handled
+
+
+(defn add-hit-lists []
+                    (dbi/new-hit-list "hit list 1", "descr1", 10, 1,   [87 39 51 59 16 49 53 73 65 43]) 
+                    (dbi/new-hit-list "hit list 2", "descr2", 20, 1,   [154, 182, 124, 172, 171, 164, 133, 155, 152, 160, 118, 93, 123, 142, 183, 145, 95, 120, 158, 131]) 
+                    (dbi/new-hit-list "hit list 3", "descr3", 10, 2,   [216, 193, 221, 269, 244, 252, 251, 204, 217, 256]) 
+                    (dbi/new-hit-list "hit list 4", "descr4", 20, 2,   [311, 277, 357, 314, 327, 303, 354, 279, 346, 318, 344, 299, 355, 300, 325, 290, 278, 326, 282, 334]) 
+                    (dbi/new-hit-list "hit list 5", "descr5", 10, 3,  [410, 412, 393, 397, 442, 447, 428, 374, 411, 437]) 
+                    (dbi/new-hit-list "hit list 6", "descr6", 20, 3,  [545, 514, 479, 516, 528, 544, 501, 472, 463, 494, 531, 482, 513, 468, 465, 510, 535, 478, 502, 488]))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;executables used by interface
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (defn drop-all-tables
-;;
+;;needed for interface button
 []
   (doall (map #(jdbc/db-do-commands pg-db-init true  %) (map #(format  "DROP TABLE IF EXISTS %s CASCADE" %)  all-table-names ) )))
 
@@ -420,41 +492,32 @@
   ;;(map #(jdbc/db-do-commands pg-db-init (jdbc/drop-table-ddl % {:conditional? true } )) all-table-names)
   []
   (doall (map #(jdbc/db-do-commands pg-db-init true  %) (map #(format  "DROP TABLE IF EXISTS %s CASCADE" %)  all-table-names ) ))
- 
   (doall (map #(jdbc/db-do-commands pg-db-init true %) all-tables))
   (doall  (map #(jdbc/db-do-commands pg-db-init true %) all-indices))
-
-
-    ;; this errors because brackets not stripped
-    ;;(map #(jdbc/insert-multi! pg-db-init %) required-data)
+  ;; this errors because brackets not stripped
+  ;;(map #(jdbc/insert-multi! pg-db-init %) required-data)
   (doall  (map #(apply jdbc/insert-multi! pg-db-init % ) required-data)))
 
-;;(doall (map #(jdbc/db-do-commands pg-db-init true  %) ln.db-functions/all-functions)))
- 
 ;;(initialize-limsnucleus)
 
 
 (defn add-example-data
   ;;
   []
-
   ;; order important!
+  (do
   (jdbc/execute! pg-db-init "TRUNCATE project, plate_set, plate, hit_sample, hit_list, assay_run, assay_result, sample, well, lnsession RESTART IDENTITY CASCADE;")
   (jdbc/insert! pg-db-init :lnsession {:lnuser_id 1})
+  (cm/set-session-id 1)  
+  (add-projects)
+  (add-plate-sets)
+  (load-assay-data)
+  (add-hit-lists)))
 
   
-(cm/set-session-id 1)  
-  (doall (map #(jdbc/db-do-commands pg-db-init true  %) ln.example-data/add-example-data-pre-assay))
-
-  ;INSERT INTO assay_result (assay_run_id, plate_order, well, response) VALUES
-  ;;(jdbc/insert-multi! pg-db-init :assay_result [:assay_run_id :plate_order :well :response]
-                                 ;;       ln.example-data/assay-data )
-
-  (doall (map #(jdbc/db-do-commands pg-db-init true  %) ln.example-data/add-example-data-post-assay)))
-
 (defn delete-example-data
   []
-  (doall (map #(jdbc/db-do-commands pg-db-init true  %) ln.example-data/delete-example-data)))
+  (jdbc/execute! pg-db-init "TRUNCATE project, plate_set, plate, hit_sample, hit_list, assay_run, assay_result, sample, well, lnsession RESTART IDENTITY CASCADE;"))
 
 
 
