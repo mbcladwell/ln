@@ -13,6 +13,7 @@ import java.awt.event.KeyEvent;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -85,7 +86,7 @@ public class DialogPropertiesNotFound extends JDialog
     private int startup_tab;
     private Map<String, String> allprops;
     
-    public DialogPropertiesNotFound( Map _m ) {
+    public DialogPropertiesNotFound( HashMap _m ) {
 	allprops = _m;
 	//session = new Session();
 	//dmf = session.getDialogMainFrame();
@@ -146,180 +147,7 @@ tabbedPane.addTab("Database setup", icon, panel3,
     // ImageIcon(DialogAddProject.class.getResource("../resources/mwplate.png")).getImage();
     // this.setIconImage(img);
     this.setTitle("LAS Properties Tool");
-    // c.gridwidth = 2;
-    /*
-  try {
-      ImageIcon logo =
-          new ImageIcon( 
-			this.getClass().getResource("../resources/images/las.png"));
-      JLabel logolabel = new JLabel(logo, JLabel.CENTER);
-      c.gridx=0;
-      c.gridwidth=3;
-      c.gridy=0;
-      
-      panel1.add(logolabel, c);
-    } catch (Exception ex) {
-      LOGGER.severe(ex + " las image not found");
-      LOGGER.severe((new java.io.File(DialogPropertiesNotFound.class.getProtectionDomain().getCodeSource().getLocation().getPath())).toString());
     
-    }
-   
-        select =
-        new JButton(
-            "Find ln-props...", createImageIcon("/toolbarButtonGraphics/general/Open16.gif"));
-    select.setMnemonic(KeyEvent.VK_O);
-    select.setActionCommand("select");
-    select.setEnabled(true);
-    c.fill = GridBagConstraints.HORIZONTAL;
-    c.gridx = 1;
-     c.gridy = 0;
-    c.gridwidth = 1;
-    c.gridheight = 1;
-    c.insets = new Insets(5, 5, 2, 2);
-    select.addActionListener(this);
-    panel1.add(select, c);
-
-  label = new JLabel("Find an existing ln-props directory.");
-    c.gridx = 2;
-    c.gridy = 0;
-    c.gridwidth = 3;
-    c.gridheight = 1;
-    panel1.add(label, c);
-
-  label = new JLabel("OR");
-    c.gridx = 1;
-    c.gridy = 2;
-    c.gridwidth = 3;
-    c.gridheight = 1;
-    panel1.add(label, c);
-
-
-
-    
-    label = new JLabel("Select a directory into which ln-props will be created");
-    c.gridx = 1;
-    c.gridy = 4;
-    	c.anchor = GridBagConstraints.LINE_START;
-
-    c.gridwidth = 3;
-    c.gridheight = 1;
-  panel1.add(label, c);
- 
-
-  label = new JLabel("User must have read write access.");
-    c.gridx = 1;
-    c.gridy = 5;
-    c.gridwidth = 3;
-    c.gridheight = 1;
-    panel1.add(label, c);
-
-    workingButton   = new JRadioButton("Working: " + System.getProperty("user.dir"), true);
-    userButton    = new JRadioButton("User: " + System.getProperty("user.home"));
-  
-    ButtonGroup dirgroup = new ButtonGroup();
-    dirgroup.add(workingButton);
-    dirgroup.add(userButton);
-    c.gridx = 1;
-    c.gridy = 6;
-    panel1.add(workingButton, c);
-    c.gridy = 7;
-    panel1.add(userButton, c);
-
-
-    
-    selectDirButton = new JButton("Select Directory");
-    selectDirButton.setMnemonic(KeyEvent.VK_S);
-    selectDirButton.setEnabled(true);
-    c.gridwidth = 1;
-    c.gridx = 1;
-    c.gridy = 8;
-    panel1.add(selectDirButton, c);
-    selectDirButton.addActionListener(
-        (new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-	      String selectedDir = new String();
-	      if (workingButton.isSelected()) {
-                selectedDir = System.getProperty("user.dir") + "/ln-props";
-	      } else {selectedDir = System.getProperty("home.dir") + "/ln-props";}
-	      File tmpDir = new File(selectedDir);
-	      boolean exists = tmpDir.exists();
-	      if(exists){
-		  IFn getAllProps  = Clojure.var("lnmanager.session", "get-all-props");	  
-		  Map<String, String> allprops = (HashMap)getAllProps.invoke();
-		  LOGGER.info("allprops.getKey(:host): " + allprops.get(":host"));
-		  hostField.setEnabled(false);
-		  portField.setEnabled(false);
-		  trueButton.setEnabled(false);
-		  falseButton.setEnabled(false);
-		  userField.setEnabled(false);
-		  passwordField.setEnabled(false);
-		  updateLnProps.setEnabled(false);
-		      
-	      
-	      }else{
-		  messageLabel.setText("Provide connection parameters below");
-		  hostField.setEnabled(true);
-		  portField.setEnabled(true);
-		  trueButton.setEnabled(true);
-		  falseButton.setEnabled(true);
-		  userField.setEnabled(true);
-		  passwordField.setEnabled(true);
-		  updateLnProps.setEnabled(true);
-		  
-	      }
-	      selectedLabelResponse.setText(selectedDir.toString());
-	      
-	      tabbedPane.setSelectedIndex(1);	
-
-          }
-        }));
-
-    
-
-    
-    cancelButton = new JButton("Cancel");
-    cancelButton.setMnemonic(KeyEvent.VK_C);
-    cancelButton.setActionCommand("cancel");
-    cancelButton.setEnabled(true);
-    cancelButton.setForeground(Color.RED);
-    c.gridx = 3;
-    c.gridy = 8;
-    panel1.add(cancelButton, c);
-    cancelButton.addActionListener(
-        (new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-            dispose();
-          }
-        }));
-
-    JButton helpButton = new JButton("Help");
-    helpButton.setMnemonic(KeyEvent.VK_H);
-    helpButton.setActionCommand("help");
-    c.fill = GridBagConstraints.NONE;
-    c.gridx = 5;
-    c.gridy = 8;
-    c.gridwidth = 1;
-    c.gridheight = 1;
-    panel1.add(helpButton, c);
-      try {
-      ImageIcon help =
-          new ImageIcon(this.getClass().getResource("/toolbarButtonGraphics/general/Help16.gif"));
-      helpButton.setIcon(help);
-    } catch (Exception ex) {
-      System.out.println("Can't find help icon: " + ex);
-    }
-    helpButton.addActionListener(
-        new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-	      //	      openWebpage(URI.create(session.getHelpURLPrefix() + "login"));
-          }
-        });
-    helpButton.setSize(10, 10);
-    //; helpButton.setPreferredSize(new Dimension(5, 20));
-    // helpButton.setBounds(new Rectangle(
-    //             getLocation(), getPreferredSize()));
-    //helpButton.setMargin(new Insets(1, -40, 1, -100)); //(top, left, bottom, right)
-    */
 
   
 /**

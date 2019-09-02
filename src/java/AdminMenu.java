@@ -150,9 +150,6 @@ public class AdminMenu extends JMenu {
     
     projectMenu.add(menuItem);
 
-
-
-    
     menuItem = new JMenuItem("Import Plate Layout", KeyEvent.VK_I);
     menuItem.addActionListener(
 	   new ActionListener() {
@@ -179,6 +176,20 @@ public class AdminMenu extends JMenu {
 		   }
 
 	      
+	  }
+        });
+    this.add(menuItem);
+
+        projectMenu.add(menuItem);
+
+    menuItem = new JMenuItem("DB Utilities", KeyEvent.VK_U);
+    menuItem.addActionListener(
+	   new ActionListener() {
+	       public void actionPerformed(ActionEvent e) {
+	       		      IFn getAllProps = Clojure.var("ln.codax-manager", "get-all-props");
+
+			      new DialogPropertiesNotFound((java.util.HashMap)getAllProps.invoke());
+		 		   	      
 	  }
         });
     this.add(menuItem);
