@@ -188,7 +188,7 @@ public class AdminMenu extends JMenu {
 	       public void actionPerformed(ActionEvent e) {
 	       		      IFn getAllProps = Clojure.var("ln.codax-manager", "get-all-props");
 
-			      new DialogPropertiesNotFound((java.util.HashMap)getAllProps.invoke());
+			      new DialogPropertiesNotFound(getAllProps.invoke());
 		 		   	      
 	  }
         });

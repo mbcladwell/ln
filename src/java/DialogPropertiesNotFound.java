@@ -13,7 +13,6 @@ import java.awt.event.KeyEvent;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -86,29 +85,31 @@ public class DialogPropertiesNotFound extends JDialog
     private int startup_tab;
     private Map<String, String> allprops;
     
-    public DialogPropertiesNotFound( HashMap _m ) {
-	allprops = _m;
+    public DialogPropertiesNotFound( Object _m ) {
+	allprops = (Map<String, String>)_m;
+	
 	//session = new Session();
 	//dmf = session.getDialogMainFrame();
 	IFn require = Clojure.var("clojure.core", "require");
-	require.invoke(Clojure.read("lnmanager.session"));
+	require.invoke(Clojure.read("ln.codax-manager"));
+	require.invoke(Clojure.read("ln.db-manager"));
 	//IFn getAllProps  = Clojure.var("lnmanager.session", "get-all-props");	  
 	//Map<String, String> allprops = (HashMap)getAllProps.invoke();
 	//LOGGER.info("allprops: " + allprops);
     fileChooser = new JFileChooser();
 
     dbSetupPanel = new DatabaseSetupPanel();
- IFn getSource = Clojure.var("lnmanager.session", "get-source");
-    IFn getConnURL = Clojure.var("lnmanager.session", "get-connection-string");
+    IFn getSource = Clojure.var("ln.codax-manager", "get-source");
+    IFn getConnURL = Clojure.var("ln.db-manager", "get-connection-string");
     
-     tabbedPane = new JTabbedPane();
-     tabbedPane.addChangeListener(  new ChangeListener() {
-      public void stateChanged(ChangeEvent changeEvent) {
-        JTabbedPane sourceTabbedPane = (JTabbedPane) changeEvent.getSource();
+    tabbedPane = new JTabbedPane();
+    tabbedPane.addChangeListener(  new ChangeListener() {
+	    public void stateChanged(ChangeEvent changeEvent) {
+		JTabbedPane sourceTabbedPane = (JTabbedPane) changeEvent.getSource();
         int index = sourceTabbedPane.getSelectedIndex();
         //System.out.println("Tab changed to: " + sourceTabbedPane.getTitleAt(index));
  String source = (String)getSource.invoke();
-    String conn_url =  (String)getConnURL.invoke();
+ String conn_url =  (String)getConnURL.invoke(source);
     if(source.equals("test")){conn_url="Test cloud instance with example data.";}
     dbSetupPanel.updateURLLabel(conn_url);
 	
@@ -419,19 +420,21 @@ tabbedPane.addTab("Database setup", icon, panel3,
     //panel 3
 
     panel3.add(dbSetupPanel);
-
-    	IFn recentlyModified  = Clojure.var("lnmanager.session", "recently-modified?");
-       
-	if((Boolean)recentlyModified.invoke()){
+    java.io.File nodeFile = new java.io.File("/ln-props/nodes");
+    //IFn recentlyModified  = Clojure.var("ln.codax-manager", "recently-modified?");
+    Long elapsed = System.currentTimeMillis() - nodeFile.lastModified();
+    System.out.println("elapsed: " + elapsed);
+    System.out.println("allprops: " + Boolean.toString(allprops.get(":sslmode")));
+    if(elapsed < 10000){
 	    messageLabel.setText("newly created");
 	}else{
 	    messageLabel.setText("pre-existing");}
 	hostField.setText(allprops.get(":host"));
-	portField.setText(allprops.get(":port"));
+	portField.setText(String.valueOf(allprops.get(":port")));
 	userField.setText(allprops.get(":user"));
 	passwordField.setText(allprops.get(":password"));
 	selectedLabelResponse.setText(System.getProperty("user.dir") + "/ln-props");
-	if(allprops.get(":sslmode").equals("true")){
+	if(allprops.get(":sslmode")){
 	    trueButton.setSelected(true);
 	}else{falseButton.setSelected(true);
 	}
@@ -495,7 +498,7 @@ tabbedPane.addTab("Database setup", icon, panel3,
     
     if (e.getSource() == updateLnProps) {
 	
-	IFn updateLnPropsMethod  = Clojure.var("lnmanager.session", "update-ln-props");	  
+	IFn updateLnPropsMethod  = Clojure.var("ln.codax-manager", "update-ln-props");	  
 	updateLnPropsMethod.invoke( hostField.getText(),
 				      portField.getText(),
 				    "lndb",
@@ -519,9 +522,9 @@ tabbedPane.addTab("Database setup", icon, panel3,
       if (returnVal == JFileChooser.APPROVE_OPTION) {
         java.io.File file = fileChooser.getSelectedFile();
 	selectedLabelResponse.setText(file.toString());
-	IFn setLnProps  = Clojure.var("lnmanager.session", "set-ln-props");
+	IFn setLnProps  = Clojure.var("ln.codax-manager", "set-ln-props");
 	setLnProps.invoke(file.toString());
-	IFn getAllProps  = Clojure.var("lnmanager.session", "get-all-props");
+	IFn getAllProps  = Clojure.var("ln.codax-manager", "get-all-props");
 	
 	Map<String, String> results = new HashMap<>();
 	results = (Map<String, String>)getAllProps.invoke();

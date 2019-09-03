@@ -281,6 +281,21 @@
    (java.lang.System/getProperty "user.dir"))
 
 
+
+(defn update-ln-props [host port dbname source sslmode user password help-url user-dir]
+  (c/with-write-transaction [props tx]
+    (-> tx
+      (c/assoc-at  [:assets :conn :host] host)   
+      (c/assoc-at  [:assets :conn :port] port)
+      (c/assoc-at  [:assets :conn :sslmode] sslmode)
+      (c/assoc-at  [:assets :conn :source] source)
+      (c/assoc-at  [:assets :conn :user] user)   
+      (c/assoc-at  [:assets :conn :password] password)
+      (c/assoc-at  [:assets :conn :help-url-prefix] help-url)
+      (c/assoc-at  [:assets :conn :dbname] dbname))))
+
+
+ 
     (defn get-help-url-prefix []
           (c/get-at! props [:assets :conn :help-url-prefix ]))
 ;;(get-help-url-prefix)
@@ -334,3 +349,4 @@
     (c/close-database! props))
 
 ;;(look)
+
