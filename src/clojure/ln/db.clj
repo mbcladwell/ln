@@ -12,7 +12,7 @@
   (:gen-class))
 
 
-(def pg-db-init  {:dbtype "postgresql"
+(def pg-db-init  {:vendor "postgresql"
                   :dbname "lndb"
                   :host (cm/get-host)
                   :user (cm/get-user)
@@ -21,15 +21,8 @@
                   :ssl false
                   :sslfactory "org.postgresql.ssl.NonValidatingFactory"})
 
-(def mysql-init {:dbtype "mysql"
-                 :dbname "plapan_lndb"
-                 :host "stihie.net"
-                 :user "plapan_ln_admin"
-                 :password "welcome"
-                 :port 3306
-                 :ssl false})
                
-;;(doall (map #(jdbc/db-do-commands mysql-init true %) all-tables))
+;;(doall (map #(jdbc/db-do-commands mysql-init true %) mysql-tables))
 ;;whatismyip.com
 
 (load "/ln/data-sets")
@@ -41,6 +34,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
+
 (def all-table-names
   ;;for use in a map function that will delete all tables
   ;;single command looks like:  (jdbc/drop-table-ddl :lnuser {:conditional? true } )
@@ -48,7 +42,9 @@
 
 
 
-(def all-tables
+
+
+(def all-tables-old
   ;;for use in a map function that will create all tables
   ;; example single table:
   ;;;     [(jdbc/create-table-ddl :lnsession
@@ -245,19 +241,236 @@
                            ["FOREIGN KEY (well_type_id) REFERENCES well_type(id)"]
                            ])]
      
-;     [(jdbc/create-table-ddl :import_plate_layout
- ;                         [   [:plate_layout_name_id :int]
-  ;                          [:well_by_col :int]
-   ;                         [:well_type_id :int]
-    ;                       [:replicates :int]
-     ;                      [:target :int]                        
-      ;                     ])]
+     
+        [(jdbc/create-table-ddl :rearray_pairs
+                                [[:id "SERIAL PRIMARY KEY"]
+                                 [:src :int]
+                                 [:dest :int]
+                                 ])]
+ 
+       [(jdbc/create-table-ddl :worklists
+                          [   [:rearray_pairs_id :int]
+                            [:sample_id :int]
+                           [:source_plate "varchar(10)"]
+                           [:source_well :int]
+                           [:dest_plate "varchar(10)"]
+                           [:dest_well :int]
+                           ["FOREIGN KEY (rearray_pairs_id) REFERENCES rearray_pairs(id)  ON DELETE cascade"]
+                           ["FOREIGN KEY (sample_id) REFERENCES sample(id)"]
+                           ])]
 
-         ;; [(jdbc/create-table-ddl :temp_accs_id
-         ;;                  [   [:plate_order :int]
-         ;;                    [:by_col :int]
-         ;;                    [:accs_id_id "varchar(30)"]
-         ;;                   ])]
+       [(jdbc/create-table-ddl :well_numbers
+                          [   [:plate_format :int]
+                           [:well_name "varchar(5)"]
+                            [:row "varchar(2)"]
+                           [:row_num :int]
+                           [:col "varchar(2)"]
+                           [:total_col_count :int]
+                           [:by_row :int]
+                           [:by_col :int]
+                           [:quad :int]
+                           [:parent_well :int]
+                           ])]
+   ])
+
+
+(def all-tables
+  ;;for use in a map function that will create all tables
+  ;; example single table:
+  ;;;     [(jdbc/create-table-ddl :lnsession
+  ;;                 [[:id "SERIAL PRIMARY KEY"]
+  ;;                  [:lnuser_id :int]
+  ;;                  [:updated  :timestamp "with time zone not null DEFAULT current_timestamp"]
+ ;;                   ["FOREIGN KEY (lnuser_id) REFERENCES lnuser(id)"]]) ]
+
+  [ 
+   [(jdbc/create-table-ddl :lnuser_groups
+                         [[:id "SERIAL PRIMARY KEY"]
+                          [:usergroup "varchar(250)"]
+                          [:updated  :timestamp ]])]
+   
+   [(jdbc/create-table-ddl :lnuser
+                          [[:id "SERIAL PRIMARY KEY"]
+                           [:usergroup :int]
+                           [:lnuser_name "VARCHAR(250) not null unique"]
+                           [:tags "varchar(250)"]
+                           [:password "varchar(64) not null"]
+                           [:updated  :timestamp ]
+                           ["FOREIGN KEY (usergroup) REFERENCES lnuser_groups(id)"]])]
+
+ 
+   [(jdbc/create-table-ddl :lnsession
+                         [[:id "SERIAL PRIMARY KEY"]
+                          [:lnuser_id :int]
+                            [:updated  :timestamp ]
+                          ["FOREIGN KEY (lnuser_id) REFERENCES lnuser(id)"]]) ]
+   
+   [(jdbc/create-table-ddl :project
+                           [[:id "SERIAL PRIMARY KEY"]
+                            [:project_sys_name "varchar(30)"]
+                            [:descr "varchar(250)"]
+                            [:project_name "varchar(250)"]
+                           [:lnsession_id :int]
+                            [:updated  :timestamp ]
+                            ["FOREIGN KEY (lnsession_id) REFERENCES lnsession(id)"]]
+                           )]
+   ;;CREATE INDEX ON project(lnsession_id);
+   [(jdbc/create-table-ddl :plate_type
+                           [[:id "SERIAL PRIMARY KEY"]
+                            [:plate_type_name "varchar(30)"] ])]
+   
+   [(jdbc/create-table-ddl :plate_format
+                           [[:id "SERIAL PRIMARY KEY"]
+                            [:format "varchar(6)"]
+                            [:rownum :int]
+                            [:colnum :int]])]
+   [(jdbc/create-table-ddl :plate_layout_name
+                           [[:id "SERIAL PRIMARY KEY"]
+                            [:sys_name "varchar(30)"]
+                            [:name "varchar(250)"]
+                            [:descr "varchar(250)"]
+                            [:plate_format_id :int]
+                            [:replicates :int]
+                            [:targets :int]
+                            [:use_edge :int]
+                            [:num_controls :int]
+                            [:unknown_n :int]
+                            [:control_loc "varchar(30)"]
+                            [:source_dest "varchar(30)"]
+                            ["FOREIGN KEY (plate_format_id) REFERENCES plate_format(id)"]])]
+   [(jdbc/create-table-ddl :layout_source_dest
+                           [[:src :int "NOT NULL"]
+                            [:dest :int "NOT NULL"]
+                            ])]
+   [(jdbc/create-table-ddl :plate_set
+                           [[:id "SERIAL PRIMARY KEY"]
+                             [:plate_set_name "varchar(250)"]
+                            [:descr "varchar(250)"]
+                            [:plate_set_sys_name "varchar(30)"]
+                            [:num_plates :int ]
+                            [:plate_format_id :int ]
+                            [:plate_type_id :int ]
+                            [:project_id :int ]
+                            [:plate_layout_name_id :int ]
+                            [:lnsession_id :int ]
+                            [:updated  :timestamp ]
+                            ["FOREIGN KEY (plate_type_id) REFERENCES plate_type(id)"]
+                            ["FOREIGN KEY (plate_format_id) REFERENCES plate_format(id)"]
+                            ["FOREIGN KEY (project_id) REFERENCES project(id) on delete cascade"]
+                            ["FOREIGN KEY (lnsession_id) REFERENCES lnsession(id) on delete cascade"]
+                            ["FOREIGN KEY (plate_layout_name_id) REFERENCES plate_layout_name(id)"]
+                            ])]
+
+    [(jdbc/create-table-ddl :plate
+                           [[:id "SERIAL PRIMARY KEY"]
+                            [:barcode "varchar(250)"]
+                            [:plate_sys_name "varchar(30)"]                        
+                            [:plate_type_id :int]
+                            [:plate_format_id :int]
+                            [:plate_layout_name_id :int]
+                            [:updated  :timestamp ]
+                            ["FOREIGN KEY (plate_type_id) REFERENCES plate_type(id)"]
+		            ["FOREIGN KEY (plate_format_id) REFERENCES plate_format(id)"]
+		            ["FOREIGN KEY (plate_layout_name_id) REFERENCES plate_layout_name(id)"]   
+                            ])]
+     [(jdbc/create-table-ddl :plate_plate_set
+                           [[:plate_set_id :int]
+                            [:plate_id :int]
+                            [:plate_order :int]
+                            ["FOREIGN KEY (plate_set_id) REFERENCES plate_set(id)"]
+		            ["FOREIGN KEY (plate_id) REFERENCES plate(id)"]
+                           ])]
+   [(jdbc/create-table-ddl :sample
+                           [[:id "SERIAL PRIMARY KEY"]
+                            [:sample_sys_name "varchar(30)"]
+                            [:project_id :int]
+                            [:accs_id "varchar(30)"]
+                            [:plate_id :int]                         
+                            ["FOREIGN KEY (project_id) REFERENCES project(id)"]
+		           ])]
+   [(jdbc/create-table-ddl :well
+                           [[:id "SERIAL PRIMARY KEY"]
+                            [:by_col :int]
+                            [:plate_id :int]
+                            ["FOREIGN KEY (plate_id) REFERENCES plate(id)"]
+		           ])]
+   [(jdbc/create-table-ddl :well_sample
+                           [[:well_id :int]
+                            [:sample_id :int]
+                            ["FOREIGN KEY (well_id) REFERENCES well(id)"]
+		            ["FOREIGN KEY (sample_id) REFERENCES sample(id)"]
+		           ])]
+
+    
+  [(jdbc/create-table-ddl :assay_type
+                           [[:id "SERIAL PRIMARY KEY"]
+                            [:assay_type_name "varchar(250)"]
+                            
+                           ])]
+  [(jdbc/create-table-ddl :assay_run
+                          [[:id "SERIAL PRIMARY KEY"]
+                           [:assay_run_sys_name "varchar(30)"]
+                           [:assay_run_name "varchar(250)"]
+                           [:descr "varchar(250)"]
+                            [:assay_type_id :int]
+                            [:plate_set_id :int]
+                            [:plate_layout_name_id :int]
+                            [:lnsession_id :int]
+                            [:updated  :timestamp ]                          
+                           ["FOREIGN KEY (plate_set_id) REFERENCES plate_set(id)"]
+                           ["FOREIGN KEY (plate_layout_name_id) REFERENCES plate_layout_name(id)"]
+		           ["FOREIGN KEY (lnsession_id) REFERENCES lnsession(id)"]
+		           ["FOREIGN KEY (assay_type_id) REFERENCES assay_type(id)"]
+		           ])]
+
+    [(jdbc/create-table-ddl :assay_result
+                          [   [:assay_run_id :int]
+                            [:plate_order :int]
+                            [:well :int]
+                           [:response :real]
+                           [:bkgrnd_sub :real]
+                           [:norm :real]
+                           [:norm_pos :real]
+                           [:p_enhance :real]
+                           
+                            [:updated  :timestamp ]                          
+                           ["FOREIGN KEY (assay_run_id) REFERENCES assay_run(id)"]
+                           ])]
+
+    [(jdbc/create-table-ddl :hit_list
+                          [[:id "SERIAL PRIMARY KEY"]
+                           [:hitlist_sys_name "varchar(30)"]
+                           [:hitlist_name "varchar(250)"]
+                           [:descr "varchar(250)"]
+                            [:n :int]
+                           [:lnsession_id :int]
+                           [:assay_run_id :int]
+                            [:updated  :timestamp ]               
+                           ["FOREIGN KEY (lnsession_id) REFERENCES lnsession(id)"]
+                           ["FOREIGN KEY (assay_run_id) REFERENCES assay_run(id)"]
+		           ])]
+  [(jdbc/create-table-ddl :hit_sample
+                           [[:hitlist_id :int "NOT NULL"]
+                            [:sample_id :int "NOT NULL"]
+                            ["FOREIGN KEY (hitlist_id) REFERENCES hit_list(id)  ON DELETE cascade"]
+                            ["FOREIGN KEY (sample_id) REFERENCES sample(id)  ON DELETE cascade"]
+                            ])]
+
+       [(jdbc/create-table-ddl :well_type
+                               [[:id "SERIAL PRIMARY KEY"]
+                             [:name "varchar(30)"]
+                             ])]
+
+     [(jdbc/create-table-ddl :plate_layout
+                          [   [:plate_layout_name_id :int]
+                            [:well_by_col :int]
+                            [:well_type_id :int]
+                           [:replicates :int]
+                           [:target :int]                        
+                           ["FOREIGN KEY (plate_layout_name_id) REFERENCES plate_layout_name(id)"]
+                           ["FOREIGN KEY (well_type_id) REFERENCES well_type(id)"]
+                           ])]
+     
      
         [(jdbc/create-table-ddl :rearray_pairs
                                 [[:id "SERIAL PRIMARY KEY"]
@@ -343,7 +556,8 @@
     [ :lnuser_name :tags :usergroup :password ]
     [["ln_admin" "ln_admin@labsolns.com" 1  "welcome"]
      ["ln_user" "ln_user@labsolns.com" 1 "welcome"]
-     ["klohymim" "NA" 1 "hwc3v4_rbkT-1EL2KI-JBaqFq0thCXM_"]]]
+     ["klohymim" "NA" 1 "hwc3v4_rbkT-1EL2KI-JBaqFq0thCXM_"]
+     ["plapan_ln_admin" "NA" 1 "welcome"]]]
    
    [ :plate_type [:plate_type_name]
     [["assay"]["rearray"]["master"]["daughter"]["archive"]["replicate"]]]

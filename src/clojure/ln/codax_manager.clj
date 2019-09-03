@@ -35,6 +35,7 @@
   (c/with-write-transaction [props tx]
     (-> tx
         (c/assoc-at [:assets :conn] {:source "test"
+                                     :vendor "postgresql"
   	                             :dbname "klohymim"
  	                             :host  "raja.db.elephantsql.com"
   	                             :port  5432
@@ -57,6 +58,36 @@
                                         :authenticated true
                                         })))
   (c/close-database! props)))
+
+(defn login-to-hostgator []
+ (let [props (c/open-database! "ln-props")]
+  (c/with-write-transaction [props tx]
+    (-> tx
+        (c/assoc-at [:assets :conn] {:source "test"
+                                     :vendor "mysql"
+  	                             :dbname "plapan_lndb"
+ 	                             :host  "192.254.187.215"
+  	                             :port  3306
+  	                             :user  "plapan_ln_admin"
+  	                             :password  "welcome"
+ 	                             :sslmode  false
+                                     :auto-login true
+ 	                             :base.help.url  "http://labsolns.com/software/" 
+                                     }) 
+        (c/assoc-at [:assets :session] {:project-id 1
+	                                :project-sys-name "PRJ-1"
+	                                :user-id 3
+                                        :user-name "klohymim"
+                                        :plateset-id 1
+                                        :plateset-sys-name ""
+	                                :user-group-id 2
+                                        :user-group "user"
+	                                :session-id nil
+                                        :working-dir ""
+                                        :authenticated true
+                                        })))
+  (c/close-database! props)))
+
 
 
 (defn open-or-create-props
@@ -95,7 +126,10 @@
   (c/with-write-transaction [props tx]
         (c/assoc-at! tx  [:assets :conn :password] p)))
 
-
+(defn get-vendor
+  "mysql; postgresql"
+  []
+  (c/get-at! props [:assets :conn :vendor]))
 
 (defn get-host []
    (c/get-at! props [:assets :conn :host]))
@@ -124,6 +158,7 @@
 (defn set-auto-login [b]
   (c/with-write-transaction [props tx]
         (c/assoc-at tx  [:assets :conn :auto-login] b)))
+
 
 (defn set-u-p-al
   ;;user name, password, auto-login
@@ -163,7 +198,8 @@
   ;;note that the keys must be quoted for java
   []
   (into {} (java.util.HashMap.
-           {":host" (c/get-at! props [:assets :conn :host])
+            {        ":vendor" (c/get-at! props [:assets :conn :vendor])
+             ":host" (c/get-at! props [:assets :conn :host])
             ":port" (c/get-at! props [:assets :conn :port])
            ":sslmode" (c/get-at! props [:assets :conn :sslmode])
           ":source" (c/get-at! props [:assets :conn :source])
@@ -175,7 +211,8 @@
 (defn get-all-props-clj
   ;;a map for clojure
   [] 
-  ({:host (c/get-at! props [:assets :conn :host])
+  ({:vendor (c/get-at! props [:assets :conn :vendor])
+    :host (c/get-at! props [:assets :conn :host])
     :port (c/get-at! props [:assets :conn :port])
     :sslmode (c/get-at! props [:assets :conn :sslmode])
     :source (c/get-at! props [:assets :conn :source])
@@ -194,6 +231,10 @@
 
   ;;(print-ap)
   ;;(print-all-props)
+
+(defn set-vendor [b]
+  (c/with-write-transaction [props tx]
+        (c/assoc-at tx  [:assets :conn :vendor] b)))
 
 (defn set-user-id [i]
   (c/with-write-transaction [props tx]
