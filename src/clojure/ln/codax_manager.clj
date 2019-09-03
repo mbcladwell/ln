@@ -185,6 +185,8 @@
     :user (c/get-at! props [:assets :conn :user])}))
 
 
+
+
   (defn print-ap 
     "This version prints everything"
     []
@@ -350,3 +352,4 @@
 
 ;;(look)
 
+;;(set-user-group "administrator")

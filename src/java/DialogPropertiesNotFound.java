@@ -424,7 +424,8 @@ tabbedPane.addTab("Database setup", icon, panel3,
     //IFn recentlyModified  = Clojure.var("ln.codax-manager", "recently-modified?");
     Long elapsed = System.currentTimeMillis() - nodeFile.lastModified();
     System.out.println("elapsed: " + elapsed);
-    System.out.println("allprops: " + Boolean.toString(allprops.get(":sslmode")));
+    System.out.println("port: " + String.valueOf(allprops.get(":port")));
+    System.out.println("sslmode: " + String.valueOf(allprops.get(":sslmode")));
     if(elapsed < 10000){
 	    messageLabel.setText("newly created");
 	}else{
@@ -434,7 +435,7 @@ tabbedPane.addTab("Database setup", icon, panel3,
 	userField.setText(allprops.get(":user"));
 	passwordField.setText(allprops.get(":password"));
 	selectedLabelResponse.setText(System.getProperty("user.dir") + "/ln-props");
-	if(allprops.get(":sslmode")){
+	if(String.valueOf(allprops.get(":sslmode")).equals("true")){
 	    trueButton.setSelected(true);
 	}else{falseButton.setSelected(true);
 	}
