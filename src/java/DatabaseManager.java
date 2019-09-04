@@ -52,11 +52,21 @@ private IFn require = Clojure.var("clojure.core", "require");
     IFn setUserID = Clojure.var("ln.codax-manager", "set-user-id");
     IFn getUserID = Clojure.var("ln.codax-manager", "get-user-id");
     IFn setAuthenticated = Clojure.var("ln.codax-manager", "set-authenticated");
-    
+    IFn getDbType = Clojure.var("ln.codax-manager", "get-dbtype");
+    String dbtype = (String)getDbType.invoke();
+	  Properties props = new Properties();
    
       Long insertKey = 0L;
       try {
+	  if(dbtype.equals("postgresql")){
 	  Class.forName("org.postgresql.Driver");
+	  props.setProperty("user", "ln_admin");
+	  props.setProperty("password", "welcome");
+	  }else{
+	  Class.forName("com.mysql.jdbc.Driver");		  
+	  props.setProperty("user", "plapan_ln_admin");
+	  props.setProperty("password", "welcome");
+	      }
 	  IFn getSource = Clojure.var("ln.codax-manager", "get-source");
 	  IFn getUser = Clojure.var("ln.codax-manager", "get-user");
 	  IFn getPassword = Clojure.var("ln.codax-manager", "get-password");
@@ -64,9 +74,6 @@ private IFn require = Clojure.var("clojure.core", "require");
    
 	  String target = (String)getSource.invoke();
 	  String url = (String)getURL.invoke(target);
-	  Properties props = new Properties();
-	  props.setProperty("user", "ln_admin");
-	  props.setProperty("password", "welcome");
 
 	  conn = DriverManager.getConnection(url, props);	
       

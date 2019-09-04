@@ -30,12 +30,12 @@
                                   })))
  (c/close-database! props)))
 
-(defn login-to-elephantsql []
+(defn set-props-to-elephantsql []
  (let [props (c/open-database! "ln-props")]
   (c/with-write-transaction [props tx]
     (-> tx
         (c/assoc-at [:assets :conn] {:source "test"
-                                     :vendor "postgresql"
+                                     :dbtype "postgresql"
   	                             :dbname "klohymim"
  	                             :host  "raja.db.elephantsql.com"
   	                             :port  5432
@@ -59,12 +59,12 @@
                                         })))
   (c/close-database! props)))
 
-(defn login-to-hostgator []
+(defn set-props-to-hostgator []
  (let [props (c/open-database! "ln-props")]
   (c/with-write-transaction [props tx]
     (-> tx
         (c/assoc-at [:assets :conn] {:source "test"
-                                     :vendor "mysql"
+                                     :dbtype "mysql"
   	                             :dbname "plapan_lndb"
  	                             :host  "192.254.187.215"
   	                             :port  3306
@@ -77,18 +77,18 @@
         (c/assoc-at [:assets :session] {:project-id 1
 	                                :project-sys-name "PRJ-1"
 	                                :user-id 3
-                                        :user-name "klohymim"
+                                        :user-name "plapan_ln_admin"
                                         :plateset-id 1
                                         :plateset-sys-name ""
 	                                :user-group-id 2
-                                        :user-group "user"
+                                        :user-group "administrator"
 	                                :session-id nil
                                         :working-dir ""
                                         :authenticated true
                                         })))
   (c/close-database! props)))
 
-
+;;(set-props-to-hostgator)
 
 (defn open-or-create-props
   ;;1. check working directory - /home/user/my-working-dir
@@ -103,7 +103,7 @@
           (create-ln-props-from-text)
           (def props (c/open-database! "ln-props")))
         (do            ;;no limsnucleus.properties - login to elephantSQL
-          (login-to-elephantsql)
+          (set-props-to-elephantsql)
           (def props (c/open-database! "ln-props"))
           (JOptionPane/showMessageDialog nil "limsnucleus.properties file is missing\nLogging in to example database!"  )
           )))))
@@ -126,10 +126,10 @@
   (c/with-write-transaction [props tx]
         (c/assoc-at! tx  [:assets :conn :password] p)))
 
-(defn get-vendor
+(defn get-dbtype
   "mysql; postgresql"
   []
-  (c/get-at! props [:assets :conn :vendor]))
+  (c/get-at! props [:assets :conn :dbtype]))
 
 (defn get-host []
    (c/get-at! props [:assets :conn :host]))
@@ -198,7 +198,7 @@
   ;;note that the keys must be quoted for java
   []
   (into {} (java.util.HashMap.
-            {        ":vendor" (c/get-at! props [:assets :conn :vendor])
+            {        ":dbtype" (c/get-at! props [:assets :conn :dbtype])
              ":host" (c/get-at! props [:assets :conn :host])
             ":port" (c/get-at! props [:assets :conn :port])
            ":sslmode" (c/get-at! props [:assets :conn :sslmode])
@@ -211,7 +211,7 @@
 (defn get-all-props-clj
   ;;a map for clojure
   [] 
-  ({:vendor (c/get-at! props [:assets :conn :vendor])
+  ({:dbtype (c/get-at! props [:assets :conn :dbtype])
     :host (c/get-at! props [:assets :conn :host])
     :port (c/get-at! props [:assets :conn :port])
     :sslmode (c/get-at! props [:assets :conn :sslmode])
@@ -232,9 +232,9 @@
   ;;(print-ap)
   ;;(print-all-props)
 
-(defn set-vendor [b]
+(defn set-dbtype [b]
   (c/with-write-transaction [props tx]
-        (c/assoc-at tx  [:assets :conn :vendor] b)))
+        (c/assoc-at tx  [:assets :conn :dbtype] b)))
 
 (defn set-user-id [i]
   (c/with-write-transaction [props tx]
@@ -349,6 +349,7 @@
     (println "-------------------")
     (println "conn")
     (println (str ":auto-login " (get-auto-login)))
+    (println (str ":dbtype     " (get-dbtype)))
     (println (str ":dbname     " (get-dbname)))
     (println (str ":host       " (get-host)))
     (println (str ":user-name  " (get-user)))
