@@ -11,10 +11,7 @@ import java.util.Set;
 import java.util.logging.Logger;
 
 import javax.swing.table.DefaultTableModel;
-
-import com.google.common.math.Stats;
-//emacs changes this
-//import com.google.common.math.Stats;
+import com.google.common.math.Stats;   
 
 
 public class ResponseWrangler {
@@ -41,7 +38,7 @@ public class ResponseWrangler {
     private CustomTable table;
     private double[][] sorted_response;
     private double[][] sorted_response_unknowns_only;
-    
+//import com.google.common.math.Stats;    
   private DecimalFormat df = new DecimalFormat("#####.####");
         private Set<Integer> plate_set = new HashSet<Integer>();
     private Set<Integer> well_set = new HashSet<Integer>();
@@ -73,11 +70,10 @@ public class ResponseWrangler {
      */
     public ResponseWrangler(CustomTable _table, int _desired_response){
 	table = _table;
-		    	  
+	    	  
 	DefaultTableModel dtm = (DefaultTableModel)table.getModel();
 	sorted_response = new double[table.getRowCount()][4];
 	for(int row = 0;row < table.getRowCount();row++) {
-	sorted_response = new double[table.getRowCount()][4];
 	
 	    int plate = (int)dtm.getValueAt(row, 0);
  
@@ -86,7 +82,8 @@ public class ResponseWrangler {
 	    well_set.add((int)dtm.getValueAt(row, 1));
 	    sorted_response[row][1] = well;
 	    
-	    double response = Double.valueOf((float)dtm.getValueAt(row, 2));	
+	    double response = Double.valueOf((float)dtm.getValueAt(row, 2));
+          	
 	    Double bkgrnd = Double.valueOf((float)dtm.getValueAt(row, 3));
 	    Double norm = Double.valueOf((float)dtm.getValueAt(row, 4));
 	    Double normpos = Double.valueOf((float)dtm.getValueAt(row, 5));
@@ -101,11 +98,14 @@ public class ResponseWrangler {
 	    if(dtm.getValueAt(row, 10) != null){
 		sample_id = (int)dtm.getValueAt(row, 10);
 	    }
-	    sorted_response[row][3] = sample_id;
+	    sorted_response[row][3] = Double.valueOf(sample_id);
 	switch(_desired_response){
 	case 0: //raw
 	    desired_response_list.add(response);
+           System.out.println("response: " + response);
+
 	    sorted_response[row][0] = response;
+    System.out.println("sorted_response[row][0]: " + sorted_response[row][0]);
 	    if(well_type_id==4){  //if it is a blank
 		blank_list.add(Double.valueOf((float)dtm.getValueAt(row, 2)));
 
@@ -116,6 +116,7 @@ public class ResponseWrangler {
 	    }
 	    if(well_type_id==2){  //if it is a positive control
 		pos_list.add(Double.valueOf((float)dtm.getValueAt(row, 2)));
+
 	    }
 	    if(well_type_id==1){  //if it is an unknown
 		unknowns_list.add(Double.valueOf((float)dtm.getValueAt(row, 2)));
@@ -131,6 +132,7 @@ public class ResponseWrangler {
 	    }
 	    if(well_type_id==3){  //if it is a negative control
 		neg_list.add(Double.valueOf((float)dtm.getValueAt(row, 4)));
+		System.out.println("neg: " + Double.valueOf((float)dtm.getValueAt(row, 4)));
 	    }
 	    if(well_type_id==2){  //if it is a positive control
 		pos_list.add(Double.valueOf((float)dtm.getValueAt(row, 4)));
@@ -177,8 +179,14 @@ public class ResponseWrangler {
 
        
 	
-    	}
+    } 
 
+   // System.out.println("==============================");
+   // System.out.println("_desired_response: " + _desired_response);
+    // for(int i=0; i < sorted_response.length; i++){
+   // 	System.out.println("[" + i + "][0] " + sorted_response[i][0] + " [1] " + sorted_response[i][1] + "  [2] " + sorted_response[i][2]  + "  [3] " + sorted_response[i][3]);	
+   // }
+    
 	
     format = well_set.size();
     num_plates = plate_set.size();
@@ -214,7 +222,7 @@ public class ResponseWrangler {
     });
 
     //get the sorted response for unknowns only
-    sorted_response_unknowns_only = new double[unknowns_list.size()][4];
+      sorted_response_unknowns_only = new double[unknowns_list.size()][4];
     int unk_index = 0;
     for(int i = 0; i < sorted_response.length; i++){
 	if(sorted_response[i][2]==1){
@@ -225,20 +233,20 @@ public class ResponseWrangler {
 	    unk_index++;
 	}
     }
-
+    
 
     
     
-    if(_desired_response == 0){
-	System.out.println("neg: " + mean_neg);
-	System.out.println("stdev_neg: " + stdev_neg);
-	System.out.println("mean_2_sd: " + mean_neg_2_sd);
-	System.out.println("mean_2_sd_hits: " + getHitsAboveThreshold(mean_neg_2_sd));
-	System.out.println("mean_3_sd: " + mean_neg_3_sd);
-	System.out.println("mean_3_sd_hits: " + getHitsAboveThreshold(mean_neg_3_sd));
-	System.out.println("mean_pos" + mean_pos );
-	System.out.println("pos_hits: " + getHitsAboveThreshold(mean_pos));
-    }
+    // if(_desired_response == 0){
+    // 	System.out.println("neg: " + mean_neg);
+    // 	System.out.println("stdev_neg: " + stdev_neg);
+    // 	System.out.println("mean_2_sd: " + mean_neg_2_sd);
+    // 	System.out.println("mean_2_sd_hits: " + getHitsAboveThreshold(mean_neg_2_sd));
+    // 	System.out.println("mean_3_sd: " + mean_neg_3_sd);
+    // 	System.out.println("mean_3_sd_hits: " + getHitsAboveThreshold(mean_neg_3_sd));
+    // 	System.out.println("mean_pos" + mean_pos );
+    // 	System.out.println("pos_hits: " + getHitsAboveThreshold(mean_pos));
+    // }
 
     /*
     for(int i=0; i < sorted_response.length; i++){
@@ -546,6 +554,7 @@ public class ResponseWrangler {
 		return NORM_POS;
 	}
 }
+
 
 
 

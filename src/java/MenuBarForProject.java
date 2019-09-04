@@ -111,7 +111,7 @@ public class MenuBarForProject extends JMenuBar {
 
     IFn getUserGroupID = Clojure.var("ln.codax-manager", "get-user-group-id");
     
-    if(((Long)getUserGroupID.invoke()).intValue() == 1){
+    if((int)getUserGroupID.invoke() == 1){
     menu = new AdminMenu(dbm, project_table);
      this.add(menu);
     }

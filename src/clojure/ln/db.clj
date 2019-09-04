@@ -12,7 +12,7 @@
   (:gen-class))
 
 
-(def pg-db-init  {:vendor "postgresql"
+(def pg-db-init  {:dbtype "postgresql"
                   :dbname "lndb"
                   :host (cm/get-host)
                   :user (cm/get-user)
@@ -728,7 +728,8 @@
   (load-assay-data)
   (add-hit-lists)))
 
-  
+;;(add-example-data)
+
 (defn delete-example-data
   []
   (jdbc/execute! pg-db-init "TRUNCATE project, plate_set, plate, hit_sample, hit_list, assay_run, assay_result, sample, well, lnsession RESTART IDENTITY CASCADE;"))
