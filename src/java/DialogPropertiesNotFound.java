@@ -92,15 +92,13 @@ public class DialogPropertiesNotFound extends JDialog
 	//dmf = session.getDialogMainFrame();
 	IFn require = Clojure.var("clojure.core", "require");
 	require.invoke(Clojure.read("ln.codax-manager"));
-	require.invoke(Clojure.read("ln.db-manager"));
-	//IFn getAllProps  = Clojure.var("lnmanager.session", "get-all-props");	  
 	//Map<String, String> allprops = (HashMap)getAllProps.invoke();
 	//LOGGER.info("allprops: " + allprops);
     fileChooser = new JFileChooser();
 
     dbSetupPanel = new DatabaseSetupPanel();
     IFn getSource = Clojure.var("ln.codax-manager", "get-source");
-    IFn getConnURL = Clojure.var("ln.db-manager", "get-connection-string");
+    IFn getConnURL = Clojure.var("ln.codax-manager", "get-connection-string");
     
     tabbedPane = new JTabbedPane();
     tabbedPane.addChangeListener(  new ChangeListener() {

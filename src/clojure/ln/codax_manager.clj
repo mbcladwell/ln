@@ -1,6 +1,7 @@
 (ns ln.codax-manager
   (:require [codax.core :as c]
-             [clojure.java.io :as io])
+            [clojure.java.io :as io]
+            [next.jdbc :as j])
    (:import java.sql.DriverManager javax.swing.JOptionPane)
   (:gen-class ))
 
@@ -43,7 +44,7 @@
   	                             :password  "hwc3v4_rbkT-1EL2KI-JBaqFq0thCXM_"
  	                             :sslmode  false
                                      :auto-login true
- 	                             :base.help.url  "http://labsolns.com/software/" 
+ 	                             :help-url-prefix  "http://labsolns.com/software/" 
                                      }) 
         (c/assoc-at [:assets :session] {:project-id 1
 	                                :project-sys-name "PRJ-1"
@@ -72,7 +73,7 @@
   	                             :password  "welcome"
  	                             :sslmode  false
                                      :auto-login true
- 	                             :base.help.url  "http://labsolns.com/software/" 
+ 	                             :help-url-prefix  "http://labsolns.com/software/" 
                                      }) 
         (c/assoc-at [:assets :session] {:project-id 1
 	                                :project-sys-name "PRJ-1"
@@ -82,13 +83,13 @@
                                         :plateset-sys-name ""
 	                                :user-group-id 2
                                         :user-group "administrator"
-	                                :session-id nil
+	                                :session-id 1
                                         :working-dir ""
                                         :authenticated true
                                         })))
   (c/close-database! props)))
 
-;;(set-props-to-hostgator)
+
 
 (defn open-or-create-props
   ;;1. check working directory - /home/user/my-working-dir
@@ -100,16 +101,23 @@
       (def props (c/open-database! (str (java.lang.System/getProperty "user.home") "/ln-props") ))
       (if (.exists (io/as-file (str (java.lang.System/getProperty "user.dir") "/limsnucleus.properties") ))
         (do
-          (create-ln-props-from-text)
+          (create-ln-props-from-text) 
           (def props (c/open-database! "ln-props")))
-        (do            ;;no limsnucleus.properties - login to elephantSQL
-          (set-props-to-elephantsql)
-          (def props (c/open-database! "ln-props"))
-          (JOptionPane/showMessageDialog nil "limsnucleus.properties file is missing\nLogging in to example database!"  )
-          )))))
+        
+        (do            ;;no limsnucleus.properties - login to mysql
+          (set-props-to-hostgator)
+          (def props (c/open-database! "ln-props")) ;;end of user.dir if
+          (JOptionPane/showMessageDialog nil "limsnucleus.properties file is missing\nLogging in to example database!"  ))
+
+    ))))
 
 
 (open-or-create-props)
+
+
+;;(set-props-to-hostgator)
+
+
 ;;(create-ln-props-from-text)
 ;;(open-or-create-props)
 ;;(print-ap)
@@ -120,6 +128,10 @@
 (defn set-user [u]
   (c/with-write-transaction [props tx]
         (c/assoc-at tx [:assets :conn :user] u)))
+
+(defn set-init [b]
+  (c/with-write-transaction [props tx]
+        (c/assoc-at tx [:assets :conn :init] b)))
 
 
 (defn set-password [p]
@@ -245,6 +257,9 @@
 (defn get-user-id []
   (c/get-at! props [:assets :session :user-id ]))
 
+(defn get-init []
+  (c/get-at! props [:assets :session :init ]))
+
 
 (defn set-user-group [i]
     (c/with-write-transaction [props tx]
@@ -254,7 +269,7 @@
   (c/get-at! props [:assets :session :user-group ]))
 
 ;;(get-user-group)
-(defn get-user-group-id []
+(defn get-user-group-id ^Integer []
   (c/get-at! props [:assets :session :user-group-id ]))
 
 (defn set-user-group-id [i]
@@ -324,6 +339,23 @@
    (java.lang.System/getProperty "user.dir"))
 
 
+(def conn  (j/get-datasource {:dbtype (get-dbtype)
+                              :dbname (get-dbname)
+                              :host (get-host)
+                              :user (get-user)
+                              :password (get-password)
+                              :port (get-port)
+                              :ssl (get-sslmode)}))
+
+(def conn-admin  (j/get-datasource {:dbtype (get-dbtype)
+                                    :dbname (get-dbname)
+                                    :host (get-host)
+                                    :user (if (= (get-dbtype) "postgresql") "ln_admin" "plapan_ln_admin")
+                                    :password "welcome"
+                                    :port (get-port)
+                                    :ssl (get-sslmode)}))
+
+;;(println conn-admin)
 
 (defn update-ln-props [host port dbname source sslmode user password help-url user-dir]
   (c/with-write-transaction [props tx]
@@ -343,11 +375,22 @@
           (c/get-at! props [:assets :conn :help-url-prefix ]))
 ;;(get-help-url-prefix)
 
+(defn  get-connection-string [target]	  
+  (case target
+    "heroku" (str "jdbc:postgresql://"  (get-host) ":" (get-port)  "/" (get-dbname) "?sslmode=require&user=" (get-user) "&password="  (get-password))
+    "local" (str "jdbc:postgresql://" (get-host) "/" (get-dbname))	   
+    "elephantsql" (str "jdbc:postgresql://" (get-host) ":" (get-port) "/" (get-dbname) "?user=" (get-user) "&password=" (get-password) "&SSL=true" )
+     "mysql" (str "jdbc:mysql://(host=" (get-host) ",port="  (get-port) ",user=" (get-user) ",password=" (get-password) ")/" (get-dbname)  )
+    "test" (str "jdbc:postgresql://" (get-host) ":" (get-port) "/" (get-dbname) "?user=" (get-user) "&password=" (get-password) "&SSL=true" )))
+
+
+
 (defn pretty-print []
   (do
     (println "All values")
     (println "-------------------")
     (println "conn")
+    (println (str ":init " (get-init)))
     (println (str ":auto-login " (get-auto-login)))
     (println (str ":dbtype     " (get-dbtype)))
     (println (str ":dbname     " (get-dbname)))

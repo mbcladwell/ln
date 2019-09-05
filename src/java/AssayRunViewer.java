@@ -76,7 +76,7 @@ public class AssayRunViewer extends JDialog implements java.awt.event.ActionList
      IFn getProjectID = Clojure.var("ln.codax-manager", "get-project-id");
      //cannot be (Integer)    ...intValue()
      // project is long, others are int??
-     project_id = (int)getProjectID.invoke();
+     project_id = ((Long)getProjectID.invoke()).intValue();
       IFn getUser = Clojure.var("ln.codax-manager", "get-user");
    
     owner = (String)getUser.invoke();
@@ -91,7 +91,7 @@ public class AssayRunViewer extends JDialog implements java.awt.event.ActionList
 
     //this failed as Long
     //getAssayRuns requires and int
-    assay_runs_table = dbm.getDatabaseRetriever().getAssayRuns((int)getProjectID.invoke());
+    assay_runs_table = dbm.getDatabaseRetriever().getAssayRuns(((Long)getProjectID.invoke()).intValue());
   assay_runs_table.getSelectionModel().addListSelectionListener(						     
 	  new ListSelectionListener() {
 	      public void valueChanged(ListSelectionEvent e) {
@@ -150,7 +150,7 @@ public class AssayRunViewer extends JDialog implements java.awt.event.ActionList
     hit_lists_pane.setBorder(hit_lists_pane_border);
     //failed as Long
     // getHitLists requires int
-    hit_lists_table = dbm.getDatabaseRetriever().getHitLists((int)getProjectID.invoke());
+    hit_lists_table = dbm.getDatabaseRetriever().getHitLists(((Long)getProjectID.invoke()).intValue());
 
     hit_lists_scroll_pane = new JScrollPane(hit_lists_table);
     hit_lists_table.setFillsViewportHeight(true);

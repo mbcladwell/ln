@@ -54,7 +54,7 @@ private IFn require = Clojure.var("clojure.core", "require");
     IFn setAuthenticated = Clojure.var("ln.codax-manager", "set-authenticated");
     IFn getDbType = Clojure.var("ln.codax-manager", "get-dbtype");
     String dbtype = (String)getDbType.invoke();
-	  Properties props = new Properties();
+    Properties props = new Properties();
    
       Long insertKey = 0L;
       try {
@@ -70,7 +70,7 @@ private IFn require = Clojure.var("clojure.core", "require");
 	  IFn getSource = Clojure.var("ln.codax-manager", "get-source");
 	  IFn getUser = Clojure.var("ln.codax-manager", "get-user");
 	  IFn getPassword = Clojure.var("ln.codax-manager", "get-password");
-	  IFn getURL = Clojure.var("ln.db-manager", "get-connection-string");
+	  IFn getURL = Clojure.var("ln.codax-manager", "get-connection-string");
    
 	  String target = (String)getSource.invoke();
 	  String url = (String)getURL.invoke(target);
