@@ -271,8 +271,9 @@ case 1536:
     
     String[][] results = new String[rowCount + 1][colCount];
     for (int i = 0; i < colCount; i++) {
-      	LOGGER.info("ij: " + results[0][i]);
-      results[0][i] = table.getColumnName(i);
+       results[0][i] = table.getColumnName(i);
+            	LOGGER.info("ij: " + results[0][i]);
+
     }
 
     for (int i = 1; i <= rowCount; i++) { //start at 1; 0 holds the header

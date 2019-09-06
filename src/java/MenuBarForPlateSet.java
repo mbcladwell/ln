@@ -239,13 +239,18 @@ public class MenuBarForPlateSet extends JMenuBar {
     menuItem.addActionListener(
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
+	      	    	    LOGGER.info("in underlying: "  );
+	
 		if(!plate_set_table.getSelectionModel().isSelectionEmpty()){
+		
 		    Object[][] results = dbm.getDialogMainFrame().getUtilities().getSelectedRowsAndHeaderAsStringArray(plate_set_table);
 		    if(results.length>1){
+			LOGGER.info("results.length: " + results.length );
+		
 			String[] plate_set_ids = new String[results.length];
 			try{
 			    
-			    for(int i=0; i < results.length-1; i++){
+			    for(int i=1; i < results.length; i++){
 			    plate_set_ids[i] =  plate_set_table.getModel().getValueAt(i, 0).toString().substring(3);
 			    LOGGER.info("psid: " + plate_set_ids[i] );
 			    }
@@ -265,7 +270,6 @@ public class MenuBarForPlateSet extends JMenuBar {
 			JOptionPane.showMessageDialog(dbm.getDialogMainFrame(), "Select one or more  Plate Sets!");	
 		    }
 		}
-	  
           }
         });
     menu.add(menuItem);
