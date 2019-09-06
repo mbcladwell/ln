@@ -40,7 +40,9 @@
   ["well_numbers" "worklists" "rearray_pairs"  "import_plate_layout" "plate_layout" "well_type" "hit_sample" "hit_list" "assay_result" "assay_run" "assay_type" "well_sample" "sample" "well" "plate" "plate_plate_set" "plate_set" "layout_source_dest" "plate_layout_name" "plate_format" "plate_type" "project" "lnsession" "lnuser" "lnuser_groups"] )
 
 
-
+(def tables-to-truncate
+  "abridged set of tables to be truncated when deleting example data"
+  ["project" "plate_set" "plate" "hit_sample" "hit_list" "assay_run" "assay_result" "sample" "well" "lnsession" ])
 
 
 (def all-tables
@@ -274,38 +276,38 @@
 
 
 (def all-indices
-  [["CREATE INDEX ON plate_layout_name(plate_format_id);"]
-   ["CREATE INDEX ON plate(barcode);"]
-   ["CREATE INDEX ON plate_set(plate_format_id);"]
-   ["CREATE INDEX ON plate_set(plate_type_id);"]
-   ["CREATE INDEX ON plate_set(project_id);"]
-   ["CREATE INDEX ON plate_set(lnsession_id);"]
-   ["CREATE INDEX ON plate(plate_type_id);"]
-   ["CREATE INDEX ON plate(plate_format_id);"]
-   ["CREATE INDEX ON plate_plate_set(plate_set_id);"]
-   ["CREATE INDEX ON plate_plate_set(plate_id);"]
-   ["CREATE INDEX ON project(lnsession_id);"]
-   ["CREATE INDEX ON sample(project_id);"]
-   ["CREATE INDEX ON well(plate_id);"]
-   ["CREATE INDEX ON well_sample(well_id);"]
-   ["CREATE INDEX ON well_sample(sample_id);"]
-   ["CREATE INDEX ON assay_run(assay_type_id);"]
-   ["CREATE INDEX ON assay_run(plate_set_id);"]
-   ["CREATE INDEX ON assay_run(plate_layout_name_id);"]
-   ["CREATE INDEX ON assay_run(lnsession_id);"]
-   ["CREATE INDEX ON assay_result(assay_run_id);"]
-   ["CREATE INDEX ON assay_result(plate_order);"]
-   ["CREATE INDEX ON assay_result(well);"]
-   ["CREATE INDEX ON hit_list(assay_run_id);"]
-   ["CREATE INDEX ON hit_list(lnsession_id);"]
-   ["CREATE INDEX ON hit_sample(hitlist_id);"]
-   ["CREATE INDEX ON hit_sample(sample_id);"]
-   ["CREATE INDEX ON plate_layout(plate_layout_name_id);"]
-   ["CREATE INDEX ON plate_layout(well_type_id);"]
-   ["CREATE INDEX ON plate_layout(well_by_col);"]
-   ["CREATE INDEX ON rearray_pairs(src);"]
-   ["CREATE INDEX ON rearray_pairs(dest);"]
-   ["CREATE INDEX ON well_numbers(by_col);"]
+  [["CREATE INDEX pln_pfid ON plate_layout_name(plate_format_id);"]
+   ["CREATE INDEX bc ON plate(barcode);"]
+   ["CREATE INDEX ps_pfid ON plate_set(plate_format_id);"]
+   ["CREATE INDEX ps_ptid ON plate_set(plate_type_id);"]
+   ["CREATE INDEX ps_pid ON plate_set(project_id);"]
+   ["CREATE INDEX ps_sid ON plate_set(lnsession_id);"]
+   ["CREATE INDEX p_ptid ON plate(plate_type_id);"]
+   ["CREATE INDEX p_pfid ON plate(plate_format_id);"]
+   ["CREATE INDEX pps_psid ON plate_plate_set(plate_set_id);"]
+   ["CREATE INDEX pps_pid ON plate_plate_set(plate_id);"]
+   ["CREATE INDEX p_sid ON project(lnsession_id);"]
+   ["CREATE INDEX s_pid ON sample(project_id);"]
+   ["CREATE INDEX w_pid ON well(plate_id);"]
+   ["CREATE INDEX ws_wid ON well_sample(well_id);"]
+   ["CREATE INDEX ws_sid ON well_sample(sample_id);"]
+   ["CREATE INDEX ar_atid ON assay_run(assay_type_id);"]
+   ["CREATE INDEX ar_pdif ON assay_run(plate_set_id);"]
+   ["CREATE INDEX ar_plnid ON assay_run(plate_layout_name_id);"]
+   ["CREATE INDEX ar_sid ON assay_run(lnsession_id);"]
+   ["CREATE INDEX ar_arid ON assay_result(assay_run_id);"]
+   ["CREATE INDEX ar_po ON assay_result(plate_order);"]
+   ["CREATE INDEX ar_w ON assay_result(well);"]
+   ["CREATE INDEX hl_arid ON hit_list(assay_run_id);"]
+   ["CREATE INDEX hl_sid ON hit_list(lnsession_id);"]
+   ["CREATE INDEX hs_hlid ON hit_sample(hitlist_id);"]
+   ["CREATE INDEX hs_sid ON hit_sample(sample_id);"]
+   ["CREATE INDEX pl_plnid ON plate_layout(plate_layout_name_id);"]
+   ["CREATE INDEX pl_wtid ON plate_layout(well_type_id);"]
+   ["CREATE INDEX pl_wbc ON plate_layout(well_by_col);"]
+   ["CREATE INDEX rp_s ON rearray_pairs(src);"]
+   ["CREATE INDEX rp_d ON rearray_pairs(dest);"]
+   ["CREATE INDEX wn_bc ON well_numbers(by_col);"]
    ])
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -457,30 +459,31 @@
 (defn drop-all-tables
 ;;needed for interface button
 []
-  (doall (map #(jdbc/db-do-commands cm/conn true  %) (map #(format  "DROP TABLE IF EXISTS %s CASCADE" %)  all-table-names ) )))
+  (doall (map #(jdbc/db-do-commands cm/conn-admin true  %) (map #(format  "DROP TABLE IF EXISTS %s CASCADE" %)  all-table-names ) )))
 
 ;;(drop-all-tables)
 
 (defn initialize-limsnucleus
   ;;(map #(jdbc/db-do-commands cm/conn (jdbc/drop-table-ddl % {:conditional? true } )) all-table-names)
   []
-  (doall (map #(jdbc/db-do-commands cm/conn true  %) (map #(format  "DROP TABLE IF EXISTS %s CASCADE" %)  all-table-names ) ))
-  (doall (map #(jdbc/db-do-commands cm/conn true %) all-tables))
-  (doall  (map #(jdbc/db-do-commands cm/conn true %) all-indices))
+  (doall (map #(jdbc/db-do-commands cm/conn-admin true  %) (map #(format  "DROP TABLE IF EXISTS %s CASCADE" %)  all-table-names ) ))
+  (doall (map #(jdbc/db-do-commands cm/conn-admin true %) all-tables))
+  (doall  (map #(jdbc/db-do-commands cm/conn-admin true %) all-indices))
   ;; this errors because brackets not stripped
   ;;(map #(jdbc/insert-multi! cm/conn %) required-data)
-  (doall  (map #(apply jdbc/insert-multi! cm/conn % ) required-data)))
+  (doall  (map #(apply jdbc/insert-multi! cm/conn-admin % ) required-data))
+  (cm/set-init false))
 
 ;;(initialize-limsnucleus)
-
+;;(println cm/conn)
 
 (defn add-example-data
   ;;
   []
   ;; order important!
   (do
-  (jdbc/execute! cm/conn "TRUNCATE project, plate_set, plate, hit_sample, hit_list, assay_run, assay_result, sample, well, lnsession RESTART IDENTITY CASCADE;")
-  (jdbc/insert! cm/conn :lnsession {:lnuser_id 1})
+    (doall (map #(jdbc/db-do-commands cm/conn-admin true  %) (map #(format  "TRUNCATE %s RESTART IDENTITY CASCADE" %)  tables-to-truncate )))
+  (jdbc/insert! cm/conn-admin :lnsession {:lnuser_id 1})
   (cm/set-session-id 1)  
   (add-projects)
   (add-plate-sets)
@@ -491,7 +494,7 @@
 
 (defn delete-example-data
   []
-  (jdbc/execute! cm/conn "TRUNCATE project, plate_set, plate, hit_sample, hit_list, assay_run, assay_result, sample, well, lnsession RESTART IDENTITY CASCADE;"))
+  (jdbc/execute! cm/conn-admin "TRUNCATE project, plate_set, plate, hit_sample, hit_list, assay_run, assay_result, sample, well, lnsession RESTART IDENTITY CASCADE;"))
 
 
 

@@ -68,7 +68,7 @@ public class HitListViewer extends JDialog implements java.awt.event.ActionListe
 	this.setTitle("Hit List Viewer - " + (String)getProjectSysName.invoke());
 	IFn getProjectID = Clojure.var("ln.codax-manager", "get-project-id");
 	//fails as long
-	project_id = ((int)getProjectID.invoke());
+	project_id = (int)getProjectID.invoke();
       IFn getUser = Clojure.var("ln.codax-manager", "get-user");
 
       owner = (String)getUser.invoke();

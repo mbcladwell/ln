@@ -33,7 +33,7 @@ public class DatabaseInserter {
   Connection conn;
   JTable table;
   Utilities utils;
-    Long session_id; 
+    int session_id; 
     //  Session session;
     private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
     private IFn require = Clojure.var("clojure.core", "require");
@@ -48,7 +48,7 @@ public class DatabaseInserter {
     require.invoke(Clojure.read("ln.db-inserter"));
     require.invoke(Clojure.read("ln.codax-manager"));
     IFn getSessionID = Clojure.var("ln.codax-manager", "get-session-id");
-    session_id = (Long)getSessionID.invoke();
+    session_id = (int)getSessionID.invoke();
     // this.utils = dmf.getUtilities();
     //this.session = dmf.getSession();
   }

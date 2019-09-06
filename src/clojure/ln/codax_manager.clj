@@ -258,7 +258,7 @@
   (c/get-at! props [:assets :session :user-id ]))
 
 (defn get-init []
-  (c/get-at! props [:assets :session :init ]))
+  (c/get-at! props [:assets :conn :init ]))
 
 
 (defn set-user-group [i]
@@ -321,7 +321,7 @@
   (c/get-at! props [:assets :session :plate-id ]))
 
 
-(defn get-session-id []
+(defn get-session-id ^Integer []
   (c/get-at! props [:assets :session :session-id ]))
 
 (defn set-session-id [i]
@@ -339,21 +339,21 @@
    (java.lang.System/getProperty "user.dir"))
 
 
-(def conn  (j/get-datasource {:dbtype (get-dbtype)
-                              :dbname (get-dbname)
-                              :host (get-host)
-                              :user (get-user)
-                              :password (get-password)
-                              :port (get-port)
-                              :ssl (get-sslmode)}))
+(def conn   {:dbtype (get-dbtype)
+             :dbname (get-dbname)
+             :host (get-host)
+             :user (get-user)
+             :password (get-password)
+             :port (get-port)
+             :ssl (get-sslmode)})
 
-(def conn-admin  (j/get-datasource {:dbtype (get-dbtype)
-                                    :dbname (get-dbname)
-                                    :host (get-host)
-                                    :user (if (= (get-dbtype) "postgresql") "ln_admin" "plapan_ln_admin")
-                                    :password "welcome"
-                                    :port (get-port)
-                                    :ssl (get-sslmode)}))
+(def conn-admin   {:dbtype (get-dbtype)
+                   :dbname (get-dbname)
+                   :host (get-host)
+                   :user (if (= (get-dbtype) "postgres") "ln_admin" "plapan_ln_admin")
+                   :password "welcome"
+                   :port (get-port)
+                   :ssl (get-sslmode)})
 
 ;;(println conn-admin)
 
@@ -380,8 +380,9 @@
     "heroku" (str "jdbc:postgresql://"  (get-host) ":" (get-port)  "/" (get-dbname) "?sslmode=require&user=" (get-user) "&password="  (get-password))
     "local" (str "jdbc:postgresql://" (get-host) "/" (get-dbname))	   
     "elephantsql" (str "jdbc:postgresql://" (get-host) ":" (get-port) "/" (get-dbname) "?user=" (get-user) "&password=" (get-password) "&SSL=true" )
-     "mysql" (str "jdbc:mysql://(host=" (get-host) ",port="  (get-port) ",user=" (get-user) ",password=" (get-password) ")/" (get-dbname)  )
-    "test" (str "jdbc:postgresql://" (get-host) ":" (get-port) "/" (get-dbname) "?user=" (get-user) "&password=" (get-password) "&SSL=true" )))
+     "mysql" (str "jdbc:mysql://" (get-host) ":"  (get-port) "/" (get-dbname) "?user=" (get-user) "&password=" (get-password) "&SSL=true"   )
+     "test" (str "jdbc:postgresql://" (get-host) ":" (get-port) "/" (get-dbname) "?user=" (get-user) "&password=" (get-password) "&SSL=true")
+   "postgres" (str "jdbc:postgresql://" (get-host) ":" (get-port) "/" (get-dbname) "?user=" (get-user) "&password=" (get-password) "&SSL=true"               )))
 
 
 
