@@ -158,7 +158,7 @@ public class DatabaseSetupPanel extends JPanel {
         });
     deleteTablesButton.setSize(10, 10);
 
-    label = new JLabel("Create tables, functions and required data e.g. plate layouts and assay types.", SwingConstants.LEFT);
+    label = new JLabel("Create tables, indices and required data e.g. plate layouts and assay types.", SwingConstants.LEFT);
     c.gridx = 1;
     c.gridy = 0;
     c.gridwidth = 1;
@@ -166,7 +166,7 @@ public class DatabaseSetupPanel extends JPanel {
     panel2.add(label, c);
 
     
-         label = new JLabel("Delete tables, functions and all data leaving an empty database.", SwingConstants.LEFT);
+         label = new JLabel("Delete tables, indices and all data leaving an empty database.", SwingConstants.LEFT);
     c.gridx = 1;
     c.gridy = 1;
     c.gridwidth = 1;

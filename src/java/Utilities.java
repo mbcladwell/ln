@@ -245,7 +245,7 @@ case 1536:
 
     for (int i = 1; i < nRow; i++) {
 	//LOGGER.info("tdata i: " + i + " " + tm.getValueAt(i,1) );
-	System.out.println("i: " + i + " array[" + ((i)%8) +"][" + (int)Math.floor((i)/8)+ "] = " + input[i][column_of_interest]);
+	//System.out.println("i: " + i + " array[" + ((i)%8) +"][" + (int)Math.floor((i)/8)+ "] = " + input[i][column_of_interest]);
        	//tableData[((i)%row)][(int)Math.floor((i)/row)] = tm.getValueAt(i,1);
 	
 	output[((i)%row)][(int)Math.floor((i)/row)] = input[i][column_of_interest];
@@ -272,15 +272,13 @@ case 1536:
     String[][] results = new String[rowCount + 1][colCount];
     for (int i = 0; i < colCount; i++) {
        results[0][i] = table.getColumnName(i);
-            	LOGGER.info("ij: " + results[0][i]);
-
     }
 
     for (int i = 1; i <= rowCount; i++) { //start at 1; 0 holds the header
       for (int j = 0; j < colCount; j++) {
 	  if(model.getValueAt(selected_rows[i-1], j) != null){ //accessions might be null
 	      results[i][j] = model.getValueAt(selected_rows[i-1], j).toString();
-	  }
+     	  }
       }
     }
     return results;

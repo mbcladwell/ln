@@ -55,10 +55,9 @@ private IFn require = Clojure.var("clojure.core", "require");
     IFn getDbType = Clojure.var("ln.codax-manager", "get-dbtype");
     String dbtype = (String)getDbType.invoke();
     Properties props = new Properties();
-   
       Long insertKey = 0L;
       try {
-	  if(dbtype.equals("postgresql")){
+	  if(dbtype.equals("postgres")){
 	  Class.forName("org.postgresql.Driver");
 	  props.setProperty("user", "ln_admin");
 	  props.setProperty("password", "welcome");
@@ -73,8 +72,8 @@ private IFn require = Clojure.var("clojure.core", "require");
 	  IFn getURL = Clojure.var("ln.codax-manager", "get-connection-string");
    
 	  String target = (String)getSource.invoke();
-	  String url = (String)getURL.invoke(target);
-
+ 	  String url = (String)getURL.invoke(target);
+  
 	  conn = DriverManager.getConnection(url, props);	
       
 

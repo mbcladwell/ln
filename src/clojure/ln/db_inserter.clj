@@ -451,13 +451,13 @@ first selection: select get in plate, well order, not necessarily sample order "
            data (set (map #(process-assay-results-map %) (table-to-map input-file-name)))
            joined-data (s/join data layout {:well :well_by_col})
            num-plates   (count (distinct (map :plate  joined-data)))
-           processed-plates  (loop [plate-counter 1
-                                    plate-of-data  (s/select #(= (:plate %) plate-counter) joined-data)                                
-                                    new-set #{}]
-                               (if (> plate-counter num-plates) new-set
-                                   (recur (+ 1 plate-counter)
-                                          (s/select #(= (:plate %) plate-counter) joined-data)
-                                          (s/union new-set (process-plate-of-data plate-of-data plate-counter)))))
+           processed-plates  (loop [new-set #{}
+                                    plate-counter 1]
+                               (if (> plate-counter  num-plates) new-set
+                                   (recur                                          
+                                    (s/union new-set (process-plate-of-data
+                                                      (s/select #(= (:plate %) plate-counter) joined-data)  plate-counter ))
+                                    (+ 1 plate-counter))))        
            a (s/project processed-plates [:plate :well :response :bkgrnd_sub :norm :norm_pos :p_enhance])
            b (into [] a)
            content (into [] (map #(process-assay-results-to-load %) b))

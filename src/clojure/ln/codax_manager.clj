@@ -379,10 +379,10 @@
   (case target
     "heroku" (str "jdbc:postgresql://"  (get-host) ":" (get-port)  "/" (get-dbname) "?sslmode=require&user=" (get-user) "&password="  (get-password))
     "local" (str "jdbc:postgresql://" (get-host) "/" (get-dbname))	   
-    "elephantsql" (str "jdbc:postgresql://" (get-host) ":" (get-port) "/" (get-dbname) "?user=" (get-user) "&password=" (get-password) "&SSL=true" )
-     "mysql" (str "jdbc:mysql://" (get-host) ":"  (get-port) "/" (get-dbname) "?user=" (get-user) "&password=" (get-password) "&SSL=true"   )
-     "test" (str "jdbc:postgresql://" (get-host) ":" (get-port) "/" (get-dbname) "?user=" (get-user) "&password=" (get-password) "&SSL=true")
-   "postgres" (str "jdbc:postgresql://" (get-host) ":" (get-port) "/" (get-dbname) "?user=" (get-user) "&password=" (get-password) "&SSL=true"               )))
+    "elephantsql" (str "jdbc:postgresql://" (get-host) ":" (get-port) "/" (get-dbname) "?user=" (get-user) "&password=" (get-password) "&SSL=" (get-sslmode))
+     "mysql" (str "jdbc:mysql://" (get-host) ":"  (get-port) "/" (get-dbname) "?user=" (get-user) "&password=" (get-password) "&SSL=" (get-sslmode)  )
+     "test" (str "jdbc:postgresql://" (get-host) ":" (get-port) "/" (get-dbname) "?user=" (get-user) "&password=" (get-password) "&SSL=" (get-sslmode))
+   "postgres" (str "jdbc:postgresql://" (get-host) ":" (get-port) "/" (get-dbname) "?user=" (get-user) "&password=" (get-password) "&SSL="  (get-sslmode))))
 
 
 
