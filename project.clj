@@ -50,7 +50,8 @@
                   cider.nrepl.middleware.trace/wrap-trace
                   cider.nrepl.middleware.undef/wrap-undef]}
   :jvm-opts ["-Xmx2G"]
-  :main ^:skip-aot ln.session
+;;  :main ^:skip-aot ln.session
+  :main ln.session
   :aot [ ]
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all}})

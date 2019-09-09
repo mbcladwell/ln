@@ -64,34 +64,34 @@
 
 ;;(set-props-to-elephantsql)
 
-(defn set-props-to-hostgator []
- (let [props (c/open-database! "ln-props")]
-  (c/with-write-transaction [props tx]
-    (-> tx
-        (c/assoc-at [:assets :conn] {:source "test"
-                                     :dbtype "mysql"
-  	                             :dbname "plapan_lndb"
- 	                             :host  "192.254.187.215"
-  	                             :port  3306
-  	                             :user  "plapan_ln_admin"
-  	                             :password  "welcome"
- 	                             :sslmode  false
-                                     :auto-login true
- 	                             :help-url-prefix  "http://labsolns.com/software/" 
-                                     }) 
-        (c/assoc-at [:assets :session] {:project-id 1
-	                                :project-sys-name "PRJ-1"
-	                                :user-id 3
-                                        :user-name "plapan_ln_admin"
-                                        :plateset-id 1
-                                        :plateset-sys-name ""
-	                                :user-group-id 2
-                                        :user-group "administrator"
-	                                :session-id 1
-                                        :working-dir ""
-                                        :authenticated true
-                                        })))
-  (c/close-database! props)))
+;; (defn set-props-to-hostgator []
+;;  (let [props (c/open-database! "ln-props")]
+;;   (c/with-write-transaction [props tx]
+;;     (-> tx
+;;         (c/assoc-at [:assets :conn] {:source "test"
+;;                                      :dbtype "mysql"
+;;   	                             :dbname "plapan_lndb"
+;;  	                             :host  "192.254.187.215"
+;;   	                             :port  3306
+;;   	                             :user  "plapan_ln_admin"
+;;   	                             :password  "welcome"
+;;  	                             :sslmode  false
+;;                                      :auto-login true
+;;  	                             :help-url-prefix  "http://labsolns.com/software/" 
+;;                                      }) 
+;;         (c/assoc-at [:assets :session] {:project-id 1
+;; 	                                :project-sys-name "PRJ-1"
+;; 	                                :user-id 3
+;;                                         :user-name "plapan_ln_admin"
+;;                                         :plateset-id 1
+;;                                         :plateset-sys-name ""
+;; 	                                :user-group-id 2
+;;                                         :user-group "administrator"
+;; 	                                :session-id 1
+;;                                         :working-dir ""
+;;                                         :authenticated true
+;;                                         })))
+;;   (c/close-database! props)))
 
 
 
@@ -99,6 +99,7 @@
   ;;1. check working directory - /home/user/my-working-dir
   ;;2. check home directory      /home/user
   []
+  (c/close-all-databases!)
   (if (.exists (io/as-file "ln-props"))
     (def props (c/open-database! "ln-props"))  
     (if (.exists (io/as-file (str (java.lang.System/getProperty "user.home") "/ln-props") ))
@@ -117,6 +118,7 @@
 
 
 (open-or-create-props)
+
 
 
 ;;(set-props-to-hostgator)

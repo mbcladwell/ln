@@ -102,11 +102,9 @@ public class ResponseWrangler {
 	switch(_desired_response){
 	case 0: //raw
 	    desired_response_list.add(response);
-           System.out.println("response: " + response);
-
+        
 	    sorted_response[row][0] = response;
-    System.out.println("sorted_response[row][0]: " + sorted_response[row][0]);
-	    if(well_type_id==4){  //if it is a blank
+   	    if(well_type_id==4){  //if it is a blank
 		blank_list.add(Double.valueOf((float)dtm.getValueAt(row, 2)));
 
 	    }
@@ -132,7 +130,6 @@ public class ResponseWrangler {
 	    }
 	    if(well_type_id==3){  //if it is a negative control
 		neg_list.add(Double.valueOf((float)dtm.getValueAt(row, 4)));
-		System.out.println("neg: " + Double.valueOf((float)dtm.getValueAt(row, 4)));
 	    }
 	    if(well_type_id==2){  //if it is a positive control
 		pos_list.add(Double.valueOf((float)dtm.getValueAt(row, 4)));

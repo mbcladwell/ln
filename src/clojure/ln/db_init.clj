@@ -482,7 +482,7 @@
   []
   ;; order important!
   (do
-    (doall (map #(jdbc/db-do-commands cm/conn-admin true  %) (map #(format  "TRUNCATE %s RESTART IDENTITY CASCADE" %)  tables-to-truncate 
+    (doall (map #(jdbc/db-do-commands cm/conn-admin true  %) (map #(format  "TRUNCATE %s RESTART IDENTITY CASCADE" %)  tables-to-truncate )))
 ;;    (doall (map #(jdbc/db-do-commands cm/conn-admin true  %) (map #(format  "TRUNCATE %s CASCADE" %)  tables-to-truncate )))
   (jdbc/insert! cm/conn-admin :lnsession {:lnuser_id 1})
   (cm/set-session-id 1)  
