@@ -351,6 +351,9 @@
              :port (get-port)
              :ssl (get-sslmode)})
 
+;;(println conn)
+
+
 (def conn-admin   {:dbtype (get-dbtype)
                    :dbname (get-dbname)
                    :host (get-host)
