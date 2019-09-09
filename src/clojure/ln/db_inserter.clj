@@ -447,7 +447,7 @@ first selection: select get in plate, well order, not necessarily sample order "
      ;;vv second let does processing
      (let [
            sql-statement "SELECT well_by_col, well_type_id, replicates, target FROM plate_layout WHERE plate_layout_name_id =?"
-           layout  (set (proto/-execute-all cm/conn [ sql-statement 1]{:label-fn rs/as-unqualified-maps :builder-fn rs/as-unqualified-maps} ))
+           layout  (set (proto/-execute-all cm/conn [ sql-statement plate-layout-name-id]{:label-fn rs/as-unqualified-maps :builder-fn rs/as-unqualified-maps} ))
            data (set (map #(process-assay-results-map %) (table-to-map input-file-name)))
            joined-data (s/join data layout {:well :well_by_col})
            num-plates   (count (distinct (map :plate  joined-data)))
@@ -549,3 +549,47 @@ first selection: select get in plate, well order, not necessarily sample order "
 
 ;;(new-plate-layout a "MyLayoutName" "1S1T" "scattered" 8 300 384 76 )
 
+(defn associate-data-with-plate-set2
+  "  String _plate_set_sys_name,  a vector of sys-name; 
+      int _top_n_number"
+  [assay-run-name description plate-set-sys-names format-id assay-type-id plate-layout-name-id input-file-name auto-select-hits hit-selection-algorithm top-n-number]
+ (let [ plate-set-ids (get-ids-for-sys-names plate-set-sys-names "plate_set" "plate_set_sys_name");;should only be one though method handles array 
+       num-of-plate-ids (count (get-all-plate-ids-for-plate-set-id (first plate-set-ids))) ;;should be only one plate-set-id
+       expected-rows-in-table  (* num-of-plate-ids format-id)
+       table-map (table-to-map input-file-name)
+       ]
+   (if (= expected-rows-in-table (count table-map))
+     ;;^^ first let determines if file is valid
+     ;;plate-set-ids could be a vector with many but for this workflow only expecting one; get it out with (first)
+     ;;vv second let does processing
+     (let [
+           sql-statement "SELECT well_by_col, well_type_id, replicates, target FROM plate_layout WHERE plate_layout_name_id =?"
+           layout  (set (proto/-execute-all cm/conn [ sql-statement plate-layout-name-id]{:label-fn rs/as-unqualified-maps :builder-fn rs/as-unqualified-maps} ))
+           data (set (map #(process-assay-results-map %) (table-to-map input-file-name)))
+           joined-data (s/join data layout {:well :well_by_col})
+           num-plates   (count (distinct (map :plate  joined-data)))
+           processed-plates  (loop [new-set #{}
+                                    plate-counter 1]
+                               (if (> plate-counter  num-plates) new-set
+                                   (recur                                          
+                                    (s/union new-set (process-plate-of-data
+                                                      (s/select #(= (:plate %) plate-counter) joined-data)  plate-counter ))
+                                    (+ 1 plate-counter))))        
+           a (s/project processed-plates [:plate :well :response :bkgrnd_sub :norm :norm_pos :p_enhance])
+           b (into [] a)
+           content (into [] (map #(process-assay-results-to-load %) b))
+           new-assay-run-id (create-assay-run  assay-run-name description assay-type-id (first plate-set-ids) plate-layout-name-id )
+           sql-statement (str "INSERT INTO assay_result( assay_run_id, plate_order, well, response, bkgrnd_sub, norm, norm_pos, p_enhance ) VALUES ( "  new-assay-run-id ", ?, ?, ?, ?, ?, ?, ?)")
+           ]
+       (clojure.pprint/pprint layout)
+        ;;    (with-open [con (j/get-connection cm/conn)
+;;                               ps  (j/prepare con [sql-statement])]
+;;              (p/execute-batch! ps content))
+;; ;;          (println joined-data)
+;;            new-assay-run-id  ;;must return new id for auto-select-hits when true
+       ;;(clojure.pprint/pprint processed-plates)
+       )      ;;end of second let
+ (javax.swing.JOptionPane/showMessageDialog nil (str "Expecting " expected-rows-in-table " rows but found " (count table-map) " rows in data file." )) )));;row count is not correct
+
+;;(associate-data-with-plate-set2 "run1test" "test-desc" ["PS-2"] 96 1 1 "/home/mbc/sample96controls4lowp1.txt" true 1 10)
+;;(associate-data-with-plate-set2 "assay_run4", "PS-4 LYT-13;384;8in24", ["PS-4"] 384, 1, 13, "/home/mbc/projects/ln/resources/raw_plate_data/ar4raw.txt" false nil nil)

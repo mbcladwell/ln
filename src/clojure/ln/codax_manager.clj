@@ -45,7 +45,9 @@
  	                             :sslmode  false
                                      :auto-login true
  	                             :help-url-prefix  "http://labsolns.com/software/" 
-                                     }) 
+                                     })
+        ;;psql postgres://klohymim:hwc3v4_rbkT-1EL2KI-JBaqFq0thCXM_@raja.db.elephantsql.com:5432/klohymim
+
         (c/assoc-at [:assets :session] {:project-id 1
 	                                :project-sys-name "PRJ-1"
 	                                :user-id 3
@@ -59,6 +61,8 @@
                                         :authenticated true
                                         })))
   (c/close-database! props)))
+
+;;(set-props-to-elephantsql)
 
 (defn set-props-to-hostgator []
  (let [props (c/open-database! "ln-props")]
@@ -105,7 +109,7 @@
           (def props (c/open-database! "ln-props")))
         
         (do            ;;no limsnucleus.properties - login to mysql
-          (set-props-to-hostgator)
+          (set-props-to-elephantsql)
           (def props (c/open-database! "ln-props")) ;;end of user.dir if
           (JOptionPane/showMessageDialog nil "limsnucleus.properties file is missing\nLogging in to example database!"  ))
 
@@ -438,4 +442,5 @@
 
 ;;(look)
 
+;;(c/close-database! props)
 ;;(set-user-group "administrator")
