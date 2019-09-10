@@ -85,14 +85,23 @@ public class MenuBarForProject extends JMenuBar {
             try {
               int i = project_table.convertRowIndexToModel(project_table.getSelectedRow());
               String project_sys_name = (String) project_table.getValueAt(i, 0);
-		//  String results[][] = project_table.getSelectedRowsAndHeaderAsStringArray();
+	      IFn setProjectSysName = Clojure.var("ln.codax-manager", "set-project-sys-name");
+	      setProjectSysName.invoke(project_sys_name);
+	      
+	      int project_id = Integer.parseInt(project_sys_name.substring(4));
+		  
+	      IFn setProjectID = Clojure.var("ln.codax-manager", "set-project-id");
+	      setProjectID.invoke(project_id);
+
+
+	      //  String results[][] = project_table.getSelectedRowsAndHeaderAsStringArray();
               // LOGGER.info("down button results: " + results);
               // LOGGER.info("down button results: " + results[1][0]);
 	      //session.getDatabaseManager().updateSessionWithProject(results[1][0]);
 	      //dbm.getDialogMainFrame().setMainFrameTitle(results[1][0]);
               //dbm.getDialogMainFrame().showPlateSetTable(results[1][0]);
 	     
-              dbm.updateSessionWithProject(project_sys_name);
+              //dbm.updateSessionWithProject(project_sys_name);
 	      dbm.getDialogMainFrame().setMainFrameTitle(project_sys_name);
               dbm.getDialogMainFrame().showPlateSetTable(project_sys_name);
             } catch (ArrayIndexOutOfBoundsException s) {
@@ -110,8 +119,8 @@ public class MenuBarForProject extends JMenuBar {
     this.add(menu);
 
     IFn getUserGroupID = Clojure.var("ln.codax-manager", "get-user-group-id");
-    System.out.println( "getGroup: " + getUserGroupID.invoke());
-    System.out.println( "getGroup: " + getUserGroupID.invoke().getClass());
+    // System.out.println( "getGroup: " + getUserGroupID.invoke());
+    //System.out.println( "getGroup: " + getUserGroupID.invoke().getClass());
     //  System.out.println( "getGroup: " + (((Long)getUserGroupID.invoke()).intValue()).getClass());
     
     if(((Long)getUserGroupID.invoke()).intValue() == 1){

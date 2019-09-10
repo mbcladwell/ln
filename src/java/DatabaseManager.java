@@ -48,10 +48,10 @@ private IFn require = Clojure.var("clojure.core", "require");
       //LOGGER.info("in session: " + _s);
       //      IFn require = Clojure.var("clojure.core", "require");
     require.invoke(Clojure.read("ln.codax-manager"));
-    IFn setUser = Clojure.var("ln.codax-manager", "set-user");
-    IFn setUserID = Clojure.var("ln.codax-manager", "set-user-id");
-    IFn getUserID = Clojure.var("ln.codax-manager", "get-user-id");
-    IFn setAuthenticated = Clojure.var("ln.codax-manager", "set-authenticated");
+    // IFn setUser = Clojure.var("ln.codax-manager", "set-user");
+    //IFn setUserID = Clojure.var("ln.codax-manager", "set-user-id");
+    //IFn getUserID = Clojure.var("ln.codax-manager", "get-user-id");
+    // IFn setAuthenticated = Clojure.var("ln.codax-manager", "set-authenticated");
     IFn getDbType = Clojure.var("ln.codax-manager", "get-dbtype");
     String dbtype = (String)getDbType.invoke();
     Properties props = new Properties();
@@ -66,9 +66,9 @@ private IFn require = Clojure.var("clojure.core", "require");
 	  props.setProperty("user", "plapan_ln_admin");
 	  props.setProperty("password", "welcome");
 	      }
-	  IFn getSource = Clojure.var("ln.codax-manager", "get-source");
-	  IFn getUser = Clojure.var("ln.codax-manager", "get-user");
-	  IFn getPassword = Clojure.var("ln.codax-manager", "get-password");
+	   IFn getSource = Clojure.var("ln.codax-manager", "get-source");
+	  // IFn getUser = Clojure.var("ln.codax-manager", "get-user");
+	  // IFn getPassword = Clojure.var("ln.codax-manager", "get-password");
 	  IFn getURL = Clojure.var("ln.codax-manager", "get-connection-string");
    
 	  String target = (String)getSource.invoke();
@@ -89,30 +89,30 @@ private IFn require = Clojure.var("clojure.core", "require");
   }
 
 
-  public void updateSessionWithProject(String _project_sys_name) {
-    int results = 0;
-    String project_sys_name = _project_sys_name;
-      IFn setProjectSysName = Clojure.var("ln.codax-manager", "set-project-sys-name");
+  // public void updateSessionWithProject(String _project_sys_name) {
+  //   int results = 0;
+  //   String project_sys_name = _project_sys_name;
+  //     IFn setProjectSysName = Clojure.var("ln.codax-manager", "set-project-sys-name");
   
-    setProjectSysName.invoke(project_sys_name);
-    LOGGER.info("Project sys name: " + project_sys_name);
-    try {
-      String query =
-          new String("SELECT id FROM project WHERE project_sys_name = '" + project_sys_name + "';");
-      Statement st = conn.createStatement();
-      ResultSet rs = st.executeQuery(query);
-      rs.next();
-      results = rs.getInt("id");
-      rs.close();
-      st.close();
-      LOGGER.info("projectID: " + results);
-      IFn setProjectID = Clojure.var("ln.codax-manager", "set-project-id");
-      setProjectID.invoke(results);
+  //   setProjectSysName.invoke(project_sys_name);
+  //   LOGGER.info("Project sys name: " + project_sys_name);
+  //   try {
+  //     String query =
+  //         new String("SELECT id FROM project WHERE project_sys_name = '" + project_sys_name + "';");
+  //     Statement st = conn.createStatement();
+  //     ResultSet rs = st.executeQuery(query);
+  //     rs.next();
+  //     results = rs.getInt("id");
+  //     rs.close();
+  //     st.close();
+  //     LOGGER.info("projectID: " + results);
+  //     IFn setProjectID = Clojure.var("ln.codax-manager", "set-project-id");
+  //     setProjectID.invoke(results);
 
-    } catch (SQLException sqle) {
-      LOGGER.warning("Failed to properly prepare  prepared statement: " + sqle);
-    }
-  }
+  //   } catch (SQLException sqle) {
+  //     LOGGER.warning("Failed to properly prepare  prepared statement: " + sqle);
+  //   }
+  // }
     /*
   public CustomTable getPlateTableData(String _plate_set_sys_name) {
     try {
