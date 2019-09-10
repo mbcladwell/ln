@@ -46,8 +46,6 @@
                                      :auto-login true
  	                             :help-url-prefix  "http://labsolns.com/software/" 
                                      })
-        ;;psql postgres://klohymim:hwc3v4_rbkT-1EL2KI-JBaqFq0thCXM_@raja.db.elephantsql.com:5432/klohymim
-
         (c/assoc-at [:assets :session] {:project-id 1
 	                                :project-sys-name "PRJ-1"
 	                                :user-id 3
@@ -62,38 +60,40 @@
                                         })))
   (c/close-database! props)))
 
+        ;;psql postgres://klohymim:hwc3v4_rbkT-1EL2KI-JBaqFq0thCXM_@raja.db.elephantsql.com:5432/klohymim
+
 ;;(set-props-to-elephantsql)
 
-;; (defn set-props-to-hostgator []
-;;  (let [props (c/open-database! "ln-props")]
-;;   (c/with-write-transaction [props tx]
-;;     (-> tx
-;;         (c/assoc-at [:assets :conn] {:source "test"
-;;                                      :dbtype "mysql"
-;;   	                             :dbname "plapan_lndb"
-;;  	                             :host  "192.254.187.215"
-;;   	                             :port  3306
-;;   	                             :user  "plapan_ln_admin"
-;;   	                             :password  "welcome"
-;;  	                             :sslmode  false
-;;                                      :auto-login true
-;;  	                             :help-url-prefix  "http://labsolns.com/software/" 
-;;                                      }) 
-;;         (c/assoc-at [:assets :session] {:project-id 1
-;; 	                                :project-sys-name "PRJ-1"
-;; 	                                :user-id 3
-;;                                         :user-name "plapan_ln_admin"
-;;                                         :plateset-id 1
-;;                                         :plateset-sys-name ""
-;; 	                                :user-group-id 2
-;;                                         :user-group "administrator"
-;; 	                                :session-id 1
-;;                                         :working-dir ""
-;;                                         :authenticated true
-;;                                         })))
-;;   (c/close-database! props)))
+(defn set-props-to-hostgator []
+ (let [props (c/open-database! "ln-props")]
+  (c/with-write-transaction [props tx]
+    (-> tx
+        (c/assoc-at [:assets :conn] {:source "test"
+                                     :dbtype "mysql"
+  	                             :dbname "plapan_lndb"
+ 	                             :host  "192.254.187.215"
+  	                             :port  3306
+  	                             :user  "plapan_ln_admin"
+  	                             :password  "welcome"
+ 	                             :sslmode  false
+                                     :auto-login true
+ 	                             :help-url-prefix  "http://labsolns.com/software/" 
+                                     }) 
+        (c/assoc-at [:assets :session] {:project-id 1
+	                                :project-sys-name "PRJ-1"
+	                                :user-id 3
+                                        :user-name "plapan_ln_admin"
+                                        :plateset-id 1
+                                        :plateset-sys-name ""
+	                                :user-group-id 2
+                                        :user-group "administrator"
+	                                :session-id 1
+                                        :working-dir ""
+                                        :authenticated true
+                                        })))
+  (c/close-database! props)))
 
-
+;;(set-props-to-hostgator)
 
 (defn open-or-create-props
   ;;1. check working directory - /home/user/my-working-dir
@@ -155,7 +155,14 @@
 (defn get-port []
   (c/get-at! props [:assets :conn :port]))
 
-(defn get-source []
+(defn get-source
+"test: the example elephantsql cloud instance
+  local: local laptop
+  network: internal server
+  heroku: heroku cloud instance
+  elephantsql: elephantsql cloud instance
+  aws: AWS cloud instance"
+  []
   (c/get-at! props [:assets :conn :source]))
 
 (defn get-dbname []
@@ -359,12 +366,12 @@
 (def conn-admin   {:dbtype (get-dbtype)
                    :dbname (get-dbname)
                    :host (get-host)
-                   :user (if (= (get-dbtype) "postgres") "ln_admin" "plapan_ln_admin")
-                   :password "welcome"
+                   :user (if (= (get-source) "test") "klohymim" "ln_admin")
+                   :password (if (= (get-source) "test") "hwc3v4_rbkT-1EL2KI-JBaqFq0thCXM_" "welcome")
                    :port (get-port)
                    :ssl (get-sslmode)})
 
-;;(println conn-admin)
+;;(println conn)
 
 (defn update-ln-props [host port dbname source sslmode user password help-url user-dir]
   (c/with-write-transaction [props tx]
@@ -448,4 +455,9 @@
 ;;(look)
 
 ;;(c/close-database! props)
+;;(set-props-to-hostgator)
 ;;(set-user-group "administrator")
+;;(open-or-create-props)
+;;(c/close-database! props)
+;;(c/destroy-database! props)
+;;(println props)

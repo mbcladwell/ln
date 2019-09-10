@@ -21,13 +21,6 @@
 ;;                   :sslfactory "org.postgresql.ssl.NonValidatingFactory"})
 
                
-;;(doall (map #(jdbc/db-do-commands mysql-init true %) mysql-tables))
-;;whatismyip.com
-
-(load "/ln/data-sets")
-(load "/ln/plate-layout-data")
-
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;Database setup
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -313,7 +306,30 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;Required data
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
- 
+
+(defn process-layout-data
+  "processes that tab delimitted, R generated layouts for import
+   order is important; must correlate with SQL statement order of ?'s"
+  [x]
+(into [] [ (Integer/parseInt(:id x)) (Integer/parseInt(:well x )) (Integer/parseInt(:type x )) (Integer/parseInt(:reps x )) (Integer/parseInt(:target x ))]))
+
+(defn process-well-numbers-data
+  "processes that tab delimitted, R generated well_numbers for import
+because some are strings, all imported as string
+   order is important; must correlate with SQL statement order of ?'s"
+  [x]
+  (into [] [ (Integer/parseInt (String. (:format x)))
+            (:wellname x )
+            (:row x )
+            (Integer/parseInt (String. (:rownum x )))
+            (Integer/parseInt (String. (:col x )))
+            (Integer/parseInt (String. (:totcolcount x)))
+            (Integer/parseInt (String. (:byrow x )))
+            (Integer/parseInt (String. (:bycol x )))
+            (Integer/parseInt (String. (:quad x )))
+            (Integer/parseInt (String. (:parentwell x ))) ]))
+
+
 (def required-data
   ;;inserts required data into table using jdbc/insert-multi!
   ;;this is data that should not be deleted when repopulating with example data
@@ -391,14 +407,19 @@
      [["unknown"]["positive"]["negative"]["blank"]["edge"]]]
    
    [ :well_numbers [:plate_format :well_name :row :row_num :col :total_col_count :by_row :by_col :quad :parent_well ]
-   ln.data-sets/well-numbers
-    ]
+   ;;ln.data-sets/well-numbers
+       (let   [  table (dbi/table-to-map "resources/data/well_numbers_for_import.txt")
+               content (into [] (map #(process-well-numbers-data %) table))]
+         content)]
+    
 
       [ :plate_layout [ :plate_layout_name_id :well_by_col :well_type_id :replicates :target]
-   ln.plate-layout-data/plate-layout-data
-    ]
-
+       ;; ln.plate-layout-data/plate-layout-data
+       (let   [  table (dbi/table-to-map "resources/data/plate_layouts_for_import.txt")
+               content (into [] (map #(process-layout-data %) table))]
+         content)]
    ])
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;Optional example data
@@ -436,11 +457,11 @@
   "hits must be handle separately so name and description can be entered"
   [] 
   (do
-    (dbi/associate-data-with-plate-set "assay_run1", "PS-1 LYT-1;96;4in12", ["PS-1"] 96, 1, 1, "resources/raw_plate_data/ar1raw.txt" false nil nil)
-    (dbi/associate-data-with-plate-set "assay_run2", "PS-2 LYT-1;96;4in12", ["PS-2"] 96, 1, 1, "resources/raw_plate_data/ar2raw.txt" false nil nil)
-    (dbi/associate-data-with-plate-set "assay_run3", "PS-3 LYT-1;96;4in12", ["PS-3"] 96, 5, 1, "resources/raw_plate_data/ar3raw.txt" false nil nil)
-    (dbi/associate-data-with-plate-set "assay_run4", "PS-4 LYT-13;384;8in24", ["PS-4"] 384, 1, 13, "resources/raw_plate_data/ar4raw.txt" false nil nil)
-    (dbi/associate-data-with-plate-set "assay_run5", "PS-5 LYT-37;1536;32in47,48", ["PS-5"] 1536, 1, 37, "resources/raw_plate_data/ar5raw.txt" false nil nil)))
+    (dbi/associate-data-with-plate-set "assay_run1", "PS-1 LYT-1;96;4in12", ["PS-1"] 96, 1, 1, "resources/data/ar1raw.txt" false nil nil)
+    (dbi/associate-data-with-plate-set "assay_run2", "PS-2 LYT-1;96;4in12", ["PS-2"] 96, 1, 1, "resources/data/ar2raw.txt" false nil nil)
+    (dbi/associate-data-with-plate-set "assay_run3", "PS-3 LYT-1;96;4in12", ["PS-3"] 96, 5, 1, "resources/data/ar3raw.txt" false nil nil)
+    (dbi/associate-data-with-plate-set "assay_run4", "PS-4 LYT-13;384;8in24", ["PS-4"] 384, 1, 13, "resources/data/ar4raw.txt" false nil nil)
+    (dbi/associate-data-with-plate-set "assay_run5", "PS-5 LYT-37;1536;32in47,48", ["PS-5"] 1536, 1, 37, "resources/data/ar5raw.txt" false nil nil)))
     
 
 
@@ -475,7 +496,7 @@
   (cm/set-init false))
 
 ;;(initialize-limsnucleus)
-;;(println cm/conn)
+;;(println cm/conn-admin)
 
 (defn add-example-data
   ;;

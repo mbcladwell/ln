@@ -593,3 +593,34 @@ first selection: select get in plate, well order, not necessarily sample order "
 
 ;;(associate-data-with-plate-set2 "run1test" "test-desc" ["PS-2"] 96 1 1 "/home/mbc/sample96controls4lowp1.txt" true 1 10)
 ;;(associate-data-with-plate-set2 "assay_run4", "PS-4 LYT-13;384;8in24", ["PS-4"] 384, 1, 13, "/home/mbc/projects/ln/resources/raw_plate_data/ar4raw.txt" false nil nil)
+
+(defn new-project2
+  ;;tags are any keyword
+  ;; group-id is int
+  [ project-name description lnuser-id ]
+  (let [ sql-statement (str "INSERT INTO project(descr, project_name, lnsession_id) VALUES (?, ?, ?)")
+        a (j/execute-one! cm/conn [sql-statement description project-name lnuser-id])
+        
+        ]
+  (j/execute-one! cm/conn [(str  ])))
+
+(new-project2 "desc1" "name1" 1)
+ "UPDATE sample SET sample_sys_name = CONCAT('SPL-', ?) WHERE id=?"
+
+                                UPDATE project SET project_sys_name = CONCAT('PRJ-' ( LAST_INSERT_ID() )) WHERE id= LAST_INSERT_ID();
+
+                                INSERT INTO project(descr, project_name, lnsession_id) VALUES ("d", "i", );
+                                SELECT LAST_INSERT_ID();
+  (let [ sql-statement1 "INSERT INTO project(descr, project_name, lnsession_id) VALUES (?, ?, ?)"
+        sql-statement2 "UPDATE project SET project_sys_name = (SELECT CONCAT('PRJ-',  LAST_INSERT_ID()))  WHERE id= (SELECT LAST_INSERT_ID())"
+       
+        ]
+  (j/with-transaction [tx cm/conn]
+  (j/execute! tx [sql-statement1 "p-desc" "p-name" 1])
+  (j/execute! tx [sql-statement2]))) 
+
+
+  sql-statement2 
+
+
+  " SELECT CAST( (SELECT LAST_INSERT_ID())  AS CHAR(10))"
