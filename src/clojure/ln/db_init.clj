@@ -480,32 +480,32 @@ because some are strings, all imported as string
 (defn drop-all-tables
 ;;needed for interface button
 []
-  (doall (map #(jdbc/db-do-commands cm/conn-admin true  %) (map #(format  "DROP TABLE IF EXISTS %s CASCADE" %)  all-table-names ) )))
+  (doall (map #(jdbc/db-do-commands cm/conn true  %) (map #(format  "DROP TABLE IF EXISTS %s CASCADE" %)  all-table-names ) )))
 
 ;;(drop-all-tables)
 
 (defn initialize-limsnucleus
   ;;(map #(jdbc/db-do-commands cm/conn (jdbc/drop-table-ddl % {:conditional? true } )) all-table-names)
   []
-  (doall (map #(jdbc/db-do-commands cm/conn-admin true  %) (map #(format  "DROP TABLE IF EXISTS %s CASCADE" %)  all-table-names ) ))
-  (doall (map #(jdbc/db-do-commands cm/conn-admin true %) all-tables))
-  (doall  (map #(jdbc/db-do-commands cm/conn-admin true %) all-indices))
+  (doall (map #(jdbc/db-do-commands cm/conn true  %) (map #(format  "DROP TABLE IF EXISTS %s CASCADE" %)  all-table-names ) ))
+  (doall (map #(jdbc/db-do-commands cm/conn true %) all-tables))
+  (doall  (map #(jdbc/db-do-commands cm/conn true %) all-indices))
   ;; this errors because brackets not stripped
   ;;(map #(jdbc/insert-multi! cm/conn %) required-data)
-  (doall  (map #(apply jdbc/insert-multi! cm/conn-admin % ) required-data))
+  (doall  (map #(apply jdbc/insert-multi! cm/conn % ) required-data))
   (cm/set-init false))
 
 ;;(initialize-limsnucleus)
-;;(println cm/conn-admin)
+;;(println cm/conn)
 
 (defn add-example-data
   ;;
   []
   ;; order important!
   (do
-    (doall (map #(jdbc/db-do-commands cm/conn-admin true  %) (map #(format  "TRUNCATE %s RESTART IDENTITY CASCADE" %)  tables-to-truncate )))
-;;    (doall (map #(jdbc/db-do-commands cm/conn-admin true  %) (map #(format  "TRUNCATE %s CASCADE" %)  tables-to-truncate )))
-  (jdbc/insert! cm/conn-admin :lnsession {:lnuser_id 1})
+    (doall (map #(jdbc/db-do-commands cm/conn true  %) (map #(format  "TRUNCATE TABLE %s" %)  tables-to-truncate )))
+;;    (doall (map #(jdbc/db-do-commands cm/conn true  %) (map #(format  "TRUNCATE %s CASCADE" %)  tables-to-truncate )))
+  (jdbc/insert! cm/conn :lnsession {:lnuser_id 1})
   (cm/set-session-id 1)  
   (add-projects)
   (add-plate-sets)
@@ -516,8 +516,8 @@ because some are strings, all imported as string
 
 (defn delete-example-data
   []
-  ;;(jdbc/execute! cm/conn-admin "TRUNCATE project, plate_set, plate, hit_sample, hit_list, assay_run, assay_result, sample, well, lnsession;"))
+  ;;(jdbc/execute! cm/conn "TRUNCATE project, plate_set, plate, hit_sample, hit_list, assay_run, assay_result, sample, well, lnsession;"))
 
-  (jdbc/execute! cm/conn-admin "TRUNCATE project, plate_set, plate, hit_sample, hit_list, assay_run, assay_result, sample, well, lnsession RESTART IDENTITY CASCADE;"))
+  (jdbc/execute! cm/conn "TRUNCATE project, plate_set, plate, hit_sample, hit_list, assay_run, assay_result, sample, well, lnsession RESTART IDENTITY CASCADE;"))
 
 
