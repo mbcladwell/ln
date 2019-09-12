@@ -51,6 +51,7 @@ public class HitListViewer extends JDialog implements java.awt.event.ActionListe
     private  JPanel counts_pane;
     private JPanel arButtons;
     private JPanel hlButtons;
+    private DatabaseRetriever dbr;
     private int current_project_id;
     private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
   // final EntityManager em;
@@ -60,6 +61,7 @@ public class HitListViewer extends JDialog implements java.awt.event.ActionListe
     
     public HitListViewer(DatabaseManager _dbm, int _hit_list_id) {
 	dbm = _dbm;
+	dbr = new DatabaseRetriever(dbm);
 	this.dmf = dbm.getDialogMainFrame();
 	// this.session = dmf.getSession();
 	require.invoke(Clojure.read("ln.codax-manager"));
@@ -75,7 +77,7 @@ public class HitListViewer extends JDialog implements java.awt.event.ActionListe
     hit_list_id = _hit_list_id;
     parent_pane = new JPanel(new BorderLayout());
 
-        hits_table = dbm.getDatabaseRetriever().getSamplesForHitList(hit_list_id);
+    hits_table = dbr.getSamplesForHitList(hit_list_id);
 
     hits_pane = new JPanel(new BorderLayout());
     hits_pane.setBorder(BorderFactory.createRaisedBevelBorder());
@@ -137,7 +139,7 @@ public class HitListViewer extends JDialog implements java.awt.event.ActionListe
     counts_paneBorder.setTitlePosition(javax.swing.border.TitledBorder.TOP);
     counts_pane.setBorder(counts_paneBorder);
     //fails as long
-    counts_table = dbm.getDatabaseRetriever().getHitCountPerPlateSet(((int)getProjectID.invoke()), hit_list_id);
+    counts_table = dbr.getHitCountPerPlateSet(((int)getProjectID.invoke()), hit_list_id);
 
     counts_scroll_pane = new JScrollPane(counts_table);
     counts_table.setFillsViewportHeight(true);
@@ -178,12 +180,12 @@ public class HitListViewer extends JDialog implements java.awt.event.ActionListe
 
     if (e.getSource() == all_hit_lists_in_project) {
 	int selected_hit_list_id = ((ComboItem)all_hit_lists_in_project.getSelectedItem()).getKey();
-	JTable new_hits_table = dbm.getDatabaseRetriever().getSamplesForHitList(selected_hit_list_id);
+	JTable new_hits_table = dbr.getSamplesForHitList(selected_hit_list_id);
 	TableModel new_model = new_hits_table.getModel();
 	hits_table.setModel(new_model); 
 	IFn getProjectID = Clojure.var("ln.codax-manager", "get-project-id");
  
-	JTable new_counts_table = dbm.getDatabaseRetriever().getHitCountPerPlateSet(((Long)getProjectID.invoke()).intValue(), selected_hit_list_id);
+	JTable new_counts_table = dbr.getHitCountPerPlateSet(((Long)getProjectID.invoke()).intValue(), selected_hit_list_id);
 	TableModel new_model2 = new_counts_table.getModel();
 	counts_table.setModel(new_model2);
 
@@ -195,7 +197,7 @@ public class HitListViewer extends JDialog implements java.awt.event.ActionListe
 
 	
     if (e.getSource() == export_hits_button) {
-	Object[][] results = dbm.getDialogMainFrame().getUtilities().getSelectedRowsAndHeaderAsStringArray(hits_table);
+	Object[][] results = dmf.getUtilities().getSelectedRowsAndHeaderAsStringArray(hits_table);
 	if(results.length>1){
 	   LOGGER.info("hit list table: " + results);
 	   POIUtilities poi = new POIUtilities(dbm);
@@ -241,7 +243,7 @@ public class HitListViewer extends JDialog implements java.awt.event.ActionListe
 	    int row =0;
 	    try{
 		row = counts_table.getSelectedRow();
-		int plate_set_id =  (int)counts_table.getModel().getValueAt(row, 0);
+		int plate_set_id =  ((java.math.BigInteger)counts_table.getModel().getValueAt(row, 0)).intValue();
 		String plate_set_sys_name =  counts_table.getModel().getValueAt(row, 1).toString();
 		LOGGER.info("counts_table.getModel().getValueAt(row, 4): " + counts_table.getModel().getValueAt(row, 4));
 		int sample_count = (int)Integer.valueOf(counts_table.getModel().getValueAt(row, 4).toString());

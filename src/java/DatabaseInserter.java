@@ -48,7 +48,7 @@ public class DatabaseInserter {
     require.invoke(Clojure.read("ln.db-inserter"));
     require.invoke(Clojure.read("ln.codax-manager"));
     IFn getSessionID = Clojure.var("ln.codax-manager", "get-session-id");
-    session_id = (int)getSessionID.invoke();
+    session_id = ((Long)getSessionID.invoke()).intValue();
     // this.utils = dmf.getUtilities();
     //this.session = dmf.getSession();
   }
@@ -425,45 +425,45 @@ public class DatabaseInserter {
 
      
     //not used?
-    public void insertPlateLayout(String _name, String _descr,  String _file_name){
-	String name = _name;
-	String descr = _descr;
-	int format = 0;
-	ArrayList<String[]> data = dbm.getDialogMainFrame().getUtilities().loadDataFile(_file_name);
+    // public void insertPlateLayout(String _name, String _descr,  String _file_name){
+    // 	String name = _name;
+    // 	String descr = _descr;
+    // 	int format = 0;
+    // 	ArrayList<String[]> data = dbm.getDialogMainFrame().getUtilities().loadDataFile(_file_name);
 
-	Object[][]  dataObject = dbm.getDialogMainFrame().getUtilities().getObjectArrayForArrayList(data); 
+    // 	Object[][]  dataObject = dbm.getDialogMainFrame().getUtilities().getObjectArrayForArrayList(data); 
 
-	switch(data.size()-1){
-	case 96:
-	    format = 96;
-	    // ImportLayoutViewer ilv = new ImportLayoutViewer(dmf, dataObject);   
-	    break;
-	case 384:
-	    format = 384;
+    // 	switch(data.size()-1){
+    // 	case 96:
+    // 	    format = 96;
+    // 	    // ImportLayoutViewer ilv = new ImportLayoutViewer(dmf, dataObject);   
+    // 	    break;
+    // 	case 384:
+    // 	    format = 384;
 	    
-	    break;
-	case 1536:
-	    format = 1536;
+    // 	    break;
+    // 	case 1536:
+    // 	    format = 1536;
 	    
-	    break;
-	default:
-	    JOptionPane.showMessageDialog( dbm.getDialogMainFrame(), "Expecting 96, 384, or 1536 lines of data. Found " + (data.size()-1) +  "!", "Error", JOptionPane.ERROR_MESSAGE);	    
-	}
+    // 	    break;
+    // 	default:
+    // 	    JOptionPane.showMessageDialog( dbm.getDialogMainFrame(), "Expecting 96, 384, or 1536 lines of data. Found " + (data.size()-1) +  "!", "Error", JOptionPane.ERROR_MESSAGE);	    
+    // 	}
 	      
-	    String sqlString = "SELECT new_plate_layout(?,?, ?, ?)";
-    // LOGGER.info("insertSql: " + insertSql);
-    try {
-      PreparedStatement preparedStatement = conn.prepareStatement(sqlString);
-      preparedStatement.setString(1, name);
-      preparedStatement.setString(2, descr);
-      preparedStatement.setInt(3, format);
-      preparedStatement.setArray(4, conn.createArrayOf("VARCHAR", (data.toArray())));
-      preparedStatement.execute(); // executeUpdate expects no returns!!!
+    // 	    String sqlString = "SELECT new_plate_layout(?,?, ?, ?)";
+    // // LOGGER.info("insertSql: " + insertSql);
+    // try {
+    //   PreparedStatement preparedStatement = conn.prepareStatement(sqlString);
+    //   preparedStatement.setString(1, name);
+    //   preparedStatement.setString(2, descr);
+    //   preparedStatement.setInt(3, format);
+    //   preparedStatement.setArray(4, conn.createArrayOf("VARCHAR", (data.toArray())));
+    //   preparedStatement.execute(); // executeUpdate expects no returns!!!
 
-    } catch (SQLException sqle) {
-      LOGGER.warning("Failed to properly prepare  prepared statement: " + sqle);
-    }
-    }
+    // } catch (SQLException sqle) {
+    //   LOGGER.warning("Failed to properly prepare  prepared statement: " + sqle);
+    // }
+    // }
 
 
     /**

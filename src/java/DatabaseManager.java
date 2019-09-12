@@ -89,74 +89,6 @@ private IFn require = Clojure.var("clojure.core", "require");
   }
 
 
-  // public void updateSessionWithProject(String _project_sys_name) {
-  //   int results = 0;
-  //   String project_sys_name = _project_sys_name;
-  //     IFn setProjectSysName = Clojure.var("ln.codax-manager", "set-project-sys-name");
-  
-  //   setProjectSysName.invoke(project_sys_name);
-  //   LOGGER.info("Project sys name: " + project_sys_name);
-  //   try {
-  //     String query =
-  //         new String("SELECT id FROM project WHERE project_sys_name = '" + project_sys_name + "';");
-  //     Statement st = conn.createStatement();
-  //     ResultSet rs = st.executeQuery(query);
-  //     rs.next();
-  //     results = rs.getInt("id");
-  //     rs.close();
-  //     st.close();
-  //     LOGGER.info("projectID: " + results);
-  //     IFn setProjectID = Clojure.var("ln.codax-manager", "set-project-id");
-  //     setProjectID.invoke(results);
-
-  //   } catch (SQLException sqle) {
-  //     LOGGER.warning("Failed to properly prepare  prepared statement: " + sqle);
-  //   }
-  // }
-    /*
-  public CustomTable getPlateTableData(String _plate_set_sys_name) {
-    try {
-      PreparedStatement pstmt =
-          conn.prepareStatement(
-              "SELECT plate.plate_sys_name AS \"PlateID\", plate_plate_set.plate_order AS \"Order\",  plate_type.plate_type_name As \"Type\", plate_format.format AS \"Format\" FROM plate_set, plate, plate_type, plate_format, plate_plate_set WHERE plate_plate_set.plate_set_id = (select id from plate_set where plate_set_sys_name like ?) AND plate.plate_type_id = plate_type.id AND plate_plate_set.plate_id = plate.id AND plate_plate_set.plate_set_id = plate_set.id  AND plate_format.id = plate.plate_format_id ORDER BY plate_plate_set.plate_order DESC;");
-      pstmt.setString(1, _plate_set_sys_name);
-      LOGGER.info("statement: " + pstmt.toString());
-      ResultSet rs = pstmt.executeQuery();
-
-      CustomTable table = new CustomTable(dmf, buildTableModel(rs));
-      LOGGER.info("Got plate table " + table.getSelectedRowsAndHeaderAsStringArray().toString());
-      rs.close();
-      pstmt.close();
-      return table;
-
-    } catch (SQLException sqle) {
-	LOGGER.info("Exception in dbm.getPlateTableData: " + sqle);
-    }
-    return null;
-  }
-
-  public CustomTable getWellTableData(String _plate_sys_name) {
-    try {
-      PreparedStatement pstmt =
-          conn.prepareStatement(
-   
-      "SELECT plate.plate_sys_name AS \"PlateID\", well_numbers.well_name AS \"Well\", well.by_col AS \"Well_NUM\", sample.sample_sys_name AS \"Sample\", sample.accs_id as \"Accession\" FROM  plate, sample, well_sample, well JOIN well_numbers ON ( well.by_col= well_numbers.by_col)  WHERE plate.id = well.plate_id AND well_sample.well_id=well.id AND well_sample.sample_id=sample.id AND well.plate_id = (SELECT plate.id FROM plate WHERE plate.plate_sys_name = ?) AND  well_numbers.plate_format = (SELECT plate_format_id  FROM plate_set WHERE plate_set.ID =  (SELECT plate_set_id FROM plate_plate_set WHERE plate_id = plate.ID LIMIT 1) ) ORDER BY well.by_col DESC;");
-
-
-      
-      pstmt.setString(1, _plate_sys_name);
-      ResultSet rs = pstmt.executeQuery();
-
-      CustomTable table = new CustomTable(dmf, buildTableModel(rs));
-      rs.close();
-      pstmt.close();
-      return table;
-    } catch (SQLException sqle) {
-      LOGGER.severe("Failed to retrieve well data: " + sqle);
-    }
-    return null;
-  }
-*/
 
   public DefaultTableModel buildTableModel(ResultSet _rs) {
 
@@ -205,18 +137,18 @@ private IFn require = Clojure.var("clojure.core", "require");
    *
    * <p>****************************************************************
    */
-  public void insertPreparedStatement(PreparedStatement _preparedStatement) {
-    PreparedStatement preparedStatement = _preparedStatement;
-    //  LOGGER.info(preparedStatement.toString());
+  // public void insertPreparedStatement(PreparedStatement _preparedStatement) {
+  //   PreparedStatement preparedStatement = _preparedStatement;
+  //   //  LOGGER.info(preparedStatement.toString());
 
-    try {
-      preparedStatement.executeUpdate();
+  //   try {
+  //     preparedStatement.executeUpdate();
 
-    } catch (SQLException sqle) {
-      LOGGER.warning("Failed to execute prepared statement: " + preparedStatement.toString());
-      LOGGER.warning("Exception: " + sqle);
-    }
-  }
+  //   } catch (SQLException sqle) {
+  //     LOGGER.warning("Failed to execute prepared statement: " + preparedStatement.toString());
+  //     LOGGER.warning("Exception: " + sqle);
+  //   }
+  // }
 
   /** TableModel Columns: PSID Name Descr Format  called from the PlateSet menu item "group" */
   public void groupPlateSets(JTable _table) {
@@ -361,61 +293,61 @@ private IFn require = Clojure.var("clojure.core", "require");
      * In DatabaseManager (instead of DatabaseRetriever) because this is an early query
      * prior to instantiation of DatabaseRetriever.
      */
-  public int getUserIDForUserName(String _user_name) {
-    String user_name = _user_name;
-    // int plate_set_id;
+  // public int getUserIDForUserName(String _user_name) {
+  //   String user_name = _user_name;
+  //   // int plate_set_id;
 
-    try {
-      PreparedStatement pstmt =
-          conn.prepareStatement(
-              "SELECT lnuser.id FROM lnuser WHERE lnuser_name = ?;");
+  //   try {
+  //     PreparedStatement pstmt =
+  //         conn.prepareStatement(
+  //             "SELECT lnuser.id FROM lnuser WHERE lnuser_name = ?;");
 
-      pstmt.setString(1, user_name);
-      ResultSet rs = pstmt.executeQuery();
-      rs.next();
-      int lnuser_id = Integer.valueOf(rs.getString("id"));
+  //     pstmt.setString(1, user_name);
+  //     ResultSet rs = pstmt.executeQuery();
+  //     rs.next();
+  //     int lnuser_id = Integer.valueOf(rs.getString("id"));
 
-      // LOGGER.info("result: " + plate_set_id);
-      rs.close();
-      pstmt.close();
-      return lnuser_id;
+  //     // LOGGER.info("result: " + plate_set_id);
+  //     rs.close();
+  //     pstmt.close();
+  //     return lnuser_id;
 
-    } catch (SQLException sqle) {
-      LOGGER.severe("SQL exception getting plateset_id: " + sqle);
-    }
-    int dummy = -1;
-    return dummy;
-  }
+  //   } catch (SQLException sqle) {
+  //     LOGGER.severe("SQL exception getting plateset_id: " + sqle);
+  //   }
+  //   int dummy = -1;
+  //   return dummy;
+  // }
 
         /**
      * In DatabaseManager (instead of DatabaseRetriever) because this is an early query
      * prior to instantiation of DatabaseRetriever.
      */
-  public String getUserGroupForUserName(String _user_name) {
-    String user_name = _user_name;
-    // int plate_set_id;
+  // public String getUserGroupForUserName(String _user_name) {
+  //   String user_name = _user_name;
+  //   // int plate_set_id;
 
-    try {
-      PreparedStatement pstmt =
-          conn.prepareStatement(
-              "SELECT lnuser_groups.usergroup FROM lnuser, lnuser_groups WHERE lnuser.lnuser_name = ? AND lnuser.usergroup=lnuser_groups.id;");
+  //   try {
+  //     PreparedStatement pstmt =
+  //         conn.prepareStatement(
+  //             "SELECT lnuser_groups.usergroup FROM lnuser, lnuser_groups WHERE lnuser.lnuser_name = ? AND lnuser.usergroup=lnuser_groups.id;");
 
-      pstmt.setString(1, user_name);
-      ResultSet rs = pstmt.executeQuery();
-      rs.next();
-      String usergroup = rs.getString("usergroup");
+  //     pstmt.setString(1, user_name);
+  //     ResultSet rs = pstmt.executeQuery();
+  //     rs.next();
+  //     String usergroup = rs.getString("usergroup");
 
-      // LOGGER.info("result: " + plate_set_id);
-      rs.close();
-      pstmt.close();
-      return usergroup;
+  //     // LOGGER.info("result: " + plate_set_id);
+  //     rs.close();
+  //     pstmt.close();
+  //     return usergroup;
 
-    } catch (SQLException sqle) {
-      LOGGER.severe("SQL exception getting plateset_id: " + sqle);
-    }
-    String dummy = "error";
-    return dummy;
-  }
+  //   } catch (SQLException sqle) {
+  //     LOGGER.severe("SQL exception getting plateset_id: " + sqle);
+  //   }
+  //   String dummy = "error";
+  //   return dummy;
+  // }
 
     public DialogMainFrame getDialogMainFrame(){
 	return this.dmf;

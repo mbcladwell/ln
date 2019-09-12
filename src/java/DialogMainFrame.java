@@ -20,7 +20,7 @@ public class DialogMainFrame extends JFrame {
   private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
   private JPanel cards; // a panel that uses CardLayout
   private CardLayout card_layout;
-
+    private DatabaseRetriever dbr;
   private ProjectPanel project_card;
   private PlateSetPanel plate_set_card;
   private PlatePanel plate_card;
@@ -44,6 +44,8 @@ public class DialogMainFrame extends JFrame {
   public DialogMainFrame(DatabaseManager _dbm ) throws SQLException {
       // session = _s;
       dbm = _dbm;
+      dbr = new DatabaseRetriever(dbm);
+      
      require.invoke(Clojure.read("ln.codax-manager"));
        utils = new Utilities(this);
       this.setTitle("LIMS*Nucleus");
@@ -91,7 +93,7 @@ public class DialogMainFrame extends JFrame {
       int project_id = Integer.parseInt(_project_sys_name.substring(4));
      
       //  plate_set_card = new PlateSetPanel(dbm, dbm.getPlateSetTableData(_project_sys_name), _project_sys_name);
-      plate_set_card = new PlateSetPanel(dbm, dbm.getDatabaseRetriever().getDMFTableData(project_id, DialogMainFrame.PLATESET), _project_sys_name);
+      plate_set_card = new PlateSetPanel(dbm, dbr.getDMFTableData(project_id, DialogMainFrame.PLATESET), _project_sys_name);
 
     cards.add(plate_set_card, "PlateSetPanel");
     card_layout.show(cards, "PlateSetPanel");

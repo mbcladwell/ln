@@ -3,6 +3,7 @@
             [next.jdbc.prepare :as p]
             [next.jdbc.result-set :as rs]
             [next.jdbc.protocols :as proto]
+            [codax.core :as c]
             [clojure.set :as s]
 
            ;; [honeysql.core :as hsql]
@@ -20,7 +21,7 @@
   []
   (let [user (cm/get-user)
         password (cm/get-password)
-        results (j/execute-one! cm/conn-admin ["SELECT lnuser.id, lnuser.password, lnuser_groups.id, lnuser_groups.usergroup  FROM lnuser, lnuser_groups  WHERE lnuser_groups.id = lnuser.usergroup and lnuser_name = ?"  user ])]
+        results (j/execute-one! cm/conn ["SELECT lnuser.id, lnuser.password, lnuser_groups.id, lnuser_groups.usergroup  FROM lnuser, lnuser_groups  WHERE lnuser_groups.id = lnuser.usergroup and lnuser_name = ?"  user ])]
         (println (str "user: " user))
         (println password)
         (println results)
@@ -49,11 +50,23 @@
   ;;user id
   [ uid ]
   (let [
-        user-id (j/execute-one!  cm/conn-admin  ["INSERT INTO lnsession(lnuser_id) values(?)" uid]{:return-keys true} )
-        ug-id (j/execute!  cm/conn-admin ["SELECT usergroup FROM lnuser WHERE lnuser.id =?"  (:lnsession/id user-id) ] )
+        user-id-pre (j/execute-one!  cm/conn  ["INSERT INTO lnsession(lnuser_id) values(?)" uid] )
+        user-id (first(vals  user-id-pre))
+        ug-id-pre (j/execute-one!  cm/conn ["SELECT usergroup FROM lnuser WHERE lnuser.id =?" uid ] )
+        ug-id (first (vals  ug-id-pre))
+        ug-name-pre (j/execute-one!  cm/conn ["SELECT usergroup FROM lnuser_groups WHERE id =?" uid ] )
+        ug-name (first (vals  ug-name-pre))
         ]
-    (cm/set-session-id  (:lnsession/id user-id) )
-    (cm/set-user-group (:lnuser/usergroup ug-id))))
+    (c/with-write-transaction [cm/props tx]
+    (-> tx
+      (c/assoc-at  [:assets :session :user-id] user-id)   
+      (c/assoc-at  [:assets :session :user-group-id] ug-id)
+      (c/assoc-at  [:assets :session :user-group] ug-name)))))
+    
+ 
+;;(register-session 1)
+
+   
 
 
 (defn get-num-samples-for-plate-set-id [ plate-set-id ]

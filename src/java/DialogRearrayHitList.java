@@ -258,7 +258,7 @@ public class DialogRearrayHitList extends JDialog {
 	 int project_id = ((int)getProjectID.invoke());
      IFn newPlateSet      = Clojure.var("ln.db-inserter", "new-plate-set");
 
-   int dest_plate_set_id = (int)newPlateSet.invoke(    
+     int dest_plate_set_id = ((java.math.BigInteger)newPlateSet.invoke(    
 						descriptionField.getText(),
 						nameField.getText(),
 						Integer.valueOf(numberLabel.getText()),
@@ -266,7 +266,7 @@ public class DialogRearrayHitList extends JDialog {
 						((ComboItem)typeList.getSelectedItem()).getKey(),
 						project_id,
 						((ComboItem)layoutList.getSelectedItem()).getKey(),
-						false);
+						false)).intValue();
 
         IFn rearrayTransferSamples = Clojure.var("ln.db-inserter", "rearray-transfer-samples");
 	rearrayTransferSamples.invoke(plate_set_id, dest_plate_set_id, hit_list_id);

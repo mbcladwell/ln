@@ -82,12 +82,13 @@ public class ResponseWrangler {
 	    well_set.add((int)dtm.getValueAt(row, 1));
 	    sorted_response[row][1] = well;
 	    
-	    double response = Double.valueOf((float)dtm.getValueAt(row, 2));
+	    //  Double response = Double.valueOf((float)dtm.getValueAt(row, 2));
+	    Double response = (double)dtm.getValueAt(row, 2);
           	
-	    Double bkgrnd = Double.valueOf((float)dtm.getValueAt(row, 3));
-	    Double norm = Double.valueOf((float)dtm.getValueAt(row, 4));
-	    Double normpos = Double.valueOf((float)dtm.getValueAt(row, 5));
-	    Double p_enhance = Double.valueOf((float)dtm.getValueAt(row, 6));
+	    Double bkgrnd = (double)dtm.getValueAt(row, 3);
+	    Double norm = (double)dtm.getValueAt(row, 4);
+	    Double normpos = (double)dtm.getValueAt(row, 5);
+	    Double p_enhance = (double)dtm.getValueAt(row, 6);
 	    
 	    int well_type_id = (int)dtm.getValueAt(row, 7);
 	    sorted_response[row][2] = (int)dtm.getValueAt(row, 7);
@@ -105,19 +106,19 @@ public class ResponseWrangler {
         
 	    sorted_response[row][0] = response;
    	    if(well_type_id==4){  //if it is a blank
-		blank_list.add(Double.valueOf((float)dtm.getValueAt(row, 2)));
+		blank_list.add((double)dtm.getValueAt(row, 2));
 
 	    }
 	    if(well_type_id==3){  //if it is a negative control
-		neg_list.add(Double.valueOf((float)dtm.getValueAt(row, 2)));
+		neg_list.add((double)dtm.getValueAt(row, 2));
 
 	    }
 	    if(well_type_id==2){  //if it is a positive control
-		pos_list.add(Double.valueOf((float)dtm.getValueAt(row, 2)));
+		pos_list.add((double)dtm.getValueAt(row, 2));
 
 	    }
 	    if(well_type_id==1){  //if it is an unknown
-		unknowns_list.add(Double.valueOf((float)dtm.getValueAt(row, 2)));
+		unknowns_list.add((double)dtm.getValueAt(row, 2));
 	    }
 	    
 	    break;
@@ -125,33 +126,33 @@ public class ResponseWrangler {
 	    desired_response_list.add(norm);
 	    sorted_response[row][0] = norm;
 	    if(well_type_id==4){  //if it is a blank
-		blank_list.add(Double.valueOf((float)dtm.getValueAt(row, 4)));
+		blank_list.add((double)dtm.getValueAt(row, 4));
 	   
 	    }
 	    if(well_type_id==3){  //if it is a negative control
-		neg_list.add(Double.valueOf((float)dtm.getValueAt(row, 4)));
+		neg_list.add((double)dtm.getValueAt(row, 4));
 	    }
 	    if(well_type_id==2){  //if it is a positive control
-		pos_list.add(Double.valueOf((float)dtm.getValueAt(row, 4)));
+		pos_list.add((double)dtm.getValueAt(row, 4));
 	    }
 	    if(well_type_id==1){  //if it is an unknown
-		unknowns_list.add(Double.valueOf((float)dtm.getValueAt(row, 4)));
+		unknowns_list.add((double)dtm.getValueAt(row, 4));
 	    }
 	    break;
 	case 2: //normpos
 	    desired_response_list.add(normpos);
 	sorted_response[row][0] = normpos;
 	    if(well_type_id==4){  //if it is a blank
-		blank_list.add(Double.valueOf((float)dtm.getValueAt(row, 5)));
+		blank_list.add((double)dtm.getValueAt(row, 5));
 	    }
 	    if(well_type_id==3){  //if it is a negative control
-		neg_list.add(Double.valueOf((float)dtm.getValueAt(row, 5)));
+		neg_list.add((double)dtm.getValueAt(row, 5));
 	    }
 	    if(well_type_id==2){  //if it is a positive control
-		pos_list.add(Double.valueOf((float)dtm.getValueAt(row, 5)));
+		pos_list.add((double)dtm.getValueAt(row, 5));
 	    }
 	    if(well_type_id==1){  //if it is an unknown
-		unknowns_list.add(Double.valueOf((float)dtm.getValueAt(row, 5)));
+		unknowns_list.add((double)dtm.getValueAt(row, 5));
 	    }
 
 	    break;
@@ -159,16 +160,16 @@ public class ResponseWrangler {
 	    desired_response_list.add(p_enhance);
 	    sorted_response[row][0] = p_enhance;
 	    if(well_type_id==4){  //if it is a blank
-		blank_list.add(Double.valueOf((float)dtm.getValueAt(row, 6)));
+		blank_list.add((double)dtm.getValueAt(row, 6));
 	    }
 	    if(well_type_id==3){  //if it is a negative control
-		neg_list.add(Double.valueOf((float)dtm.getValueAt(row, 6)));
+		neg_list.add((double)dtm.getValueAt(row, 6));
 	    }
 	    if(well_type_id==2){  //if it is a positive control
-		pos_list.add(Double.valueOf((float)dtm.getValueAt(row, 6)));
+		pos_list.add((double)dtm.getValueAt(row, 6));
 	    }
 	    if(well_type_id==1){  //if it is an unknown
-		unknowns_list.add(Double.valueOf((float)dtm.getValueAt(row, 6)));
+		unknowns_list.add((double)dtm.getValueAt(row, 6));
 	    }
 
 	    break;

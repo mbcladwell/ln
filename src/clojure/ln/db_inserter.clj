@@ -206,9 +206,7 @@
                                (j/execute! tx [sql-statement3]))]
     (first (vals (first new-assay-run-id-pre))))) 
 
-
-   
-
+;;(create-assay-run "n1" "d1" 1 1 1)
 
 
 ;; used to process and  load manipulated maps
@@ -228,19 +226,19 @@
 ;;         (p/execute-batch! ps content))))
 
 
-(defn new-project-demo
-  ;;tags are any keyword
-  ;; group-id is int
-  [ project-name description lnuser-id ]
-  (let [
-        sql-statement1 "INSERT INTO project(descr, project_name, lnsession_id) VALUES (?, ?, ?)"
-        sql-statement2 "UPDATE project SET project_sys_name = (SELECT CONCAT('PRJ-',  LAST_INSERT_ID()))  WHERE id= (SELECT LAST_INSERT_ID())"
-        sql-statement3 "SELECT LAST_INSERT_ID()"]
-    new-hit-list-id-pre (j/with-transaction [tx cm/conn]
-                          (j/execute! tx [sql-statement1 description project-name lnuser-id])
-                          (j/execute! tx [sql-statement2])
-                          (j/execute! tx [sql-statement3])))) 
-(first (vals (first new-plate-set-id-pre)))
+;; (defn new-project-demo
+;;   ;;tags are any keyword
+;;   ;; group-id is int
+;;   [ project-name description lnuser-id ]
+;;   (let [
+;;         sql-statement1 "INSERT INTO project(descr, project_name, lnsession_id) VALUES (?, ?, ?)"
+;;         sql-statement2 "UPDATE project SET project_sys_name = (SELECT CONCAT('PRJ-',  LAST_INSERT_ID()))  WHERE id= (SELECT LAST_INSERT_ID())"
+;;         sql-statement3 "SELECT LAST_INSERT_ID()"]
+;;     new-hit-list-id-pre (j/with-transaction [tx cm/conn]
+;;                           (j/execute! tx [sql-statement1 description project-name lnuser-id])
+;;                           (j/execute! tx [sql-statement2])
+;;                           (j/execute! tx [sql-statement3])))) 
+;; (first (vals (first new-plate-set-id-pre)))
 
 (defn new-hit-list
 "hit-list is a vector of integers"
@@ -262,7 +260,7 @@
         content (into [](map vector hit-list))
         ]  
     (with-open [con (j/get-connection cm/conn)
-                ps  (j/prepare con [sql-statement3])]
+                ps  (j/prepare con [sql-statement4])]
       (p/execute-batch! ps content))
      ))
 
@@ -356,7 +354,7 @@ first selection: select get in plate, well order, not necessarily sample order "
 
 (defn new-plate-old
   "only add samples if include-samples is true"
-  [plate-type-id plate-set-id plate-format-id plate-layoutdemo-name-id include-samples]
+  [plate-type-id plate-set-id plate-format-id plate-layout-name-id include-samples]
   (let [sql-statement1 "INSERT INTO plate(plate_type_id, plate_format_id, plate_layout_name_id) VALUES (?, ?, ?)"
         sql-statement2 "UPDATE plate SET plate_sys_name = (SELECT CONCAT('PLT-',  LAST_INSERT_ID()))  WHERE id= (SELECT LAST_INSERT_ID())"
         sql-statement3 "SELECT LAST_INSERT_ID()"

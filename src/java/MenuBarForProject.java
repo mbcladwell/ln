@@ -123,7 +123,7 @@ public class MenuBarForProject extends JMenuBar {
     //System.out.println( "getGroup: " + getUserGroupID.invoke().getClass());
     //  System.out.println( "getGroup: " + (((Long)getUserGroupID.invoke()).intValue()).getClass());
     
-    if(((Long)getUserGroupID.invoke()).intValue() == 1){
+    if((int)getUserGroupID.invoke() == 1){
     menu = new AdminMenu(dbm, project_table);
      this.add(menu);
     }

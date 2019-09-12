@@ -73,7 +73,9 @@
   	                             :dbname "plapan_lndb"
  	                             :host  "192.254.187.215"
   	                             :port  3306
-  	                             :user  "plapan_ln_admin"
+  	                             :db-user  "plapan_ln_admin"
+  	                             :db-password  "welcome"
+  	                             :user  "ln_admin"
   	                             :password  "welcome"
  	                             :sslmode  false
                                      :auto-login true
@@ -135,6 +137,11 @@
   (c/with-write-transaction [props tx]
         (c/assoc-at tx [:assets :conn :user] u)))
 
+(defn set-db-user [u]
+  (c/with-write-transaction [props tx]
+        (c/assoc-at tx [:assets :conn :db-user] u)))
+
+
 (defn set-init [b]
   (c/with-write-transaction [props tx]
         (c/assoc-at tx [:assets :conn :init] b)))
@@ -143,6 +150,10 @@
 (defn set-password [p]
   (c/with-write-transaction [props tx]
         (c/assoc-at! tx  [:assets :conn :password] p)))
+
+(defn set-db-password [p]
+  (c/with-write-transaction [props tx]
+        (c/assoc-at! tx  [:assets :conn :db-password] p)))
 
 (defn get-dbtype
   "mysql; postgresql"
@@ -273,6 +284,12 @@
 (defn get-init []
   (c/get-at! props [:assets :conn :init ]))
 
+(defn get-db-user []
+  (c/get-at! props [:assets :conn :db-user ]))
+
+(defn get-db-password []
+  (c/get-at! props [:assets :conn :db-password ]))
+
 
 (defn set-user-group [i]
     (c/with-write-transaction [props tx]
@@ -337,6 +354,8 @@
 (defn get-session-id ^Integer []
   (c/get-at! props [:assets :session :session-id ]))
 
+;;(get-session-id)
+
 (defn set-session-id [i]
   (c/with-write-transaction [props tx]
     (c/assoc-at tx  [:assets :session :session-id] i)))
@@ -355,31 +374,33 @@
 (def conn   {:dbtype (get-dbtype)
              :dbname (get-dbname)
              :host (get-host)
-             :user (get-user)
-             :password (get-password)
+             :user (get-db-user)
+             :password (get-db-password)
              :port (get-port)
              :ssl (get-sslmode)})
 
 ;;(println conn)
 
 
-(def conn-admin   {:dbtype (get-dbtype)
-                   :dbname (get-dbname)
-                   :host (get-host)
-                   :user (if (= (get-source) "test") "klohymim" "ln_admin")
-                   :password (if (= (get-source) "test") "hwc3v4_rbkT-1EL2KI-JBaqFq0thCXM_" "welcome")
-                   :port (get-port)
-                   :ssl (get-sslmode)})
+;; (def conn-admin   {:dbtype (get-dbtype)
+;;                    :dbname (get-dbname)
+;;                    :host (get-host)
+;;                    :user (if (= (get-source) "test") "klohymim" "plapan_ln_admin")
+;;                    :password (if (= (get-source) "test") "hwc3v4_rbkT-1EL2KI-JBaqFq0thCXM_" "welcome")
+;;                    :port (get-port)
+;;                    :ssl (get-sslmode)})
 
 ;;(println conn)
 
-(defn update-ln-props [host port dbname source sslmode user password help-url user-dir]
+(defn update-ln-props [host port dbname source sslmode db-user db-password user password help-url user-dir]
   (c/with-write-transaction [props tx]
     (-> tx
       (c/assoc-at  [:assets :conn :host] host)   
       (c/assoc-at  [:assets :conn :port] port)
       (c/assoc-at  [:assets :conn :sslmode] sslmode)
       (c/assoc-at  [:assets :conn :source] source)
+      (c/assoc-at  [:assets :conn :db-user] db-user)   
+      (c/assoc-at  [:assets :conn :db-password] db-password)
       (c/assoc-at  [:assets :conn :user] user)   
       (c/assoc-at  [:assets :conn :password] password)
       (c/assoc-at  [:assets :conn :help-url-prefix] help-url)
@@ -393,12 +414,13 @@
 
 (defn  get-connection-string [target]	  
   (case target
-    "heroku" (str "jdbc:postgresql://"  (get-host) ":" (get-port)  "/" (get-dbname) "?sslmode=require&user=" (get-user) "&password="  (get-password))
+    "heroku" (str "jdbc:postgresql://"  (get-host) ":" (get-port)  "/" (get-dbname) "?sslmode=require&user=" (get-db-user) "&password="  (get-db-password))
     "local" (str "jdbc:postgresql://" (get-host) "/" (get-dbname))	   
-    "elephantsql" (str "jdbc:postgresql://" (get-host) ":" (get-port) "/" (get-dbname) "?user=" (get-user) "&password=" (get-password) "&SSL=" (get-sslmode))
-     "mysql" (str "jdbc:mysql://" (get-host) ":"  (get-port) "/" (get-dbname) "?user=" (get-user) "&password=" (get-password) "&SSL=" (get-sslmode)  )
-     "test" (str "jdbc:postgresql://" (get-host) ":" (get-port) "/" (get-dbname) "?user=" (get-user) "&password=" (get-password) "&SSL=" (get-sslmode))
-   "postgres" (str "jdbc:postgresql://" (get-host) ":" (get-port) "/" (get-dbname) "?user=" (get-user) "&password=" (get-password) "&SSL="  (get-sslmode))))
+    "elephantsql" (str "jdbc:postgresql://" (get-host) ":" (get-port) "/" (get-dbname) "?user=" (get-db-user) "&password=" (get-db-password) "&SSL=" (get-sslmode))
+     "mysql" (str "jdbc:mysql://" (get-host) ":"  (get-port) "/" (get-dbname) "?user=" (get-db-user) "&password=" (get-db-password) "&SSL=" (get-sslmode)  )
+     "hostgator" (str "jdbc:mysql://" (get-host) ":"  (get-port) "/" (get-dbname) "?user=" (get-db-user) "&password=" (get-db-password) "&SSL=" (get-sslmode)  )
+     "test" (str "jdbc:postgresql://" (get-host) ":" (get-port) "/" (get-dbname) "?user=" (get-db-user) "&password=" (get-db-password) "&SSL=" (get-sslmode))
+   "postgres" (str "jdbc:postgresql://" (get-host) ":" (get-port) "/" (get-dbname) "?user=" (get-db-user) "&password=" (get-db-password) "&SSL="  (get-sslmode))))
 
 
 
@@ -412,6 +434,8 @@
     (println (str ":dbtype     " (get-dbtype)))
     (println (str ":dbname     " (get-dbname)))
     (println (str ":host       " (get-host)))
+    (println (str ":db-user    " (get-db-user)))
+    (println (str ":db-password" (get-db-password)))
     (println (str ":user-name  " (get-user)))
     (println (str ":password   " (get-password)))
     (println (str ":source     " (get-source)))
@@ -461,3 +485,7 @@
 ;;(c/close-database! props)
 ;;(c/destroy-database! props)
 ;;(println props)
+;;(get-session-id)
+;;(set-session-id 1)
+;;(get-user-id)
+
