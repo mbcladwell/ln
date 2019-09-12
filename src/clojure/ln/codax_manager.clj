@@ -415,7 +415,7 @@
 (defn  get-connection-string [target]	  
   (case target
     "heroku" (str "jdbc:postgresql://"  (get-host) ":" (get-port)  "/" (get-dbname) "?sslmode=require&user=" (get-db-user) "&password="  (get-db-password))
-    "local" (str "jdbc:postgresql://" (get-host) "/" (get-dbname))	   
+    "local" (str "jdbc:mysql://localhost:3306/lndb?user=mbc&password=2727&useSSL=false")	   
     "elephantsql" (str "jdbc:postgresql://" (get-host) ":" (get-port) "/" (get-dbname) "?user=" (get-db-user) "&password=" (get-db-password) "&SSL=" (get-sslmode))
      "mysql" (str "jdbc:mysql://" (get-host) ":"  (get-port) "/" (get-dbname) "?user=" (get-db-user) "&password=" (get-db-password) "&SSL=" (get-sslmode)  )
      "hostgator" (str "jdbc:mysql://" (get-host) ":"  (get-port) "/" (get-dbname) "?user=" (get-db-user) "&password=" (get-db-password) "&SSL=" (get-sslmode)  )

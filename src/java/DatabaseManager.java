@@ -62,9 +62,9 @@ private IFn require = Clojure.var("clojure.core", "require");
 	  props.setProperty("user", "ln_admin");
 	  props.setProperty("password", "welcome");
 	  }else{
-	  Class.forName("com.mysql.jdbc.Driver");		  
-	  props.setProperty("user", "plapan_ln_admin");
-	  props.setProperty("password", "welcome");
+	  Class.forName("com.mysql.cj.jdbc.Driver");		  
+	  props.setProperty("user", "mbc");
+	  props.setProperty("password", "2727");
 	      }
 	   IFn getSource = Clojure.var("ln.codax-manager", "get-source");
 	  // IFn getUser = Clojure.var("ln.codax-manager", "get-user");

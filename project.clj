@@ -20,7 +20,7 @@
                  [org.clojure/data.csv "0.1.4"]
                  [incanter/incanter-core "1.9.1"]
                  
-                 [mysql/mysql-connector-java "5.1.6"]
+                 [mysql/mysql-connector-java "8.0.11"]
     ;;             [javax.help/javahelp "2.0.05"]
                  [javax.swing/jlfgr "1.0"]
                  [leinjacker "0.4.2"]
