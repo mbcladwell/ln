@@ -192,13 +192,17 @@ public class DatabaseInserter {
     //LOGGER.info(
     //  "set: "
     //      + session.getDialogMainFrame().getUtilities().getStringArrayForStringSet(new HashSet<String>(plate_sys_names)));
-    Integer[] plate_ids =
-        dbm.getDatabaseRetriever()
-            .getIDsForSysNames(
-			       dbm.getDialogMainFrame().getUtilities().getStringArrayForStringSet(new HashSet<String>(plate_sys_names)),
-                "plate",
-                "plate_sys_name");
 
+    // Integer[] plate_ids =
+    //     dbm.getDatabaseRetriever()
+    //         .getIDsForSysNames(
+    // 			       dbm.getDialogMainFrame().getUtilities().getStringArrayForStringSet(new HashSet<String>(plate_sys_names)),
+    //             "plate",
+    //             "plate_sys_name");
+    
+    IFn getIDsForSysNames = Clojure.var("ln.db-inserter", "get-ids-for-sys-names");	    
+    Integer[] plate_ids =(Integer[]) getIDsForSysNames.invoke(dbm.getDialogMainFrame().getUtilities().getStringArrayForStringSet(new HashSet<String>(plate_sys_names)), "plate", "plate_sys_name");
+	   
     String sqlstring = "SELECT new_plate_set_from_group (?, ?, ?, ?, ?, ?, ?);";
 
     try {

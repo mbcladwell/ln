@@ -559,36 +559,36 @@ public class DatabaseRetriever {
    * @param _column name of the sys_name column e.g. plate_sys_name, plate_set_sys_name
 
    */
-  public Integer[] getIDsForSysNames(String[] _sys_names, String _table, String _column) {
-    String[] sys_names = _sys_names;
-    String table = _table;
-    String column = _column;
-    Integer[] sys_ids = new Integer[sys_names.length];
+  // public Integer[] getIDsForSysNames(String[] _sys_names, String _table, String _column) {
+  //   String[] sys_names = _sys_names;
+  //   String table = _table;
+  //   String column = _column;
+  //   Integer[] sys_ids = new Integer[sys_names.length];
 
-    String sqlstring = "SELECT get_ids_for_sys_names (?, ?, ?);";
-    // LOGGER.info("SQL at getIDsForSysNames: " + sqlstring);
+  //   String sqlstring = "SELECT get_ids_for_sys_names (?, ?, ?);";
+  //   // LOGGER.info("SQL at getIDsForSysNames: " + sqlstring);
 
-    try {
-      PreparedStatement preparedStatement =
-          conn.prepareStatement(sqlstring, Statement.RETURN_GENERATED_KEYS);
-      preparedStatement.setArray(1, conn.createArrayOf("VARCHAR", sys_names));
-      preparedStatement.setString(2, table);
-      preparedStatement.setString(3, column);
+  //   try {
+  //     PreparedStatement preparedStatement =
+  //         conn.prepareStatement(sqlstring, Statement.RETURN_GENERATED_KEYS);
+  //     preparedStatement.setArray(1, conn.createArrayOf("VARCHAR", sys_names));
+  //     preparedStatement.setString(2, table);
+  //     preparedStatement.setString(3, column);
 
-      preparedStatement.execute(); // executeUpdate expects no returns!!!
+  //     preparedStatement.execute(); // executeUpdate expects no returns!!!
 
-      ResultSet resultSet = preparedStatement.getResultSet();
-      resultSet.next();
-      sys_ids = (Integer[]) (resultSet.getArray("get_ids_for_sys_names")).getArray();
+  //     ResultSet resultSet = preparedStatement.getResultSet();
+  //     resultSet.next();
+  //     sys_ids = (Integer[]) (resultSet.getArray("get_ids_for_sys_names")).getArray();
 
-      // LOGGER.info("resultset: " + result);
+  //     // LOGGER.info("resultset: " + result);
 
-    } catch (SQLException sqle) {
-      LOGGER.warning("SQLE at getIDsForSysNames: " + sqle);
-    }
+  //   } catch (SQLException sqle) {
+  //     LOGGER.warning("SQLE at getIDsForSysNames: " + sqle);
+  //   }
 
-    return sys_ids;
-  }
+  //   return sys_ids;
+  // }
 
   public int getIDforLayoutName(String _layout_name) {
     String layout_name = _layout_name;

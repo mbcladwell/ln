@@ -112,7 +112,7 @@
           (def props (c/open-database! "ln-props")))
         
         (do            ;;no limsnucleus.properties - login to mysql
-          (set-props-to-elephantsql)
+          (set-props-to-hostgator)
           (def props (c/open-database! "ln-props")) ;;end of user.dir if
           (JOptionPane/showMessageDialog nil "limsnucleus.properties file is missing\nLogging in to example database!"  ))
 
@@ -421,11 +421,11 @@
     "elephantsql" (str "jdbc:postgresql://" (get-host) ":" (get-port) "/" (get-dbname) "?user=" (get-db-user) "&password=" (get-db-password) "&SSL=" (get-sslmode))
      "mysql" (str "jdbc:mysql://" (get-host) ":"  (get-port) "/" (get-dbname) "?useTimezone=true&serverTimezone=UTC&user=" (get-db-user) "&password=" (get-db-password) "&SSL=" (get-sslmode)  )
      "hostgator" (str "jdbc:mysql://" (get-host) ":"  (get-port) "/" (get-dbname) "?user=" (get-db-user) "&password=" (get-db-password) "&SSL=" (get-sslmode)  )
-     "test" (str "jdbc:postgresql://" (get-host) ":" (get-port) "/" (get-dbname) "?user=" (get-db-user) "&password=" (get-db-password) "&SSL=" (get-sslmode))
-   "postgres" (str "jdbc:postgresql://" (get-host) ":" (get-port) "/" (get-dbname) "?user=" (get-db-user) "&password=" (get-db-password) "&SSL="  (get-sslmode))))
+     "test" (str "jdbc:mysql://" (get-host) ":" (get-port) "/" (get-dbname)  "?useTimezone=true&serverTimezone=UTC&user=" (get-db-user) "&password=" (get-db-password) "&SSL=" (get-sslmode))
+   "postgres" (str "jdbc:postgresql://" (get-host) ":" (get-port) "/" (get-dbname)"?user="  (get-db-user) "&password=" (get-db-password) "&SSL="  (get-sslmode))))
 
 ;;(get-connection-string "mysql")
-(def mysql-conn (get-connection-string "mysql"))
+;;(def mysql-conn (get-connection-string "mysql"))
 
 (defn pretty-print []
   (do

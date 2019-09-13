@@ -251,7 +251,9 @@ private IFn require = Clojure.var("clojure.core", "require");
 	String format = (String)tableModel.getValueAt(selection[0], 2).toString();
 	    String[] plate_set_sys_name = new String[1];
 	    plate_set_sys_name[0] = tableModel.getValueAt(selection[0], 0).toString();
-	    Integer[] plate_set_id = this.getDatabaseRetriever().getIDsForSysNames(plate_set_sys_name, "plate_set", "plate_set_sys_name");
+	     IFn getIDsForSysNames = Clojure.var("ln.db-inserter", "get-ids-for-sys-names");
+	    
+	     Integer[] plate_set_id =(Integer[]) getIDsForSysNames.invoke(plate_set_sys_name, "plate_set", "plate_set_sys_name");
 	    String descr = (String)tableModel.getValueAt(selection[0], 4);
 	    int num_plates = (int)tableModel.getValueAt(selection[0], 3);
 	    String plate_type = (String)tableModel.getValueAt(selection[0], 4);

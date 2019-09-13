@@ -532,7 +532,7 @@ first selection: select get in plate, well order, not necessarily sample order "
       (p/execute-batch! ps dwell-swell))
     dest-plate-set-id))
 
-;;(reformat-plate-set 3 2 1 "desr1" "reformatted PS3" 1 384 1 1 19)
+;;(reformat-plate-set 3 2 1 "descr1" "reformatted PS3" 1 384 1 19)
 
 
 (defn process-assay-results-to-load
