@@ -104,13 +104,13 @@ public class DialogPropertiesNotFound extends JDialog
     tabbedPane.addChangeListener(  new ChangeListener() {
 	    public void stateChanged(ChangeEvent changeEvent) {
 		JTabbedPane sourceTabbedPane = (JTabbedPane) changeEvent.getSource();
-        int index = sourceTabbedPane.getSelectedIndex();
-        //System.out.println("Tab changed to: " + sourceTabbedPane.getTitleAt(index));
- String source = (String)getSource.invoke();
- String conn_url =  (String)getConnURL.invoke(source);
-    if(source.equals("test")){conn_url="Test cloud instance with example data.";}
-    dbSetupPanel.updateURLLabel(conn_url);
-	
+		int index = sourceTabbedPane.getSelectedIndex();
+		//System.out.println("Tab changed to: " + sourceTabbedPane.getTitleAt(index));
+		String source = (String)getSource.invoke();
+		String conn_url =  (String)getConnURL.invoke(source);
+		if(source.equals("test")){conn_url="Test cloud instance with example data.";}
+		dbSetupPanel.updateURLLabel(conn_url);
+		System.out.println(conn_url);
       }});
 
      

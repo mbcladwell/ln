@@ -241,8 +241,8 @@
           ":source" (c/get-at! props [:assets :conn :source])
           ":dbname" (c/get-at! props [:assets :conn :dbname])
           ":help-url-prefix" (c/get-at! props [:assets :conn :help-url-prefix])
-          ":password" (c/get-at! props [:assets :conn :password])
-          ":user" (c/get-at! props [:assets :conn :user])})))
+          ":password" (c/get-at! props [:assets :conn :db-password])
+          ":user" (c/get-at! props [:assets :conn :db-user])})))
 
 (defn get-all-props-clj
   ;;a map for clojure
@@ -254,8 +254,8 @@
     :source (c/get-at! props [:assets :conn :source])
     :dbname (c/get-at! props [:assets :conn :dbname])
     :help-url-prefix (c/get-at! props [:assets :conn :help-url-prefix])
-    :password (c/get-at! props [:assets :conn :password])
-    :user (c/get-at! props [:assets :conn :user])}))
+    :password (c/get-at! props [:assets :conn :db-password])
+    :user (c/get-at! props [:assets :conn :db-user])}))
 
 
 
@@ -377,6 +377,8 @@
              :user (get-db-user)
              :password (get-db-password)
              :port (get-port)
+             :useTimezone true
+             :serverTimezone "UTC"
              :ssl (get-sslmode)})
 
 ;;(println conn)
@@ -417,12 +419,13 @@
     "heroku" (str "jdbc:postgresql://"  (get-host) ":" (get-port)  "/" (get-dbname) "?sslmode=require&user=" (get-db-user) "&password="  (get-db-password))
     "local" (str "jdbc:mysql://localhost:3306/lndb?user=mbc&password=2727&useSSL=false")	   
     "elephantsql" (str "jdbc:postgresql://" (get-host) ":" (get-port) "/" (get-dbname) "?user=" (get-db-user) "&password=" (get-db-password) "&SSL=" (get-sslmode))
-     "mysql" (str "jdbc:mysql://" (get-host) ":"  (get-port) "/" (get-dbname) "?user=" (get-db-user) "&password=" (get-db-password) "&SSL=" (get-sslmode)  )
+     "mysql" (str "jdbc:mysql://" (get-host) ":"  (get-port) "/" (get-dbname) "?useTimezone=true&serverTimezone=UTC&user=" (get-db-user) "&password=" (get-db-password) "&SSL=" (get-sslmode)  )
      "hostgator" (str "jdbc:mysql://" (get-host) ":"  (get-port) "/" (get-dbname) "?user=" (get-db-user) "&password=" (get-db-password) "&SSL=" (get-sslmode)  )
      "test" (str "jdbc:postgresql://" (get-host) ":" (get-port) "/" (get-dbname) "?user=" (get-db-user) "&password=" (get-db-password) "&SSL=" (get-sslmode))
    "postgres" (str "jdbc:postgresql://" (get-host) ":" (get-port) "/" (get-dbname) "?user=" (get-db-user) "&password=" (get-db-password) "&SSL="  (get-sslmode))))
 
-
+;;(get-connection-string "mysql")
+(def mysql-conn (get-connection-string "mysql"))
 
 (defn pretty-print []
   (do

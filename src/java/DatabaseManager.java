@@ -46,11 +46,10 @@ private IFn require = Clojure.var("clojure.core", "require");
    */
   public DatabaseManager() {
       //LOGGER.info("in session: " + _s);
-      //      IFn require = Clojure.var("clojure.core", "require");
     require.invoke(Clojure.read("ln.codax-manager"));
-    // IFn setUser = Clojure.var("ln.codax-manager", "set-user");
-    //IFn setUserID = Clojure.var("ln.codax-manager", "set-user-id");
-    //IFn getUserID = Clojure.var("ln.codax-manager", "get-user-id");
+    IFn getDBuser = Clojure.var("ln.codax-manager", "get-db-user");
+    IFn getDBpassword = Clojure.var("ln.codax-manager", "get-db-password");
+    
     // IFn setAuthenticated = Clojure.var("ln.codax-manager", "set-authenticated");
     IFn getDbType = Clojure.var("ln.codax-manager", "get-dbtype");
     String dbtype = (String)getDbType.invoke();
@@ -59,21 +58,18 @@ private IFn require = Clojure.var("clojure.core", "require");
       try {
 	  if(dbtype.equals("postgres")){
 	  Class.forName("org.postgresql.Driver");
-	  props.setProperty("user", "ln_admin");
-	  props.setProperty("password", "welcome");
 	  }else{
-	  Class.forName("com.mysql.cj.jdbc.Driver");		  
-	  props.setProperty("user", "mbc");
-	  props.setProperty("password", "2727");
-	      }
-	   IFn getSource = Clojure.var("ln.codax-manager", "get-source");
-	  // IFn getUser = Clojure.var("ln.codax-manager", "get-user");
-	  // IFn getPassword = Clojure.var("ln.codax-manager", "get-password");
+	  Class.forName("com.mysql.jdbc.Driver");		
+	  }
+	    
+	  props.setProperty("user", ((String)getDBuser.invoke()));
+	  props.setProperty("password", ((String)getDBpassword.invoke()));
+	  IFn getSource = Clojure.var("ln.codax-manager", "get-source");
 	  IFn getURL = Clojure.var("ln.codax-manager", "get-connection-string");
    
 	  String target = (String)getSource.invoke();
  	  String url = (String)getURL.invoke(target);
-  
+	  System.out.println(url);
 	  conn = DriverManager.getConnection(url, props);	
       
 
