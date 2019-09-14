@@ -251,35 +251,36 @@ private IFn require = Clojure.var("clojure.core", "require");
 	String format = (String)tableModel.getValueAt(selection[0], 2).toString();
 	    String[] plate_set_sys_name = new String[1];
 	    plate_set_sys_name[0] = tableModel.getValueAt(selection[0], 0).toString();
-	     IFn getIDsForSysNames = Clojure.var("ln.db-inserter", "get-ids-for-sys-names");
-	    
-	     Integer[] plate_set_id =(Integer[]) getIDsForSysNames.invoke(plate_set_sys_name, "plate_set", "plate_set_sys_name");
-	    String descr = (String)tableModel.getValueAt(selection[0], 4);
+	    String descr = (String)tableModel.getValueAt(selection[0], 6);
 	    int num_plates = (int)tableModel.getValueAt(selection[0], 3);
 	    String plate_type = (String)tableModel.getValueAt(selection[0], 4);
 
-	    require.invoke(Clojure.read("ln.db-retriever"));
-	    IFn getNumSamplesForPlate_setID  = Clojure.var("ln.db-retriever", "get-num-samples-for-plate-set-id");
-	    int num_samples = (int)getNumSamplesForPlate_setID.invoke(plate_set_id[0]);
+	    require.invoke(Clojure.read("ln.db-inserter"));
+	    IFn prepForDialogReformatPlateSet  = Clojure.var("ln.db-inserter", "prep-for-dialog-reformat-plate-set");
+	    prepForDialogReformatPlateSet.invoke(  plate_set_sys_name[0], descr, num_plates, plate_type, format);
+
+	    //IFn getIDsForSysNames = Clojure.var("ln.db-inserter", "get-ids-for-sys-names");
+	    
+	    //  Integer[] plate_set_id =(Integer[]) getIDsForSysNames.invoke(plate_set_sys_name, "plate_set", "plate_set_sys_name");
+
+	    //require.invoke(Clojure.read("ln.db-retriever"));
+	    // IFn getNumSamplesForPlate_setID  = Clojure.var("ln.db-retriever", "get-num-samples-for-plate-set-id");
+	    //int num_samples = (int)getNumSamplesForPlate_setID.invoke(plate_set_id[0]);
 	    //int num_samples = this.getDatabaseRetriever().getNumberOfSamplesForPlateSetID(plate_set_id[0]);
-	    int plate_layout_name_id = this.getDatabaseRetriever().getPlateLayoutNameIDForPlateSetID((int)plate_set_id[0]);
-	    LOGGER.info("plate_set_id[0]: " + plate_set_id[0]);
-	    switch(format){
-	    case "96":
-			DialogReformatPlateSet drps = new DialogReformatPlateSet( this, (int)plate_set_id[0], plate_set_sys_name[0], descr, num_plates, num_samples, plate_type, format, plate_layout_name_id);
+    // 	    int plate_layout_name_id = this.getDatabaseRetriever().getPlateLayoutNameIDForPlateSetID((int)plate_set_id[0]);
+    // 	    LOGGER.info("plate_set_id[0]: " + plate_set_id[0]);
+    // 	    switch(format){
+    // 	    case "96":
+    // 			DialogReformatPlateSet drps = new DialogReformatPlateSet( this, (int)plate_set_id[0], plate_set_sys_name[0], descr, num_plates, num_samples, plate_type, format, plate_layout_name_id);		
+    // 		    break;
+    // 	    case "384":	 drps = new DialogReformatPlateSet( this, (int)plate_set_id[0], plate_set_sys_name[0], descr, num_plates, num_samples, plate_type, format, plate_layout_name_id);
 		
-		    break;
-	    case "384":	 drps = new DialogReformatPlateSet( this, (int)plate_set_id[0], plate_set_sys_name[0], descr, num_plates, num_samples, plate_type, format, plate_layout_name_id);
-		
-		    break;
-	    case "1536":  JOptionPane.showMessageDialog(dmf,
-    "1536 well plates can not be reformatted.",
-    "Error", JOptionPane.ERROR_MESSAGE);
-		    break;
-		    
-		    }	
-    }
-    }
+    // 		    break;
+    // 	    case "1536":  JOptionPane.showMessageDialog(dmf,
+    // "1536 well plates can not be reformatted.",
+    // "Error", JOptionPane.ERROR_MESSAGE);
+    // 		    break;}		    
+    }}
 
     /*    
   public DialogMainFrame getDmf() {

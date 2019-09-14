@@ -10,7 +10,7 @@
             [clojure.string :only [split split-lines trim]] 
             [ln.codax-manager :as cm])
           
-  (:import [java.sql.DriverManager] [javax.swing.JOptionPane]))
+  (:import java.sql.DriverManager javax.swing.JOptionPane ln.DialogReformatPlateSet))
 
 (defn tokens
   [s]
@@ -141,18 +141,6 @@
       (j/execute! tx [sql-statement1 description project-name lnuser-id])
       (j/execute! tx [sql-statement2])
       (j/execute! tx [sql-statement3]))))
-
- 
-
-
-;;   (let [ sql-statement1 "INSERT INTO project(descr, project_name, lnsession_id) VALUES (?, ?, ?)"
-;;         sql-statement2 "UPDATE project SET project_sys_name = (SELECT CONCAT('PRJ-',  LAST_INSERT_ID()))  WHERE id= (SELECT LAST_INSERT_ID())"
-       
-;;         ]
-;;   (j/with-transaction [tx cm/conn]
-;;   (j/execute! tx [sql-statement1 "p-desc" "p-name" 1])
-;;   (j/execute! tx [sql-statement2]))) 
-
 
 
 
@@ -322,17 +310,6 @@ first selection: select get in plate, well order, not necessarily sample order "
                  ps  (j/prepare con [sql-statement7])]
       (p/execute-batch! ps content))))
 
-(defn new-sample-old
-  "not using this during plate creation.  Batching instead."
-  [ project-id  ]
-  (let [
-        sql-statement "INSERT INTO sample(project_id) VALUES (?)"
-        new-sample-id-pre (j/execute-one! cm/conn [sql-statement project-id  ]{:return-keys true})
-        new-sample-id (:sample/id new-sample-id-pre)
-        sql-statement2 (str "UPDATE sample SET sample_sys_name = 'SPL-" (str new-sample-id)  "' WHERE id=?")
-        a (j/execute-one! cm/conn [sql-statement2 new-sample-id ]) 
-        ]
-    new-sample-id))
 
 (defn new-sample
   "not using this during plate creation.  Batching instead."
@@ -351,53 +328,6 @@ first selection: select get in plate, well order, not necessarily sample order "
 
 ;;(first (vals (first (new-sample 1) )))
 
-
-(defn new-plate-old
-  "only add samples if include-samples is true"
-  [plate-type-id plate-set-id plate-format-id plate-layout-name-id include-samples]
-  (let [sql-statement1 "INSERT INTO plate(plate_type_id, plate_format_id, plate_layout_name_id) VALUES (?, ?, ?)"
-        sql-statement2 "UPDATE plate SET plate_sys_name = (SELECT CONCAT('PLT-',  LAST_INSERT_ID()))  WHERE id= (SELECT LAST_INSERT_ID())"
-        sql-statement3 "SELECT LAST_INSERT_ID()"
-
-
-
-
-        sql-statement1 "INSERT INTO plate(plate_type_id, plate_format_id, plate_layout_name_id) VALUES (?, ?, ?)"
-        new-plate-id-pre (j/execute-one! cm/conn [sql-statement1 plate-type-id plate-format-id plate-layout-name-id ]{:return-keys true})
-        new-plate-id (:plate/id new-plate-id-pre)
-        sql-statement2 (str "UPDATE plate SET plate_sys_name = 'PLT- " (str new-plate-id) "' WHERE id=?")
-        a (j/execute-one! cm/conn [sql-statement2 new-plate-id ])
-        sql-statement3 (str "INSERT INTO well(by_col, plate_id) VALUES(?, " (str new-plate-id) ")")
-        content (into [] (map vector (range 1 (+ 1 plate-format-id))))
-        b  (with-open [con (j/get-connection cm/conn)
-                       ps  (j/prepare con [sql-statement3])]
-             (p/execute-batch! ps content))      
-        ]
-    (if (= include-samples true)
-      (let [  sql-statement4  (str "SELECT well.id  FROM plate_layout, plate_layout_name, plate, well  WHERE plate_layout.plate_layout_name_id = plate_layout_name.id AND plate_layout.well_type_id = 1 AND well.plate_id=plate.id AND plate_layout.plate_layout_name_id = ? AND plate_layout.well_by_col=well.by_col AND plate.id= ?")
-            wells-need-samples (into [] (map vector (map :id (first (sorted-set (proto/-execute-all cm/conn [ sql-statement4 plate-layout-name-id new-plate-id]{:label-fn rs/as-unqualified-maps :builder-fn rs/as-unqualified-maps} ))))))
-            project-id (cm/get-project-id)
-            sql-statement5  "INSERT INTO sample( project_id, plate_id) VALUES(?, ?)"
-            prj-plt (into []  (repeat (count wells-need-samples) [(cm/get-project-id) new-plate-id] ))
-            c  (with-open [con (j/get-connection cm/conn)
-                           ps  (j/prepare con [sql-statement5])]
-                 (p/execute-batch! ps prj-plt))
-            sql-statement6 "SELECT id FROM  sample WHERE  plate_id=?"
-            new-sample-ids-pre (set (proto/-execute-all cm/conn [ sql-statement6 new-plate-id ]{:label-fn rs/as-unqualified-maps :builder-fn rs/as-unqualified-maps} ))
-            new-sample-ids  (map :id new-sample-ids-pre)
-            sql-statement7 "UPDATE sample SET sample_sys_name = CONCAT('SPL-', ?) WHERE id=?"
-            content (into [] (pairs  (sort  new-sample-ids)  (sort  new-sample-ids)))
-            d  (with-open [con (j/get-connection cm/conn)
-                           ps  (j/prepare con [sql-statement7])]
-                 (p/execute-batch! ps content)) 
-            sql-statement8 "INSERT INTO well_sample(well_id, sample_id)VALUES(?,?)"
-            well-sample-pairs (into [] (pairs  (flatten wells-need-samples)  (sort  new-sample-ids)))
-            ]
-        (with-open [con (j/get-connection cm/conn)
-                    ps  (j/prepare con [sql-statement8])]
-          (p/execute-batch! ps well-sample-pairs)) 
-
-              ))new-plate-id))
 
 
 
@@ -481,11 +411,54 @@ first selection: select get in plate, well order, not necessarily sample order "
 ;;(new-plate-set "des" "ps name" 3 96 1 1 1  false)
 
 
-  
- (defn process-swell-dwell-to-load
+
+
+;; (defn reformat-plate-set-old
+;;   "Called from DialogReformatPlateSet OK action listener"
+;;   [source-plate-set-id  source-num-plates  n-reps-source  dest-descr  dest-plate-set-name  dest-num-plates  dest-plate-format-id  dest-plate-type-id  dest-plate-layout-name-id ]
+;;   (let [
+;;         project-id (cm/get-project-id)
+;;         dest-plate-set-id (new-plate-set dest-descr, dest-plate-set-name, dest-num-plates, dest-plate-format-id, dest-plate-type-id, project-id, dest-plate-layout-name-id, false )
+;;         sql-statement1 "select well.plate_id, plate_plate_set.plate_order, well.by_col, well.id AS source_well_id FROM plate_plate_set, well  WHERE plate_plate_set.plate_set_id = ? AND plate_plate_set.plate_id = well.plate_id ORDER BY well.plate_id, well.ID"
+;;         source-plates (proto/-execute-all cm/conn [ sql-statement1 source-plate-set-id]{:label-fn rs/as-unqualified-maps :builder-fn rs/as-unqualified-maps} )
+;;         rep-source-plates (loop [  counter 1 temp ()]
+;;                             (if (> counter n-reps-source)  temp
+;;                                 (recur   (+ 1 counter)
+;;                                          (concat (map #(assoc % :rep counter) source-plates) temp))))
+
+       
+;;         sorted-source-pre    (sort-by (juxt :plate_id :rep :source_well_id)  rep-source-plates)
+;;         num  (count sorted-source-pre)
+;;          sorted-source (into [] (loop [  counter 0
+;;                                        new-set #{}
+;;                                        remaining sorted-source-pre]
+;;                                   (if (> counter  (- num 1 ))  new-set
+;;                                       (recur   (+ 1 counter)
+;;                                                (s/union new-set #{(assoc (first remaining) :sort-order counter)})
+;;                                                (rest remaining)))))
+;;         sql-statement2 "SELECT plate_plate_set.plate_ID, well.by_col,  well.id, well_numbers.well_name, well_numbers.quad  FROM well, plate_plate_set, well_numbers, plate_layout  WHERE plate_plate_set.plate_set_id = ?  AND plate_plate_set.plate_id = well.plate_id AND well_numbers.plate_format= ? AND well.by_col = well_numbers.by_col AND plate_layout.plate_layout_name_id = ? AND well.by_col=plate_layout.well_by_col AND plate_layout.well_type_id = 1 order by plate_id, quad, well_numbers.by_col"
+;;         dest-plates-unk-wells (proto/-execute-all cm/conn [ sql-statement2 dest-plate-set-id dest-plate-format-id dest-plate-layout-name-id]{:label-fn rs/as-unqualified-maps :builder-fn rs/as-unqualified-maps} )
+;;         sorted-dest-pre    (sort-by (juxt :plate_id :quad :by_col)  dest-plates-unk-wells)
+;;         num-dest  (count sorted-dest-pre)
+;;         sorted-dest (into [] (loop [  counter 0
+;;                                     new-set #{}
+;;                                     remaining sorted-dest-pre]
+;;                                (if (> counter  (- num-dest 1 ))  new-set
+;;                                    (recur   (+ 1 counter)
+;;                                             (s/union new-set #{(assoc (first remaining) :sort-order counter)})
+;;                                             (rest remaining)))))
+;;         joined-data  (s/join sorted-source sorted-dest {:sort-order :sort-order})
+;;         dwell-swell (map #(process-dwell-swell-to-load %) joined-data)
+;;         sql-statement3 "INSERT INTO well_sample (well_id, sample_id) VALUES ( ?, (SELECT sample.id FROM sample, well, well_sample WHERE well_sample.well_id=well.id AND well_sample.sample_id=sample.id AND well.id= ?))" 
+;;         ]
+;;     (with-open [con (j/get-connection cm/conn)
+;;                 ps  (j/prepare con [sql-statement3])]
+;;       (p/execute-batch! ps dwell-swell))
+;;     dest-plate-set-id))
+ (defn process-dwell-sid-to-load
  "order is important; must correlate with SQL statement order of ?'s"
    [x]
-  (into [] [ (:id x) (:source_well_id x) ]))
+  (into [] [ (:id x) (:sample_id x) ]))
 
 
 
@@ -495,7 +468,7 @@ first selection: select get in plate, well order, not necessarily sample order "
   (let [
         project-id (cm/get-project-id)
         dest-plate-set-id (new-plate-set dest-descr, dest-plate-set-name, dest-num-plates, dest-plate-format-id, dest-plate-type-id, project-id, dest-plate-layout-name-id, false )
-        sql-statement1 "select well.plate_id, plate_plate_set.plate_order, well.by_col, well.id AS source_well_id FROM plate_plate_set, well  WHERE plate_plate_set.plate_set_id = ? AND plate_plate_set.plate_id = well.plate_id ORDER BY well.plate_id, well.ID"
+        sql-statement1 "select well.plate_id, plate_plate_set.plate_order, well.by_col, well.id AS source_well_id, sample.id AS sample_id  FROM plate_plate_set, well, sample, well_sample  WHERE plate_plate_set.plate_set_id = ? AND plate_plate_set.plate_id = well.plate_id AND well_sample.well_id=well.id AND well_sample.sample_id=sample.id  ORDER BY well.plate_id, well.ID"
         source-plates (proto/-execute-all cm/conn [ sql-statement1 source-plate-set-id]{:label-fn rs/as-unqualified-maps :builder-fn rs/as-unqualified-maps} )
         rep-source-plates (loop [  counter 1 temp ()]
                             (if (> counter n-reps-source)  temp
@@ -524,13 +497,16 @@ first selection: select get in plate, well order, not necessarily sample order "
                                             (s/union new-set #{(assoc (first remaining) :sort-order counter)})
                                             (rest remaining)))))
         joined-data  (s/join sorted-source sorted-dest {:sort-order :sort-order})
-        dwell-swell (map #(process-swell-dwell-to-load %) joined-data)
-        sql-statement3 "INSERT INTO well_sample (well_id, sample_id) VALUES ( ?, (SELECT sample.id FROM sample, well, well_sample WHERE well_sample.well_id=well.id AND well_sample.sample_id=sample.id AND well.id= ?))" 
+        ;;id is dest well id and :source_well_id is source well id
+        dwell-sid (map #(process-dwell-sid-to-load %) joined-data)
+        sql-statement3 "INSERT INTO well_sample (well_id, sample_id) VALUES ( ?, ?)" 
         ]
+   ;; (println dwell-sid)
     (with-open [con (j/get-connection cm/conn)
                 ps  (j/prepare con [sql-statement3])]
-      (p/execute-batch! ps dwell-swell))
+      (p/execute-batch! ps dwell-sid))
     dest-plate-set-id))
+
 
 ;;(reformat-plate-set 3 2 1 "descr1" "reformatted PS3" 1 384 1 19)
 
@@ -815,3 +791,65 @@ first selection: select get in plate, well order, not necessarily sample order "
 ;;   (j/execute! tx [sql-statement1 "p-desc" "p-name" 1])
 ;;   (j/execute! tx [sql-statement2]))) 
 
+(defn get-plate-layout-name-id-for-plate-set-id [plate-set-id]
+  (let [
+        sql-statement "SELECT plate_layout_name_id FROM plate_set WHERE id = ?;"
+        result  (doall (j/execute! cm/conn [ sql-statement plate-set-id]{:return-keys true} ))
+        ]
+    (first(vals (first result)))))
+
+;;(get-plate-layout-name-id-for-plate-set-id 3)
+
+
+(defn get-num-samples-for-plate-set-id [ plate-set-id ]
+  (let [
+        sql-statement  (str "SELECT sample.id FROM plate, plate_plate_set, well, sample, well_sample WHERE plate_plate_set.plate_set_id = ? AND plate_plate_set.plate_id = plate.id AND well.plate_id = plate.id AND well_sample.well_id = well.id AND well_sample.sample_id = sample.id ORDER BY plate_plate_set.plate_id, plate_plate_set.plate_order, well.id")
+        result (doall (j/execute! cm/conn [ sql-statement plate-set-id]{:return-keys true} ))
+        ]
+    (count  result)))
+
+
+(defn prep-for-dialog-reformat-plate-set
+  "prepare data for the intermediate dialog DialogReformatPlateSet befor the reformat operation"
+  [ plate-set-sys-name descr num-plates plate-type formatv ]
+
+  (let [
+        plate-set-id (get-ids-for-sys-names plate-set-sys-name "plate_set" "plate_set_sys_name")
+        num-samples (get-num-samples-for-plate-set-id (first plate-set-id))
+        plate-layout-name-id (get-plate-layout-name-id-for-plate-set-id (first plate-set-id))
+        ]
+    (println (first plate-set-id))
+    (println (first plate-set-sys-name))
+    (println num-samples)
+    (println plate-layout-name-id)
+    (println formatv)
+    
+   (case (str  formatv)
+     "96" (DialogReformatPlateSet.
+           nil
+           1
+           "PS-2"
+           "des" 2
+           184
+           "1"
+           "96"
+           1)
+    ;  "384" (ln.DialogReformatPlateSet. nil (first plate-set-id) (first plate-set-sys-name) descr num-plates  num-samples  plate-type  formatv  plate-layout-name-id)
+      "1536" (JOptionPane/showMessageDialog  "1536 well plates can not be reformatted." "Error"))
+
+    )
+
+  )
+
+;;(prep-for-dialog-reformat-plate-set ["PS-1"] "des" 2 1 "96")
+
+;;(ln.DialogReformatPlateSet.
+  ;;   nil
+     ;      1
+      ;     "PS-1"
+       ;    "des"
+        ;   2
+         ;  184
+          ; "1"
+           ;"96"
+          ; 1)

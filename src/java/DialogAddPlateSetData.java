@@ -83,6 +83,7 @@ public class DialogAddPlateSetData extends JDialog
     format = new ComboItem(_format_id, String.valueOf(_format_id));
     plate_num = _plate_num;
     require.invoke(Clojure.read("ln.codax-manager"));
+    require.invoke(Clojure.read("ln.db-retriever"));
     
     dbm = _dbm;
     // Create and set up the window.
@@ -96,7 +97,9 @@ public class DialogAddPlateSetData extends JDialog
     //LOGGER.info("plate_set_id: " + plate_set_id);
     plate_set_description = dbr.getDescriptionForPlateSet(_plate_set_sys_name);
 
-    int plate_layout_name_id = dbm.getDatabaseRetriever().getPlateLayoutNameIDForPlateSetID(_plate_set_id );
+    	    IFn getPlateLayoutNameIDForPlateSetID  = Clojure.var("ln.db-retriever", "get-plate-layout-name-id-for-plate-set-id");
+
+	    int plate_layout_name_id = (int)getPlateLayoutNameIDForPlateSetID.invoke(_plate_set_id );
     plate_layout = dbm.getDatabaseRetriever().getPlateLayoutNameAndID(plate_layout_name_id);
     LOGGER.info("plate_layout_name_id: " + plate_layout_name_id);
     LOGGER.info("plate_layout_name key: " + plate_layout.getKey());

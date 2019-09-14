@@ -854,34 +854,34 @@ int plate_layout_name_id = _plate_layout_name_id;
     return table;
   }
 
-    
-    public int getPlateLayoutNameIDForPlateSetID(int _plate_set_id){
+    /*in db_retriever now*/
+    // public int getPlateLayoutNameIDForPlateSetID(int _plate_set_id){
 
-	int plate_set_id = _plate_set_id;
-	int plate_layout_name_id = 0;
+    // 	int plate_set_id = _plate_set_id;
+    // 	int plate_layout_name_id = 0;
 
-	String sqlstring = "SELECT plate_layout_name_id FROM plate_set WHERE id = ?;";
-	//	LOGGER.info("SQL : " + sqlstring);
+    // 	String sqlstring = "SELECT plate_layout_name_id FROM plate_set WHERE id = ?;";
+    // 	//	LOGGER.info("SQL : " + sqlstring);
 
-	try {
-	    PreparedStatement preparedStatement =
-		conn.prepareStatement(sqlstring, Statement.RETURN_GENERATED_KEYS);
-	    preparedStatement.setInt(1, plate_set_id);
+    // 	try {
+    // 	    PreparedStatement preparedStatement =
+    // 		conn.prepareStatement(sqlstring, Statement.RETURN_GENERATED_KEYS);
+    // 	    preparedStatement.setInt(1, plate_set_id);
 
-	    preparedStatement.executeQuery(); // executeUpdate expects no returns!!!
+    // 	    preparedStatement.executeQuery(); // executeUpdate expects no returns!!!
 
-	    ResultSet resultSet = preparedStatement.getResultSet();
-	    resultSet.next();
-	    plate_layout_name_id = resultSet.getInt("plate_layout_name_id");
+    // 	    ResultSet resultSet = preparedStatement.getResultSet();
+    // 	    resultSet.next();
+    // 	    plate_layout_name_id = resultSet.getInt("plate_layout_name_id");
 
-	    // LOGGER.info("resultset: " + result);
+    // 	    // LOGGER.info("resultset: " + result);
 
-	} catch (SQLException sqle) {
-	    LOGGER.warning("SQLE at getPlateLayoutNameIDforPlateSetID: " + sqle);
-	}
+    // 	} catch (SQLException sqle) {
+    // 	    LOGGER.warning("SQLE at getPlateLayoutNameIDforPlateSetID: " + sqle);
+    // 	}
 
-	return plate_layout_name_id;
-    }
+    // 	return plate_layout_name_id;
+    // }
 
 
     
