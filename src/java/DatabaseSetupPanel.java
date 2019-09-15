@@ -166,7 +166,7 @@ public class DatabaseSetupPanel extends JPanel {
     panel2.add(label, c);
 
     
-         label = new JLabel("Delete tables, indices and all data leaving an empty database.", SwingConstants.LEFT);
+    label = new JLabel("Delete tables, indices and all data leaving an empty database.", SwingConstants.LEFT);
     c.gridx = 1;
     c.gridy = 1;
     c.gridwidth = 1;

@@ -507,6 +507,48 @@ public class DatabaseRetriever {
    *
    * <p>****************************************************************
    */
+
+/**
+   * @param _sys_names array of system_names
+   * @param _table table to be queried
+   * @param _column name of the sys_name column e.g. plate_sys_name, plate_set_sys_name
+   *
+   * available in db-retriever but issues with converting clojurePersistantVector
+   */
+  public Integer[] getIDsForSysNames(String[] _sys_names, String _table, String _column) {
+    String[] sys_names = _sys_names;
+    String table = _table;
+    String column = _column;
+    Integer[] sys_ids = new Integer[sys_names.length];
+
+    String sqlstring = "SELECT get_ids_for_sys_names (?, ?, ?);";
+    // LOGGER.info("SQL at getIDsForSysNames: " + sqlstring);
+
+    try {
+      PreparedStatement preparedStatement =
+          conn.prepareStatement(sqlstring, Statement.RETURN_GENERATED_KEYS);
+      preparedStatement.setArray(1, conn.createArrayOf("VARCHAR", sys_names));
+      preparedStatement.setString(2, table);
+      preparedStatement.setString(3, column);
+
+      preparedStatement.execute(); // executeUpdate expects no returns!!!
+
+      ResultSet resultSet = preparedStatement.getResultSet();
+      resultSet.next();
+      sys_ids = (Integer[]) (resultSet.getArray("get_ids_for_sys_names")).getArray();
+
+      // LOGGER.info("resultset: " + result);
+
+    } catch (SQLException sqle) {
+      LOGGER.warning("SQLE at getIDsForSysNames: " + sqle);
+    }
+
+    return sys_ids;
+  }
+
+
+
+    
   public int getIDForSysName(String _sys_name, String _entity) {
     String sys_name = _sys_name;
     String entity = _entity;
@@ -854,34 +896,36 @@ int plate_layout_name_id = _plate_layout_name_id;
     return table;
   }
 
-    /*in db_retriever now*/
-    // public int getPlateLayoutNameIDForPlateSetID(int _plate_set_id){
+    /*also a version in db_retriever now
+      needed furing reformat plate-set
+      called from dbm.reformatPlateSet */
+    public int getPlateLayoutNameIDForPlateSetID(int _plate_set_id){
 
-    // 	int plate_set_id = _plate_set_id;
-    // 	int plate_layout_name_id = 0;
+    	int plate_set_id = _plate_set_id;
+    	int plate_layout_name_id = 0;
 
-    // 	String sqlstring = "SELECT plate_layout_name_id FROM plate_set WHERE id = ?;";
-    // 	//	LOGGER.info("SQL : " + sqlstring);
+    	String sqlstring = "SELECT plate_layout_name_id FROM plate_set WHERE id = ?;";
+    	//	LOGGER.info("SQL : " + sqlstring);
 
-    // 	try {
-    // 	    PreparedStatement preparedStatement =
-    // 		conn.prepareStatement(sqlstring, Statement.RETURN_GENERATED_KEYS);
-    // 	    preparedStatement.setInt(1, plate_set_id);
+    	try {
+    	    PreparedStatement preparedStatement =
+    		conn.prepareStatement(sqlstring, Statement.RETURN_GENERATED_KEYS);
+    	    preparedStatement.setInt(1, plate_set_id);
 
-    // 	    preparedStatement.executeQuery(); // executeUpdate expects no returns!!!
+    	    preparedStatement.executeQuery(); // executeUpdate expects no returns!!!
 
-    // 	    ResultSet resultSet = preparedStatement.getResultSet();
-    // 	    resultSet.next();
-    // 	    plate_layout_name_id = resultSet.getInt("plate_layout_name_id");
+    	    ResultSet resultSet = preparedStatement.getResultSet();
+    	    resultSet.next();
+    	    plate_layout_name_id = resultSet.getInt("plate_layout_name_id");
 
-    // 	    // LOGGER.info("resultset: " + result);
+    	    // LOGGER.info("resultset: " + result);
 
-    // 	} catch (SQLException sqle) {
-    // 	    LOGGER.warning("SQLE at getPlateLayoutNameIDforPlateSetID: " + sqle);
-    // 	}
+    	} catch (SQLException sqle) {
+    	    LOGGER.warning("SQLE at getPlateLayoutNameIDforPlateSetID: " + sqle);
+    	}
 
-    // 	return plate_layout_name_id;
-    // }
+    	return plate_layout_name_id;
+    }
 
 
     

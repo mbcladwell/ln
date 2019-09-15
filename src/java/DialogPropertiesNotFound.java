@@ -86,6 +86,8 @@ public class DialogPropertiesNotFound extends JDialog
     private Map<String, String> allprops;
     
     public DialogPropertiesNotFound( Object _m ) {
+	//Map<String, String> allprops = new java.util.HashMap<String, String>( _m);
+	//	Map<String, String> m = new java.util.HashMap<String, String>(_m);
 	allprops = (Map<String, String>)_m;
 	
 	//session = new Session();

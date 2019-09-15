@@ -235,7 +235,9 @@ private IFn require = Clojure.var("clojure.core", "require");
       * Collapse multiple plates by quadrant. 
       *
       *<p> Plate set table:  id|plate_set_name|descr| plate_set_sys_name | num_plates|
-      *plate_format_id|plate_type_id|project_id |updated            
+      *plate_format_id|plate_type_id|project_id |updated     
+      *
+      * Passing around dbm makes this difficult to convert to clojure       
       */
     public void reformatPlateSet(CustomTable _table){
     CustomTable plate_set_table = _table;
@@ -256,30 +258,36 @@ private IFn require = Clojure.var("clojure.core", "require");
 	    String plate_type = (String)tableModel.getValueAt(selection[0], 4);
 
 	    require.invoke(Clojure.read("ln.db-inserter"));
-	    IFn prepForDialogReformatPlateSet  = Clojure.var("ln.db-inserter", "prep-for-dialog-reformat-plate-set");
-	    prepForDialogReformatPlateSet.invoke(  plate_set_sys_name[0], descr, num_plates, plate_type, format);
+	    //IFn prepForDialogReformatPlateSet  = Clojure.var("ln.db-inserter", "prep-for-dialog-reformat-plate-set");
+	    //prepForDialogReformatPlateSet.invoke(  plate_set_sys_name[0], descr, num_plates, plate_type, format);
 
-	    //IFn getIDsForSysNames = Clojure.var("ln.db-inserter", "get-ids-for-sys-names");
+	    IFn getIDsForSysNames = Clojure.var("ln.db-inserter", "get-ids-for-sys-names");
 	    
-	    //  Integer[] plate_set_id =(Integer[]) getIDsForSysNames.invoke(plate_set_sys_name, "plate_set", "plate_set_sys_name");
-
-	    //require.invoke(Clojure.read("ln.db-retriever"));
-	    // IFn getNumSamplesForPlate_setID  = Clojure.var("ln.db-retriever", "get-num-samples-for-plate-set-id");
-	    //int num_samples = (int)getNumSamplesForPlate_setID.invoke(plate_set_id[0]);
+	    // Integer[] plate_set_id = getIDsForSysNames.invoke(plate_set_sys_name, "plate_set", "plate_set_sys_name");
+	    //Integer[] plate_set_id = dbRetriever.getIDsForSysNames(plate_set_sys_name, "plate_set", "plate_set_sys_name");
+	    //int[] array = list.stream().mapToInt(i->i).toArray();
+	    clojure.lang.PersistentVector  pv = (clojure.lang.PersistentVector)getIDsForSysNames.invoke(plate_set_sys_name, "plate_set", "plate_set_sys_name");
+	    //	    int[] plate_set_id = pv.stream().mapToInt((clojure.lang.PersistentVector i)->i).toArray();
+	    Object[] plate_set_id_pre = pv.toArray();
+	    int plate_set_id = ((java.math.BigInteger)plate_set_id_pre[0]).intValue();
+	    
+	    require.invoke(Clojure.read("ln.db-retriever"));
+	    IFn getNumSamplesForPlateSetID  = Clojure.var("ln.db-inserter", "get-num-samples-for-plate-set-id");
+	    int num_samples = (int)getNumSamplesForPlateSetID.invoke(plate_set_id);
 	    //int num_samples = this.getDatabaseRetriever().getNumberOfSamplesForPlateSetID(plate_set_id[0]);
-    // 	    int plate_layout_name_id = this.getDatabaseRetriever().getPlateLayoutNameIDForPlateSetID((int)plate_set_id[0]);
+     	    int plate_layout_name_id = this.getDatabaseRetriever().getPlateLayoutNameIDForPlateSetID(plate_set_id);
     // 	    LOGGER.info("plate_set_id[0]: " + plate_set_id[0]);
-    // 	    switch(format){
-    // 	    case "96":
-    // 			DialogReformatPlateSet drps = new DialogReformatPlateSet( this, (int)plate_set_id[0], plate_set_sys_name[0], descr, num_plates, num_samples, plate_type, format, plate_layout_name_id);		
-    // 		    break;
-    // 	    case "384":	 drps = new DialogReformatPlateSet( this, (int)plate_set_id[0], plate_set_sys_name[0], descr, num_plates, num_samples, plate_type, format, plate_layout_name_id);
+    	    switch(format){
+    	    case "96":
+    			DialogReformatPlateSet drps = new DialogReformatPlateSet( this, plate_set_id, plate_set_sys_name[0], descr, num_plates, num_samples, plate_type, format, plate_layout_name_id);		
+    		    break;
+    	    case "384":	 drps = new DialogReformatPlateSet( this, plate_set_id, plate_set_sys_name[0], descr, num_plates, num_samples, plate_type, format, plate_layout_name_id);
 		
-    // 		    break;
-    // 	    case "1536":  JOptionPane.showMessageDialog(dmf,
-    // "1536 well plates can not be reformatted.",
-    // "Error", JOptionPane.ERROR_MESSAGE);
-    // 		    break;}		    
+    		    break;
+    	    case "1536":  JOptionPane.showMessageDialog(dmf,
+    "1536 well plates can not be reformatted.",
+    "Error", JOptionPane.ERROR_MESSAGE);
+    		    break;}		    
     }}
 
     /*    

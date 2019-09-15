@@ -159,7 +159,8 @@
               con (j/get-connection  cm/conn)
               ;;ps  (j/prepare con [sql-statement ])
               results nil]
-          (for [x sys-names]  (concat results (j/execute! con  [sql-statement x]))))))))
+           (for [x sys-names]  (concat results (j/execute! con  [sql-statement x])))
+          )))))
 
 
 ;;(get-ids-for-sys-names ["PS-1" "PS-2" "PS-3" "PS-4" ] "plate_set" "plate_set_sys_name" )
@@ -809,37 +810,37 @@ first selection: select get in plate, well order, not necessarily sample order "
     (count  result)))
 
 
-(defn prep-for-dialog-reformat-plate-set
-  "prepare data for the intermediate dialog DialogReformatPlateSet befor the reformat operation"
-  [ plate-set-sys-name descr num-plates plate-type formatv ]
+;; (defn prep-for-dialog-reformat-plate-set
+;;   "prepare data for the intermediate dialog DialogReformatPlateSet befor the reformat operation"
+;;   [ plate-set-sys-name descr num-plates plate-type formatv ]
 
-  (let [
-        plate-set-id (get-ids-for-sys-names plate-set-sys-name "plate_set" "plate_set_sys_name")
-        num-samples (get-num-samples-for-plate-set-id (first plate-set-id))
-        plate-layout-name-id (get-plate-layout-name-id-for-plate-set-id (first plate-set-id))
-        ]
-    (println (first plate-set-id))
-    (println (first plate-set-sys-name))
-    (println num-samples)
-    (println plate-layout-name-id)
-    (println formatv)
+;;   (let [
+;;         plate-set-id (get-ids-for-sys-names plate-set-sys-name "plate_set" "plate_set_sys_name")
+;;         num-samples (get-num-samples-for-plate-set-id (first plate-set-id))
+;;         plate-layout-name-id (get-plate-layout-name-id-for-plate-set-id (first plate-set-id))
+;;         ]
+;;     (println (first plate-set-id))
+;;     (println (first plate-set-sys-name))
+;;     (println num-samples)
+;;     (println plate-layout-name-id)
+;;     (println formatv)
     
-   (case (str  formatv)
-     "96" (DialogReformatPlateSet.
-           nil
-           1
-           "PS-2"
-           "des" 2
-           184
-           "1"
-           "96"
-           1)
-    ;  "384" (ln.DialogReformatPlateSet. nil (first plate-set-id) (first plate-set-sys-name) descr num-plates  num-samples  plate-type  formatv  plate-layout-name-id)
-      "1536" (JOptionPane/showMessageDialog  "1536 well plates can not be reformatted." "Error"))
+;;    (case (str  formatv)
+;;      "96" (DialogReformatPlateSet.
+;;            nil
+;;            1
+;;            "PS-2"
+;;            "des" 2
+;;            184
+;;            "1"
+;;            "96"
+;;            1)
+;;     ;  "384" (ln.DialogReformatPlateSet. nil (first plate-set-id) (first plate-set-sys-name) descr num-plates  num-samples  plate-type  formatv  plate-layout-name-id)
+;;       "1536" (JOptionPane/showMessageDialog  "1536 well plates can not be reformatted." "Error"))
 
-    )
+;;     )
 
-  )
+;;   )
 
 ;;(prep-for-dialog-reformat-plate-set ["PS-1"] "des" 2 1 "96")
 

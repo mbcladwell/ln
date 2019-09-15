@@ -57,9 +57,9 @@ public class DialogReformatPlateSet extends JDialog implements ActionListener {
   static JButton okButton;
     static JButton cancelButton;
     final Instant instant = Instant.now();
-    final DialogMainFrame dmf;
+    //final DialogMainFrame dmf;
     //    final Session session;
-    //final DatabaseManager dbm;
+    final DatabaseManager dbm;
     
     final DateFormat df = new SimpleDateFormat("yyyy/MM/dd");
     public int predicted_number_of_plates_int;
@@ -82,7 +82,7 @@ public int new_plate_format_id;
    * @param _format number of wells per plate
    */
   public DialogReformatPlateSet(
-				//DatabaseManager _dbm,
+      DatabaseManager _dbm,
       int _plate_set_id,
       String _plate_set_sys_name,
       String _descr,
@@ -91,8 +91,8 @@ public int new_plate_format_id;
       String _plate_type,
       String _plate_format,
       int _plate_layout_name_id) {
-      // dbm = _dbm;
-      dbr=new DatabaseRetriever();
+      dbm = _dbm;
+      dbr=new DatabaseRetriever(dbm);
       //this.session = _session;
       //this.dmf = DialogMainFrame();
       require.invoke(Clojure.read("ln.codax-manager"));

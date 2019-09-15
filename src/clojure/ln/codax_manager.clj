@@ -381,6 +381,17 @@
              :serverTimezone "UTC"
              :ssl (get-sslmode)})
 
+(def conn-create   {:dbtype (get-dbtype)
+                    :host (get-host)
+                    :dbname nil
+             :user (get-user)
+             :password (get-password)
+             :port (get-port)
+             :useTimezone true
+             :serverTimezone "UTC"
+             :ssl (get-sslmode)})
+
+
 ;;(println conn)
 
 

@@ -47,30 +47,31 @@
   ;;                  [:updated  :timestamp "with time zone not null DEFAULT current_timestamp"]
  ;;                   ["FOREIGN KEY (lnuser_id) REFERENCES lnuser(id)"]]) ]
 
+  
   [ 
    [(jdbc/create-table-ddl :lnuser_groups
-                         [[:id "SERIAL PRIMARY KEY"]
+                         [[:id "INT(20) NOT NULL PRIMARY KEY AUTO_INCREMENT"]
                           [:usergroup "varchar(250)"]
                           [:updated  :timestamp ]])]
    
    [(jdbc/create-table-ddl :lnuser
-                          [[:id "SERIAL PRIMARY KEY"]
-                           [:usergroup :int]
+                          [[:id "INT(20) NOT NULL PRIMARY KEY AUTO_INCREMENT"]
+                           [:usergroup_id "INT(20)"]
                            [:lnuser_name "VARCHAR(250) not null unique"]
                            [:tags "varchar(250)"]
                            [:password "varchar(64) not null"]
                            [:updated  :timestamp ]
-                           ["FOREIGN KEY (usergroup) REFERENCES lnuser_groups(id)"]])]
+                           ["FOREIGN KEY (usergroup_id) REFERENCES lnuser_groups(id)"]])]
 
  
    [(jdbc/create-table-ddl :lnsession
-                         [[:id "SERIAL PRIMARY KEY"]
+                         [[:id "INT(20) NOT NULL PRIMARY KEY AUTO_INCREMENT"]
                           [:lnuser_id :int]
                             [:updated  :timestamp ]
                           ["FOREIGN KEY (lnuser_id) REFERENCES lnuser(id)"]]) ]
    
    [(jdbc/create-table-ddl :project
-                           [[:id "SERIAL PRIMARY KEY"]
+                           [[:id "INT(20) NOT NULL PRIMARY KEY AUTO_INCREMENT"]
                             [:project_sys_name "varchar(30)"]
                             [:descr "varchar(250)"]
                             [:project_name "varchar(250)"]
@@ -80,16 +81,16 @@
                            )]
    ;;CREATE INDEX ON project(lnsession_id);
    [(jdbc/create-table-ddl :plate_type
-                           [[:id "SERIAL PRIMARY KEY"]
+                           [[:id "INT(20) NOT NULL PRIMARY KEY AUTO_INCREMENT"]
                             [:plate_type_name "varchar(30)"] ])]
    
    [(jdbc/create-table-ddl :plate_format
-                           [[:id "SERIAL PRIMARY KEY"]
+                           [[:id "INT(20) NOT NULL PRIMARY KEY AUTO_INCREMENT"]
                             [:format "varchar(6)"]
                             [:rownum :int]
                             [:colnum :int]])]
    [(jdbc/create-table-ddl :plate_layout_name
-                           [[:id "SERIAL PRIMARY KEY"]
+                           [[:id "INT(20) NOT NULL PRIMARY KEY AUTO_INCREMENT"]
                             [:sys_name "varchar(30)"]
                             [:name "varchar(250)"]
                             [:descr "varchar(250)"]
@@ -107,7 +108,7 @@
                             [:dest :int "NOT NULL"]
                             ])]
    [(jdbc/create-table-ddl :plate_set
-                           [[:id "SERIAL PRIMARY KEY"]
+                           [[:id "INT(20) NOT NULL PRIMARY KEY AUTO_INCREMENT"]
                              [:plate_set_name "varchar(250)"]
                             [:descr "varchar(250)"]
                             [:plate_set_sys_name "varchar(30)"]
@@ -126,7 +127,7 @@
                             ])]
 
     [(jdbc/create-table-ddl :plate
-                           [[:id "SERIAL PRIMARY KEY"]
+                           [[:id "INT(20) NOT NULL PRIMARY KEY AUTO_INCREMENT"]
                             [:barcode "varchar(250)"]
                             [:plate_sys_name "varchar(30)"]                        
                             [:plate_type_id :int]
@@ -145,7 +146,7 @@
 		            ["FOREIGN KEY (plate_id) REFERENCES plate(id)"]
                            ])]
    [(jdbc/create-table-ddl :sample
-                           [[:id "SERIAL PRIMARY KEY"]
+                           [[:id "INT(20) NOT NULL PRIMARY KEY AUTO_INCREMENT"]
                             [:sample_sys_name "varchar(30)"]
                             [:project_id :int]
                             [:accs_id "varchar(30)"]
@@ -153,7 +154,7 @@
                             ["FOREIGN KEY (project_id) REFERENCES project(id)"]
 		           ])]
    [(jdbc/create-table-ddl :well
-                           [[:id "SERIAL PRIMARY KEY"]
+                           [[:id "INT(20) NOT NULL PRIMARY KEY AUTO_INCREMENT"]
                             [:by_col :int]
                             [:plate_id :int]
                             ["FOREIGN KEY (plate_id) REFERENCES plate(id)"]
@@ -167,12 +168,12 @@
 
     
   [(jdbc/create-table-ddl :assay_type
-                           [[:id "SERIAL PRIMARY KEY"]
+                           [[:id "INT(20) NOT NULL PRIMARY KEY AUTO_INCREMENT"]
                             [:assay_type_name "varchar(250)"]
                             
                            ])]
   [(jdbc/create-table-ddl :assay_run
-                          [[:id "SERIAL PRIMARY KEY"]
+                          [[:id "INT(20) NOT NULL PRIMARY KEY AUTO_INCREMENT"]
                            [:assay_run_sys_name "varchar(30)"]
                            [:assay_run_name "varchar(250)"]
                            [:descr "varchar(250)"]
@@ -202,7 +203,7 @@
                            ])]
 
     [(jdbc/create-table-ddl :hit_list
-                          [[:id "SERIAL PRIMARY KEY"]
+                          [[:id "INT(20) NOT NULL PRIMARY KEY AUTO_INCREMENT"]
                            [:hitlist_sys_name "varchar(30)"]
                            [:hitlist_name "varchar(250)"]
                            [:descr "varchar(250)"]
@@ -221,7 +222,7 @@
                             ])]
 
        [(jdbc/create-table-ddl :well_type
-                               [[:id "SERIAL PRIMARY KEY"]
+                               [[:id "INT(20) NOT NULL PRIMARY KEY AUTO_INCREMENT"]
                              [:name "varchar(30)"]
                              ])]
 
@@ -237,7 +238,7 @@
      
      
         [(jdbc/create-table-ddl :rearray_pairs
-                                [[:id "SERIAL PRIMARY KEY"]
+                                [[:id "INT(20) NOT NULL PRIMARY KEY AUTO_INCREMENT"]
                                  [:src :int]
                                  [:dest :int]
                                  ])]
@@ -256,9 +257,9 @@
        [(jdbc/create-table-ddl :well_numbers
                           [   [:plate_format :int]
                            [:well_name "varchar(5)"]
-                            [:row "varchar(2)"]
+                            [:row "varchar(5)"]
                            [:row_num :int]
-                           [:col "varchar(2)"]
+                           [:col "varchar(5)"]
                            [:total_col_count :int]
                            [:by_row :int]
                            [:by_col :int]
@@ -477,17 +478,18 @@ because some are strings, all imported as string
 ;;executables used by interface
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn drop-all-tables
+(defn drop-database
 ;;needed for interface button
 []
-  (doall (map #(jdbc/db-do-commands cm/conn true  %) (map #(format  "DROP TABLE IF EXISTS %s CASCADE" %)  all-table-names ) )))
+  (jdbc/db-do-commands cm/conn true  "DROP DATABASE lndb"))
 
-;;(drop-all-tables)
+;;(drop-database)
 
 (defn initialize-limsnucleus
   ;;(map #(jdbc/db-do-commands cm/conn (jdbc/drop-table-ddl % {:conditional? true } )) all-table-names)
   []
-  (doall (map #(jdbc/db-do-commands cm/conn true  %) (map #(format  "DROP TABLE IF EXISTS %s CASCADE" %)  all-table-names ) ))
+  ;;  (doall (map #(jdbc/db-do-commands cm/conn true  %) (map #(format  "DROP TABLE IF EXISTS %s CASCADE" %)  all-table-names ) ))
+  (jdbc/db-do-commands cm/conn-create true  "CREATE DATABASE lndb")
   (doall (map #(jdbc/db-do-commands cm/conn true %) all-tables))
   (doall  (map #(jdbc/db-do-commands cm/conn true %) all-indices))
   ;; this errors because brackets not stripped
@@ -497,6 +499,11 @@ because some are strings, all imported as string
 
 ;;(initialize-limsnucleus)
 ;;(println cm/conn)
+
+;;root@xps:/home/mbc# mysql --user=root -p2727 lndb
+;;mysql>CREATE USER 'ln_admin'@'%' IDENTIFIED BY 'welcome';
+;;mysql>GRANT ALL PRIVILEGES ON *.* TO 'ln_admin'@'%' WITH GRANT OPTION;
+
 
 (defn add-example-data
   ;;
@@ -521,3 +528,19 @@ because some are strings, all imported as string
   (jdbc/execute! cm/conn "TRUNCATE project, plate_set, plate, hit_sample, hit_list, assay_run, assay_result, sample, well, lnsession RESTART IDENTITY CASCADE;"))
 
 
+(def a (jdbc/create-table-ddl :plate_layout_name
+                           [[:id "INT(20) NOT NULL PRIMARY KEY AUTO_INCREMENT"]
+                            [:sys_name "varchar(30)"]
+                            [:name "varchar(250)"]
+                            [:descr "varchar(250)"]
+                            [:plate_format_id :int]
+                            [:replicates :int]
+                            [:targets :int]
+                            [:use_edge :int]
+                            [:num_controls :int]
+                            [:unknown_n :int]
+                            [:control_loc "varchar(30)"]
+                            [:source_dest "varchar(30)"]
+                            ["FOREIGN KEY (plate_format_id) REFERENCES plate_format(id)"]]))
+
+(println a)
