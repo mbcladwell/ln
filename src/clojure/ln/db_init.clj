@@ -257,7 +257,7 @@
        [(jdbc/create-table-ddl :well_numbers
                           [   [:plate_format :int]
                            [:well_name "varchar(5)"]
-                            [:row "varchar(5)"]
+                            [:row_name "varchar(5)"]
                            [:row_num :int]
                            [:col "varchar(5)"]
                            [:total_col_count :int]
@@ -321,7 +321,7 @@ because some are strings, all imported as string
   [x]
   (into [] [ (Integer/parseInt (String. (:format x)))
             (:wellname x )
-            (:row x )
+            (:row_name x )
             (Integer/parseInt (String. (:rownum x )))
             (Integer/parseInt (String. (:col x )))
             (Integer/parseInt (String. (:totcolcount x)))
@@ -341,7 +341,7 @@ because some are strings, all imported as string
      ["user" ]]]
                      
    [ :lnuser
-    [ :lnuser_name :tags :usergroup :password ]
+    [ :lnuser_name :tags :usergroup_id :password ]
     [["ln_admin" "ln_admin@labsolns.com" 1  "welcome"]
      ["ln_user" "ln_user@labsolns.com" 1 "welcome"]
      ["klohymim" "NA" 1 "hwc3v4_rbkT-1EL2KI-JBaqFq0thCXM_"]
@@ -407,7 +407,7 @@ because some are strings, all imported as string
     [ :well_type [:name ]
      [["unknown"]["positive"]["negative"]["blank"]["edge"]]]
    
-   [ :well_numbers [:plate_format :well_name :row :row_num :col :total_col_count :by_row :by_col :quad :parent_well ]
+   [ :well_numbers [:plate_format :well_name :row_name :row_num :col :total_col_count :by_row :by_col :quad :parent_well ]
    ;;ln.data-sets/well-numbers
        (let   [  table (dbi/table-to-map "resources/data/well_numbers_for_import.txt")
                content (into [] (map #(process-well-numbers-data %) table))]
@@ -488,8 +488,8 @@ because some are strings, all imported as string
 (defn initialize-limsnucleus
   ;;(map #(jdbc/db-do-commands cm/conn (jdbc/drop-table-ddl % {:conditional? true } )) all-table-names)
   []
-  ;;  (doall (map #(jdbc/db-do-commands cm/conn true  %) (map #(format  "DROP TABLE IF EXISTS %s CASCADE" %)  all-table-names ) ))
-  (jdbc/db-do-commands cm/conn-create true  "CREATE DATABASE lndb")
+    (doall (map #(jdbc/db-do-commands cm/conn true  %) (map #(format  "DROP TABLE IF EXISTS %s CASCADE" %)  all-table-names ) ))
+  ;;(jdbc/db-do-commands cm/conn-create true  "CREATE DATABASE lndb")
   (doall (map #(jdbc/db-do-commands cm/conn true %) all-tables))
   (doall  (map #(jdbc/db-do-commands cm/conn true %) all-indices))
   ;; this errors because brackets not stripped
@@ -510,7 +510,7 @@ because some are strings, all imported as string
   []
   ;; order important!
   (do
-    (doall (map #(jdbc/db-do-commands cm/conn true  %) (map #(format  "TRUNCATE TABLE %s" %)  tables-to-truncate )))
+    ;;(doall (map #(jdbc/db-do-commands cm/conn true  %) (map #(format  "TRUNCATE TABLE %s" %)  tables-to-truncate )))
 ;;    (doall (map #(jdbc/db-do-commands cm/conn true  %) (map #(format  "TRUNCATE %s CASCADE" %)  tables-to-truncate )))
   (jdbc/insert! cm/conn :lnsession {:lnuser_id 1})
   (cm/set-session-id 1)  
@@ -527,20 +527,3 @@ because some are strings, all imported as string
 
   (jdbc/execute! cm/conn "TRUNCATE project, plate_set, plate, hit_sample, hit_list, assay_run, assay_result, sample, well, lnsession RESTART IDENTITY CASCADE;"))
 
-
-(def a (jdbc/create-table-ddl :plate_layout_name
-                           [[:id "INT(20) NOT NULL PRIMARY KEY AUTO_INCREMENT"]
-                            [:sys_name "varchar(30)"]
-                            [:name "varchar(250)"]
-                            [:descr "varchar(250)"]
-                            [:plate_format_id :int]
-                            [:replicates :int]
-                            [:targets :int]
-                            [:use_edge :int]
-                            [:num_controls :int]
-                            [:unknown_n :int]
-                            [:control_loc "varchar(30)"]
-                            [:source_dest "varchar(30)"]
-                            ["FOREIGN KEY (plate_format_id) REFERENCES plate_format(id)"]]))
-
-(println a)

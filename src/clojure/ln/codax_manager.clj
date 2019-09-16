@@ -135,7 +135,7 @@
 
 (defn set-user [u]
   (c/with-write-transaction [props tx]
-        (c/assoc-at tx [:assets :conn :user] u)))
+        (c/assoc-at tx [:assets :conn :ln-user] u)))
 
 (defn set-db-user [u]
   (c/with-write-transaction [props tx]
@@ -149,7 +149,7 @@
 
 (defn set-password [p]
   (c/with-write-transaction [props tx]
-        (c/assoc-at! tx  [:assets :conn :password] p)))
+        (c/assoc-at! tx  [:assets :conn :ln-password] p)))
 
 (defn set-db-password [p]
   (c/with-write-transaction [props tx]
@@ -179,11 +179,11 @@
 (defn get-dbname []
   (c/get-at! props [:assets :conn :dbname]))
 
-(defn get-user []
-  (c/get-at! props [:assets :conn :user]))
+(defn get-ln-user []
+  (c/get-at! props [:assets :conn :ln-user]))
 
-(defn get-password []
-  (c/get-at! props [:assets :conn :password]))
+(defn get-ln-password []
+  (c/get-at! props [:assets :conn :ln-password]))
 
 (defn get-sslmode []
   (c/get-at! props [:assets :conn :sslmode]))
@@ -202,8 +202,8 @@
   [u p al]
   (c/with-write-transaction [props tx]
     (-> tx
-     (c/assoc-at   [:assets :conn :user] u)
-     (c/assoc-at  [:assets :conn :password] p) 
+     (c/assoc-at   [:assets :conn :ln-user] u)
+     (c/assoc-at  [:assets :conn :ln-password] p) 
      (c/assoc-at  [:assets :conn :auto-login] al))))
 
 ;;(set-u-p-al "ln_admin" "welcome" true)
@@ -240,9 +240,11 @@
            ":sslmode" (c/get-at! props [:assets :conn :sslmode])
           ":source" (c/get-at! props [:assets :conn :source])
           ":dbname" (c/get-at! props [:assets :conn :dbname])
-          ":help-url-prefix" (c/get-at! props [:assets :conn :help-url-prefix])
-          ":password" (c/get-at! props [:assets :conn :db-password])
-          ":user" (c/get-at! props [:assets :conn :db-user])})))
+             ":help-url-prefix" (c/get-at! props [:assets :conn :help-url-prefix])
+             ":ln-password" (c/get-at! props [:assets :conn :ln-password])
+             ":ln-user" (c/get-at! props [:assets :conn :ln-user])           
+          ":db-password" (c/get-at! props [:assets :conn :db-password])
+          ":db-user" (c/get-at! props [:assets :conn :db-user])})))
 
 (defn get-all-props-clj
   ;;a map for clojure
@@ -254,8 +256,11 @@
     :source (c/get-at! props [:assets :conn :source])
     :dbname (c/get-at! props [:assets :conn :dbname])
     :help-url-prefix (c/get-at! props [:assets :conn :help-url-prefix])
-    :password (c/get-at! props [:assets :conn :db-password])
-    :user (c/get-at! props [:assets :conn :db-user])}))
+    :db-password (c/get-at! props [:assets :conn :db-password])
+    :db-user (c/get-at! props [:assets :conn :db-user])
+    :ln-password (c/get-at! props [:assets :conn :ln-password])
+    :ln-user (c/get-at! props [:assets :conn :ln-user])
+    }))
 
 
 
@@ -289,6 +294,12 @@
 
 (defn get-db-password []
   (c/get-at! props [:assets :conn :db-password ]))
+
+(defn get-user []
+  (c/get-at! props [:assets :conn :ln-user ]))
+
+(defn get-password []
+  (c/get-at! props [:assets :conn :ln-password ]))
 
 
 (defn set-user-group [i]
@@ -374,12 +385,12 @@
 (def conn   {:dbtype (get-dbtype)
              :dbname (get-dbname)
              :host (get-host)
-             :user (get-db-user)
-             :password (get-db-password)
+             :user (get-user)
+             :password (get-password)
              :port (get-port)
              :useTimezone true
              :serverTimezone "UTC"
-             :ssl (get-sslmode)})
+             :useSSL (get-sslmode)})
 
 (def conn-create   {:dbtype (get-dbtype)
                     :host (get-host)
@@ -389,7 +400,7 @@
              :port (get-port)
              :useTimezone true
              :serverTimezone "UTC"
-             :ssl (get-sslmode)})
+             :useSSL (get-sslmode)})
 
 
 ;;(println conn)
@@ -428,7 +439,7 @@
 (defn  get-connection-string [target]	  
   (case target
     "heroku" (str "jdbc:postgresql://"  (get-host) ":" (get-port)  "/" (get-dbname) "?sslmode=require&user=" (get-db-user) "&password="  (get-db-password))
-    "local" (str "jdbc:mysql://localhost:3306/lndb?user=mbc&password=2727&useSSL=false")	   
+    "local" (str "jdbc:mysql://localhost:3306/lndb?user=" (get-user) "&password=" (get-password) "&useSSL=false&useTimezone=true&serverTimezone=UTC")	   
     "elephantsql" (str "jdbc:postgresql://" (get-host) ":" (get-port) "/" (get-dbname) "?user=" (get-db-user) "&password=" (get-db-password) "&SSL=" (get-sslmode))
      "mysql" (str "jdbc:mysql://" (get-host) ":"  (get-port) "/" (get-dbname) "?useTimezone=true&serverTimezone=UTC&user=" (get-db-user) "&password=" (get-db-password) "&SSL=" (get-sslmode)  )
      "hostgator" (str "jdbc:mysql://" (get-host) ":"  (get-port) "/" (get-dbname) "?user=" (get-db-user) "&password=" (get-db-password) "&SSL=" (get-sslmode)  )
@@ -443,14 +454,14 @@
     (println "All values")
     (println "-------------------")
     (println "conn")
-    (println (str ":init " (get-init)))
+    (println (str ":init       " (get-init)))
     (println (str ":auto-login " (get-auto-login)))
     (println (str ":dbtype     " (get-dbtype)))
     (println (str ":dbname     " (get-dbname)))
     (println (str ":host       " (get-host)))
     (println (str ":db-user    " (get-db-user)))
     (println (str ":db-password" (get-db-password)))
-    (println (str ":user-name  " (get-user)))
+    (println (str ":user    " (get-user)))
     (println (str ":password   " (get-password)))
     (println (str ":source     " (get-source)))
     (println (str ":sslmode    " (get-sslmode)))
@@ -470,18 +481,6 @@
     ))
 
 
-
-(defn testup []
-  (do
-    (pretty-print)
-    (set-uid-ugid-ug-auth 10 10 "adminy3" false )
-    (set-u-p-al "dodo" "pass1" true)
-    (pretty-print)
-    (print-ap)
-    (println "*****")(println "*****")(println "*****")
-    ))
-
-;;(testup)
 	
 (defn look [] 
     (def props (c/open-database! "ln-props"))
