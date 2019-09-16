@@ -385,8 +385,10 @@
 (def conn   {:dbtype (get-dbtype)
              :dbname (get-dbname)
              :host (get-host)
-             :user (get-user)
-             :password (get-password)
+             :db-user (get-db-user)
+             :db-password (get-db-password)
+             :user (get-db-user)
+             :password (get-db-password)
              :port (get-port)
              :useTimezone true
              :serverTimezone "UTC"
