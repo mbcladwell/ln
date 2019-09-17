@@ -37,7 +37,7 @@ public class MenuBarForProject extends JMenuBar {
     project_table = _project_table;
     //session = dmf.getSession();
      IFn require = Clojure.var("clojure.core", "require");
-    require.invoke(Clojure.read("ln.session"));
+    require.invoke(Clojure.read("ln.codax-manager"));
 
     JMenu menu = new JMenu("Project");
     menu.setMnemonic(KeyEvent.VK_P);
@@ -87,14 +87,17 @@ public class MenuBarForProject extends JMenuBar {
               String project_sys_name = (String) project_table.getValueAt(i, 0);
 		//  String results[][] = project_table.getSelectedRowsAndHeaderAsStringArray();
               // LOGGER.info("down button results: " + results);
-              // LOGGER.info("down button results: " + results[1][0]);
+               LOGGER.info("project_sys_name: " + project_sys_name);
 	      //session.getDatabaseManager().updateSessionWithProject(results[1][0]);
 	      //dmf.setMainFrameTitle(results[1][0]);
               //dmf.showPlateSetTable(results[1][0]);
 	     
               dbm.updateSessionWithProject(project_sys_name);
-	      dmf.setMainFrameTitle(project_sys_name);
-              dmf.showPlateSetTable(project_sys_name);
+	      //   LOGGER.info("dmf: " + dmf);
+	       // dmf.setMainFrameTitle(project_sys_name);
+	      dbm.getDialogMainFrame().setMainFrameTitle(project_sys_name);
+
+              dbm.getDialogMainFrame().showPlateSetTable(project_sys_name);
             } catch (ArrayIndexOutOfBoundsException s) {
 		JOptionPane.showMessageDialog( dmf,
 					      "Select a row!","Error",JOptionPane.ERROR_MESSAGE);
@@ -109,7 +112,7 @@ public class MenuBarForProject extends JMenuBar {
     menu = new ViewerMenu(dbm);
     this.add(menu);
 
-    IFn getUserGroup = Clojure.var("ln.session", "get-user-group");
+    IFn getUserGroup = Clojure.var("ln.codax-manager", "get-user-group");
     
     if(getUserGroup.invoke().equals("administrator")){
     menu = new AdminMenu(dbm, project_table);

@@ -26,11 +26,11 @@ import clojure.lang.IFn;
 
 /** */
 public class DatabaseManager {
-  Connection conn;
-  // CustomTable table;
-     DatabaseInserter dbInserter;
+    Connection conn;
+    // CustomTable table;
+    DatabaseInserter dbInserter;
     DatabaseRetriever dbRetriever;
-  DialogMainFrame dmf;
+    DialogMainFrame dmf;
     String source; //the connection source e.g. local, heroku
     // Session session;
   private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
@@ -46,25 +46,25 @@ public class DatabaseManager {
       //LOGGER.info("in session: " + _s);
       IFn require = Clojure.var("clojure.core", "require");
     require.invoke(Clojure.read("ln.session"));
-    IFn setUser = Clojure.var("ln.session", "set-user");
-    IFn setUserID = Clojure.var("ln.session", "set-user-id");
-    IFn getUserID = Clojure.var("ln.session", "get-user-id");
-    IFn setAuthenticated = Clojure.var("ln.session", "set-authenticated");
+    IFn setUser = Clojure.var("ln.codax-manager", "set-user");
+    IFn setUserID = Clojure.var("ln.codax-manager", "set-user-id");
+    IFn getUserID = Clojure.var("ln.codax-manager", "get-user-id");
+    IFn setAuthenticated = Clojure.var("ln.codax-manager", "set-authenticated");
     
    
       Long insertKey = 0L;
       try {
 	  Class.forName("org.postgresql.Driver");
-	  IFn getSource = Clojure.var("ln.session", "get-source");
-  IFn getUser = Clojure.var("ln.session", "get-user");
-    IFn getPassword = Clojure.var("ln.session", "get-password");
+	  IFn getSource = Clojure.var("ln.codax-manager", "get-source");
+  IFn getUser = Clojure.var("ln.codax-manager", "get-user");
+    IFn getPassword = Clojure.var("ln.codax-manager", "get-password");
    
 	  // String url = "jdbc:postgresql://localhost/postgres";
 	  //String source = (String)getSource.invoke();
-	  String source = "local";
+    String source = (String)getSource.invoke();
 	  
 	  System.out.println("source: " + source);
-	  IFn getURL = Clojure.var("ln.session", "get-connection-string");
+	  IFn getURL = Clojure.var("ln.codax-manager", "get-connection-string");
 	  String url = (String)getURL.invoke(source);
 	  System.out.println("Connection string in dbm: " + url);
 	  Properties props = new Properties();
@@ -90,13 +90,14 @@ public class DatabaseManager {
 	  String u = (String)getUser.invoke();
 	  int uid = getUserIDForUserName(u);
 	  String ug = getUserGroupForUserName(u);
-	  IFn setUidUgAuth = Clojure.var("ln.session", "set-uid-ug-auth");
+	  int ugid = getUserGroupIDForUserGroup(ug);
+	  IFn setUidUgidUgAuth = Clojure.var("ln.codax-manager", "set-uid-ugid-ug-auth");
 	  LOGGER.info("set auth");
 	  //	  setAuthenticated.invoke( true);
 	  LOGGER.info("user id");
 	  //setUserID.invoke(uid);
 	  LOGGER.info("user group");
-	  setUidUgAuth.invoke(uid, ug, true);
+	  setUidUgidUgAuth.invoke(uid, ugid, ug, true);
         
         String insertSql =
 	    "INSERT INTO lnsession (lnuser_id) values (?);";
@@ -110,7 +111,7 @@ public class DatabaseManager {
 
         if (rsKey.next()) {
           insertKey = rsKey.getLong(1);
-	  IFn setSessionID = Clojure.var("ln.session", "set-session-id");
+	  IFn setSessionID = Clojure.var("ln.codax-manager", "set-session-id");
 	  setSessionID.invoke(insertKey.intValue());
 
           // LOGGER.info("rsKey: " + insertKey);
@@ -123,9 +124,9 @@ public class DatabaseManager {
       }
 
       //This is the first initialization of  DatabaseRetriever, DatabaseInserter
-      dbRetriever = new DatabaseRetriever(this);
-      dbInserter = new DatabaseInserter(this);
-       dmf = new DialogMainFrame(this);
+      this.dbRetriever = new DatabaseRetriever(this);
+      this.dbInserter = new DatabaseInserter(this);
+      this.dmf = new DialogMainFrame(this);
     } catch (ClassNotFoundException e) {
       LOGGER.severe("Class not found: " + e);
     } catch (SQLException sqle) {
@@ -137,7 +138,7 @@ public class DatabaseManager {
   public void updateSessionWithProject(String _project_sys_name) {
     int results = 0;
     String project_sys_name = _project_sys_name;
-      IFn setProjectSysName = Clojure.var("ln.session", "set-project-sys-name");
+      IFn setProjectSysName = Clojure.var("ln.codax-manager", "set-project-sys-name");
   
     setProjectSysName.invoke(project_sys_name);
 
@@ -149,7 +150,7 @@ public class DatabaseManager {
       rs.next();
       results = rs.getInt("id");
       LOGGER.info("projectID: " + results);
-    IFn setProjectID = Clojure.var("ln.session", "set-project-id");
+    IFn setProjectID = Clojure.var("ln.codax-manager", "set-project-id");
       setProjectID.invoke(results);
 
       rs.close();
@@ -448,6 +449,37 @@ public class DatabaseManager {
     return dummy;
   }
 
+        /**
+     * In DatabaseManager (instead of DatabaseRetriever) because this is an early query
+     * prior to instantiation of DatabaseRetriever.
+     */
+  public int getUserGroupIDForUserGroup(String _user_group) {
+    String user_group = _user_group;
+    // int plate_set_id;
+
+    try {
+      PreparedStatement pstmt =
+          conn.prepareStatement(
+              "SELECT lnuser_groups.id FROM lnuser_groups WHERE lnuser_groups.usergroup = ?;");
+
+      pstmt.setString(1, user_group);
+      ResultSet rs = pstmt.executeQuery();
+      rs.next();
+      int group_id = rs.getInt("id");
+
+      // LOGGER.info("result: " + plate_set_id);
+      rs.close();
+      pstmt.close();
+      return group_id;
+
+    } catch (SQLException sqle) {
+      LOGGER.severe("SQL exception getting usergroup.id: " + sqle);
+    }
+    int dummy = 0;
+    return dummy;
+  }
+
+    
     public DialogMainFrame getDialogMainFrame(){
 	return this.dmf;
     }

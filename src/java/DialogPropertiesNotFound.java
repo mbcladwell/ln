@@ -13,7 +13,6 @@ import java.awt.event.KeyEvent;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -31,6 +30,8 @@ import javax.swing.JRadioButton;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 
 import clojure.java.api.Clojure;
@@ -41,6 +42,7 @@ import clojure.lang.IFn;
 public class DialogPropertiesNotFound extends JDialog
     implements java.awt.event.ActionListener, javax.swing.event.DocumentListener {
   static JButton button;
+  static JButton selectDirButton;
   static JLabel label;
   static JLabel nLabel;
     
@@ -56,12 +58,15 @@ public class DialogPropertiesNotFound extends JDialog
     static JTextField portField;
     static JComboBox<ComboItem> vendorBox;
     static JComboBox<ComboItem> sourceBox;
-    static JButton createLnProps;  
+    static JButton updateLnProps;  
     static JRadioButton trueButton;
     static JRadioButton falseButton;
+    static JRadioButton workingButton;
+    static JRadioButton userButton;
     static JLabel selectedLabel;
     static JLabel selectedLabelResponse;
-    
+    static JLabel messageLabel;
+    static DatabaseSetupPanel dbSetupPanel;
     //panel 3 components
 
 
@@ -71,43 +76,69 @@ public class DialogPropertiesNotFound extends JDialog
     static String sourceDescription; //for ln-props: local, elephantsql etc. a clue for populating other variables
   static JButton select;
   static JButton cancelButton;
+  static JButton cancelButton2;
   private static final long serialVersionUID = 1L;
     // private Session session;
   private JFileChooser fileChooser;
-    
+    private     JTabbedPane tabbedPane;
   private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
-
-    public DialogPropertiesNotFound( ) {
-
+    private int startup_tab;
+    private Map<String, String> allprops;
+    
+    public DialogPropertiesNotFound( Object _m ) {
+	//Map<String, String> allprops = new java.util.HashMap<String, String>( _m);
+	//	Map<String, String> m = new java.util.HashMap<String, String>(_m);
+	allprops = (Map<String, String>)_m;
+	
 	//session = new Session();
 	//dmf = session.getDialogMainFrame();
 	IFn require = Clojure.var("clojure.core", "require");
-	require.invoke(Clojure.read("ln.session"));
-
+	require.invoke(Clojure.read("ln.codax-manager"));
+	//Map<String, String> allprops = (HashMap)getAllProps.invoke();
+	//LOGGER.info("allprops: " + allprops);
     fileChooser = new JFileChooser();
 
-    JTabbedPane tabbedPane = new JTabbedPane();
-ImageIcon icon = null;
+    dbSetupPanel = new DatabaseSetupPanel();
+    IFn getSource = Clojure.var("ln.codax-manager", "get-source");
+    IFn getConnURL = Clojure.var("ln.codax-manager", "get-connection-string");
+    
+    tabbedPane = new JTabbedPane();
+    tabbedPane.addChangeListener(  new ChangeListener() {
+	    public void stateChanged(ChangeEvent changeEvent) {
+		JTabbedPane sourceTabbedPane = (JTabbedPane) changeEvent.getSource();
+		int index = sourceTabbedPane.getSelectedIndex();
+		//System.out.println("Tab changed to: " + sourceTabbedPane.getTitleAt(index));
+		String source = (String)getSource.invoke();
+		String conn_url =  (String)getConnURL.invoke(source);
+		if(source.equals("test")){conn_url="Test cloud instance with example data.";}
+		dbSetupPanel.updateURLLabel(conn_url);
+		System.out.println(conn_url);
+      }});
+
+     
+     ImageIcon icon = null;
 
 /**
  * Panel1 allows for ln-props location 
  * OR connection to ElephantSQL
  */
 
+/*
     JPanel panel1 = new JPanel(new GridBagLayout());
-tabbedPane.addTab("Evaluate with E-SQL", icon, panel1,
-                  "Use ElephantSQL example data");
+tabbedPane.addTab("Directory Selection", icon, panel1,
+                  "");
 tabbedPane.setMnemonicAt(0, KeyEvent.VK_1);
+*/
 
 JPanel panel2 = new JPanel(new GridBagLayout());
-tabbedPane.addTab("Find/Create ln-props", icon, panel2,
+tabbedPane.addTab("View/Update ln-props", icon, panel2,
                   "Configure Database Connection");
-tabbedPane.setMnemonicAt(1, KeyEvent.VK_2);
+//tabbedPane.setMnemonicAt(1, KeyEvent.VK_2);
 
 JPanel panel3 = new JPanel(new GridBagLayout());
 tabbedPane.addTab("Database setup", icon, panel3,
                   "Create table, functions, etc.");
-tabbedPane.setMnemonicAt(2, KeyEvent.VK_3);
+//tabbedPane.setMnemonicAt(2, KeyEvent.VK_3);
 
     JPanel pane = new JPanel(new GridBagLayout());
     pane.setBorder(BorderFactory.createRaisedBevelBorder());
@@ -116,144 +147,37 @@ tabbedPane.setMnemonicAt(2, KeyEvent.VK_3);
     // Image img = new
     // ImageIcon(DialogAddProject.class.getResource("../resources/mwplate.png")).getImage();
     // this.setIconImage(img);
-    this.setTitle("Administrator Activities");
-    // c.gridwidth = 2;
-
-  try {
-      ImageIcon logo =
-          new ImageIcon( 
-			this.getClass().getResource("images/las.png"));
-      JLabel logolabel = new JLabel(logo, JLabel.CENTER);
-      c.gridx=0;
-      c.gridwidth=3;
-      c.gridy=0;
-      
-      panel1.add(logolabel, c);
-    } catch (Exception ex) {
-      LOGGER.severe(ex + " las image not found");
-      LOGGER.severe((new java.io.File(DialogPropertiesNotFound.class.getProtectionDomain().getCodeSource().getLocation().getPath())).toString());
+    this.setTitle("LAS Properties Tool");
     
-    }
- 
 
-    
-    elephantsql =  new JButton( "Connect to ElephantSQL");
-    elephantsql.setMnemonic(KeyEvent.VK_E);    
-    elephantsql.setEnabled(true);
-    c.fill = GridBagConstraints.HORIZONTAL;
-    c.gridx = 0;
-    c.gridy = 1;
-    c.gridwidth = 1;
-    c.gridheight = 1;
-    c.insets = new Insets(5, 5, 2, 2);
-    elephantsql.addActionListener(this);
-    panel1.add(elephantsql, c);
-
-    label = new JLabel("for evaluation purposes only - no personal data.");
-    c.gridx = 1;
-    c.gridy = 1;
-    c.gridwidth = 3;
-    c.gridheight = 1;
-    c.insets = new Insets(5, 5, 2, 2);
-  panel1.add(label, c);
- 
-
-  label = new JLabel("ElephantSQL example data set refreshed daily at midnight.");
-    c.gridx = 0;
-    c.gridy = 2;
-    c.gridwidth = 2;
-    c.gridheight = 1;
-    panel1.add(label, c);
-
-    JButton helpButton = new JButton("Help");
-    helpButton.setMnemonic(KeyEvent.VK_H);
-    helpButton.setActionCommand("help");
-    c.fill = GridBagConstraints.NONE;
-    c.gridx = 5;
-    c.gridy = 8;
-    c.gridwidth = 1;
-    c.gridheight = 1;
-    panel1.add(helpButton, c);
-      try {
-      ImageIcon help =
-          new ImageIcon(this.getClass().getResource("/toolbarButtonGraphics/general/Help16.gif"));
-      helpButton.setIcon(help);
-    } catch (Exception ex) {
-      System.out.println("Can't find help icon: " + ex);
-    }
-    helpButton.addActionListener(
-        new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-	      //	      openWebpage(URI.create(session.getHelpURLPrefix() + "login"));
-          }
-        });
-    helpButton.setSize(10, 10);
-    //; helpButton.setPreferredSize(new Dimension(5, 20));
-    // helpButton.setBounds(new Rectangle(
-    //             getLocation(), getPreferredSize()));
-    //helpButton.setMargin(new Insets(1, -40, 1, -100)); //(top, left, bottom, right)
-
-    
-    cancelButton = new JButton("Cancel");
-    cancelButton.setMnemonic(KeyEvent.VK_C);
-    cancelButton.setActionCommand("cancel");
-    cancelButton.setEnabled(true);
-    cancelButton.setForeground(Color.RED);
-    c.gridx = 2;
-    c.gridy = 8;
-    panel1.add(cancelButton, c);
-    cancelButton.addActionListener(
-        (new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-            dispose();
-          }
-        }));
-
+  
 /**
  * Panel2 collect properties 
  * 
  */
 
-        select =
-        new JButton(
-            "Find ln-props...", createImageIcon("/toolbarButtonGraphics/general/Open16.gif"));
-    select.setMnemonic(KeyEvent.VK_O);
-    select.setActionCommand("select");
-    select.setEnabled(true);
-    c.fill = GridBagConstraints.HORIZONTAL;
+    label = new JLabel("ln-props status:", SwingConstants.RIGHT);
+    c.gridx = 0;
+    c.gridy = 0;
+    c.gridwidth = 1;
+    c.gridheight = 1;
+    c.anchor = GridBagConstraints.LINE_END;
+    c.insets = new Insets(5, 5, 2, 2);
+    panel2.add(label, c);
+
+
+    messageLabel = new JLabel("", SwingConstants.RIGHT);
     c.gridx = 1;
     c.gridy = 0;
-    c.gridwidth = 1;
+    c.gridwidth = 3;
     c.gridheight = 1;
-    select.addActionListener(this);
-    panel2.add(select, c);
-
-    JButton helpButton2 = new JButton("Help");
-    helpButton2.setMnemonic(KeyEvent.VK_H);
-    helpButton2.setActionCommand("help");
-    c.fill = GridBagConstraints.NONE;
-    c.gridx = 5;
-    c.gridy = 0;
-    c.gridwidth = 1;
-    c.gridheight = 1;
-    panel2.add(helpButton2, c);
-      try {
-      ImageIcon help =
-          new ImageIcon(this.getClass().getResource("/toolbarButtonGraphics/general/Help16.gif"));
-      helpButton2.setIcon(help);
-    } catch (Exception ex) {
-      System.out.println("Can't find help icon: " + ex);
-    }
-    helpButton.addActionListener(
-        new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-	      //	      openWebpage(URI.create(session.getHelpURLPrefix() + "login"));
-          }
-        });
-    helpButton2.setSize(10, 10);
+	c.anchor = GridBagConstraints.LINE_START;
+    c.insets = new Insets(5, 5, 2, 2);
+    panel2.add(messageLabel, c);
 
 
-    selectedLabel = new JLabel("Selected:", SwingConstants.RIGHT);
+
+    selectedLabel = new JLabel("Directory:", SwingConstants.RIGHT);
     c.gridx = 0;
     c.gridy = 1;
     c.gridwidth = 1;
@@ -303,7 +227,7 @@ tabbedPane.setMnemonicAt(2, KeyEvent.VK_3);
         }
     });
 
-	    ComboItem[] sourceTypes = new ComboItem[]{ new ComboItem(3,"ElephantSQL (Cloud)"), new ComboItem(4,"Heroku (Cloud)"),  new ComboItem(2,"Internal Network (within company firewall)"), new ComboItem(1,"Local PostgreSQL (personal workstation / laptop)")};
+	    ComboItem[] sourceTypes = new ComboItem[]{ new ComboItem(5,"Test (Cloud)"), new ComboItem(4,"ElephantSQL (Cloud)"), new ComboItem(3,"Heroku (Cloud)"),  new ComboItem(2,"Internal Network (within company firewall)"), new ComboItem(1,"Local PostgreSQL (personal workstation / laptop)")};
     
 	sourceBox = new JComboBox<ComboItem>(sourceTypes);
 	vendorBox.setSelectedIndex(0);
@@ -317,19 +241,25 @@ tabbedPane.setMnemonicAt(2, KeyEvent.VK_3);
 		public void actionPerformed(ActionEvent evt) {
 		    //   LOGGER.info("Algorithm event fired");
 	    switch(((ComboItem)sourceBox.getSelectedItem()).getKey()){
+	    case 5:
+		//hostField.setText("");
+		sourceDescription = "test";
+		//updateAllVariables();
+		break;
+		
 	    case 4:
-		hostField.setText("");
+		//hostField.setText("");
 		sourceDescription = "heroku";
 		//updateAllVariables();
 		break;
 		
 	    case 3:
-		hostField.setText("");
+		//hostField.setText("");
 		sourceDescription = "elephantsql";
 		//updateAllVariables();
 		break;
 	    case 2:
-		hostField.setText("");
+		//hostField.setText("");
 		sourceDescription = "internal";
 		//updateAllVariables();
 		break;
@@ -394,27 +324,6 @@ tabbedPane.setMnemonicAt(2, KeyEvent.VK_3);
     c.gridheight = 1;
     panel2.add(label, c);
 
-label = new JLabel("User Directory:", SwingConstants.RIGHT);
-    c.gridx = 0;
-    c.gridy = 8;
-    c.gridwidth = 1;
-    c.gridheight = 1;
-    panel2.add(label, c);
-
-    label = new JLabel("Home Directory:", SwingConstants.RIGHT);
-    c.gridx = 0;
-    c.gridy = 9;
-    c.gridwidth = 1;
-    c.gridheight = 1;
-    panel2.add(label, c);
-
-    label = new JLabel("Temp Directory:", SwingConstants.RIGHT);
-    c.gridx = 0;
-    c.gridy = 10;
-    c.gridwidth = 1;
-    c.gridheight = 1;
-    panel2.add(label, c);
-
     hostField = new JTextField(50);
     c.gridx = 1;
     c.gridy = 4;
@@ -423,7 +332,6 @@ label = new JLabel("User Directory:", SwingConstants.RIGHT);
     panel2.add(hostField, c);
 
     portField = new JTextField(5);
-    portField.setText("5432");	    
     c.gridx = 1;
     c.gridy = 5;
     c.gridwidth = 1;
@@ -431,7 +339,7 @@ label = new JLabel("User Directory:", SwingConstants.RIGHT);
     panel2.add(portField, c);
 
     trueButton   = new JRadioButton("True");
-    falseButton    = new JRadioButton("False", true);
+    falseButton    = new JRadioButton("False");
   
     ButtonGroup bgroup = new ButtonGroup();
     bgroup.add(trueButton);
@@ -444,7 +352,6 @@ label = new JLabel("User Directory:", SwingConstants.RIGHT);
 
     
     userField = new JTextField(50);
-    userField.setText("ln_admin");
     c.gridx = 1;
     c.gridy = 6;
     c.gridwidth = 5;
@@ -452,75 +359,115 @@ label = new JLabel("User Directory:", SwingConstants.RIGHT);
     panel2.add(userField, c);
 
     passwordField = new JTextField(50);
-    passwordField.setText("welcome");
     c.gridx = 1;
     c.gridy = 7;
     c.gridwidth = 5;
     c.gridheight = 1;
     panel2.add(passwordField, c);
 
-       label = new JLabel(System.getProperty("user.dir"), SwingConstants.LEFT);
-    c.gridx = 1;
-    c.gridy = 8;
-    c.gridwidth = 5;
-    c.gridheight = 1;
-    panel2.add(label, c);
-
-    label = new JLabel(System.getProperty("user.home"), SwingConstants.LEFT);
-    c.gridx = 1;
-    c.gridy = 9;
-    c.gridwidth = 5;
-    c.gridheight = 1;
-    panel2.add(label, c);
-
-    label = new JLabel(System.getProperty("java.io.tmpdir"), SwingConstants.LEFT);
-    c.gridx = 1;
-    c.gridy = 10;
-    c.gridwidth = 5;
-    c.gridheight = 1;
-    panel2.add(label, c);
-
-    createLnProps =
+    updateLnProps =
         new JButton(
-            "Create ln-props", createImageIcon("/toolbarButtonGraphics/general/New16.gif"));
-    select.setMnemonic(KeyEvent.VK_C);
-    select.setEnabled(true);
+            "Update ln-props", createImageIcon("/toolbarButtonGraphics/general/New16.gif"));
     c.fill = GridBagConstraints.HORIZONTAL;
     c.gridx = 1;
     c.gridy = 11;
     c.gridwidth = 1;
     c.gridheight = 1;
-    createLnProps.addActionListener(this);
-    panel2.add(createLnProps, c);
+    updateLnProps.addActionListener(this);
+    panel2.add(updateLnProps, c);
 
-    /*
-  okButton = new JButton("Connect (ln-props database)" );
-    okButton.setMnemonic(KeyEvent.VK_P);
-    okButton.setActionCommand("ok");
-    okButton.setEnabled(true);
-    c.fill = GridBagConstraints.HORIZONTAL;
-    c.gridx = 2;
+ 
+    cancelButton2 = new JButton("Cancel");
+    cancelButton2.setMnemonic(KeyEvent.VK_C);
+    cancelButton2.setActionCommand("cancel");
+    cancelButton2.setEnabled(true);
+    cancelButton2.setForeground(Color.RED);
+    c.gridx = 3;
     c.gridy = 11;
-    c.gridwidth = 3;
-    c.gridheight = 1;
-    panel2.add(okButton, c);
-    okButton.setEnabled(false);
-    okButton.addActionListener(this);
-    */
+    panel2.add(cancelButton2, c);
+    cancelButton2.addActionListener(
+        (new ActionListener() {
+          public void actionPerformed(ActionEvent e) {
+            dispose();
+          }
+        }));
+
+    JButton helpButton2 = new JButton("Help");
+    helpButton2.setMnemonic(KeyEvent.VK_H);
+    helpButton2.setActionCommand("help");
+    c.fill = GridBagConstraints.NONE;
     c.gridx = 5;
     c.gridy = 11;
-    panel2.add(cancelButton, c);
+    c.gridwidth = 1;
+    c.gridheight = 1;
+    panel2.add(helpButton2, c);
+      try {
+      ImageIcon help =
+          new ImageIcon(this.getClass().getResource("/toolbarButtonGraphics/general/Help16.gif"));
+      helpButton2.setIcon(help);
+    } catch (Exception ex) {
+      System.out.println("Can't find help icon: " + ex);
+    }
+    helpButton2.addActionListener(
+        new ActionListener() {
+          public void actionPerformed(ActionEvent e) {
+	      //	      openWebpage(URI.create(session.getHelpURLPrefix() + "login"));
+          }
+        });
+    helpButton2.setSize(10, 10);
 
+   
     //panel 3
 
-    panel3.add(new DatabaseSetupPanel());
-
+    panel3.add(dbSetupPanel);
+    java.io.File nodeFile = new java.io.File("/ln-props/nodes");
+    //IFn recentlyModified  = Clojure.var("ln.codax-manager", "recently-modified?");
+    Long elapsed = System.currentTimeMillis() - nodeFile.lastModified();
+    System.out.println("elapsed: " + elapsed);
+    System.out.println("port: " + String.valueOf(allprops.get(":port")));
+    System.out.println("sslmode: " + String.valueOf(allprops.get(":sslmode")));
+    if(elapsed < 10000){
+	    messageLabel.setText("newly created");
+	}else{
+	    messageLabel.setText("pre-existing");}
+	hostField.setText(allprops.get(":host"));
+	portField.setText(String.valueOf(allprops.get(":port")));
+	userField.setText(allprops.get(":user"));
+	passwordField.setText(allprops.get(":password"));
+	selectedLabelResponse.setText(System.getProperty("user.dir") + "/ln-props");
+	if(String.valueOf(allprops.get(":sslmode")).equals("true")){
+	    trueButton.setSelected(true);
+	}else{falseButton.setSelected(true);
+	}
+	switch (allprops.get(":source")){
+	case "internal":  sourceBox.setSelectedIndex(3);
+	    break;
+	case "local":  sourceBox.setSelectedIndex(4);
+	    break;
+	case "heroku":  sourceBox.setSelectedIndex(2);
+	    break;
+	case "elephantsql":  sourceBox.setSelectedIndex(1);
+	    break;
+	case "test":  sourceBox.setSelectedIndex(0);
+	    break;
+	}
+	    
+	/*
+	hostField.setEnabled(false);
+	portField.setEnabled(false);
+	trueButton.setEnabled(false);
+	falseButton.setEnabled(false);
+	userField.setEnabled(false);
+	passwordField.setEnabled(false);
+	updateLnProps.setEnabled(false);
+	*/
     
     this.getContentPane().add(tabbedPane, BorderLayout.CENTER);
     this.pack();
     this.setLocation(
         (Toolkit.getDefaultToolkit().getScreenSize().width) / 2 - getWidth() / 2,
         (Toolkit.getDefaultToolkit().getScreenSize().height) / 2 - getHeight() / 2);
+    tabbedPane.setSelectedIndex(startup_tab);
     this.setVisible(true);
   }
 
@@ -550,31 +497,25 @@ label = new JLabel("User Directory:", SwingConstants.RIGHT);
       this.dispose();
   }
     
-    if (e.getSource() == createLnProps) {
+    if (e.getSource() == updateLnProps) {
 	
-	IFn createLnPropsMethod  = Clojure.var("ln.session", "create-ln-props");	  
-	createLnPropsMethod.invoke( hostField.getText(),
+	IFn updateLnPropsMethod  = Clojure.var("ln.codax-manager", "update-ln-props");	  
+	updateLnPropsMethod.invoke( hostField.getText(),
 				      portField.getText(),
 				    "lndb",
 				    sourceDescription,
 				      Boolean.toString(trueButton.isSelected()),
 				      userField.getText(),
-				      passwordField.getText() );
+				    passwordField.getText(),
+				    "www.labsolns.com/software",
+				    System.getProperty("user.dir").toString() + "/ln-props");
 	JOptionPane.showMessageDialog(this,
-				      new String(System.getProperty("user.dir").toString() + "/ln-props created."));
-	
-	
-	select.setEnabled(false);
-	createLnProps.setEnabled(false);
-	//okButton.setEnabled(true);
-	selectedLabel.setText("Created:");
-	selectedLabel.setForeground(Color.GREEN);
-	String newDirLocation = new String(System.getProperty("user.dir").toString() + "/ln-props");
-	selectedLabelResponse.setText(newDirLocation);
-	
+				      new String(System.getProperty("user.dir").toString() + "/ln-props updated."));	
+	messageLabel.setText("updated");
+
    }
 
-    
+    /*    
     if (e.getSource() == select) { //find the ln-props directory and populate text fields
 	fileChooser.setFileSelectionMode( JFileChooser.DIRECTORIES_ONLY);
       int returnVal = fileChooser.showOpenDialog(DialogPropertiesNotFound.this);
@@ -582,9 +523,9 @@ label = new JLabel("User Directory:", SwingConstants.RIGHT);
       if (returnVal == JFileChooser.APPROVE_OPTION) {
         java.io.File file = fileChooser.getSelectedFile();
 	selectedLabelResponse.setText(file.toString());
-	IFn setLnProps  = Clojure.var("ln.session", "set-ln-props");
+	IFn setLnProps  = Clojure.var("ln.codax-manager", "set-ln-props");
 	setLnProps.invoke(file.toString());
-	IFn getAllProps  = Clojure.var("ln.session", "get-all-props");
+	IFn getAllProps  = Clojure.var("ln.codax-manager", "get-all-props");
 	
 	Map<String, String> results = new HashMap<>();
 	results = (Map<String, String>)getAllProps.invoke();
@@ -600,13 +541,18 @@ label = new JLabel("User Directory:", SwingConstants.RIGHT);
 		if(Boolean.valueOf(results.get(":sslmode"))){trueButton.setSelected(true);}else{falseButton.setSelected(true);};
 		userField.setText(results.get(":user"));
 		passwordField.setText(results.get(":password"));
-	
+		tabbedPane.setSelectedIndex(1);
+		updateLnProps.setEnabled(false);
+		updateLnProps.setText("Updated");
       } else {
         LOGGER.info("Open command cancelled by user.\n");
       }
     }
-  }
+  
 
+    */
+  }
+    
   public void insertUpdate(DocumentEvent e) {
 
   }

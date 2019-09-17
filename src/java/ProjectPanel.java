@@ -48,7 +48,7 @@ public class ProjectPanel extends JPanel {
     dmf = dbm.getDialogMainFrame();
     // session = dmf.getSession();
     table = _table;
-    require.invoke(Clojure.read("ln.session"));
+    require.invoke(Clojure.read("ln.codax-manager"));
     /*
         listSelectionModel = table.getSelectionModel();
         sharedListSelectionHandler = new SharedListSelectionHandler();
@@ -86,7 +86,7 @@ public class ProjectPanel extends JPanel {
     c.gridy = 1;
     textPanel.add(label, c);
 
-         IFn getUser = Clojure.var("ln.session", "get-user");
+         IFn getUser = Clojure.var("ln.codax-manager", "get-user");
 
 	 JLabel userLabel = new JLabel((String)getUser.invoke(), SwingConstants.LEFT);
     c.gridx = 1;
@@ -97,7 +97,7 @@ public class ProjectPanel extends JPanel {
     c.anchor = GridBagConstraints.LINE_START;
     textPanel.add(userLabel, c);
 
-        IFn getUserGroup = Clojure.var("ln.session", "get-user-group");
+        IFn getUserGroup = Clojure.var("ln.codax-manager", "get-user-group");
 
 	JLabel groupLabel = new JLabel((String)getUserGroup.invoke(), SwingConstants.LEFT);
     c.gridx = 1;
