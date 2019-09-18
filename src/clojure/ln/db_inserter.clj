@@ -376,12 +376,31 @@ first selection: select get in plate, well order, not necessarily sample order "
 
               ))new-plate-id))
 
+(defn new-plate-test
+  "only add samples if include-samples is true"
+  [plate-type-id plate-set-id plate-format-id plate-layout-name-id include-samples]
+  (let [sql-statement1 "INSERT INTO plate(plate_type_id, plate_format_id, plate_layout_name_id) VALUES (?, ?, ?)"
+        sql-statement2 "SELECT @new_plate_id := LAST_INSERT_ID()"   
+        sql-statement3 "UPDATE plate SET plate_sys_name = (SELECT CONCAT('PLT-',  @new_plate_id)  WHERE id= @new_plate_id"
+        sql-statement4 "INSERT INTO well(by_col, plate_id) VALUES(?, @new_plate_id)"
+        sql-statement5 "SELECT @new_plate_id"
+        content (into [] (map vector (range 1 (+ 1 plate-format-id))))
+      
+        new-plate-id (j/with-transaction [tx cm/conn]
+                       (j/execute! tx [sql-statement1 plate-type-id plate-format-id plate-layout-name-id])
+                       (j/execute! tx [sql-statement2])
+                       (j/execute! tx [sql-statement3])
+                       (j/execute! tx [(j/prepare [sql-statement4] content)]))]    
+     
+   
+                     
+              new-plate-id))
 
 
 
 ;;(new-project 1)
 
-;;(new-plate 1 50 96 1 true)
+;;(time (new-plate-test 1 1 96 1 false))
 
 
 (defn new-plate-set [ description, plate-set-name, num-plates, plate-format-id, plate-type-id, project-id, plate-layout-name-id, with-samples ]
