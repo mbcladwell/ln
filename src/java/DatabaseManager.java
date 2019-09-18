@@ -25,9 +25,9 @@ import javax.swing.table.TableModel;
 public class DatabaseManager {
   Connection conn;
   // CustomTable table;
-     DatabaseInserter dbInserter;
+    DatabaseInserter dbInserter;
     DatabaseRetriever dbRetriever;
-  DialogMainFrame dmf;
+    DialogMainFrame dmf;
     Session session;
   private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 

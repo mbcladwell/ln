@@ -46,7 +46,7 @@
                   cider.nrepl.middleware.trace/wrap-trace
                   cider.nrepl.middleware.undef/wrap-undef]}
 
-  :main ^:skip-aot ln.core
+  :main ^:skip-aot ln.Main
   :aot [ ]
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all}})

@@ -296,6 +296,9 @@ public class Session {
     public FileInputStream getPropertiesFile(){
 	return file;
     }
+    public Properties getProperties(){
+	return prop;
+    }
     public void setAuthenticated(boolean _b){
 	authenticated = _b;
     }

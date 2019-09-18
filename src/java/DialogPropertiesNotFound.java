@@ -16,6 +16,8 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
+import java.util.Properties;
+
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
@@ -61,6 +63,7 @@ public class DialogPropertiesNotFound extends JDialog
     static JRadioButton falseButton;
     static JLabel selectedLabel;
     static JLabel selectedLabelResponse;
+    static Properties props;
     
     //panel 3 components
 
@@ -77,8 +80,8 @@ public class DialogPropertiesNotFound extends JDialog
     
   private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
-    public DialogPropertiesNotFound( ) {
-
+    public DialogPropertiesNotFound(Properties _props ) {
+	props = _props;
 	//session = new Session();
 	//dmf = session.getDialogMainFrame();
 	IFn require = Clojure.var("clojure.core", "require");

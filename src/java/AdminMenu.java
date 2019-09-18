@@ -1,3 +1,4 @@
+
 package ln;
 
 import java.awt.event.ActionEvent;
@@ -7,11 +8,13 @@ import java.util.ArrayList;
 import java.util.logging.Logger;
 
 import javax.swing.JFileChooser;
-import javax.swing.JFileChooser.*;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
+
+import clojure.java.api.Clojure;
+import clojure.lang.IFn;
 
 
 public class AdminMenu extends JMenu {
@@ -22,15 +25,20 @@ public class AdminMenu extends JMenu {
     private ArrayList<String[]> imported_layout;;    
     private JFileChooser fileChooser;
     private JMenu projectMenu;
+    private DatabaseManager dbm;
+    private DialogMainFrame dmf;
+    private Utilities utils;
+    //private IFn require = Clojure.var("clojure.core", "require");
     private Session session;
-    
     private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
   public AdminMenu(DialogMainFrame _dmf, CustomTable _project_table) {
-
       dmf = _dmf;
-    project_table = _project_table;
-    session = dmf.getSession();
+      session = dmf.getSession();
+      utils = dmf.getUtilities();
+      dbm = session.getDatabaseManager();
+      project_table = _project_table;
+    //require.invoke(Clojure.read("ln.codax-manager"));
     
     this.setText("Admin");
     this.setMnemonic(KeyEvent.VK_A);
@@ -73,7 +81,9 @@ public class AdminMenu extends JMenu {
 		  String name = project_table.getValueAt(rowIndex, 1).toString();
 		  String owner = project_table.getValueAt(rowIndex, 2).toString();
 		  String description = project_table.getValueAt(rowIndex, 3).toString();
-		  if (owner.equals(dmf.getSession().getUserName())) {
+		      IFn getUser = Clojure.var("ln.codax-manager", "get-user");
+ 
+		      if (owner.equals((String)getUser.invoke())) {
 		      new DialogEditProject(dmf, projectid, name, description);
 	      } else {
                 JOptionPane.showMessageDialog(
@@ -101,12 +111,14 @@ public class AdminMenu extends JMenu {
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
 	      try{
+		      IFn getUser = Clojure.var("ln.codax-manager", "get-user");
+ 
 		  int rowIndex = project_table.getSelectedRow();
 		  String projectid = project_table.getValueAt(rowIndex, 0).toString();
 		  String name = project_table.getValueAt(rowIndex, 1).toString();
 		  String owner = project_table.getValueAt(rowIndex, 2).toString();
 		  String description = project_table.getValueAt(rowIndex, 3).toString();
-		  if (owner.equals(dmf.getSession().getUserName())) {
+		  if (owner.equals((String)getUser.invoke())) {
 		      int n =  JOptionPane.showConfirmDialog(dmf,
 							     "Permanently delete " + projectid + " and all its\n"
 							     + "components? This is a cascading delete\n"
@@ -115,7 +127,7 @@ public class AdminMenu extends JMenu {
 							     JOptionPane.YES_NO_OPTION);
 		      if(n == JOptionPane.YES_OPTION){
 			  int prj_id = Integer.parseInt(projectid.substring(4));
-			  session.getDatabaseInserter().deleteProject(prj_id);
+			  dbm.getDatabaseInserter().deleteProject(prj_id);
 			  
 		      }
 		    
@@ -139,9 +151,6 @@ public class AdminMenu extends JMenu {
     
     projectMenu.add(menuItem);
 
-
-
-    
     menuItem = new JMenuItem("Import Plate Layout", KeyEvent.VK_I);
     menuItem.addActionListener(
 	   new ActionListener() {
@@ -149,11 +158,11 @@ public class AdminMenu extends JMenu {
 	       
 		   JFileChooser file_chooser= new JFileChooser();
 		   int returnVal = file_chooser.showOpenDialog(null);
-
+		   
 		   if (returnVal == JFileChooser.APPROVE_OPTION) {
 		       java.io.File file = file_chooser.getSelectedFile();
 		       // This is where a real application would open the file.
-		       imported_layout =dmf.getUtilities().loadDataFile(file.toString());
+		       imported_layout = utils.loadDataFile(file.toString());
 		       int lines_data = imported_layout.size() -1; //for header
 		       if(lines_data!= 96 && lines_data!=384 ){
 			   JOptionPane.showMessageDialog(dmf,
@@ -168,6 +177,19 @@ public class AdminMenu extends JMenu {
 		   }
 
 	      
+	  }
+        });
+    this.add(menuItem);
+
+        projectMenu.add(menuItem);
+
+    menuItem = new JMenuItem("DB Utilities", KeyEvent.VK_U);
+    menuItem.addActionListener(
+	   new ActionListener() {
+	       public void actionPerformed(ActionEvent e) {
+
+			      new DialogPropertiesNotFound(session.getProperties());
+		 		   	      
 	  }
         });
     this.add(menuItem);
