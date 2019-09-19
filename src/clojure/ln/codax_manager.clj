@@ -275,25 +275,86 @@
   
 (defn get-temp-dir []
    (java.lang.System/getProperty "java.io.tmpdir"))
-             
-  
+
+(defn get-dbtype
+  "mysql; postgresql"
+  []
+  (c/get-at! props [:assets :conn :dbtype]))
+
+(defn get-db-user []
+  (c/get-at! props [:assets :conn :db-user]))
+
+(defn get-db-password []
+  (c/get-at! props [:assets :conn :db-password]))
+
 (defn get-working-dir []
    (java.lang.System/getProperty "user.dir"))
+
+(defn set-init [b]
+  (c/with-write-transaction [props tx]
+        (c/assoc-at tx [:assets :conn :init] b)))
+
+(defn get-init []
+  (c/get-at! props [:assets :conn :init ]))
 
 
     (defn get-help-url-prefix []
           (c/get-at! props [:assets :conn :help-url-prefix ]))
 ;;(get-help-url-prefix)
 
+(def conn   {:dbtype (get-dbtype)
+             :dbname (get-dbname)
+             :host (get-host)
+             :db-user (get-db-user)
+             :db-password (get-db-password)
+             :user (get-db-user)
+             :password (get-db-password)
+             :port (get-port)
+             :useTimezone true
+             :serverTimezone "UTC"
+             :useSSL (get-sslmode)})
+
+(defn update-ln-props [host port dbname source sslmode db-user db-password user password help-url user-dir]
+  (c/with-write-transaction [props tx]
+    (-> tx
+      (c/assoc-at  [:assets :conn :host] host)   
+      (c/assoc-at  [:assets :conn :port] port)
+      (c/assoc-at  [:assets :conn :sslmode] sslmode)
+      (c/assoc-at  [:assets :conn :source] source)
+      (c/assoc-at  [:assets :conn :db-user] db-user)   
+      (c/assoc-at  [:assets :conn :db-password] db-password)
+      (c/assoc-at  [:assets :conn :user] user)   
+      (c/assoc-at  [:assets :conn :password] password)
+      (c/assoc-at  [:assets :conn :help-url-prefix] help-url)
+      (c/assoc-at  [:assets :conn :dbname] dbname))))
+
+
+ 
+    (defn get-help-url-prefix []
+          (c/get-at! props [:assets :conn :help-url-prefix ]))
+;;(get-help-url-prefix)
+
+(defn  get-connection-string [target]	  
+  (case target
+    "heroku" (str "jdbc:postgresql://"  (get-host) ":" (get-port)  "/" (get-dbname) "?sslmode=require&user=" (get-db-user) "&password="  (get-db-password))
+    "local" (str "jdbc:postgres://localhost:5432/lndb?user=" (get-user) "&password=" (get-password) "&useSSL=false")	   
+    "elephantsql" (str "jdbc:postgresql://" (get-host) ":" (get-port) "/" (get-dbname) "?user=" (get-db-user) "&password=" (get-db-password) "&SSL=" (get-sslmode))
+   "postgres" (str "jdbc:postgresql://" (get-host) ":" (get-port) "/" (get-dbname)"?user="  (get-db-user) "&password=" (get-db-password) "&SSL="  (get-sslmode))))
+
+
 (defn pretty-print []
   (do
     (println "All values")
     (println "-------------------")
     (println "conn")
+    (println (str ":init       " (get-init)))
     (println (str ":auto-login " (get-auto-login)))
+    (println (str ":dbtype     " (get-dbtype)))
     (println (str ":dbname     " (get-dbname)))
     (println (str ":host       " (get-host)))
-    (println (str ":user-name  " (get-user)))
+    (println (str ":db-user    " (get-db-user)))
+    (println (str ":db-password" (get-db-password)))
+    (println (str ":user    " (get-user)))
     (println (str ":password   " (get-password)))
     (println (str ":source     " (get-source)))
     (println (str ":sslmode    " (get-sslmode)))
@@ -314,18 +375,6 @@
 
 
 
-(defn testup []
-  (do
-    (pretty-print)
-    (set-uid-ugid-ug-auth 10 10 "adminy3" false )
-    (set-u-p-al "dodo" "pass1" true)
-    (pretty-print)
-    (print-ap)
-    (println "*****")(println "*****")(println "*****")
-    ))
-
-;;(testup)
-	
 (defn look [] 
     (def props (c/open-database! "ln-props"))
    

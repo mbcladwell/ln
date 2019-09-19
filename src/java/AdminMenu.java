@@ -1,3 +1,4 @@
+
 package ln;
 
 import java.awt.event.ActionEvent;
@@ -26,6 +27,7 @@ public class AdminMenu extends JMenu {
     private JMenu projectMenu;
     //    private Session session;
     private DatabaseManager dbm;
+    private Utilities utils;
     private IFn require = Clojure.var("clojure.core", "require");
     
     private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
@@ -33,6 +35,7 @@ public class AdminMenu extends JMenu {
   public AdminMenu(DatabaseManager _dbm, CustomTable _project_table) {
       dbm = _dbm;
       dmf = dbm.getDialogMainFrame();
+      utils = new Utilities(dmf);
     project_table = _project_table;
     //session = dmf.getSession();
     require.invoke(Clojure.read("ln.codax-manager"));
@@ -148,9 +151,6 @@ public class AdminMenu extends JMenu {
     
     projectMenu.add(menuItem);
 
-
-
-    
     menuItem = new JMenuItem("Import Plate Layout", KeyEvent.VK_I);
     menuItem.addActionListener(
 	   new ActionListener() {
@@ -158,11 +158,11 @@ public class AdminMenu extends JMenu {
 	       
 		   JFileChooser file_chooser= new JFileChooser();
 		   int returnVal = file_chooser.showOpenDialog(null);
-
+		   
 		   if (returnVal == JFileChooser.APPROVE_OPTION) {
 		       java.io.File file = file_chooser.getSelectedFile();
 		       // This is where a real application would open the file.
-		       imported_layout =dmf.getUtilities().loadDataFile(file.toString());
+		       imported_layout = utils.loadDataFile(file.toString());
 		       int lines_data = imported_layout.size() -1; //for header
 		       if(lines_data!= 96 && lines_data!=384 ){
 			   JOptionPane.showMessageDialog(dmf,
@@ -177,6 +177,20 @@ public class AdminMenu extends JMenu {
 		   }
 
 	      
+	  }
+        });
+    this.add(menuItem);
+
+        projectMenu.add(menuItem);
+
+    menuItem = new JMenuItem("DB Utilities", KeyEvent.VK_U);
+    menuItem.addActionListener(
+	   new ActionListener() {
+	       public void actionPerformed(ActionEvent e) {
+	       		      IFn getAllProps = Clojure.var("ln.codax-manager", "get-all-props");
+
+			      new DialogPropertiesNotFound(getAllProps.invoke());
+		 		   	      
 	  }
         });
     this.add(menuItem);

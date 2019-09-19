@@ -1,8 +1,8 @@
 (ns ln.db-retriever
   (:require [next.jdbc :as j]
-            [honeysql.core :as hsql]
-            [honeysql.helpers :refer :all :as helpers]
-           ;; [ln.db-manager :as dbm]
+            [codax.core :as c]
+            ;;[honeysql.core :as hsql]
+            ;;[honeysql.helpers :refer :all :as helpers]
             [ln.codax-manager :as cm]
             [ln.db-manager :as dbm])
          ;;   [clojure.data.csv :as csv]
@@ -45,9 +45,22 @@
 (defn register-session
   ;;user id
   [ uid ]
-  (let [db (if (= (cm/get-source) "test") dbm/pg-db-admin-test dbm/pg-db-admin)
-        result (j/execute-one! db ["INSERT INTO lnsession(lnuser_id) values(?)" uid]{:return-keys true} )]
-    (cm/set-session-id  (:lnsession/id result) )))
+(let [
+        user-id-pre (j/execute-one!  cm/conn  ["INSERT INTO lnsession(lnuser_id) values(?)" uid] )
+        user-id (first(vals  user-id-pre))
+        ug-id-pre (j/execute-one!  cm/conn ["SELECT usergroup FROM lnuser WHERE lnuser.id =?" uid ] )
+        ug-id (first (vals  ug-id-pre))
+        ug-name-pre (j/execute-one!  cm/conn ["SELECT usergroup FROM lnuser_groups WHERE id =?" uid ] )
+        ug-name (first (vals  ug-name-pre))
+        ]
+    (c/with-write-transaction [cm/props tx]
+    (-> tx
+      (c/assoc-at  [:assets :session :user-id] user-id)   
+      (c/assoc-at  [:assets :session :user-group-id] ug-id)
+      (c/assoc-at  [:assets :session :user-group] ug-name)))))
+    
+
+
 
 ;;(register-session 3)
 ;;(:lnsession/id (j/execute-one! dbm/pg-db-admin ["INSERT INTO lnsession(lnuser_id) values(?)" 2]{:return-keys true} ))
