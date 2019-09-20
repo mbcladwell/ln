@@ -47,8 +47,8 @@ public class DatabaseInserter {
     this.dmf = dbm.getDialogMainFrame();
     require.invoke(Clojure.read("ln.db-inserter"));
     require.invoke(Clojure.read("ln.codax-manager"));
-    	 IFn getSessionID = Clojure.var("ln.codax-manager", "get-session-id");
-	 session_id = ((Long)getSessionID.invoke()).intValue();
+    IFn getSessionID = Clojure.var("ln.codax-manager", "get-session-id");
+    session_id = ((Long)getSessionID.invoke()).intValue();
     // this.utils = dmf.getUtilities();
     //this.session = dmf.getSession();
   }

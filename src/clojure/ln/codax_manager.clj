@@ -35,11 +35,15 @@
   (c/with-write-transaction [props tx]
     (-> tx
         (c/assoc-at [:assets :conn] {:source "test"
+                                     :dbtype "postgres"
   	                             :dbname "klohymim"
  	                             :host  "raja.db.elephantsql.com"
   	                             :port  5432
   	                             :user  "klohymim"
   	                             :password  "hwc3v4_rbkT-1EL2KI-JBaqFq0thCXM_"
+                                     :db-user  "klohymim"
+  	                             :db-password  "hwc3v4_rbkT-1EL2KI-JBaqFq0thCXM_"
+                                     
  	                             :sslmode  false
                                      :auto-login true
  	                             :base.help.url  "http://labsolns.com/software/" 
@@ -57,6 +61,9 @@
                                         :authenticated true
                                         })))
   (c/close-database! props)))
+
+;;(login-to-elephantsql)
+;;psql postgres://klohymim:hwc3v4_rbkT-1EL2KI-JBaqFq0thCXM_@raja.db.elephantsql.com:5432/klohymim
 
 
 (defn open-or-create-props
@@ -93,7 +100,7 @@
 
 (defn set-password [p]
   (c/with-write-transaction [props tx]
-        (c/assoc-at! tx  [:assets :conn :password] p)))
+        (c/assoc-at tx  [:assets :conn :password] p)))
 
 
 
@@ -269,7 +276,11 @@
 (defn set-session-id [i]
   (c/with-write-transaction [props tx]
     (c/assoc-at tx  [:assets :session :session-id] i)))
-  
+
+(defn set-source [s]
+  (c/with-write-transaction [props tx]
+    (c/assoc-at tx  [:assets :conn :source] s)))
+
 (defn get-home-dir []
    (java.lang.System/getProperty "user.home"))
   
@@ -307,8 +318,8 @@
              :host (get-host)
              :db-user (get-db-user)
              :db-password (get-db-password)
-             :user (get-db-user)
-             :password (get-db-password)
+             :user (get-user)
+             :password (get-password)
              :port (get-port)
              :useTimezone true
              :serverTimezone "UTC"
@@ -337,7 +348,7 @@
 (defn  get-connection-string [target]	  
   (case target
     "heroku" (str "jdbc:postgresql://"  (get-host) ":" (get-port)  "/" (get-dbname) "?sslmode=require&user=" (get-db-user) "&password="  (get-db-password))
-    "local" (str "jdbc:postgres://localhost:5432/lndb?user=" (get-user) "&password=" (get-password) "&useSSL=false")	   
+    "local" (str "jdbc:postgres://" (get-host) ":" (get-port) "/" (get-dbname)  "?user=" (get-user) "&password=" (get-password) "&useSSL=false")	   
     "elephantsql" (str "jdbc:postgresql://" (get-host) ":" (get-port) "/" (get-dbname) "?user=" (get-db-user) "&password=" (get-db-password) "&SSL=" (get-sslmode))
    "postgres" (str "jdbc:postgresql://" (get-host) ":" (get-port) "/" (get-dbname)"?user="  (get-db-user) "&password=" (get-db-password) "&SSL="  (get-sslmode))))
 
@@ -383,3 +394,17 @@
     (c/close-database! props))
 
 ;;(look)
+;;(set-password "dod")
+;;(get-password)
+;;(ns-unmap 'ln.codax-manager 'conn)
+;;(ns-unalias 'ln.codax-manager 'conn)
+
+;;(ns-unmap 'ln.codax-manager 'props)
+;;(ns-unalias 'ln.codax-manager 'props)
+
+;;(println conn)
+;;(println props)
+;;(open-or-create-props)
+;;(print-ap)
+;;(c/close-database! props)
+

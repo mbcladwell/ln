@@ -101,6 +101,12 @@ public class DialogPropertiesNotFound extends JDialog
     dbSetupPanel = new DatabaseSetupPanel();
     IFn getSource = Clojure.var("ln.codax-manager", "get-source");
     IFn getConnURL = Clojure.var("ln.codax-manager", "get-connection-string");
+    IFn getHost = Clojure.var("ln.codax-manager", "get-host");
+    IFn getPort = Clojure.var("ln.codax-manager", "get-port");
+    IFn getDBuser = Clojure.var("ln.codax-manager", "get-db-user");
+    IFn getDBpassword = Clojure.var("ln.codax-manager", "get-db-password");
+    IFn getSSLmode = Clojure.var("ln.codax-manager", "get-sslmode");
+    
     
     tabbedPane = new JTabbedPane();
     tabbedPane.addChangeListener(  new ChangeListener() {
@@ -112,7 +118,7 @@ public class DialogPropertiesNotFound extends JDialog
 		String conn_url =  (String)getConnURL.invoke(source);
 		if(source.equals("test")){conn_url="Test cloud instance with example data.";}
 		dbSetupPanel.updateURLLabel(conn_url);
-		System.out.println(conn_url);
+		//	System.out.println(conn_url);
       }});
 
      
@@ -227,7 +233,7 @@ tabbedPane.addTab("Database setup", icon, panel3,
         }
     });
 
-	    ComboItem[] sourceTypes = new ComboItem[]{ new ComboItem(5,"Test (Cloud)"), new ComboItem(4,"ElephantSQL (Cloud)"), new ComboItem(3,"Heroku (Cloud)"),  new ComboItem(2,"Internal Network (within company firewall)"), new ComboItem(1,"Local PostgreSQL (personal workstation / laptop)")};
+	    ComboItem[] sourceTypes = new ComboItem[]{ new ComboItem(6,"Viewing ln-props"), new ComboItem(5,"Test (Cloud)"), new ComboItem(4,"ElephantSQL (Cloud)"), new ComboItem(3,"Heroku (Cloud)"),  new ComboItem(2,"Internal Network (within company firewall)"), new ComboItem(1,"Local PostgreSQL (personal workstation / laptop)")};
     
 	sourceBox = new JComboBox<ComboItem>(sourceTypes);
 	vendorBox.setSelectedIndex(0);
@@ -241,32 +247,59 @@ tabbedPane.addTab("Database setup", icon, panel3,
 		public void actionPerformed(ActionEvent evt) {
 		    //   LOGGER.info("Algorithm event fired");
 	    switch(((ComboItem)sourceBox.getSelectedItem()).getKey()){
+	    case 6:
+		hostField.setText((String)getHost.invoke());
+		falseButton.setSelected((boolean)getSSLmode.invoke());
+		sourceDescription = (String)getSource.invoke();
+		userField.setText((String)getDBuser.invoke());
+		passwordField.setText((String)getDBpassword.invoke());
+		updateLnProps.setEnabled(false);
+		
 	    case 5:
 		//hostField.setText("");
 		sourceDescription = "test";
+		falseButton.setSelected(false);
+		userField.setText("<ElephantSQL user name>");
+		passwordField.setText("<ElephantSQL password>");
+		updateLnProps.setEnabled(true);
 		//updateAllVariables();
 		break;
 		
 	    case 4:
 		//hostField.setText("");
 		sourceDescription = "heroku";
+		falseButton.setSelected(false);
+		userField.setText("");
+		passwordField.setText("");
+		updateLnProps.setEnabled(true);
 		//updateAllVariables();
 		break;
 		
 	    case 3:
 		//hostField.setText("");
 		sourceDescription = "elephantsql";
+		falseButton.setSelected(false);
+		userField.setText("");
+		passwordField.setText("");
+		updateLnProps.setEnabled(true);
 		//updateAllVariables();
 		break;
 	    case 2:
 		//hostField.setText("");
 		sourceDescription = "internal";
+		falseButton.setSelected(false);
+		userField.setText("");
+		passwordField.setText("");
+		updateLnProps.setEnabled(true);
 		//updateAllVariables();
 		break;
 	    case 1:
 		hostField.setText("127.0.0.1");
-		falseButton.setSelected(true);
+		falseButton.setSelected(false);
+		userField.setText("");
+		passwordField.setText("");
 		sourceDescription = "local";
+		updateLnProps.setEnabled(true);
 		//updateAllVariables();
 		break;
 	    }
@@ -373,6 +406,7 @@ tabbedPane.addTab("Database setup", icon, panel3,
     c.gridy = 11;
     c.gridwidth = 1;
     c.gridheight = 1;
+    updateLnProps.setEnabled(false);
     updateLnProps.addActionListener(this);
     panel2.add(updateLnProps, c);
 

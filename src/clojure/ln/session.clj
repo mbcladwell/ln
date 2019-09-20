@@ -9,8 +9,7 @@
             [ln.db-retriever :as dbr]
             [ln.db-inserter :as dbi]
             [ln.db-manager :as dbm]
-            
-            
+                        
             [ln.dialog :as d])
    (:import javax.swing.JOptionPane)
   (:gen-class ))
@@ -22,6 +21,9 @@
   ;;if user is blank or auto-login is false, pop up the login dialog
   ;;store results, validate results, and start dbm
   []
+
+  (if (cm/get-init)
+  (ln.DialogPropertiesNotFound.(cm/get-all-props))
   (if(or (clojure.string/blank? (cm/get-user))
          (not (cm/get-auto-login)))
     (do
@@ -40,8 +42,7 @@
       (recur  (realized? d/p)))));; the if is true i.e. need a login dialog
     (do
       (dbr/register-session (cm/get-user-id))
-      (dbm/define-pg-db)
-      (ln.DatabaseManager. ))))  ;;if is false - can auto-login
+      (ln.DatabaseManager. )))))  ;;if is false - can auto-login
 
 ;;(cm/set-u-p-al "aaa" "bbb" false)
 

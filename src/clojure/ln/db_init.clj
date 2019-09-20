@@ -3,20 +3,21 @@
             [honeysql.core :as hsql]
             [honeysql.helpers :refer :all :as helpers]
             [clojure.data.csv :as csv]
+            [ln.codax-manager :as cm]
             [clojure.java.io :as io])
            
   (:import java.sql.DriverManager)
   (:gen-class))
 
 
-(def pg-db  {:dbtype "postgresql"
-            :dbname "lndb"
-            :host "127.0.0.1"
-            :user "ln_admin"
-             :password "welcome"
-             :port "5432"
-            :ssl false
-            :sslfactory "org.postgresql.ssl.NonValidatingFactory"})
+;; (def pg-db  {:dbtype "postgresql"
+;;             :dbname "lndb"
+;;             :host "127.0.0.1"
+;;             :user "ln_admin"
+;;              :password "welcome"
+;;              :port "5432"
+;;             :ssl false
+;;             :sslfactory "org.postgresql.ssl.NonValidatingFactory"})
 
 (load "/ln/data-sets")
 (load "/ln/db-functions")
@@ -50,12 +51,12 @@
    
    [(jdbc/create-table-ddl :lnuser
                           [[:id "SERIAL PRIMARY KEY"]
-                           [:usergroup :int]
+                           [:usergroup_id :int]
                            [:lnuser_name "VARCHAR(250) not null unique"]
                            [:tags "varchar(250)"]
                            [:password "varchar(64) not null"]
                            [:updated  :timestamp "with time zone not null DEFAULT current_timestamp"]
-                           ["FOREIGN KEY (usergroup) REFERENCES lnuser_groups(id)"]])]
+                           ["FOREIGN KEY (usergroup_id) REFERENCES lnuser_groups(id)"]])]
 
  
    [(jdbc/create-table-ddl :lnsession
@@ -323,7 +324,7 @@
      ["user" ]]]
                      
    [ :lnuser 
-    [ :lnuser_name :tags :usergroup :password ]
+    [ :lnuser_name :tags :usergroup_id :password ]
     [["ln_admin" "ln_admin@labsolns.com" 1  "welcome"]
      ["ln_user" "ln_user@labsolns.com" 1 "welcome"]
      ["klohymim" "NA" 1 "hwc3v4_rbkT-1EL2KI-JBaqFq0thCXM_"]]]
@@ -401,41 +402,43 @@
 (defn drop-all-tables
 ;;
 []
-  (doall (map #(jdbc/db-do-commands pg-db true  %) (map #(format  "DROP TABLE IF EXISTS %s CASCADE" %)  all-table-names ) )))
+  (doall (map #(jdbc/db-do-commands cm/conn true  %) (map #(format  "DROP TABLE IF EXISTS %s CASCADE" %)  all-table-names ) )))
 
 
 
 (defn initialize-limsnucleus
-  ;;(map #(jdbc/db-do-commands pg-db (jdbc/drop-table-ddl % {:conditional? true } )) all-table-names)
+  ;;(map #(jdbc/db-do-commands cm/conn (jdbc/drop-table-ddl % {:conditional? true } )) all-table-names)
   []
-  (doall (map #(jdbc/db-do-commands pg-db true  %) (map #(format  "DROP TABLE IF EXISTS %s CASCADE" %)  all-table-names ) ))
+  (doall (map #(jdbc/db-do-commands cm/conn true  %) (map #(format  "DROP TABLE IF EXISTS %s CASCADE" %)  all-table-names ) ))
  
-  (doall (map #(jdbc/db-do-commands pg-db true %) all-tables))
-  (doall  (map #(jdbc/db-do-commands pg-db true %) all-indices))
+  (doall (map #(jdbc/db-do-commands cm/conn true %) all-tables))
+  (doall  (map #(jdbc/db-do-commands cm/conn true %) all-indices))
 
 
     ;; this errors because brackets not stripped
-    ;;(map #(jdbc/insert-multi! pg-db %) required-data)
-  (doall  (map #(apply jdbc/insert-multi! pg-db % ) required-data))
-  (doall (map #(jdbc/db-do-commands pg-db true  %) ln.db-functions/drop-all-functions))
-  (doall (map #(jdbc/db-do-commands pg-db true  %) ln.db-functions/all-functions)))
+    ;;(map #(jdbc/insert-multi! cm/conn %) required-data)
+  (doall  (map #(apply jdbc/insert-multi! cm/conn % ) required-data))
+  (doall (map #(jdbc/db-do-commands cm/conn true  %) ln.db-functions/drop-all-functions))
+  (doall (map #(jdbc/db-do-commands cm/conn true  %) ln.db-functions/all-functions))
+  (cm/set-init false))
  
 
 (defn add-example-data
   ;;
   []
 
-  (doall (map #(jdbc/db-do-commands pg-db true  %) ln.example-data/add-example-data-pre-assay))
+  (doall (map #(jdbc/db-do-commands cm/conn true  %) ln.example-data/add-example-data-pre-assay))
 
   ;INSERT INTO assay_result (assay_run_id, plate_order, well, response) VALUES
-  (jdbc/insert-multi! pg-db :assay_result [:assay_run_id :plate_order :well :response]
+  (jdbc/insert-multi! cm/conn :assay_result [:assay_run_id :plate_order :well :response]
                                         ln.example-data/assay-data )
 
-  (doall (map #(jdbc/db-do-commands pg-db true  %) ln.example-data/add-example-data-post-assay)))
+  (doall (map #(jdbc/db-do-commands cm/conn true  %) ln.example-data/add-example-data-post-assay)))
 
 (defn delete-example-data
   []
-  (doall (map #(jdbc/db-do-commands pg-db true  %) ln.example-data/delete-example-data)))
+  (doall (map #(jdbc/db-do-commands cm/conn true  %) ln.example-data/delete-example-data)))
 
 
 
+;;(println cm/conn)

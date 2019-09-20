@@ -48,7 +48,7 @@
 (let [
         user-id-pre (j/execute-one!  cm/conn  ["INSERT INTO lnsession(lnuser_id) values(?)" uid] )
         user-id (first(vals  user-id-pre))
-        ug-id-pre (j/execute-one!  cm/conn ["SELECT usergroup FROM lnuser WHERE lnuser.id =?" uid ] )
+        ug-id-pre (j/execute-one!  cm/conn ["SELECT usergroup_id FROM lnuser WHERE lnuser.id =?" uid ] )
         ug-id (first (vals  ug-id-pre))
         ug-name-pre (j/execute-one!  cm/conn ["SELECT usergroup FROM lnuser_groups WHERE id =?" uid ] )
         ug-name (first (vals  ug-name-pre))
