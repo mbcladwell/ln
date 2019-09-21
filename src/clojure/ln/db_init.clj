@@ -4,6 +4,7 @@
             [honeysql.helpers :refer :all :as helpers]
             [clojure.data.csv :as csv]
             [ln.codax-manager :as cm]
+            [codax.core :as c]
             [clojure.java.io :as io])
            
   (:import java.sql.DriverManager)
@@ -327,7 +328,7 @@
     [ :lnuser_name :tags :usergroup_id :password ]
     [["ln_admin" "ln_admin@labsolns.com" 1  "welcome"]
      ["ln_user" "ln_user@labsolns.com" 1 "welcome"]
-     ["klohymim" "NA" 1 "hwc3v4_rbkT-1EL2KI-JBaqFq0thCXM_"]]]
+     ["klohymim" "NA" 2 "hwc3v4_rbkT-1EL2KI-JBaqFq0thCXM_"]]]
    
    [ :plate_type [:plate_type_name]
     [["assay"]["rearray"]["master"]["daughter"]["archive"]["replicate"]]]
@@ -420,8 +421,10 @@
   (doall  (map #(apply jdbc/insert-multi! cm/conn % ) required-data))
   (doall (map #(jdbc/db-do-commands cm/conn true  %) ln.db-functions/drop-all-functions))
   (doall (map #(jdbc/db-do-commands cm/conn true  %) ln.db-functions/all-functions))
+  (if (not (c/is-open? cm/props)) (cm/open-or-create-props))
   (cm/set-init false))
  
+;;(initialize-limsnucleus)
 
 (defn add-example-data
   ;;
@@ -433,12 +436,13 @@
   (jdbc/insert-multi! cm/conn :assay_result [:assay_run_id :plate_order :well :response]
                                         ln.example-data/assay-data )
 
-  (doall (map #(jdbc/db-do-commands cm/conn true  %) ln.example-data/add-example-data-post-assay)))
+  (doall (map #(jdbc/db-do-commands cm/conn true  %) ln.example-data/add-example-data-post-assay))
+  (cm/set-session-id 1)  )
 
 (defn delete-example-data
   []
   (doall (map #(jdbc/db-do-commands cm/conn true  %) ln.example-data/delete-example-data)))
 
 
-
+;;(add-example-data)
 ;;(println cm/conn)
