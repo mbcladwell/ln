@@ -224,16 +224,16 @@ public class ResponseWrangler {
 
     
     
-    if(_desired_response == 0){
-	System.out.println("neg: " + mean_neg);
-	System.out.println("stdev_neg: " + stdev_neg);
-	System.out.println("mean_2_sd: " + mean_neg_2_sd);
-	System.out.println("mean_2_sd_hits: " + getHitsAboveThreshold(mean_neg_2_sd));
-	System.out.println("mean_3_sd: " + mean_neg_3_sd);
-	System.out.println("mean_3_sd_hits: " + getHitsAboveThreshold(mean_neg_3_sd));
-	System.out.println("mean_pos" + mean_pos );
-	System.out.println("pos_hits: " + getHitsAboveThreshold(mean_pos));
-    }
+    // if(_desired_response == 0){
+    // 	System.out.println("neg: " + mean_neg);
+    // 	System.out.println("stdev_neg: " + stdev_neg);
+    // 	System.out.println("mean_2_sd: " + mean_neg_2_sd);
+    // 	System.out.println("mean_2_sd_hits: " + getHitsAboveThreshold(mean_neg_2_sd));
+    // 	System.out.println("mean_3_sd: " + mean_neg_3_sd);
+    // 	System.out.println("mean_3_sd_hits: " + getHitsAboveThreshold(mean_neg_3_sd));
+    // 	System.out.println("mean_pos" + mean_pos );
+    // 	System.out.println("pos_hits: " + getHitsAboveThreshold(mean_pos));
+    // }
 
     /*
     for(int i=0; i < sorted_response.length; i++){

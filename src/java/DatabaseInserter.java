@@ -681,11 +681,11 @@ if(num_of_plate_ids*format_id!=table.size()-1){
       
       
     try {
-      String insertSql = "SELECT reformat_plate_set( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+      String insertSql = "SELECT reformat_plate_set( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
       PreparedStatement insertPs =
           conn.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS);
       insertPs.setInt(1, source_plate_set_id);
-	      insertPs.setInt(2, source_plate_num);
+      insertPs.setInt(2, source_plate_num);
       insertPs.setInt(3, n_reps_source);
       
       insertPs.setString(4, dest_descr);
@@ -694,7 +694,9 @@ if(num_of_plate_ids*format_id!=table.size()-1){
       insertPs.setInt(7, dest_plate_format_id);
       insertPs.setInt(8, dest_plate_type_id);
       insertPs.setInt(9, project_id);
-      insertPs.setInt(10, dest_plate_layout_name_id);      
+      insertPs.setInt(10, dest_plate_layout_name_id);
+      insertPs.setInt(11, session_id);
+      
 
       LOGGER.info(insertPs.toString());
       insertPs.execute();

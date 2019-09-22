@@ -65,10 +65,6 @@ public class Utilities {
       LOGGER.severe("IOException: " + ioe);
     }
 
-    System.out.println(table.size());
-    System.out.println(table.get(1).length);
-    System.out.println(table.get(1)[1]);
-
     return table;
   }
 

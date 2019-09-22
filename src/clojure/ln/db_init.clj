@@ -5,6 +5,7 @@
             [clojure.data.csv :as csv]
             [ln.codax-manager :as cm]
             [codax.core :as c]
+            [ln.db-inserter :as dbi]
             [clojure.java.io :as io])
            
   (:import java.sql.DriverManager)
@@ -348,14 +349,14 @@ because some are strings, all imported as string
 assayid	PlateOrder	Well	Response	BkSub	Norm	NormPos	pEnhanced
 "
   [x]
-  (into [] [ (Integer/parseInt  (:assayid x))
-             (Integer/parseInt  (:PlateOrder x))
-             (Integer/parseInt  (:Well x))
-             (Double/parseDouble  (:Response x))
-             (Double/parseDouble  (:BkSub x))
-             (Double/parseDouble  (:Norm x))
-             (Double/parseDouble  (:NormPos x))
-             (Double/parseDouble  (:pEnhanced x))]))
+  (into [] [ (Integer/parseInt  (String. (:assay.id x)))
+             (Integer/parseInt  (String. (:PlateOrder x)))
+             (Integer/parseInt  (String. (:WellNum x)))
+             (Double/parseDouble  (String. (:Response x)))
+             (Double/parseDouble  (String. (:Bk_Sub x)))
+             (Double/parseDouble  (String. (:Norm x)))
+             (Double/parseDouble  (String. (:NormPos x)))
+             (Double/parseDouble  (String. (:pEnhanced x)))]))
 
 
 (def required-data
@@ -437,8 +438,8 @@ assayid	PlateOrder	Well	Response	BkSub	Norm	NormPos	pEnhanced
    ;; ln.data-sets/well-numbers
      (let   [  table (dbi/table-to-map "resources/data/well_numbers_for_import.txt")
                content (into [] (map #(process-well-numbers-data %) table))]
-         content)]
-    ]
+       content)]
+  
 
       [ :plate_layout [ :plate_layout_name_id :well_by_col :well_type_id :replicates :target]
       ;; ln.plate-layout-data/plate-layout-data

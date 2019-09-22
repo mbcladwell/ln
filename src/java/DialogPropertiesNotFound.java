@@ -457,9 +457,6 @@ tabbedPane.addTab("Database setup", icon, panel3,
     java.io.File nodeFile = new java.io.File("/ln-props/nodes");
     //IFn recentlyModified  = Clojure.var("ln.codax-manager", "recently-modified?");
     Long elapsed = System.currentTimeMillis() - nodeFile.lastModified();
-    System.out.println("elapsed: " + elapsed);
-    System.out.println("port: " + String.valueOf(allprops.get(":port")));
-    System.out.println("sslmode: " + String.valueOf(allprops.get(":sslmode")));
     if(elapsed < 10000){
 	    messageLabel.setText("newly created");
 	}else{
