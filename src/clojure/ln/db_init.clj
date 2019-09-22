@@ -20,10 +20,10 @@
 ;;             :ssl false
 ;;             :sslfactory "org.postgresql.ssl.NonValidatingFactory"})
 
-(load "/ln/data-sets")
-(load "/ln/db-functions")
-(load "/ln/example-data")
-(load "/ln/plate-layout-data")
+
+(load "/ln/db_functions")
+(load "/ln/example_data")
+
 
 
 
@@ -314,7 +314,50 @@
    ["CREATE INDEX ON well_numbers(by_col);"]
    ])
 
- 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;Required data
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn process-layout-data
+  "processes that tab delimitted, R generated layouts for import
+   order is important; must correlate with SQL statement order of ?'s"
+  [x]
+(into [] [ (Integer/parseInt(:id x)) (Integer/parseInt(:well x )) (Integer/parseInt(:type x )) (Integer/parseInt(:reps x )) (Integer/parseInt(:target x ))]))
+
+(defn process-well-numbers-data
+  "processes that tab delimitted, R generated well_numbers for import
+because some are strings, all imported as string
+   order is important; must correlate with SQL statement order of ?'s"
+  [x]
+  (into [] [ (Integer/parseInt (String. (:format x)))
+            (:wellname x )
+            (:row_name x )
+            (Integer/parseInt (String. (:rownum x )))
+            (Integer/parseInt (String. (:col x )))
+            (Integer/parseInt (String. (:totcolcount x)))
+            (Integer/parseInt (String. (:byrow x )))
+            (Integer/parseInt (String. (:bycol x )))
+            (Integer/parseInt (String. (:quad x )))
+            (Integer/parseInt (String. (:parentwell x ))) ]))
+
+(defn process-processed-assay-data
+   "processes that tab delimitted, R generated well_numbers for import
+because some are strings, all imported as string
+   order is important; must correlate with SQL statement order of ?'s
+:assay_run_id :plate_order :well :response :bkgrnd_sub :norm :norm_pos :p_enhance
+assayid	PlateOrder	Well	Response	BkSub	Norm	NormPos	pEnhanced
+"
+  [x]
+  (into [] [ (Integer/parseInt  (:assayid x))
+             (Integer/parseInt  (:PlateOrder x))
+             (Integer/parseInt  (:Well x))
+             (Double/parseDouble  (:Response x))
+             (Double/parseDouble  (:BkSub x))
+             (Double/parseDouble  (:Norm x))
+             (Double/parseDouble  (:NormPos x))
+             (Double/parseDouble  (:pEnhanced x))]))
+
+
 (def required-data
   ;;inserts required data into table using jdbc/insert-multi!
   ;;this is data that should not be deleted when repopulating with example data
@@ -391,11 +434,17 @@
      [["unknown"]["positive"]["negative"]["blank"]["edge"]]]
    
    [ :well_numbers [:plate_format :well_name :row :row_num :col :total_col_count :by_row :by_col :quad :parent_well ]
-   ln.data-sets/well-numbers
+   ;; ln.data-sets/well-numbers
+     (let   [  table (dbi/table-to-map "resources/data/well_numbers_for_import.txt")
+               content (into [] (map #(process-well-numbers-data %) table))]
+         content)]
     ]
 
       [ :plate_layout [ :plate_layout_name_id :well_by_col :well_type_id :replicates :target]
-   ln.plate-layout-data/plate-layout-data
+      ;; ln.plate-layout-data/plate-layout-data
+        (let   [  table (dbi/table-to-map "resources/data/plate_layouts_for_import.txt")
+               content (into [] (map #(process-layout-data %) table))]
+         content)
     ]
 
    ])
@@ -432,9 +481,12 @@
 
   (doall (map #(jdbc/db-do-commands cm/conn true  %) ln.example-data/add-example-data-pre-assay))
 
-  ;INSERT INTO assay_result (assay_run_id, plate_order, well, response) VALUES
-  (jdbc/insert-multi! cm/conn :assay_result [:assay_run_id :plate_order :well :response]
-                                        ln.example-data/assay-data )
+  ; ;INSERT INTO assay_result (assay_run_id, plate_order, well, response) VALUES
+;;assay_run_id | plate_order | well |  response  |  bkgrnd_sub  |     norm     |   norm_pos   | p_enhance 
+  (jdbc/insert-multi! cm/conn :assay_result [:assay_run_id :plate_order :well :response :bkgrnd_sub :norm :norm_pos :p_enhance]
+                      (let   [  table (dbi/table-to-map "resources/data/processed_data_for_import.txt")
+                              content (into [] (map #(process-processed-assay-data %) table))]
+                        content) )
 
   (doall (map #(jdbc/db-do-commands cm/conn true  %) ln.example-data/add-example-data-post-assay))
   (cm/set-session-id 1)  )

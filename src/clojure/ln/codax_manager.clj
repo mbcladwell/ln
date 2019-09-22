@@ -46,7 +46,7 @@
                                      
  	                             :sslmode  false
                                      :auto-login true
- 	                             :base.help.url  "http://labsolns.com/software/" 
+ 	                             :help-url-prefix  "http://labsolns.com/software/" 
                                      }) 
         (c/assoc-at [:assets :session] {:project-id 1
 	                                :project-sys-name "PRJ-1"
@@ -350,7 +350,8 @@
     "heroku" (str "jdbc:postgresql://"  (get-host) ":" (get-port)  "/" (get-dbname) "?sslmode=require&user=" (get-db-user) "&password="  (get-db-password))
     "local" (str "jdbc:postgres://" (get-host) ":" (get-port) "/" (get-dbname)  "?user=" (get-user) "&password=" (get-password) "&useSSL=false")	   
     "elephantsql" (str "jdbc:postgresql://" (get-host) ":" (get-port) "/" (get-dbname) "?user=" (get-db-user) "&password=" (get-db-password) "&SSL=" (get-sslmode))
-   "postgres" (str "jdbc:postgresql://" (get-host) ":" (get-port) "/" (get-dbname)"?user="  (get-db-user) "&password=" (get-db-password) "&SSL="  (get-sslmode))))
+    "postgres" (str "jdbc:postgresql://" (get-host) ":" (get-port) "/" (get-dbname)"?user="  (get-db-user) "&password=" (get-db-password) "&SSL="  (get-sslmode))
+"test" "jdbc:postgresql://raja.db.elephantsql.com:5432/klohymim?user=klohymim&password=hwc3v4_rbkT-1EL2KI-JBaqFq0thCXM_&SSL=false" ))
 
 
 (defn pretty-print []
