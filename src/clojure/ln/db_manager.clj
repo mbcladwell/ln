@@ -36,10 +36,11 @@
 
 ;;(println pg-db)
 
-(defn  get-connection-string [target]	  
-  (case target
-    "heroku" (str "jdbc:postgresql://"  (cm/get-host) ":" (cm/get-port)  "/" (cm/get-dbname) "?sslmode=require&user=" (cm/get-user) "&password="  (cm/get-password))
-    "local" (str "jdbc:postgresql://" (cm/get-host) "/" (cm/get-dbname))	   
-    "elephantsql" (str "jdbc:postgresql://" (cm/get-host) ":" (cm/get-port) "/" (cm/get-dbname) "?user=" (cm/get-user) "&password=" (cm/get-password) "&SSL=true" )
-"test" (str "jdbc:postgresql://" (cm/get-host) ":" (cm/get-port) "/" (cm/get-dbname) "?user=" (cm/get-user) "&password=" (cm/get-password) "&SSL=true" )))
-;;(get-connection-string "heroku")
+;; (defn  get-connection-string [target]	  
+;;   (case target
+;;     "heroku" (str "jdbc:postgresql://"  (cm/get-host) ":" (cm/get-port)  "/" (cm/get-dbname) "?sslmode=require&user=" (cm/get-user) "&password="  (cm/get-password))
+;;     "local" (str "jdbc:postgresql://" (cm/get-host) "/" (cm/get-dbname))	   
+;;     "internal" (str "jdbc:postgresql://" (cm/get-host)  ":" (cm/get-port) "/" (cm/get-dbname)  "?user=" (cm/get-user) "&password=" (cm/get-password) "&SSL=false")	   
+;;     "elephantsql" (str "jdbc:postgresql://" (cm/get-host) ":" (cm/get-port) "/" (cm/get-dbname) "?user=" (cm/get-user) "&password=" (cm/get-password) "&SSL=true" )
+;; "test" (str "jdbc:postgresql://" (cm/get-host) ":" (cm/get-port) "/" (cm/get-dbname) "?user=" (cm/get-user) "&password=" (cm/get-password) "&SSL=true" )))
+;; ;;(get-connection-string "heroku")

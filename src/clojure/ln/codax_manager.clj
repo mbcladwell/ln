@@ -1,6 +1,8 @@
 (ns ln.codax-manager
   (:require [codax.core :as c]
-             [clojure.java.io :as io])
+            [clojure.java.io :as io]
+            [next.jdbc :as j]
+            )
    (:import java.sql.DriverManager javax.swing.JOptionPane)
   (:gen-class ))
 
@@ -176,8 +178,8 @@
           ":source" (c/get-at! props [:assets :conn :source])
           ":dbname" (c/get-at! props [:assets :conn :dbname])
           ":help-url-prefix" (c/get-at! props [:assets :conn :help-url-prefix])
-          ":password" (c/get-at! props [:assets :conn :password])
-          ":user" (c/get-at! props [:assets :conn :user])})))
+          ":password" (c/get-at! props [:assets :conn :db-password])
+          ":user" (c/get-at! props [:assets :conn :db-user])})))
 
 (defn get-all-props-clj
   ;;a map for clojure
@@ -188,8 +190,8 @@
     :source (c/get-at! props [:assets :conn :source])
     :dbname (c/get-at! props [:assets :conn :dbname])
     :help-url-prefix (c/get-at! props [:assets :conn :help-url-prefix])
-    :password (c/get-at! props [:assets :conn :password])
-    :user (c/get-at! props [:assets :conn :user])}))
+    :password (c/get-at! props [:assets :conn :db-password])
+    :user (c/get-at! props [:assets :conn :db-user])}))
 
 
   (defn print-ap 
@@ -348,11 +350,11 @@
 (defn  get-connection-string [target]	  
   (case target
     "heroku" (str "jdbc:postgresql://"  (get-host) ":" (get-port)  "/" (get-dbname) "?sslmode=require&user=" (get-db-user) "&password="  (get-db-password))
-    "local" (str "jdbc:postgres://" (get-host) ":" (get-port) "/" (get-dbname)  "?user=" (get-user) "&password=" (get-password) "&useSSL=false")	   
+    "local" (str "jdbc:postgres://" (get-host) ":" (get-port) "/" (get-dbname)  "?user=" (get-user) "&password=" (get-password) "&useSSL=false")
     "elephantsql" (str "jdbc:postgresql://" (get-host) ":" (get-port) "/" (get-dbname) "?user=" (get-db-user) "&password=" (get-db-password) "&SSL=" (get-sslmode))
     "postgres" (str "jdbc:postgresql://" (get-host) ":" (get-port) "/" (get-dbname)"?user="  (get-db-user) "&password=" (get-db-password) "&SSL="  (get-sslmode))
-"test" "jdbc:postgresql://raja.db.elephantsql.com:5432/klohymim?user=klohymim&password=hwc3v4_rbkT-1EL2KI-JBaqFq0thCXM_&SSL=false" ))
-
+"test" "jdbc:postgresql://raja.db.elephantsql.com:5432/klohymim?user=klohymim&password=hwc3v4_rbkT-1EL2KI-JBaqFq0thCXM_&SSL=false" 
+     "internal" (str "jdbc:postgresql://" (get-host)  ":" (get-port) "/" (get-dbname)  "?user=" (get-user) "&password=" (get-password) "&SSL=false")))
 
 (defn pretty-print []
   (do

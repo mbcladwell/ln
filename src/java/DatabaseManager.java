@@ -56,15 +56,15 @@ public class DatabaseManager {
       try {
 	  Class.forName("org.postgresql.Driver");
 	  IFn getSource = Clojure.var("ln.codax-manager", "get-source");
-	  IFn getUser = Clojure.var("ln.codax-manager", "get-user");
-	  IFn getPassword = Clojure.var("ln.codax-manager", "get-password");
-	  IFn getURL = Clojure.var("ln.db-manager", "get-connection-string");
+	  IFn getDBuser = Clojure.var("ln.codax-manager", "get-db-user");
+	  IFn getDBpassword = Clojure.var("ln.codax-manager", "get-db-password");
+	  IFn getURL = Clojure.var("ln.codax-manager", "get-connection-string");
    
 	  String target = (String)getSource.invoke();
 	  String url = (String)getURL.invoke(target);
 	  Properties props = new Properties();
-	  props.setProperty("user", "ln_admin");
-	  props.setProperty("password", "welcome");
+	  props.setProperty("user", (String)getDBuser.invoke());
+	  props.setProperty("password", (String)getDBpassword.invoke());
 
 	  conn = DriverManager.getConnection(url, props);	
       

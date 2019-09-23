@@ -56,6 +56,8 @@ public class DialogPropertiesNotFound extends JDialog
     static JTextField passwordField;
     static JTextField hostField;
     static JTextField portField;
+    static JTextField dbnameField;
+    
     static JComboBox<ComboItem> vendorBox;
     static JComboBox<ComboItem> sourceBox;
     static JButton updateLnProps;  
@@ -72,7 +74,7 @@ public class DialogPropertiesNotFound extends JDialog
 
     
   static JButton okButton;
-  static JButton elephantsql;
+  static JButton readlnpropsButton;
     static String sourceDescription; //for ln-props: local, elephantsql etc. a clue for populating other variables
   static JButton select;
   static JButton cancelButton;
@@ -335,7 +337,7 @@ tabbedPane.addTab("Database setup", icon, panel3,
     c.gridwidth = 1;
     c.gridheight = 1;
     panel2.add(label, c);
-    
+
     label = new JLabel("SSL mode:", SwingConstants.RIGHT);
     c.gridx = 3;
     c.gridy = 5;
@@ -343,16 +345,23 @@ tabbedPane.addTab("Database setup", icon, panel3,
     c.gridheight = 1;
     panel2.add(label, c);
     
-     label = new JLabel("User Name:", SwingConstants.RIGHT);
+    label = new JLabel("Database Name:", SwingConstants.RIGHT);
     c.gridx = 0;
     c.gridy = 6;
     c.gridwidth = 1;
     c.gridheight = 1;
     panel2.add(label, c);
 
-    label = new JLabel("Password:", SwingConstants.RIGHT);
+     label = new JLabel("DB User Name:", SwingConstants.RIGHT);
     c.gridx = 0;
     c.gridy = 7;
+    c.gridwidth = 1;
+    c.gridheight = 1;
+    panel2.add(label, c);
+
+    label = new JLabel("DB Password:", SwingConstants.RIGHT);
+    c.gridx = 0;
+    c.gridy = 8;
     c.gridwidth = 1;
     c.gridheight = 1;
     panel2.add(label, c);
@@ -364,7 +373,7 @@ tabbedPane.addTab("Database setup", icon, panel3,
     c.gridheight = 1;
     panel2.add(hostField, c);
 
-    portField = new JTextField(5);
+    portField = new JTextField("5432");
     c.gridx = 1;
     c.gridy = 5;
     c.gridwidth = 1;
@@ -383,26 +392,42 @@ tabbedPane.addTab("Database setup", icon, panel3,
     c.gridx = 5;
     panel2.add(falseButton, c);
 
+    dbnameField = new JTextField(50);
+    c.gridx = 1;
+    c.gridy = 6;
+    c.gridwidth = 6;
+    c.gridheight = 1;
+    panel2.add(dbnameField, c);
     
     userField = new JTextField(50);
     c.gridx = 1;
-    c.gridy = 6;
-    c.gridwidth = 5;
+    c.gridy = 7;
+    c.gridwidth = 6;
     c.gridheight = 1;
     panel2.add(userField, c);
 
     passwordField = new JTextField(50);
     c.gridx = 1;
-    c.gridy = 7;
+    c.gridy = 8;
     c.gridwidth = 5;
     c.gridheight = 1;
     panel2.add(passwordField, c);
+
+    readlnpropsButton = new JButton("Read ln-props");
+    c.fill = GridBagConstraints.HORIZONTAL;
+    c.gridx = 1;
+    c.gridy = 11;
+    c.gridwidth = 1;
+    c.gridheight = 1;
+    readlnpropsButton.setEnabled(true);
+    readlnpropsButton.addActionListener(this);
+    panel2.add(readlnpropsButton, c);
 
     updateLnProps =
         new JButton(
             "Update ln-props", createImageIcon("/toolbarButtonGraphics/general/New16.gif"));
     c.fill = GridBagConstraints.HORIZONTAL;
-    c.gridx = 1;
+    c.gridx = 2;
     c.gridy = 11;
     c.gridwidth = 1;
     c.gridheight = 1;
@@ -416,7 +441,7 @@ tabbedPane.addTab("Database setup", icon, panel3,
     cancelButton2.setActionCommand("cancel");
     cancelButton2.setEnabled(true);
     cancelButton2.setForeground(Color.RED);
-    c.gridx = 3;
+    c.gridx = 4;
     c.gridy = 11;
     panel2.add(cancelButton2, c);
     cancelButton2.addActionListener(
@@ -523,28 +548,48 @@ tabbedPane.addTab("Database setup", icon, panel3,
       }
       */
 	
-  if (e.getSource() == elephantsql) {
-      // session.setupElephantSQL();
-      this.dispose();
-  }
+  // if (e.getSource() == elephantsql) {
+  //     // session.setupElephantSQL();
+  //     this.dispose();
+  // }
     
     if (e.getSource() == updateLnProps) {
 	
 	IFn updateLnPropsMethod  = Clojure.var("ln.codax-manager", "update-ln-props");	  
 	updateLnPropsMethod.invoke( hostField.getText(),
 				      portField.getText(),
-				    "lndb",
+				    dbnameField.getText(),
 				    sourceDescription,
 				      Boolean.toString(trueButton.isSelected()),
 				      userField.getText(),
 				    passwordField.getText(),
+				    "ln_admin",
+				    "welcome",
 				    "www.labsolns.com/software",
 				    System.getProperty("user.dir").toString() + "/ln-props");
 	JOptionPane.showMessageDialog(this,
 				      new String(System.getProperty("user.dir").toString() + "/ln-props updated."));	
 	messageLabel.setText("updated");
-
    }
+
+       if (e.getSource() == readlnpropsButton) {
+	
+	IFn getAllPropsMethod  = Clojure.var("ln.codax-manager", "get-all-props");	
+	Map<String, String>  props = (Map<String, String>)getAllPropsMethod.invoke();
+
+	hostField.setText(props.get(":host"));
+	portField.setText(props.get(":port"));
+	dbnameField.setText(props.get(":dbname"));
+	if (props.get(":sslmode").equals("true")){trueButton.setSelected(true);}else{falseButton.setSelected(true);}
+	//    sourceDescription,
+		 //	Boolean.toString(trueButton.isSelected());
+	    userField.setText(props.get(":db-user"));
+	    passwordField.setText(props.get(":db-password"));
+				 
+	   
+   }
+
+    
 
     /*    
     if (e.getSource() == select) { //find the ln-props directory and populate text fields
