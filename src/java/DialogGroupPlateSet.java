@@ -41,7 +41,7 @@ public class DialogGroupPlateSet extends JDialog {
   static JComboBox<Integer> formatList;
   static JComboBox<ComboItem> typeList;
     static JComboBox<ComboItem> layoutList;
-
+    static String layout;
   static JButton okButton;
   static JButton cancelButton;
   final Instant instant = Instant.now();
@@ -61,10 +61,12 @@ public class DialogGroupPlateSet extends JDialog {
    * @param _plate_set_num_plates plate set id and the number of plates in the plate set
    * @param _format number of wells per plate
    */
-    public DialogGroupPlateSet(DatabaseManager _dbm,
-      HashMap<String, String> _plate_set_num_plates,
-      String _format,
-      ArrayList<String> _plate_sys_names) {
+    public DialogGroupPlateSet(
+			       DatabaseManager _dbm,
+			       HashMap<String, String> _plate_set_num_plates,
+			       String _format,
+			       ArrayList<String> _plate_sys_names,
+			       String _layout) {
       //this.session = _session;
       dbm = _dbm;
     this.dmf = dbm.getDialogMainFrame();
@@ -74,6 +76,7 @@ public class DialogGroupPlateSet extends JDialog {
      owner = (String)getUser.invoke();
     HashMap<String, String> plate_set_num_plates = _plate_set_num_plates;
     String format = _format;
+    layout = _layout;
     String plateSetsAndNumbers = new String("");
     ArrayList<String> plate_sys_names = _plate_sys_names;
 
@@ -214,18 +217,25 @@ public class DialogGroupPlateSet extends JDialog {
     c.gridwidth = 1;
     c.anchor = GridBagConstraints.LINE_END;
     pane.add(label, c);
-    LOGGER.info("format: " + format);
-    ComboItem[] plateLayouts = dbm.getDatabaseRetriever().getSourcePlateLayoutNames(Integer.parseInt(format));
-    LOGGER.info("plateLayout: " + plateLayouts);
+    //LOGGER.info("format: " + format);
+    // ComboItem[] plateLayouts = dbm.getDatabaseRetriever().getSourcePlateLayoutNames(Integer.parseInt(format));
+    // //LOGGER.info("plateLayout: " + plateLayouts);
 
-    layoutList = new JComboBox<ComboItem>(plateLayouts);
-    layoutList.setSelectedIndex(0);
+    // layoutList = new JComboBox<ComboItem>(plateLayouts);
+    // layoutList.setSelectedIndex(0);
+    // c.gridx = 1;
+    // c.gridy = 7;
+    // c.gridheight = 1;
+    // c.gridwidth = 1;
+    // c.anchor = GridBagConstraints.LINE_START;
+    // pane.add(layoutList, c);
+           label = new JLabel(layout, SwingConstants.RIGHT);
     c.gridx = 1;
     c.gridy = 7;
     c.gridheight = 1;
     c.gridwidth = 1;
     c.anchor = GridBagConstraints.LINE_START;
-    pane.add(layoutList, c);
+    pane.add(label, c);
 
     okButton = new JButton("OK");
     okButton.setMnemonic(KeyEvent.VK_O);
@@ -250,7 +260,7 @@ public class DialogGroupPlateSet extends JDialog {
                     format,
                     typeList.getSelectedItem().toString(),
                     (int)getProjectID.invoke(),             
-		    ((ComboItem)layoutList.getSelectedItem()).getKey(),
+		    //((ComboItem)layoutList.getSelectedItem()).getKey(),
 		    plate_sys_names);
             dispose();
           }

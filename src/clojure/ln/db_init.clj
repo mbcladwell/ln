@@ -243,7 +243,7 @@
          [(jdbc/create-table-ddl :temp_accs_id
                           [   [:plate_order :int]
                             [:by_col :int]
-                            [:accs_id_id "varchar(30)"]
+                            [:accs_id "varchar(30)"]
                            ])]
      
         [(jdbc/create-table-ddl :rearray_pairs

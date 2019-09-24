@@ -73,12 +73,13 @@ $BODY$
   RETURNS integer AS
 $BODY$
 DECLARE
-   ps_id INTEGER;
-    
+   ps_id INTEGER; 
+
 BEGIN
-   
+  
+
    INSERT INTO plate_set(descr, plate_set_name, num_plates, plate_format_id, plate_type_id, project_id, plate_layout_name_id, lnsession_id)
-   VALUES (_descr, _plate_set_name, _num_plates, _plate_format_id, _plate_type_id, _project_id, _plate_layout_name_id, lnsession_id )
+   VALUES (_descr, _plate_set_name, _num_plates, _plate_format_id, _plate_type_id, _project_id, _plate_layout_name_id, _lnsession_id )
    RETURNING id INTO ps_id;
    UPDATE plate_set SET plate_set_sys_name = 'PS-'||ps_id WHERE id=ps_id;
 

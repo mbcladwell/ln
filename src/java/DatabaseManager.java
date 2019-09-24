@@ -216,14 +216,15 @@ public class DatabaseManager {
     JTable plate_set_table = _table;
     TableModel tableModel = plate_set_table.getModel();
     int[] selection = plate_set_table.getSelectedRows();
-    String[][] results = new String[selection.length][4];
+    String[][] results = new String[selection.length][6];
 
     //  LOGGER.info("selection: " + selection.toString());
     ArrayList<String> plateSet = new ArrayList<String>();
     Set<String> plateFormatSet = new HashSet<String>();
+   Set<String> plateLayoutSet = new HashSet<String>();
 
     for (int i = 0; i < selection.length; i++) {
-      for (int j = 0; j < 4; j++) {
+      for (int j = 0; j < 6; j++) {
         results[i][j] = tableModel.getValueAt(selection[i], j).toString();
         // LOGGER.info("i: " + i + " j: " + j + " results[i][j]: " + results[i][j]);
       }
@@ -234,16 +235,22 @@ public class DatabaseManager {
 
       plateFormatSet.add(results[k][2]);
       // LOGGER.info("pltformat: " + results[k][2]);
+      plateLayoutSet.add(results[k][5]);
     }
     LOGGER.info("Size of plateFormatSet: " + plateFormatSet.size());
-    if (plateFormatSet.size() == 1) {
+    if (plateFormatSet.size() == 1 && plateLayoutSet.size() == 1 ) {
       HashMap<String, String> numberOfPlatesInPlateSets =
           dbRetriever.getNumberOfPlatesInPlateSets(plateSet);
       String format = new String();
       for (Iterator<String> it = plateFormatSet.iterator(); it.hasNext(); ) {
         format = it.next();
       }
-      new DialogGroupPlateSet(this, numberOfPlatesInPlateSets, format, plateSet);
+      String layout = new String();
+      for (Iterator<String> it2 = plateLayoutSet.iterator(); it2.hasNext(); ) {
+        layout = it2.next();
+      }
+      
+      new DialogGroupPlateSet(this, numberOfPlatesInPlateSets, format, plateSet, layout);
     } else {
       JOptionPane.showMessageDialog(
           dmf,

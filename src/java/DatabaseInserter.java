@@ -48,6 +48,8 @@ public class DatabaseInserter {
     require.invoke(Clojure.read("ln.db-inserter"));
     require.invoke(Clojure.read("ln.codax-manager"));
     IFn getSessionID = Clojure.var("ln.codax-manager", "get-session-id");
+    require.invoke(Clojure.read("ln.db-retriever"));
+    
     session_id = ((Long)getSessionID.invoke()).intValue();
     // this.utils = dmf.getUtilities();
     //this.session = dmf.getSession();
@@ -221,7 +223,8 @@ public int insertPlateSet(
    * called from DialogGroupPlateSet; Performs the creation of a new plate set from existing plate
    * sets. The HashMap contains the pair plateset_sys_name:number of plates. A dedicated Postgres
    * function "new_plate_set_from_group" will create the plateset and return the id without making
-   * any plates, nor will it associate the new plate_set.id with plates.
+   * any plates, nor will it associate the new plate_set.id with plates.   Dialog assures that all 
+   * plates are the same layout.
    *
    *<p>Note that the method groupPlatesIntoPlateSet is for grouping individual plates
    */
@@ -232,7 +235,7 @@ public int insertPlateSet(
       String _plate_format,
       String _plate_type,
       int _project_id,
-      int _plate_layout_name_id,
+      //int _plate_layout_name_id,
       ArrayList<String> _plate_sys_names) {
 
     String description = _description;
@@ -243,29 +246,30 @@ public int insertPlateSet(
     int project_id = _project_id;
     int format_id = 0;
     int new_plate_set_id = 0;
-    int plate_layout_name_id = _plate_layout_name_id;
+    //int plate_layout_name_id = _plate_layout_name_id;
     ArrayList<String> plate_sys_names = _plate_sys_names;
   
     // determine total number of plates in new plate set
     int total_num_plates = 0;
+    String a_plate_set_sys_name = ""; //get representative plate_set_sys_name to determine layout
 
     Iterator<Map.Entry<String,String>> it = plate_set_num_plates.entrySet().iterator();
     while (it.hasNext()) {
 	HashMap.Entry<String, String> pair = (HashMap.Entry<String, String>) it.next();
       total_num_plates = total_num_plates + Integer.parseInt((String) pair.getValue());
+      a_plate_set_sys_name = (String)pair.getKey();
       // it.remove(); // avoids a ConcurrentModificationException
     }
     // LOGGER.info("total: " + total_num_plates);
 
     // determine format id
-    LOGGER.info("format: " + plate_format);
-
+    //LOGGER.info("format: " + plate_format);
     format_id = Integer.parseInt(plate_format);
     //    format_id = dbr.getPlateFormatID(plate_format);
-
     // determine type id
-    int plateTypeID = dbm.getDatabaseRetriever().getIDForPlateType(plate_type);
-
+    int plateTypeID = dbm.getDatabaseRetriever().getIDForPlateType(plate_type);   
+    IFn getLayoutForPlateSetSysName = Clojure.var("ln.db-retriever", "get-layout-for-plate-set-sys-name");
+    int plate_layout_name_id = (int)getLayoutForPlateSetSysName.invoke(a_plate_set_sys_name);
     // determine plate.ids for plate_sys_names
     // use   public Integer[] getIDsForSysNames(String[] _sys_names, String _table, String _column)
     // {
@@ -287,7 +291,8 @@ public int insertPlateSet(
     // INSERT INTO plate_set(descr, plate_set_name, num_plates, plate_size_id, plate_type_id,
     // project_id)
 
-    String sqlstring = "SELECT new_plate_set_from_group (?, ?, ?, ?, ?, ?, ?);";
+    //2019-09-23 remove layout and figure it out in the db
+    String sqlstring = "SELECT new_plate_set_from_group (?, ?, ?, ?, ?, ?, ?, ?);";
 
     try {
       PreparedStatement preparedStatement =
@@ -298,7 +303,8 @@ public int insertPlateSet(
       preparedStatement.setInt(4, format_id);
       preparedStatement.setInt(5, plateTypeID);
       preparedStatement.setInt(6, project_id);
-       preparedStatement.setInt(7, plate_layout_name_id);
+      preparedStatement.setInt(7, plate_layout_name_id);
+      preparedStatement.setInt(8, session_id);
      
       //      preparedStatement.setArray(7, conn.createArrayOf("VARCHAR",
       // (plate_sys_names.toArray())));

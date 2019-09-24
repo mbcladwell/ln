@@ -60,7 +60,16 @@
       (c/assoc-at  [:assets :session :user-group] ug-name)))))
     
 
+(defn get-layout-for-plate-set-sys-name [s]
+  
+(let [
+        layout-id-pre (j/execute-one!  cm/conn  ["SELECT plate_layout_name_id FROM plate_set WHERE plate_set_sys_name = (?)" s] )
+        layout-id (first(vals  layout-id-pre))
+      ]
+  layout-id
+  ))
 
 
+;;(get-layout-for-plate-set-sys-name "PS-5")
 ;;(register-session 3)
 ;;(:lnsession/id (j/execute-one! dbm/pg-db-admin ["INSERT INTO lnsession(lnuser_id) values(?)" 2]{:return-keys true} ))

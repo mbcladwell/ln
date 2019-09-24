@@ -60,7 +60,7 @@
         content (into [] (zipmap (map #(:barcode.id %) table) (map #(Integer. (:plate %)) table)))
         ]
     (if (and (= col1name "plate")(= col2name "barcode.id"))
-      (with-open [con (j/get-connection dbm/pg-db)
+      (with-open [con (j/get-connection cm/conn)
                   ps  (j/prepare con [sql-statement])]
         (p/execute-batch! ps content))    
       (javax.swing.JOptionPane/showMessageDialog nil  (str "Expecting the headers \"plate\", and \"barcode.id\", but found\n" col1name  ", and " col2name  "."  )))))
