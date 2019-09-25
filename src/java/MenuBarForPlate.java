@@ -48,31 +48,31 @@ public class MenuBarForPlate extends JMenuBar {
     this.add(menu);
 
     // a group of JMenuItems
-    JMenuItem menuItem = new JMenuItem("Add plate set", KeyEvent.VK_A);
-    menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_1, ActionEvent.ALT_MASK));
-    menuItem.getAccessibleContext().setAccessibleDescription("Launch the Add Project dialog.");
-    menuItem.addActionListener(
-        new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-            new DialogAddPlateSet(dbm);
-          }
-        });
-    menu.add(menuItem);
+    // JMenuItem menuItem = new JMenuItem("Add plate set", KeyEvent.VK_A);
+    // menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_1, ActionEvent.ALT_MASK));
+    // menuItem.getAccessibleContext().setAccessibleDescription("Launch the Add Project dialog.");
+    // menuItem.addActionListener(
+    //     new ActionListener() {
+    //       public void actionPerformed(ActionEvent e) {
+    //         new DialogAddPlateSet(dbm);
+    //       }
+    //     });
+    // menu.add(menuItem);
 
     menu = new JMenu("Utilities");
     menu.setMnemonic(KeyEvent.VK_U);
     menu.getAccessibleContext().setAccessibleDescription("Plate utilities");
     this.add(menu);
-
-    menuItem = new JMenuItem("Group");
+    
+    JMenuItem menuItem = new JMenuItem("Group");
     menuItem.setMnemonic(KeyEvent.VK_G);
     menuItem.addActionListener(
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
             dbm.groupPlates(plate_table);
-	    IFn getPlateSetSysName = Clojure.var("ln.codax-manager", "get-plate-set-sys-name");
+    	    IFn getPlateSetSysName = Clojure.var("ln.codax-manager", "get-plate-set-sys-name");
 
-	    dbm.getDialogMainFrame().showPlateTable((String)getPlateSetSysName.invoke());
+    	    dbm.getDialogMainFrame().showPlateTable((String)getPlateSetSysName.invoke());
           }
         });
     menu.add(menuItem);

@@ -41,6 +41,7 @@ public class HelpMenu extends JMenu {
 	       IFn getHelpURLPrefix = Clojure.var("ln.codax-manager", "get-help-url-prefix");
 
 	      openWebpage(URI.create((String)getHelpURLPrefix.invoke() + "toc"));
+	      System.out.println((String)getHelpURLPrefix.invoke() + "toc");
 	      //            new OpenHelpDialog();
           }
         });

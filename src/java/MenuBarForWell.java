@@ -41,23 +41,24 @@ public class MenuBarForWell extends JMenuBar {
     this.add(menu);
 
     // a group of JMenuItems
-    JMenuItem menuItem = new JMenuItem("Add plate set", KeyEvent.VK_A);
-    menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_1, ActionEvent.ALT_MASK));
-    menuItem.getAccessibleContext().setAccessibleDescription("Launch the Add Project dialog.");
-    menuItem.addActionListener(
-        new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-            new DialogAddPlateSet(dbm);
-          }
-        });
-    menu.add(menuItem);
+    // JMenuItem menuItem = new JMenuItem("Add plate set", KeyEvent.VK_A);
+    // menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_1, ActionEvent.ALT_MASK));
+    // menuItem.getAccessibleContext().setAccessibleDescription("Launch the Add Project dialog.");
+    // menuItem.addActionListener(
+    //     new ActionListener() {
+    //       public void actionPerformed(ActionEvent e) {
+    //         new DialogAddPlateSet(dbm);
+    //       }
+    //     });
+    // menu.add(menuItem);
 
     menu = new JMenu("Utilities");
     menu.setMnemonic(KeyEvent.VK_U);
     menu.getAccessibleContext().setAccessibleDescription("Project utilities");
     this.add(menu);
 
-    menuItem = new JMenuItem("Export", KeyEvent.VK_E);
+
+    JMenuItem menuItem = new JMenuItem("Export", KeyEvent.VK_E);
     // menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_1, ActionEvent.ALT_MASK));
     menuItem.getAccessibleContext().setAccessibleDescription("Export as .csv.");
     menuItem.putClientProperty("mf", dmf);

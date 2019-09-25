@@ -5,12 +5,12 @@
 (def drop-new-user ["DROP FUNCTION IF EXISTS new_user(_name character varying, _tags character VARYING, _password CHARACTER VARYING, _group INTEGER);"])
 
 
-(def new-user ["CREATE OR REPLACE FUNCTION new_user(_name character varying, _tags character VARYING, _password CHARACTER VARYING, _group INTEGER)
+(def new-user ["CREATE OR REPLACE FUNCTION new_user(_name character varying, _tags character VARYING, _password CHARACTER VARYING, _group_id INTEGER)
   RETURNS void AS
 $BODY$
 BEGIN
-   INSERT INTO lnuser(usergroup, lnuser_name, tags, password)
-   VALUES (_group, _name, _tags, _password);
+   INSERT INTO lnuser(usergroup_id, lnuser_name, tags, password)
+   VALUES (_group_id, _name, _tags, _password);
 END;
 $BODY$
   LANGUAGE plpgsql VOLATILE;"])

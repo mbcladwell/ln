@@ -722,7 +722,7 @@ if(num_of_plate_ids*format_id!=table.size()-1){
       
 }
     
-    public void insertUser(String _name, String _tags, String _password, int _group){
+    public void insertUser(String _name, String _tags, String _password, int _group_id){
 
 	    String sqlString = "SELECT new_user(?,?, ?, ?)";
     // LOGGER.info("insertSql: " + insertSql);
@@ -731,7 +731,7 @@ if(num_of_plate_ids*format_id!=table.size()-1){
       preparedStatement.setString(1, _name);
       preparedStatement.setString(2, _tags);
       preparedStatement.setString(3, _password);
-      preparedStatement.setInt(4, _group);
+      preparedStatement.setInt(4, _group_id);
       preparedStatement.execute(); // executeUpdate expects no returns!!!
 
     } catch (SQLException sqle) {

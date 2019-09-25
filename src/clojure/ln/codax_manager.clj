@@ -350,7 +350,7 @@
 (defn  get-connection-string [target]	  
   (case target
     "heroku" (str "jdbc:postgresql://"  (get-host) ":" (get-port)  "/" (get-dbname) "?sslmode=require&user=" (get-db-user) "&password="  (get-db-password))
-    "local" (str "jdbc:postgres://" (get-host) ":" (get-port) "/" (get-dbname)  "?user=" (get-user) "&password=" (get-password) "&useSSL=false")
+    "local" (str "jdbc:postgresql://" (get-host) ":" (get-port) "/" (get-dbname)  "?user=" (get-user) "&password=" (get-password) "&useSSL=false")
     "elephantsql" (str "jdbc:postgresql://" (get-host) ":" (get-port) "/" (get-dbname) "?user=" (get-db-user) "&password=" (get-db-password) "&SSL=" (get-sslmode))
     "postgres" (str "jdbc:postgresql://" (get-host) ":" (get-port) "/" (get-dbname)"?user="  (get-db-user) "&password=" (get-db-password) "&SSL="  (get-sslmode))
 "test" "jdbc:postgresql://raja.db.elephantsql.com:5432/klohymim?user=klohymim&password=hwc3v4_rbkT-1EL2KI-JBaqFq0thCXM_&SSL=false" 
