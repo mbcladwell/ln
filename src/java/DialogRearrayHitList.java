@@ -184,7 +184,8 @@ public class DialogRearrayHitList extends JDialog {
     formatList.addActionListener(
         (new ActionListener() {
           public void actionPerformed(ActionEvent e) {
-	      layoutNames = dbm.getDatabaseRetriever().getSourcePlateLayoutNames((int)formatList.getSelectedItem());
+	      layoutNames = dbm.getDatabaseRetriever().
+		  getSourcePlateLayoutNames((int)formatList.getSelectedItem(),((ComboItem)typeList.getSelectedItem()).getKey());
 	      layout_names_list_model = new DefaultComboBoxModel<ComboItem>( layoutNames );
 	      layoutList.setModel(layout_names_list_model );
 	      layoutList.setSelectedIndex(0);
@@ -203,6 +204,8 @@ public class DialogRearrayHitList extends JDialog {
 
     ComboItem[] plateTypes = dbm.getDatabaseRetriever().getPlateTypes();
 
+    //suggest "rearray" as the plate type; I do not accomodate replication selections here
+    //i.e. selection of assay will not trigger repopulating the Layout dropdown
     typeList = new JComboBox<ComboItem>(plateTypes);
      for(int i=0; i < typeList.getItemCount(); i++){
 	 if((((ComboItem)typeList.getItemAt(i)).toString()).equals("rearray")){
@@ -222,7 +225,8 @@ public class DialogRearrayHitList extends JDialog {
     c.anchor = GridBagConstraints.LINE_END;
     pane.add(label, c);
 
-    ComboItem[] layoutTypes = dbm.getDatabaseRetriever().getSourcePlateLayoutNames((int)formatList.getSelectedItem());
+    ComboItem[] layoutTypes = dbm.getDatabaseRetriever().
+	getSourcePlateLayoutNames((int)formatList.getSelectedItem(),									                       ((ComboItem)typeList.getSelectedItem()).getKey());
     //LOGGER.info("layoutTypes: " + layoutTypes[0].toString());
     layoutList = new JComboBox<ComboItem>(layoutTypes);
     layoutList.setSelectedIndex(0);

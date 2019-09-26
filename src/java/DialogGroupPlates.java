@@ -212,7 +212,7 @@ public class DialogGroupPlates extends JDialog {
     c.anchor = GridBagConstraints.LINE_END;
     pane.add(label, c);
 
-    ComboItem[] plateLayouts = dbm.getDatabaseRetriever().getSourcePlateLayoutNames(Integer.parseInt(format));
+    ComboItem[] plateLayouts = dbm.getDatabaseRetriever().getSourcePlateLayoutNames(Integer.parseInt(format),((ComboItem)typeList.getSelectedItem()).getKey());
 
     layoutList = new JComboBox<ComboItem>(plateLayouts);
     layoutList.setSelectedIndex(0);

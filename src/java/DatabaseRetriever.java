@@ -671,23 +671,28 @@ public class DatabaseRetriever {
 
 
     /**
-     * Called from DialogRearrayHitList.  Need only source layouts for a given format
+     * Called from DialogRearrayHitList.  Need only source layouts for a given format;
+     * If the destination plate is an assay plate (plate_type_id=1), replicate info must be provided
      */   
-  public ComboItem[] getSourcePlateLayoutNames(int format_id) {
+    public ComboItem[] getSourcePlateLayoutNames(int format_id, int plate_type_id) {
     ComboItem[] output = null;
     Array results = null;
     ArrayList<ComboItem> combo_items = new ArrayList<ComboItem>();
     try {
       PreparedStatement pstmt =
           conn.prepareStatement(
-              "select id, name from plate_layout_name WHERE plate_format_id = ? AND source_dest='source';");
+              "select id, name, descr from plate_layout_name WHERE plate_format_id = ? AND source_dest='source';");
       pstmt.setInt(1, format_id);
 
       ResultSet rs = pstmt.executeQuery();
       //rs.next();
  while (rs.next()) {
      //all_plate_ids.add(rs.getInt(1));
+     if(plate_type_id==1){
+	 combo_items.add(new ComboItem(rs.getInt(1), new String(rs.getString(2) + ";" + rs.getString(3) )));	 
+     }else{
 	combo_items.add(new ComboItem(rs.getInt(1), rs.getString(2)));
+     }
         // LOGGER.info("A plate set ID: " + rs.getInt(1));
       }
 
