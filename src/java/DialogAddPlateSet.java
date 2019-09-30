@@ -2,33 +2,23 @@ package ln;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.event.*;
+
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.Date;
 import java.util.logging.Logger;
-
-import javax.swing.BorderFactory;
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.SwingConstants;
-
+import java.beans.*;
+import javax.swing.*;
 import clojure.java.api.Clojure;
 import clojure.lang.IFn;
 
-public class DialogAddPlateSet extends JDialog {
+public class DialogAddPlateSet extends JDialog   {
   static JButton button;
   static JLabel label;
   static JLabel Description;
@@ -42,7 +32,8 @@ public class DialogAddPlateSet extends JDialog {
     private ComboItem [] layoutNames;
     private JComboBox<ComboItem> layoutList;
     private DefaultComboBoxModel<ComboItem> layout_names_list_model;
-
+    private ProgressBar progress_bar;
+    
   static JButton okButton;
   static JButton cancelButton;
   final Instant instant = Instant.now();
@@ -219,18 +210,17 @@ public class DialogAddPlateSet extends JDialog {
     okButton.addActionListener(
         (new ActionListener() {
           public void actionPerformed(ActionEvent e) {
-	        IFn getProjectID = Clojure.var("ln.codax-manager", "get-project-id");
-  
-                dbm
-		    .getDatabaseInserter().insertPlateSet(
-                    nameField.getText(),
-                    descriptionField.getText(),
-                    Integer.valueOf(numberField.getText()),
-                    Integer.valueOf(formatList.getSelectedItem().toString()),
-                    ((ComboItem)typeList.getSelectedItem()).getKey(),
-		    (int)getProjectID.invoke(),
-		    ((ComboItem)layoutList.getSelectedItem()).getKey(),
-							  true);
+	      progress_bar = new ProgressBar();
+	        // dbm
+		//     .getDatabaseInserter().insertPlateSet(
+                //     nameField.getText(),
+                //     descriptionField.getText(),
+                //     Integer.valueOf(numberField.getText()),
+                //     Integer.valueOf(formatList.getSelectedItem().toString()),
+                //     ((ComboItem)typeList.getSelectedItem()).getKey(),
+		//     (int)getProjectID.invoke(),
+		//     ((ComboItem)layoutList.getSelectedItem()).getKey(),
+		// 					  true);
 		    IFn getProjectSysName = Clojure.var("ln.codax-manager", "get-project-sys-name");
 
 		    dbm.getDialogMainFrame().showPlateSetTable((String)getProjectSysName.invoke());
@@ -264,5 +254,7 @@ public class DialogAddPlateSet extends JDialog {
     this.setVisible(true);
   }
 
-  private void addToDB() {}
+            
+  
 }
+
