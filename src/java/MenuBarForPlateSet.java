@@ -294,7 +294,9 @@ public class MenuBarForPlateSet extends JMenuBar {
 	         IFn setPlateSetID = Clojure.var("ln.codax-manager", "set-plate-set-id");
 
 	      setPlateSetID.invoke(Integer.parseInt(plate_set_sys_name.substring(3)));
-              //System.out.println("plate_set_sys_name: " + plate_set_sys_name);
+              System.out.println("plate_set_sys_name: " + plate_set_sys_name);
+	      System.out.println("plate_set_id: " + Integer.parseInt(plate_set_sys_name.substring(3)));
+	      
               dbm.getDialogMainFrame().showPlateTable(plate_set_sys_name);
             } catch (ArrayIndexOutOfBoundsException s) {
 			JOptionPane.showMessageDialog(dbm.getDialogMainFrame(),

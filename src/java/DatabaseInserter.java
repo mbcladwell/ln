@@ -958,7 +958,7 @@ if(num_of_plate_ids*format_id!=table.size()-1){
       resultSet.next();
       dest_plate_set_id = resultSet.getInt("new_plate_set");
 
-      LOGGER.info("dest_plate_set_id: " + dest_plate_set_id);
+      //LOGGER.info("dest_plate_set_id: " + dest_plate_set_id);
 
        insertPs.close();
       //  SELECT new_plate_set ( 'descrip', 'myname', '10', '96', 'assay', 0, 't')
@@ -989,7 +989,9 @@ if(num_of_plate_ids*format_id!=table.size()-1){
       LOGGER.severe("Failed to create plate set: " + sqle);
     }
     
-    
+  //refresh the plate set table so worklists are recognized
+
+  
   }
     /**
      * @param _data

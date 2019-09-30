@@ -99,9 +99,10 @@ public class DialogMainFrame extends JFrame {
 
 
   public void showPlateTable(String _plate_set_sys_name) {
+      
       int plate_set_id = Integer.parseInt(_plate_set_sys_name.substring(3));
       
-      plate_card = new PlatePanel(dbm, dbm.getDatabaseRetriever().getDMFTableData(plate_set_id, DialogMainFrame.PLATE));
+      plate_card = new PlatePanel(dbm, dbm.getDatabaseRetriever().getDMFTableData(plate_set_id, DialogMainFrame.PLATE), _plate_set_sys_name);
     
     cards.add(plate_card, "PlatePanel");
     card_layout.show(cards, "PlatePanel");

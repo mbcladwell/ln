@@ -155,13 +155,13 @@ public class DialogAddPlateSet extends JDialog {
     c.gridy = 4;
     c.gridheight = 1;
     c.anchor = GridBagConstraints.LINE_START;
- formatList.addActionListener(
-        (new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-	      layoutNames = dbm.getDatabaseRetriever().getPlateLayoutNames((int)formatList.getSelectedItem());
-	      layout_names_list_model = new DefaultComboBoxModel<ComboItem>( layoutNames );
-	      layoutList.setModel(layout_names_list_model );
-	      layoutList.setSelectedIndex(-1);
+    formatList.addActionListener(
+				 (new ActionListener() {
+					 public void actionPerformed(ActionEvent e) {
+					     layoutNames = dbm.getDatabaseRetriever().getSourcePlateLayoutNames((int)formatList.getSelectedItem(), 0);
+					     layout_names_list_model = new DefaultComboBoxModel<ComboItem>( layoutNames );
+					     layoutList.setModel(layout_names_list_model );
+					     layoutList.setSelectedIndex(-1);
           }
         }));
     pane.add(formatList, c);

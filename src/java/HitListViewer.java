@@ -243,7 +243,7 @@ public class HitListViewer extends JDialog implements java.awt.event.ActionListe
 		row = counts_table.getSelectedRow();
 		int plate_set_id =  (int)counts_table.getModel().getValueAt(row, 0);
 		String plate_set_sys_name =  counts_table.getModel().getValueAt(row, 1).toString();
-		LOGGER.info("counts_table.getModel().getValueAt(row, 4): " + counts_table.getModel().getValueAt(row, 4));
+		//LOGGER.info("counts_table.getModel().getValueAt(row, 4): " + counts_table.getModel().getValueAt(row, 4));
 		int sample_count = (int)Integer.valueOf(counts_table.getModel().getValueAt(row, 4).toString());
 		//int sample_count = 92;
 		int source_plate_set_format =  (int)counts_table.getModel().getValueAt(row, 3);
