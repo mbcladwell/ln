@@ -91,9 +91,6 @@ public class PlateSetPanel extends JPanel {
     int project_id = Integer.parseInt(project_sys_name.substring(4));
     JTable table = dbm.getDatabaseRetriever().getDMFTableData(project_id, DialogMainFrame.PLATESET);
     TableModel model = table.getModel();
-
-
-
     this.table.setModel(model);
   }
 }

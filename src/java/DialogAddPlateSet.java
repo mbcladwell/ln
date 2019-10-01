@@ -39,6 +39,7 @@ public class DialogAddPlateSet extends JDialog   {
   final Instant instant = Instant.now();
     final DialogMainFrame dmf;
     final DatabaseManager dbm;
+    //   private Task task;
     //    final Session session;
   final DateFormat df = new SimpleDateFormat("MM/dd/yyyy");
   private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
@@ -210,8 +211,10 @@ public class DialogAddPlateSet extends JDialog   {
     okButton.addActionListener(
         (new ActionListener() {
           public void actionPerformed(ActionEvent e) {
-	      progress_bar = new ProgressBar();
-	        // dbm
+	      Task task = new Task();
+	      //task.addPropertyChangeListener(this);
+	      task.execute();
+	      // dbm
 		//     .getDatabaseInserter().insertPlateSet(
                 //     nameField.getText(),
                 //     descriptionField.getText(),
@@ -221,10 +224,6 @@ public class DialogAddPlateSet extends JDialog   {
 		//     (int)getProjectID.invoke(),
 		//     ((ComboItem)layoutList.getSelectedItem()).getKey(),
 		// 					  true);
-		    IFn getProjectSysName = Clojure.var("ln.codax-manager", "get-project-sys-name");
-
-		    dbm.getDialogMainFrame().showPlateSetTable((String)getProjectSysName.invoke());
-            dispose();
           }
         }));
 
@@ -254,7 +253,43 @@ public class DialogAddPlateSet extends JDialog   {
     this.setVisible(true);
   }
 
-            
+         class Task extends SwingWorker<Void, Void> {
+        /*
+         * Main task. Executed in background thread.
+         */
+	     IFn getProjectID = Clojure.var("ln.codax-manager", "get-project-id");
+	    ProgressBar progress_bar = new ProgressBar();
+
+        @Override
+        public Void doInBackground() {
+	    progress_bar.main( new String[] {"Creating Plate Sets"} );
+            dbm.getDatabaseInserter().insertPlateSet(
+                    nameField.getText(),
+                    descriptionField.getText(),
+                    Integer.valueOf(numberField.getText()),
+                    Integer.valueOf(formatList.getSelectedItem().toString()),
+                    ((ComboItem)typeList.getSelectedItem()).getKey(),
+		    (int)getProjectID.invoke(),
+		    ((ComboItem)layoutList.getSelectedItem()).getKey(),
+							  true);
+            return null;
+        }
+ 
+        /*
+         * Executed in event dispatching thread
+         */
+        @Override
+        public void done() {
+            Toolkit.getDefaultToolkit().beep();
+            setCursor(null); //turn off the wait cursor
+	    progress_bar.setVisible(false);
+	    IFn getProjectSysName = Clojure.var("ln.codax-manager", "get-project-sys-name");
+
+	    dbm.getDialogMainFrame().showPlateSetTable((String)getProjectSysName.invoke());
+            dispose();
+     }
+    }
+       
   
 }
 
