@@ -17,6 +17,8 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
+import clojure.java.api.Clojure;
+import clojure.lang.IFn;
 
 public class FilterPanel extends JPanel {
 
@@ -25,7 +27,7 @@ public class FilterPanel extends JPanel {
 
   private JTable table;
   private JScrollPane scrollPane;
-  private DialogMainFrame parent;
+  private DialogMainFrame dmf;
     private DatabaseManager dbm;
   private JPanel textPanel;
   private JButton clearButton;
@@ -34,6 +36,7 @@ public class FilterPanel extends JPanel {
     private int id;
     private JTextField textField;
     //    private Session session;    
+    private IFn require = Clojure.var("clojure.core", "require");
 
   /**
    * @param id the project/plateset/plate etc id for fetching the main table
@@ -42,8 +45,13 @@ public class FilterPanel extends JPanel {
 	
     this.setLayout(new GridBagLayout());
     dbm = _dbm;
-    parent = dbm.getDialogMainFrame();
+    dmf = dbm.getDialogMainFrame();
     //session = parent.getSession();
+    require.invoke(Clojure.read("ln.codax-manager"));
+    IFn getProjectSysName = Clojure.var("ln.codax-manager", "get-project-sys-name");
+    IFn getPlateSetSysName = Clojure.var("ln.codax-manager", "get-plate-set-sys-name");
+    IFn getPlateSysName = Clojure.var("ln.codax-manager", "get-plate-sys-name");
+
     table = _table;
     id = _id;
     entity_type = _entity_type;
@@ -70,9 +78,16 @@ public class FilterPanel extends JPanel {
     refreshButton.addActionListener(
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
-	      JTable table2 =  dbm.getDatabaseRetriever().getDMFTableData(id, entity_type );
-	       TableModel model = table2.getModel();
-	       table.setModel(model);
+	      switch(entity_type){
+	      case DialogMainFrame.PROJECT: dbm.getDialogMainFrame().showProjectTable();
+	      case DialogMainFrame.PLATESET: dbm.getDialogMainFrame().showPlateSetTable((String)getPlateSetSysName.invoke());
+	      case DialogMainFrame.PLATE: dbm.getDialogMainFrame().showPlateTable((String)getPlateSysName.invoke());
+		  //      case DialogMainFrame.WELL: dbm.getDialogMainFrame().showWellTable();
+	      }
+	      
+	      //  JTable table2 =  dbm.getDatabaseRetriever().getDMFTableData(id, entity_type );
+	      // TableModel model = table2.getModel();
+	      // table.setModel(model);
           }
         });
     this.add(refreshButton, c);

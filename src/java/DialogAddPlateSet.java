@@ -58,6 +58,7 @@ public class DialogAddPlateSet extends JDialog   {
     // this.em = em;
     JPanel pane = new JPanel(new GridBagLayout());
     pane.setBorder(BorderFactory.createRaisedBevelBorder());
+    progress_bar = new ProgressBar();
 
     GridBagConstraints c = new GridBagConstraints();
     // Image img = new
@@ -213,17 +214,21 @@ public class DialogAddPlateSet extends JDialog   {
           public void actionPerformed(ActionEvent e) {
 	      Task task = new Task();
 	      //task.addPropertyChangeListener(this);
+	    progress_bar.main( new String[] {"Creating Plate Sets"} );
 	      task.execute();
+
 	      // dbm
-		//     .getDatabaseInserter().insertPlateSet(
-                //     nameField.getText(),
-                //     descriptionField.getText(),
-                //     Integer.valueOf(numberField.getText()),
-                //     Integer.valueOf(formatList.getSelectedItem().toString()),
-                //     ((ComboItem)typeList.getSelectedItem()).getKey(),
-		//     (int)getProjectID.invoke(),
-		//     ((ComboItem)layoutList.getSelectedItem()).getKey(),
-		// 					  true);
+	      // 	    .getDatabaseInserter().insertPlateSet(
+              //       nameField.getText(),
+              //       descriptionField.getText(),
+              //       Integer.valueOf(numberField.getText()),
+              //       Integer.valueOf(formatList.getSelectedItem().toString()),
+              //       ((ComboItem)typeList.getSelectedItem()).getKey(),
+	      // 	    (int)getProjectID.invoke(),
+	      // 	    ((ComboItem)layoutList.getSelectedItem()).getKey(),
+	      // 						  true);
+	      //progress_bar.setVisible(false);
+	      
           }
         }));
 
@@ -258,11 +263,9 @@ public class DialogAddPlateSet extends JDialog   {
          * Main task. Executed in background thread.
          */
 	     IFn getProjectID = Clojure.var("ln.codax-manager", "get-project-id");
-	    ProgressBar progress_bar = new ProgressBar();
 
         @Override
         public Void doInBackground() {
-	    progress_bar.main( new String[] {"Creating Plate Sets"} );
             dbm.getDatabaseInserter().insertPlateSet(
                     nameField.getText(),
                     descriptionField.getText(),
@@ -287,6 +290,7 @@ public class DialogAddPlateSet extends JDialog   {
 
 	    dbm.getDialogMainFrame().showPlateSetTable((String)getProjectSysName.invoke());
             dispose();
+	    System.out.println("complete done");
      }
     }
        

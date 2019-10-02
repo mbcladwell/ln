@@ -18,6 +18,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
+import java.beans.*;
+import javax.swing.*;
 
 import clojure.java.api.Clojure;
 import clojure.lang.IFn;
@@ -36,6 +38,7 @@ public class DatabaseSetupPanel extends JPanel {
     static JButton deleteTablesButton;
     static JButton deleteEgDataButton; 
     static JLabel urlLabel;
+    private ProgressBar progress_bar;
 
     public DatabaseSetupPanel() {
 	BorderLayout b = new BorderLayout();
@@ -47,13 +50,10 @@ public class DatabaseSetupPanel extends JPanel {
     //setup desired Clojure methods
     IFn require = Clojure.var("clojure.core", "require");
     require.invoke(Clojure.read("ln.db-init"));
-    IFn dropAllTables = Clojure.var("ln.db-init", "drop-all-tables");
-    IFn initLimsNucleus = Clojure.var("ln.db-init", "initialize-limsnucleus");
-    IFn addExampleData = Clojure.var("ln.db-init", "add-example-data");
-    IFn deleteExampleData = Clojure.var("ln.db-init", "delete-example-data");
     
     GridBagConstraints c = new GridBagConstraints();
         c.insets = new Insets(5, 5, 2, 2);
+	progress_bar = new ProgressBar();
 
     ////////////////////////////////////////////////
     ////////////////////////////////////////////////
@@ -137,13 +137,17 @@ public class DatabaseSetupPanel extends JPanel {
     createTablesButton.addActionListener(
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
-	      initLimsNucleus.invoke();
+	      InitTask init_task = new InitTask();
+	      progress_bar.main( new String[] {"Initializing tables, indices, functions."} );
+	      init_task.execute();
+
+	      //initLimsNucleus.invoke();
           }
         });
     createTablesButton.setSize(10, 10);
 
 
-        deleteTablesButton = new JButton("Delete");
+    deleteTablesButton = new JButton("Delete");
     deleteTablesButton.setMnemonic(KeyEvent.VK_D);
     c.gridx = 0;
     c.gridy = 1;
@@ -153,7 +157,10 @@ public class DatabaseSetupPanel extends JPanel {
     deleteTablesButton.addActionListener(
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
-	      dropAllTables.invoke();
+	      DropTask drop_task = new DropTask();
+	      progress_bar.main( new String[] {"Dropping all tables, indices, functions."} );
+	      drop_task.execute();
+	      //dropAllTables.invoke();
           }
         });
     deleteTablesButton.setSize(10, 10);
@@ -191,7 +198,10 @@ public class DatabaseSetupPanel extends JPanel {
     loadEgDataButton.addActionListener(
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
-	      addExampleData.invoke();
+	      AddEgTask addeg_task = new AddEgTask();
+	      progress_bar.main( new String[] {"Adding example data."} );
+	      addeg_task.execute();
+	      // addExampleData.invoke();
           }
         });
     loadEgDataButton.setSize(10, 10);
@@ -207,7 +217,10 @@ public class DatabaseSetupPanel extends JPanel {
     deleteEgDataButton.addActionListener(
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
-	      deleteExampleData.invoke();
+	      DropEgTask dropeg_task = new DropEgTask();
+	      progress_bar.main( new String[] {"Dropping example data."} );
+	      dropeg_task.execute();
+	      // deleteExampleData.invoke();
 	  }
         });
     deleteEgDataButton.setSize(10, 10);
@@ -242,5 +255,104 @@ public class DatabaseSetupPanel extends JPanel {
     public void updateURLLabel (String s){
 	urlLabel.setText("Connection URL: " + s);
     }
+
+      class InitTask extends SwingWorker<Void, Void> {
+        /*
+         * Main task. Executed in background thread.
+         */
+	  IFn initLimsNucleus = Clojure.var("ln.db-init", "initialize-limsnucleus");
+
+        @Override
+        public Void doInBackground() {
+	    initLimsNucleus.invoke();
+       
+	    return null;
+        }
+ 
+        /*
+         * Executed in event dispatching thread
+         */
+        @Override
+        public void done() {
+            Toolkit.getDefaultToolkit().beep();
+            setCursor(null); //turn off the wait cursor
+	    progress_bar.dispose();
+     }
+    }
+
+          class DropTask extends SwingWorker<Void, Void> {
+        /*
+         * Main task. Executed in background thread.
+         */
+	          IFn dropAllTables = Clojure.var("ln.db-init", "drop-all-tables");
+
+        @Override
+        public Void doInBackground() {
+	    dropAllTables.invoke();
+       
+	    return null;
+        }
+ 
+        /*
+         * Executed in event dispatching thread
+         */
+        @Override
+        public void done() {
+            Toolkit.getDefaultToolkit().beep();
+            setCursor(null); //turn off the wait cursor
+	    progress_bar.dispose();
+     }
+    }
+
+
+              class AddEgTask extends SwingWorker<Void, Void> {
+        /*
+         * Main task. Executed in background thread.
+         */
+    IFn addExampleData = Clojure.var("ln.db-init", "add-example-data");
+
+        @Override
+        public Void doInBackground() {
+	    addExampleData.invoke();
+       
+	    return null;
+        }
+ 
+        /*
+         * Executed in event dispatching thread
+         */
+        @Override
+        public void done() {
+            Toolkit.getDefaultToolkit().beep();
+            setCursor(null); //turn off the wait cursor
+	    progress_bar.dispose();
+     }
+    }
+
+          class DropEgTask extends SwingWorker<Void, Void> {
+        /*
+         * Main task. Executed in background thread.
+         */
+	      IFn deleteExampleData = Clojure.var("ln.db-init", "delete-example-data");
+
+        @Override
+        public Void doInBackground() {
+	    deleteExampleData.invoke();
+       
+	    return null;
+        }
+ 
+        /*
+         * Executed in event dispatching thread
+         */
+        @Override
+        public void done() {
+            Toolkit.getDefaultToolkit().beep();
+            setCursor(null); //turn off the wait cursor
+	    progress_bar.dispose();
+     }
+    }
+
+    
 }
 

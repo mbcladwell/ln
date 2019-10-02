@@ -17,19 +17,9 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.logging.Logger;
 
-import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JDialog;
-import javax.swing.JFileChooser;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.SwingConstants;
 import javax.swing.event.DocumentEvent;
+import java.beans.*;
+import javax.swing.*;
 
 import clojure.java.api.Clojure;
 import clojure.lang.IFn;
@@ -58,6 +48,7 @@ public class DialogAddPlateSetData extends JDialog
   private DatabaseManager dbm;
   private DatabaseRetriever dbr;
   private DatabaseInserter dbi;
+   private ProgressBar progress_bar;
 
   private ComboItem plate_set;
    
@@ -83,7 +74,8 @@ public class DialogAddPlateSetData extends JDialog
     format = new ComboItem(_format_id, String.valueOf(_format_id));
     plate_num = _plate_num;
     require.invoke(Clojure.read("ln.codax-manager"));
-    
+    	progress_bar = new ProgressBar();
+
     dbm = _dbm;
     // Create and set up the window.
     // JFrame frame = new JFrame("Add Project");
@@ -98,9 +90,9 @@ public class DialogAddPlateSetData extends JDialog
 
     int plate_layout_name_id = dbm.getDatabaseRetriever().getPlateLayoutNameIDForPlateSetID(_plate_set_id );
     plate_layout = dbm.getDatabaseRetriever().getPlateLayoutNameAndID(plate_layout_name_id);
-    LOGGER.info("plate_layout_name_id: " + plate_layout_name_id);
-    LOGGER.info("plate_layout_name key: " + plate_layout.getKey());
-    LOGGER.info("plate_layout_name string: " + plate_layout.toString());
+    // LOGGER.info("plate_layout_name_id: " + plate_layout_name_id);
+    //LOGGER.info("plate_layout_name key: " + plate_layout.getKey());
+    //LOGGER.info("plate_layout_name string: " + plate_layout.toString());
     
     
     fileChooser = new JFileChooser();
@@ -437,18 +429,21 @@ public class DialogAddPlateSetData extends JDialog
 	    }
 	    
 	}
-	
-      dbi.associateDataWithPlateSet(
-          nameField.getText(),
-          descrField.getText(),
-          plate_set.toString(),
-          format.getKey(),
-          ((ComboItem)assayTypes.getSelectedItem()).getKey(),
-          plate_layout.getKey(),
-          dmf.getUtilities().loadDataFile(fileField.getText()),
-	  checkBox.isSelected(),
-	  ((ComboItem)algorithmList.getSelectedItem()).getKey(),
-	  top_n_number);
+	 Task task = new Task(top_n_number);
+	 progress_bar.main( new String[] {"Associating data with plate set."} );
+	   task.execute();
+	    
+      // dbi.associateDataWithPlateSet(
+      //     nameField.getText(),
+      //     descrField.getText(),
+      //     plate_set.toString(),
+      //     format.getKey(),
+      //     ((ComboItem)assayTypes.getSelectedItem()).getKey(),
+      //     plate_layout.getKey(),
+      //     dmf.getUtilities().loadDataFile(fileField.getText()),
+      // 	  checkBox.isSelected(),
+      // 	  ((ComboItem)algorithmList.getSelectedItem()).getKey(),
+      // 	  top_n_number);
       dispose();
     }
 
@@ -508,4 +503,45 @@ public static boolean openWebpage(URI uri) {
     return false;
 }
 
+      class Task extends SwingWorker<Void, Void> {
+        /*
+         * Main task. Executed in background thread.
+         */
+	private int top_n_number;
+
+    public Task(int _top_n_number) {
+       this.top_n_number = _top_n_number;
+    }
+
+        @Override
+        public Void doInBackground() {
+	    dbi.associateDataWithPlateSet(
+					  nameField.getText(),
+					  descrField.getText(),
+					  plate_set.toString(),
+					  format.getKey(),
+					  ((ComboItem)assayTypes.getSelectedItem()).getKey(),
+					  plate_layout.getKey(),
+					  dmf.getUtilities().loadDataFile(fileField.getText()),
+					  checkBox.isSelected(),
+					  ((ComboItem)algorithmList.getSelectedItem()).getKey(),
+					  top_n_number);
+       
+	    return null;
+        }
+ 
+        /*
+         * Executed in event dispatching thread
+         */
+        @Override
+        public void done() {
+            Toolkit.getDefaultToolkit().beep();
+            setCursor(null); //turn off the wait cursor
+	    progress_bar.dispose();
+     }
+    }
+
+
+
+    
 }

@@ -271,6 +271,13 @@
 (defn get-plate-id []
   (c/get-at! props [:assets :session :plate-id ]))
 
+(defn set-plate-sys-name [s]
+   (c/with-write-transaction [props tx]
+        (c/assoc-at tx  [:assets :session :plate-sys-name ] s)))
+
+(defn get-plate-sys-name []
+  (c/get-at! props [:assets :session :plate-sys-name ]))
+
 
 (defn get-session-id []
   (c/get-at! props [:assets :session :session-id ]))
