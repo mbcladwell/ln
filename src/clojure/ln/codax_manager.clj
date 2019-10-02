@@ -19,11 +19,14 @@
     (-> tx
   (c/assoc-at [:assets ] (read-props-text-file))
   (c/assoc-at [:assets :session] {:project-id 1
-	                          :project-sys-name ""
+	                          :project-sys-name "PRJ-1"
 	                          :user-id 1
-                                  :user-name ""
-                                  :plateset-id 1
-                                  :plateset-sys-name ""
+                                  :user ""
+                                  :password ""
+                                  :plate-set-id 1
+                                  :plate-set-sys-name "PS-1"
+                                  :plate-id 1
+                                  :plate-sys-name "PLT-1"
 	                          :user-group-id 1
                                   :user-group ""
 	                          :session-id 1
@@ -43,8 +46,6 @@
   	                             :port  5432
   	                             :user  "klohymim"
   	                             :password  "hwc3v4_rbkT-1EL2KI-JBaqFq0thCXM_"
-                                     :db-user  "klohymim"
-  	                             :db-password  "hwc3v4_rbkT-1EL2KI-JBaqFq0thCXM_"
                                      
  	                             :sslmode  false
                                      :auto-login true
@@ -52,8 +53,9 @@
                                      }) 
         (c/assoc-at [:assets :session] {:project-id 1
 	                                :project-sys-name "PRJ-1"
-	                                :user-id 3
-                                        :user-name "klohymim"
+	                                :user-id 2
+                                        :user "ln_user"
+                                        :password "welcome"
                                         :plateset-id 1
                                         :plateset-sys-name ""
 	                                :user-group-id 2
@@ -382,12 +384,15 @@
     (println (str ":help-url-prefix    " (get-help-url-prefix)))
     (println "-------------------")
     (println "session")
-    (println (str ":plateset-id       " (get-plate-set-id)))
+    (println (str ":plate-set-id       " (get-plate-set-id)))
+    (println (str ":plate-set-sys-name " (get-plate-set-sys-name)))
+    (println (str ":plate-id       " (get-plate-id)))
+    (println (str ":plate-sys-name " (get-plate-sys-name)))
     (println (str ":session-id        " (get-session-id)))
     (println (str ":user-group        " (get-user-group)))
     (println (str ":authenticated     " (get-authenticated)))
-    (println (str ":plateset-sys-name " (get-plate-set-sys-name)))
     (println (str ":project-id        " (get-project-id)))
+    (println (str ":project-sys-name        " (get-project-sys-name)))
     (println (str ":user-id           " (get-user-id)))
     (println (str ":user-group-id     " (get-user-group-id)))
     (println "-------------------------")
