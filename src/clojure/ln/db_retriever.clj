@@ -3,8 +3,8 @@
             [codax.core :as c]
             ;;[honeysql.core :as hsql]
             ;;[honeysql.helpers :refer :all :as helpers]
-            [ln.codax-manager :as cm]
-            [ln.db-manager :as dbm])
+            [ln.codax-manager :as cm])
+          ;;  [ln.db-manager :as dbm])
          ;;   [clojure.data.csv :as csv]
           ;;  [clojure.java.io :as io])
             
@@ -16,9 +16,11 @@
 (defn authenticate-user
   ;;variable from codax
   []
-  (let [user (cm/get-user)
+  (if (not (c/is-open? cm/props)) (cm/open-or-create-props))
+  (let [
+        user (cm/get-user)
         password (cm/get-password)
-        results (j/execute-one! dbm/pg-db-admin ["SELECT lnuser.id, lnuser.password, lnuser_groups.id, lnuser_groups.usergroup  FROM lnuser, lnuser_groups  WHERE lnuser_groups.id = lnuser.usergroup and lnuser_name = ?"  user ])]
+        results (j/execute-one! cm/conn ["SELECT lnuser.id, lnuser.password, lnuser_groups.id, lnuser_groups.usergroup  FROM lnuser, lnuser_groups  WHERE lnuser_groups.id = lnuser.usergroup_id and lnuser_name = ?"  user ])]
         (println (str "user: " user))
         (println password)
         (println results)
@@ -30,15 +32,14 @@
            (get (first results) :id_2)
            (get (first results) :usergroup)
            true)
-        (println "after uid ugid ug auth")
+        (println "after uid ugid ug auth"))
           
-          (dbm/define-pg-db));;valid
-    (cm/set-authenticated false);;invalid
-    )))
+      (cm/set-authenticated false));;invalid
+    (c/close-database! cm/props)
+    ))
 
 ;;(authenticate-user)
 ;;(cm/print-ap)
-;;(println dbm/pg-db)
 ;;(j/insert! dbm/pg-db :lnsession {:lnuser_id  1 } )
 
 

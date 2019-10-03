@@ -21,8 +21,6 @@
   (c/assoc-at [:assets :session] {:project-id 1
 	                          :project-sys-name "PRJ-1"
 	                          :user-id 1
-                                  :user ""
-                                  :password ""
                                   :plate-set-id 1
                                   :plate-set-sys-name "PS-1"
                                   :plate-id 1
@@ -48,20 +46,18 @@
   	                             :password  "hwc3v4_rbkT-1EL2KI-JBaqFq0thCXM_"
                                      
  	                             :sslmode  false
-                                     :auto-login true
  	                             :help-url-prefix  "http://labsolns.com/software/" 
                                      }) 
         (c/assoc-at [:assets :session] {:project-id 1
 	                                :project-sys-name "PRJ-1"
 	                                :user-id 2
-                                        :user "ln_user"
-                                        :password "welcome"
                                         :plateset-id 1
                                         :plateset-sys-name ""
 	                                :user-group-id 2
                                         :user-group "user"
 	                                :session-id nil
                                         :working-dir ""
+                                        :auto-login true
                                         :authenticated true
                                         })))
   (c/close-database! props)))
@@ -97,16 +93,27 @@
 ;;
 
 
-(defn set-user [u]
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Connection variables
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defn get-dbtype
+  "mysql; postgresql"
+  []
+  (c/get-at! props [:assets :conn :dbtype]))
+
+(defn get-db-user []
+  (c/get-at! props [:assets :conn :user]))
+
+(defn get-db-password []
+  (c/get-at! props [:assets :conn :password]))
+
+(defn set-db-user [u]
   (c/with-write-transaction [props tx]
         (c/assoc-at tx [:assets :conn :user] u)))
 
-
-(defn set-password [p]
+(defn set-db-password [p]
   (c/with-write-transaction [props tx]
         (c/assoc-at tx  [:assets :conn :password] p)))
-
-
 
 (defn get-host []
    (c/get-at! props [:assets :conn :host]))
@@ -120,31 +127,9 @@
 (defn get-dbname []
   (c/get-at! props [:assets :conn :dbname]))
 
-(defn get-user []
-  (c/get-at! props [:assets :conn :user]))
-
-(defn get-password []
-  (c/get-at! props [:assets :conn :password]))
-
 (defn get-sslmode []
   (c/get-at! props [:assets :conn :sslmode]))
 
-(defn get-auto-login []
-  (c/get-at! props [:assets :conn :auto-login]))
-
-(defn set-auto-login [b]
-  (c/with-write-transaction [props tx]
-        (c/assoc-at tx  [:assets :conn :auto-login] b)))
-
-(defn set-u-p-al
-  ;;user name, password, auto-login
-  ;;only used during login
-  [u p al]
-  (c/with-write-transaction [props tx]
-    (-> tx
-     (c/assoc-at   [:assets :conn :user] u)
-     (c/assoc-at  [:assets :conn :password] p) 
-     (c/assoc-at  [:assets :conn :auto-login] al))))
 
 ;;(set-u-p-al "ln_admin" "welcome" true)
 ;;(str props)
@@ -153,22 +138,6 @@
 ;;(c/close-database! props)
 ;;(c/destroy-database! props)
 
-
-(defn set-uid-ugid-ug-auth [ uid ugid ug auth ]
-  ;; user-id user-group-id user-group-name authenticated
-  (c/with-write-transaction [props tx]
-    (-> tx
-      (c/assoc-at  [:assets :session :user-id] uid)   
-      (c/assoc-at  [:assets :session :user-group-id] ugid)
-      (c/assoc-at  [:assets :session :user-group] ug)
-      (c/assoc-at  [:assets :session :authenticated] auth))))
-
-(defn set-authenticated [b]
-  (c/with-write-transaction [props tx]
-    (c/assoc-at tx  [:assets :session :authenticated] b)))
-
-(defn get-authenticated []
-  (c/get-at! props [:assets :session :authenticated ]))
 
 (defn get-all-props
   ;;note that the keys must be quoted for java
@@ -180,8 +149,8 @@
           ":source" (c/get-at! props [:assets :conn :source])
           ":dbname" (c/get-at! props [:assets :conn :dbname])
           ":help-url-prefix" (c/get-at! props [:assets :conn :help-url-prefix])
-          ":password" (c/get-at! props [:assets :conn :db-password])
-          ":user" (c/get-at! props [:assets :conn :db-user])})))
+          ":password" (c/get-at! props [:assets :conn :password])
+          ":user" (c/get-at! props [:assets :conn :user])})))
 
 (defn get-all-props-clj
   ;;a map for clojure
@@ -192,17 +161,35 @@
     :source (c/get-at! props [:assets :conn :source])
     :dbname (c/get-at! props [:assets :conn :dbname])
     :help-url-prefix (c/get-at! props [:assets :conn :help-url-prefix])
-    :password (c/get-at! props [:assets :conn :db-password])
-    :user (c/get-at! props [:assets :conn :db-user])}))
+    :password (c/get-at! props [:assets :conn :password])
+    :user (c/get-at! props [:assets :conn :user])}))
 
 
-  (defn print-ap 
-    "This version prints everything"
-    []
-    (println (str "Whole map: " (c/get-at! props []) )))
 
-  ;;(print-ap)
-  ;;(print-all-props)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Session variables
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn get-user []
+  (c/get-at! props [:assets :session :user]))
+
+(defn get-password []
+  (c/get-at! props [:assets :session :password]))
+
+(defn set-user [u]
+  (c/with-write-transaction [props tx]
+        (c/assoc-at tx [:assets :session :user] u)))
+
+(defn set-password [p]
+  (c/with-write-transaction [props tx]
+        (c/assoc-at tx  [:assets :session :password] p)))
+
+(defn set-authenticated [b]
+  (c/with-write-transaction [props tx]
+    (c/assoc-at tx  [:assets :session :authenticated] b)))
+
+(defn get-authenticated []
+  (c/get-at! props [:assets :session :authenticated ]))
 
 (defn set-user-id [i]
   (c/with-write-transaction [props tx]
@@ -298,16 +285,6 @@
 (defn get-temp-dir []
    (java.lang.System/getProperty "java.io.tmpdir"))
 
-(defn get-dbtype
-  "mysql; postgresql"
-  []
-  (c/get-at! props [:assets :conn :dbtype]))
-
-(defn get-db-user []
-  (c/get-at! props [:assets :conn :db-user]))
-
-(defn get-db-password []
-  (c/get-at! props [:assets :conn :db-password]))
 
 (defn get-working-dir []
    (java.lang.System/getProperty "user.dir"))
@@ -319,6 +296,36 @@
 (defn get-init []
   (c/get-at! props [:assets :conn :init ]))
 
+(defn get-auto-login []
+  (c/get-at! props [:assets :session :auto-login]))
+
+(defn set-auto-login [b]
+  (c/with-write-transaction [props tx]
+        (c/assoc-at tx  [:assets :session :auto-login] b)))
+
+(defn set-u-p-al
+  ;;user name, password, auto-login
+  ;;only used during login
+  [u p al]
+  (c/with-write-transaction [props tx]
+    (-> tx
+     (c/assoc-at   [:assets :session :user] u)
+     (c/assoc-at  [:assets :session :password] p) 
+     (c/assoc-at  [:assets :session :auto-login] al))))
+
+
+(defn set-uid-ugid-ug-auth [ uid ugid ug auth ]
+  ;; user-id user-group-id user-group-name authenticated
+  (c/with-write-transaction [props tx]
+    (-> tx
+      (c/assoc-at  [:assets :session :user-id] uid)   
+      (c/assoc-at  [:assets :session :user-group-id] ugid)
+      (c/assoc-at  [:assets :session :user-group] ug)
+      (c/assoc-at  [:assets :session :authenticated] auth))))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;Printing methods
 
     (defn get-help-url-prefix []
           (c/get-at! props [:assets :conn :help-url-prefix ]))
@@ -327,31 +334,35 @@
 (def conn   {:dbtype (get-dbtype)
              :dbname (get-dbname)
              :host (get-host)
-             :db-user (get-db-user)
-             :db-password (get-db-password)
-             :user (get-user)
-             :password (get-password)
+             :user (get-db-user)
+             :password (get-db-password)
              :port (get-port)
              :useTimezone true
              :serverTimezone "UTC"
              :useSSL (get-sslmode)})
 
-(defn update-ln-props [host port dbname source sslmode db-user db-password user password help-url user-dir]
+(defn update-ln-props [host port dbname source sslmode db-user db-password help-url user-dir]
   (c/with-write-transaction [props tx]
     (-> tx
       (c/assoc-at  [:assets :conn :host] host)   
       (c/assoc-at  [:assets :conn :port] port)
       (c/assoc-at  [:assets :conn :sslmode] sslmode)
       (c/assoc-at  [:assets :conn :source] source)
-      (c/assoc-at  [:assets :conn :db-user] db-user)   
-      (c/assoc-at  [:assets :conn :db-password] db-password)
-      (c/assoc-at  [:assets :conn :user] user)   
-      (c/assoc-at  [:assets :conn :password] password)
+      (c/assoc-at  [:assets :conn :user] db-user)   
+      (c/assoc-at  [:assets :conn :password] db-password)
       (c/assoc-at  [:assets :conn :help-url-prefix] help-url)
       (c/assoc-at  [:assets :conn :dbname] dbname))))
 
 
- 
+  (defn print-ap 
+    "This version prints everything"
+    []
+    (println (str "Whole map: " (c/get-at! props []) )))
+
+  ;;(print-ap)
+  ;;(print-all-props)
+
+
     (defn get-help-url-prefix []
           (c/get-at! props [:assets :conn :help-url-prefix ]))
 ;;(get-help-url-prefix)
@@ -359,11 +370,11 @@
 (defn  get-connection-string [target]	  
   (case target
     "heroku" (str "jdbc:postgresql://"  (get-host) ":" (get-port)  "/" (get-dbname) "?sslmode=require&user=" (get-db-user) "&password="  (get-db-password))
-    "local" (str "jdbc:postgresql://" (get-host) ":" (get-port) "/" (get-dbname)  "?user=" (get-user) "&password=" (get-password) "&useSSL=false")
+    "local" (str "jdbc:postgresql://" (get-host) ":" (get-port) "/" (get-dbname)  "?user=" (get-db-user) "&password=" (get-db-password) "&useSSL=false")
     "elephantsql" (str "jdbc:postgresql://" (get-host) ":" (get-port) "/" (get-dbname) "?user=" (get-db-user) "&password=" (get-db-password) "&SSL=" (get-sslmode))
     "postgres" (str "jdbc:postgresql://" (get-host) ":" (get-port) "/" (get-dbname)"?user="  (get-db-user) "&password=" (get-db-password) "&SSL="  (get-sslmode))
 "test" "jdbc:postgresql://raja.db.elephantsql.com:5432/klohymim?user=klohymim&password=hwc3v4_rbkT-1EL2KI-JBaqFq0thCXM_&SSL=false" 
-     "internal" (str "jdbc:postgresql://" (get-host)  ":" (get-port) "/" (get-dbname)  "?user=" (get-user) "&password=" (get-password) "&SSL=false")))
+     "internal" (str "jdbc:postgresql://" (get-host)  ":" (get-port) "/" (get-dbname)  "?user=" (get-db-user) "&password=" (get-db-password) "&SSL=false")))
 
 (defn pretty-print []
   (do
@@ -371,30 +382,31 @@
     (println "-------------------")
     (println "conn")
     (println (str ":init       " (get-init)))
-    (println (str ":auto-login " (get-auto-login)))
     (println (str ":dbtype     " (get-dbtype)))
     (println (str ":dbname     " (get-dbname)))
+    (println (str ":port       " (get-port)))
     (println (str ":host       " (get-host)))
-    (println (str ":db-user    " (get-db-user)))
-    (println (str ":db-password" (get-db-password)))
-    (println (str ":user    " (get-user)))
-    (println (str ":password   " (get-password)))
+    (println (str ":user       " (get-db-user)))
+    (println (str ":password   " (get-db-password)))
     (println (str ":source     " (get-source)))
     (println (str ":sslmode    " (get-sslmode)))
     (println (str ":help-url-prefix    " (get-help-url-prefix)))
     (println "-------------------")
     (println "session")
-    (println (str ":plate-set-id       " (get-plate-set-id)))
-    (println (str ":plate-set-sys-name " (get-plate-set-sys-name)))
-    (println (str ":plate-id       " (get-plate-id)))
-    (println (str ":plate-sys-name " (get-plate-sys-name)))
     (println (str ":session-id        " (get-session-id)))
+    (println (str ":user              " (get-user)))
+    (println (str ":user-id           " (get-user-id)))
+    (println (str ":password          " (get-password)))
+    (println (str ":auto-login        " (get-auto-login)))
     (println (str ":user-group        " (get-user-group)))
+    (println (str ":user-group-id     " (get-user-group-id)))
     (println (str ":authenticated     " (get-authenticated)))
     (println (str ":project-id        " (get-project-id)))
-    (println (str ":project-sys-name        " (get-project-sys-name)))
-    (println (str ":user-id           " (get-user-id)))
-    (println (str ":user-group-id     " (get-user-group-id)))
+    (println (str ":project-sys-name  " (get-project-sys-name)))
+    (println (str ":plate-set-id      " (get-plate-set-id)))
+    (println (str ":plate-set-sys-name " (get-plate-set-sys-name)))
+    (println (str ":plate-id          " (get-plate-id)))
+    (println (str ":plate-sys-name    " (get-plate-sys-name)))
     (println "-------------------------")
     
     ))
@@ -409,11 +421,11 @@
     (c/close-database! props))
 
 ;;(look)
-;;(set-password "dod")
-;;(get-password)
+;;(set-db-password "welcome")
+;;(get-db-password)
 ;;(ns-unmap 'ln.codax-manager 'conn)
 ;;(ns-unalias 'ln.codax-manager 'conn)
-
+;;(get-auto-login)
 ;;(ns-unmap 'ln.codax-manager 'props)
 ;;(ns-unalias 'ln.codax-manager 'props)
 

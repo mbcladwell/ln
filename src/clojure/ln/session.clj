@@ -1,17 +1,18 @@
 (ns ln.session
   (:require 
             ;;[honeysql.core :as hsql]
-            ;;[honeysql.helpers :refer :all :as helpers]
-            [clojure.data.csv :as csv]
-            [ln.codax-manager :as cm]
-            [clojure.java.browse :as browse]
-           ;; [ln.db-inserter :as dbi]
-            [ln.db-retriever :as dbr]
-            [ln.db-inserter :as dbi]
-            [ln.db-manager :as dbm]
-                        
-            [ln.dialog :as d])
-   (:import javax.swing.JOptionPane)
+   ;;[honeysql.helpers :refer :all :as helpers]
+   [codax.core :as c]
+   [clojure.data.csv :as csv]
+   [ln.codax-manager :as cm]
+   [clojure.java.browse :as browse]
+   ;; [ln.db-inserter :as dbi]
+   [ln.db-retriever :as dbr]
+   [ln.db-inserter :as dbi]
+   [ln.db-manager :as dbm]
+   
+   [ln.dialog :as d])
+  (:import javax.swing.JOptionPane)
   (:gen-class ))
 
 ;;https://push-language.hampshire.edu/t/calling-clojure-code-from-java/865
@@ -28,10 +29,11 @@
          (not (cm/get-auto-login)))
     (do
       (d/login-dialog)
-      (loop [completed? (realized? d/p)]
+      (loop [completed? (realized? d/p)] ;;p is the promise the dialog has completed
+                                        ;;codax open continuously to this point
       (if (eval completed?)
-      (do
-        (dbr/authenticate-user)
+        (do        
+          (dbr/authenticate-user)      
         (if(cm/get-authenticated)
           (do
             (dbr/register-session (cm/get-user-id))
