@@ -16,7 +16,6 @@
 (defn authenticate-user
   ;;variable from codax
   []
-  (if (not (c/is-open? cm/props)) (cm/open-or-create-props))
   (let [
         user (cm/get-user)
         password (cm/get-password)
@@ -24,18 +23,19 @@
         (println (str "user: " user))
         (println password)
         (println results)
-    (if (= password (:password results) )
+        (println (str "extracted password: " (:lnuser/password results)))
+    (if (= password (:lnuser/password results) )
       (do
         (println "before uid ugid ug auth")
+        
         (cm/set-uid-ugid-ug-auth
-           (get (first results) :id)         
-           (get (first results) :id_2)
-           (get (first results) :usergroup)
+           (get  results :lnuser/id)         
+           (get results :lnuser_groups/id)
+           (get  results :lnuser_groups/usergroup)
            true)
         (println "after uid ugid ug auth"))
           
       (cm/set-authenticated false));;invalid
-    (c/close-database! cm/props)
     ))
 
 ;;(authenticate-user)

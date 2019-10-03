@@ -371,8 +371,8 @@ assayid	PlateOrder	Well	Response	BkSub	Norm	NormPos	pEnhanced
    [ :lnuser 
     [ :lnuser_name :tags :usergroup_id :password ]
     [["ln_admin" "ln_admin@labsolns.com" 1  "welcome"]
-     ["ln_user" "ln_user@labsolns.com" 1 "welcome"]
-     ["klohymim" "NA" 2 "hwc3v4_rbkT-1EL2KI-JBaqFq0thCXM_"]]]
+     ["ln_user" "ln_user@labsolns.com" 2 "welcome"]]]
+   ;;  ["klohymim" "NA" 2 "hwc3v4_rbkT-1EL2KI-JBaqFq0thCXM_"]]]
    
    [ :plate_type [:plate_type_name]
     [["assay"]["rearray"]["master"]["daughter"]["archive"]["replicate"]]]

@@ -426,6 +426,8 @@
 ;;(ns-unmap 'ln.codax-manager 'conn)
 ;;(ns-unalias 'ln.codax-manager 'conn)
 ;;(get-auto-login)
+;;(set-auto-login false)
+
 ;;(ns-unmap 'ln.codax-manager 'props)
 ;;(ns-unalias 'ln.codax-manager 'props)
 
