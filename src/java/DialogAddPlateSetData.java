@@ -511,6 +511,7 @@ public static boolean openWebpage(URI uri) {
 
     public Task(int _top_n_number) {
        this.top_n_number = _top_n_number;
+       System.out.println("top n number: " + top_n_number);
     }
 
         @Override
@@ -526,6 +527,7 @@ public static boolean openWebpage(URI uri) {
 					  checkBox.isSelected(),
 					  ((ComboItem)algorithmList.getSelectedItem()).getKey(),
 					  top_n_number);
+       System.out.println("top n number: " + top_n_number);
        
 	    return null;
         }

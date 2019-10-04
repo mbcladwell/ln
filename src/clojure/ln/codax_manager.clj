@@ -224,7 +224,7 @@
 ;;https://stackoverflow.com/questions/9457537/why-does-int-10-produce-a-long-instance
 ;; dont cast to int, gets promoted to Long upon java interop
 (defn get-project-id  []
-  (c/get-at! props [:assets :session :project-id ]))
+  (long  (c/get-at! props [:assets :session :project-id ])))
 
 (defn set-project-sys-name [s]
     (c/with-write-transaction [props tx]

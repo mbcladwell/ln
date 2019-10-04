@@ -481,6 +481,8 @@ if(num_of_plate_ids*format_id!=table.size()-1){
         createAssayRun(assayName, descr, assay_type_id, plate_set_id[0], plate_layout_name_id);
 
 
+    System.out.println("assay_run_id: " + assay_run_id);
+    System.out.println("table: " + table);
     
     // read in data file an populate assay_result with data;
     // only continue if successful
@@ -503,7 +505,7 @@ if(num_of_plate_ids*format_id!=table.size()-1){
     }
 
     String insertSql = sql_statement.substring(0, sql_statement.length() - 2) + ";";
-
+    System.out.println(insertSql);
     PreparedStatement insertPs;
     try {
       insertPs = conn.prepareStatement(insertSql);

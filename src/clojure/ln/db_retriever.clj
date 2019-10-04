@@ -20,21 +20,13 @@
         user (cm/get-user)
         password (cm/get-password)
         results (j/execute-one! cm/conn ["SELECT lnuser.id, lnuser.password, lnuser_groups.id, lnuser_groups.usergroup  FROM lnuser, lnuser_groups  WHERE lnuser_groups.id = lnuser.usergroup_id and lnuser_name = ?"  user ])]
-        (println (str "user: " user))
-        (println password)
-        (println results)
-        (println (str "extracted password: " (:lnuser/password results)))
     (if (= password (:lnuser/password results) )
       (do
-        (println "before uid ugid ug auth")
-        
         (cm/set-uid-ugid-ug-auth
            (get  results :lnuser/id)         
            (get results :lnuser_groups/id)
            (get  results :lnuser_groups/usergroup)
-           true)
-        (println "after uid ugid ug auth"))
-          
+           true))
       (cm/set-authenticated false));;invalid
     ))
 
@@ -48,7 +40,7 @@
   [ uid ]
 (let [
         user-id-pre (j/execute-one!  cm/conn  ["INSERT INTO lnsession(lnuser_id) values(?)" uid] )
-        user-id (first(vals  user-id-pre))
+        ;;user-id (first(vals  user-id-pre))  ;;ERROR!! insert gives the count, not the uid
         ug-id-pre (j/execute-one!  cm/conn ["SELECT usergroup_id FROM lnuser WHERE lnuser.id =?" uid ] )
         ug-id (first (vals  ug-id-pre))
         ug-name-pre (j/execute-one!  cm/conn ["SELECT usergroup FROM lnuser_groups WHERE id =?" uid ] )
@@ -56,7 +48,7 @@
         ]
     (c/with-write-transaction [cm/props tx]
     (-> tx
-      (c/assoc-at  [:assets :session :user-id] user-id)   
+      (c/assoc-at  [:assets :session :user-id] uid )   
       (c/assoc-at  [:assets :session :user-group-id] ug-id)
       (c/assoc-at  [:assets :session :user-group] ug-name)))))
     
@@ -72,5 +64,7 @@
 
 
 ;;(get-layout-for-plate-set-sys-name "PS-5")
-;;(register-session 3)
+;;(register-session 2)
 ;;(:lnsession/id (j/execute-one! dbm/pg-db-admin ["INSERT INTO lnsession(lnuser_id) values(?)" 2]{:return-keys true} ))
+
+ 

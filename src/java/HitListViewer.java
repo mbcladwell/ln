@@ -68,7 +68,7 @@ public class HitListViewer extends JDialog implements java.awt.event.ActionListe
 	this.setTitle("Hit List Viewer - " + (String)getProjectSysName.invoke());
 	IFn getProjectID = Clojure.var("ln.codax-manager", "get-project-id");
 	//fails as long
-	project_id = (((Integer)getProjectID.invoke()).intValue());
+	project_id = (((Long)getProjectID.invoke()).intValue());
       IFn getUser = Clojure.var("ln.codax-manager", "get-user");
 
       owner = (String)getUser.invoke();
@@ -95,7 +95,7 @@ public class HitListViewer extends JDialog implements java.awt.event.ActionListe
       
       //get all the hit lists in the current project
       //fails as long
-      current_project_id = (((Integer)getProjectID.invoke()).intValue());
+      current_project_id = (((Long)getProjectID.invoke()).intValue());
       all_hit_lists_in_project = new JComboBox<ComboItem>(dbm.getDatabaseRetriever().getHitListsForProject(current_project_id));
     for(int i=0; i < all_hit_lists_in_project.getItemCount(); i++){
 	if(((ComboItem)all_hit_lists_in_project.getItemAt(i)).getKey() == current_project_id){
@@ -137,7 +137,7 @@ public class HitListViewer extends JDialog implements java.awt.event.ActionListe
     counts_paneBorder.setTitlePosition(javax.swing.border.TitledBorder.TOP);
     counts_pane.setBorder(counts_paneBorder);
     //fails as long
-    counts_table = dbm.getDatabaseRetriever().getHitCountPerPlateSet((((Integer)getProjectID.invoke()).intValue()), hit_list_id);
+    counts_table = dbm.getDatabaseRetriever().getHitCountPerPlateSet((((Long)getProjectID.invoke()).intValue()), hit_list_id);
 
     counts_scroll_pane = new JScrollPane(counts_table);
     counts_table.setFillsViewportHeight(true);
@@ -183,7 +183,7 @@ public class HitListViewer extends JDialog implements java.awt.event.ActionListe
 	hits_table.setModel(new_model); 
 	IFn getProjectID = Clojure.var("ln.codax-manager", "get-project-id");
  
-	JTable new_counts_table = dbm.getDatabaseRetriever().getHitCountPerPlateSet(((Integer)getProjectID.invoke()).intValue(), selected_hit_list_id);
+	JTable new_counts_table = dbm.getDatabaseRetriever().getHitCountPerPlateSet(((Long)getProjectID.invoke()).intValue(), selected_hit_list_id);
 	TableModel new_model2 = new_counts_table.getModel();
 	counts_table.setModel(new_model2);
 
