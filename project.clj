@@ -24,6 +24,7 @@
                  [leinjacker "0.4.2"]
                  [lein-codox "0.10.3"]
                  [codax "1.3.1"]
+                
                  [com.google.guava/guava "23.0"]
                  [org.apache/poi "4.0.1"]
                  [org.apache/poi-ooxml "4.0.1"]
@@ -32,8 +33,7 @@
                  [org.apache.commons/commons-compress"1.18"]
                  [org.apache.poi/ooxml-schemas "1.4"]
                  [org.postgresql/postgresql "42.2.5"]]
-
-
+  
 :repl-options {:nrepl-middleware
                  [cider.nrepl.middleware.apropos/wrap-apropos
                   cider.nrepl.middleware.classpath/wrap-classpath
@@ -48,6 +48,13 @@
                   cider.nrepl.middleware.trace/wrap-trace
                   cider.nrepl.middleware.undef/wrap-undef]}
 
+  :eval-in-leiningen true
+
+  :plugins [ [lein-javadoc "0.3.1-SNAPSHOT"]]
+
+  :javadoc-opts {
+                 :package-names ["ln"]
+                 :java-source-paths ["src/java"]}
  ;; :main ^:skip-aot ln.session
   :main ln.session
   :aot [ ]
