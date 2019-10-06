@@ -84,7 +84,7 @@ public class DatabaseManager {
   public void updateSessionWithProject(String _project_sys_name) {
     int results = 0;
     String project_sys_name = _project_sys_name;
-      IFn setProjectSysName = Clojure.var("ln.codax-manager", "set-project-sys-name");
+    IFn setProjectSysName = Clojure.var("ln.codax-manager", "set-project-sys-name");
   
     setProjectSysName.invoke(project_sys_name);
     LOGGER.info("Project sys name: " + project_sys_name);

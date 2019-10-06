@@ -43,19 +43,22 @@
  	                             :host  "raja.db.elephantsql.com"
   	                             :port  5432
   	                             :user  "klohymim"
-  	                             :password  "hwc3v4_rbkT-1EL2KI-JBaqFq0thCXM_"
-                                     
+  	                             :password  "hwc3v4_rbkT-1EL2KI-JBaqFq0thCXM_"                       
  	                             :sslmode  false
  	                             :help-url-prefix  "http://labsolns.com/software/" 
                                      }) 
         (c/assoc-at [:assets :session] {:project-id 1
 	                                :project-sys-name "PRJ-1"
+                                        :user "ln_user"
+                                        :password "welcome"
 	                                :user-id 2
-                                        :plateset-id 1
-                                        :plateset-sys-name ""
+                                        :plate-set-id 1
+                                        :plate-set-sys-name "PS-1"
+                                        :plate-id 1
+                                        :plate-sys-name "PLT-1"
 	                                :user-group-id 2
                                         :user-group "user"
-	                                :session-id nil
+	                                :session-id 1
                                         :working-dir ""
                                         :auto-login true
                                         :authenticated true
