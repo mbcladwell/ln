@@ -1,3 +1,7 @@
+
+
+
+
 package ln;
 
 import java.awt.BorderLayout;
@@ -213,10 +217,11 @@ public class DialogAddPlateSet extends JDialog   {
         (new ActionListener() {
           public void actionPerformed(ActionEvent e) {
 	      Task task = new Task();
+	      	     IFn getProjectID = Clojure.var("ln.codax-manager", "get-project-id");
+
 	      //task.addPropertyChangeListener(this);
 	    progress_bar.main( new String[] {"Creating Plate Sets"} );
 	      task.execute();
-
 	      // dbm
 	      // 	    .getDatabaseInserter().insertPlateSet(
               //       nameField.getText(),
@@ -224,7 +229,7 @@ public class DialogAddPlateSet extends JDialog   {
               //       Integer.valueOf(numberField.getText()),
               //       Integer.valueOf(formatList.getSelectedItem().toString()),
               //       ((ComboItem)typeList.getSelectedItem()).getKey(),
-	      // 	    (int)getProjectID.invoke(),
+	      // 	    ((Long)getProjectID.invoke()).intValue(),
 	      // 	    ((ComboItem)layoutList.getSelectedItem()).getKey(),
 	      // 						  true);
 	      //progress_bar.setVisible(false);
@@ -267,15 +272,20 @@ public class DialogAddPlateSet extends JDialog   {
         @Override
         public Void doInBackground() {
 	    System.out.println("in doinbackground");
-            dbm.getDatabaseInserter().insertPlateSet(
-                    nameField.getText(),
-                    descriptionField.getText(),
-                    Integer.valueOf(numberField.getText()).intValue(),
-                    ((ComboItem)formatList.getSelectedItem()).getKey(),
-                    ((ComboItem)typeList.getSelectedItem()).getKey(),
-		    (int)getProjectID.invoke(),
-		    ((ComboItem)layoutList.getSelectedItem()).getKey(),
-					true		  );
+	    System.out.println("dbm: " + dbm);
+	    
+	    dbm.getDatabaseInserter()
+		.insertPlateSet(nameField.getText(),
+				descriptionField.getText(),
+				Integer.valueOf(numberField.getText()),
+				Integer.valueOf(formatList.getSelectedItem().toString()),
+				((ComboItem)typeList.getSelectedItem()).getKey(),
+				((Long)getProjectID.invoke()).intValue(),
+				((ComboItem)layoutList.getSelectedItem()).getKey(),
+				true);
+	
+	    System.out.println("after insertPlateSet in swingworker");
+            
             return null;
         }
  
@@ -290,7 +300,7 @@ public class DialogAddPlateSet extends JDialog   {
 	    IFn getProjectSysName = Clojure.var("ln.codax-manager", "get-project-sys-name");
 	    dbm.getDialogMainFrame().showPlateSetTable((String)getProjectSysName.invoke());
             dispose();
-	    System.out.println("complete done");
+	    System.out.println("complete done in swingworker in DialogAddPlateSet");
      }
     }
        

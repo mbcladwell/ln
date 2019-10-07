@@ -194,7 +194,6 @@ public int insertPlateSet(
 	LOGGER.info("in dbi");
 
       String insertSql = "SELECT new_plate_set( ?, ?, ?, ?, ?, ?, ?, ?, ?);";
-      LOGGER.info("insertSQL: " + insertSql);
       PreparedStatement insertPs =
           conn.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS);
       insertPs.setString(1, _description);
