@@ -19,32 +19,32 @@ import clojure.java.api.Clojure;
 import clojure.lang.IFn;
 
 public class DialogAddPlateSet extends JDialog   {
-  static JButton button;
-  static JLabel label;
-  static JLabel Description;
-  static JTextField nameField;
-  static JLabel ownerLabel;
-  static String owner;
-  static JTextField descriptionField;
-  static JTextField numberField;
-  static JComboBox<Integer> formatList;
-  static JComboBox<ComboItem> typeList;
+    static JButton button;
+    static JLabel label;
+    static JLabel Description;
+    static JTextField nameField;
+    static JLabel ownerLabel;
+    static String owner;
+    static JTextField descriptionField;
+    static JTextField numberField;
+    static JComboBox<Integer> formatList;
+    static JComboBox<ComboItem> typeList;
     private ComboItem [] layoutNames;
     private JComboBox<ComboItem> layoutList;
     private DefaultComboBoxModel<ComboItem> layout_names_list_model;
     private ProgressBar progress_bar;
     
-  static JButton okButton;
-  static JButton cancelButton;
-  final Instant instant = Instant.now();
+    static JButton okButton;
+    static JButton cancelButton;
+    final Instant instant = Instant.now();
     final DialogMainFrame dmf;
     final DatabaseManager dbm;
     //   private Task task;
     //    final Session session;
-  final DateFormat df = new SimpleDateFormat("MM/dd/yyyy");
-  private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
-  // final EntityManager em;
-  private IFn require = Clojure.var("clojure.core", "require");
+    final DateFormat df = new SimpleDateFormat("MM/dd/yyyy");
+    private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+    // final EntityManager em;
+    private IFn require = Clojure.var("clojure.core", "require");
 
   public DialogAddPlateSet(DatabaseManager _dbm) {
       dbm = _dbm;
@@ -266,15 +266,16 @@ public class DialogAddPlateSet extends JDialog   {
 
         @Override
         public Void doInBackground() {
+	    System.out.println("in doinbackground");
             dbm.getDatabaseInserter().insertPlateSet(
                     nameField.getText(),
                     descriptionField.getText(),
-                    Integer.valueOf(numberField.getText()),
-                    Integer.valueOf(formatList.getSelectedItem().toString()),
+                    Integer.valueOf(numberField.getText()).intValue(),
+                    ((ComboItem)formatList.getSelectedItem()).getKey(),
                     ((ComboItem)typeList.getSelectedItem()).getKey(),
 		    (int)getProjectID.invoke(),
 		    ((ComboItem)layoutList.getSelectedItem()).getKey(),
-							  true);
+					true		  );
             return null;
         }
  
@@ -287,7 +288,6 @@ public class DialogAddPlateSet extends JDialog   {
             setCursor(null); //turn off the wait cursor
 	    progress_bar.setVisible(false);
 	    IFn getProjectSysName = Clojure.var("ln.codax-manager", "get-project-sys-name");
-
 	    dbm.getDialogMainFrame().showPlateSetTable((String)getProjectSysName.invoke());
             dispose();
 	    System.out.println("complete done");

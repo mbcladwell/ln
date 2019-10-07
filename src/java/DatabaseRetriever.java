@@ -60,6 +60,7 @@ public class DatabaseRetriever {
     	int id = _id;
 	int desired_table = _desired_table;
 	String sql_statement = new String();
+	System.out.println("desired_table: " + desired_table);
     try {
 
       switch(desired_table){

@@ -83,18 +83,21 @@ public class MenuBarForProject extends JMenuBar {
           public void actionPerformed(ActionEvent e) {
 
             try {
-              int i = project_table.convertRowIndexToModel(project_table.getSelectedRow());
-              String project_sys_name = (String) project_table.getValueAt(i, 0);
-		//  String results[][] = project_table.getSelectedRowsAndHeaderAsStringArray();
-              // LOGGER.info("down button results: " + results);
-              // LOGGER.info("down button results: " + results[1][0]);
-	      //session.getDatabaseManager().updateSessionWithProject(results[1][0]);
-	      //dbm.getDialogMainFrame().setMainFrameTitle(results[1][0]);
-              //dbm.getDialogMainFrame().showPlateSetTable(results[1][0]);
+		//int i = project_table.convertRowIndexToModel(project_table.getSelectedRow());
+		//String project_sys_name = (String) project_table.getValueAt(i, 0);
+	         String results[][] = project_table.getSelectedRowsAndHeaderAsStringArray();
+		 //LOGGER.info("view row: " + project_table.getSelectedRow());
+		 //LOGGER.info("model row: " + i);
+	      
+		 //LOGGER.info("down button results: " + results);
+		 //LOGGER.info("down button row results: " + results[1][0]);
+	      dbm.updateSessionWithProject(results[1][0]);
+	      dbm.getDialogMainFrame().setMainFrameTitle(results[1][0]);
+              dbm.getDialogMainFrame().showPlateSetTable(results[1][0]);
 	     
-              dbm.updateSessionWithProject(project_sys_name);
-	      dbm.getDialogMainFrame().setMainFrameTitle(project_sys_name);
-              dbm.getDialogMainFrame().showPlateSetTable(project_sys_name);
+              //dbm.updateSessionWithProject(project_sys_name);
+	      //dbm.getDialogMainFrame().setMainFrameTitle(project_sys_name);
+              //dbm.getDialogMainFrame().showPlateSetTable(project_sys_name);
             } catch (ArrayIndexOutOfBoundsException s) {
 		JOptionPane.showMessageDialog( dbm.getDialogMainFrame(),
 					      "Select a row!","Error",JOptionPane.ERROR_MESSAGE);

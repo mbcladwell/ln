@@ -44,10 +44,10 @@ public class DialogMainFrame extends JFrame {
   public DialogMainFrame(DatabaseManager _dbm ) throws SQLException {
       // session = _s;
       dbm = _dbm;
-     require.invoke(Clojure.read("ln.codax-manager"));
-       utils = new Utilities(this);
+      require.invoke(Clojure.read("ln.codax-manager"));
+      utils = new Utilities(this);
       this.setTitle("LIMS*Nucleus");
-    this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+      this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
       ImageIcon img = new ImageIcon(this.getClass().getResource("/images/mwplate.png"));
       this.setIconImage(img.getImage());
       //dbr = session.getDatabaseRetriever();
@@ -113,8 +113,8 @@ public class DialogMainFrame extends JFrame {
       int plate_id = Integer.parseInt(_plate_sys_name.substring(4));
       
       well_card = new WellPanel(dbm, dbm.getDatabaseRetriever().getDMFTableData(plate_id, DialogMainFrame.WELL));
-    cards.add(well_card, "Well");
-    card_layout.show(cards, "Well");
+      cards.add(well_card, "Well");
+      card_layout.show(cards, "Well");
   }
 
     /**

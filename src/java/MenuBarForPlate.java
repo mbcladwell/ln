@@ -116,13 +116,16 @@ public class MenuBarForPlate extends JMenuBar {
           public void actionPerformed(ActionEvent e) {
             try {
 		
-              int i = plate_table.getSelectedRow();
-              String plate_sys_name = (String) plate_table.getValueAt(i, 0);
+		//int i = plate_table.getSelectedRow();
+		//String plate_sys_name = (String) plate_table.getValueAt(i, 0);
+	      String results[][] = plate_table.getSelectedRowsAndHeaderAsStringArray();
+	      String plate_sys_name = results[1][0];
+	  
 	      //dbm.setPlateSysName(plate_sys_name);
 	      IFn setPlateSysName = Clojure.var("ln.codax-manager", "set-plate-sys-name");
 	      setPlateSysName.invoke(plate_sys_name);
 	      
-	       IFn setPlateID = Clojure.var("ln.codax-manager", "set-plate-id");
+	      IFn setPlateID = Clojure.var("ln.codax-manager", "set-plate-id");
 	      setPlateID.invoke(Integer.parseInt(plate_sys_name.substring(4)));
   
               dbm.getDialogMainFrame().showWellTable(plate_sys_name);

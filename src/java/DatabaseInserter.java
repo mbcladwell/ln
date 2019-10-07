@@ -140,40 +140,40 @@ public class DatabaseInserter {
     return new DefaultTableModel(data, columnNames);
   }
 
-  public void insertPlateSet2(
-      String _name,
-      String _description,
-      String _num_plates,
-      String _plate_size_id,
-      String _plate_type_id,
-      String _project_id,
-      String _withSamples) {
-      int new_plate_set_id;
+  // public void insertPlateSet2(
+  //     String _name,
+  //     String _description,
+  //     String _num_plates,
+  //     String _plate_size_id,
+  //     String _plate_type_id,
+  //     String _project_id,
+  //     String _withSamples) {
+  //     int new_plate_set_id;
 
-    try {
+  //   try {
    
-      String insertSql = "SELECT new_plate_set ( ?, ?, ?, ?, ?, ?, ?, ?);";
-      PreparedStatement insertPs =
-          conn.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS);
-      insertPs.setString(1, _description);
-      insertPs.setString(2, _name);
-      insertPs.setString(3, _num_plates);
-      insertPs.setString(4, _plate_size_id);
-      insertPs.setString(5, _plate_type_id);
-      insertPs.setString(6, _project_id);
-      insertPs.setInt(7,  session_id);
-      insertPs.setString(8, _withSamples);
-      LOGGER.info(insertPs.toString());
-      insertPs.executeUpdate();
-      //ResultSet resultSet = insertPs.getResultSet();
-      //resultSet.next();
-      //new_plate_set_id = resultSet.getInt("new_plate_set");
+  //     String insertSql = "SELECT new_plate_set ( ?, ?, ?, ?, ?, ?, ?, ?);";
+  //     PreparedStatement insertPs =
+  //         conn.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS);
+  //     insertPs.setString(1, _description);
+  //     insertPs.setString(2, _name);
+  //     insertPs.setString(3, _num_plates);
+  //     insertPs.setString(4, _plate_size_id);
+  //     insertPs.setString(5, _plate_type_id);
+  //     insertPs.setString(6, _project_id);
+  //     insertPs.setInt(7,  session_id);
+  //     insertPs.setString(8, _withSamples);
+  //     LOGGER.info(insertPs.toString());
+  //     insertPs.executeUpdate();
+  //     //ResultSet resultSet = insertPs.getResultSet();
+  //     //resultSet.next();
+  //     //new_plate_set_id = resultSet.getInt("new_plate_set");
      
-    } catch (SQLException sqle) {
-	LOGGER.warning("SQLE at inserting new plate set: " + sqle);
-    }
+  //   } catch (SQLException sqle) {
+  // 	LOGGER.warning("SQLE at inserting new plate set: " + sqle);
+  //   }
     
-  }
+  // }
 
     /**
      * Modification of insertPlateSet using integers and returning ps_id
@@ -189,9 +189,12 @@ public int insertPlateSet(
       boolean _withSamples) {
     
       int new_plate_set_id=0;
-
+      //SELECT new_plate_set('d1', 'n1', 2,96,1,1,1,1,true);
     try {
+	LOGGER.info("in dbi");
+
       String insertSql = "SELECT new_plate_set( ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+      LOGGER.info("insertSQL: " + insertSql);
       PreparedStatement insertPs =
           conn.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS);
       insertPs.setString(1, _description);
@@ -202,7 +205,6 @@ public int insertPlateSet(
       insertPs.setInt(6, _project_id);
       insertPs.setInt(7, _plate_layout_name_id);
       insertPs.setInt(8, session_id);
-      
       insertPs.setBoolean(9, _withSamples);
 
       LOGGER.info(insertPs.toString());
@@ -1124,49 +1126,48 @@ if(num_of_plate_ids*format_id!=table.size()-1){
    * VARCHAR(30),_plate_set_name VARCHAR(30), _num_plates INTEGER, _plate_format_id INTEGER,
    * _plate_type_id INTEGER, _project_id INTEGER, _with_samples boolean)
    */
-  public void insertPlateSet(
-      String _name,
-      String _description,
-      String _num_plates,
-      String _plate_format_id,
-      int _plate_type_id,
-      int _plate_layout_id) {
+ //  public void insertPlateSet(
+ //      String _name,
+ //      String _description,
+ //      String _num_plates,
+ //      String _plate_format_id,
+ //      int _plate_type_id,
+ //      int _plate_layout_id) {
 
-    try {
-	 IFn getProjectID = Clojure.var("ln.codax-manager", "get-project-id");
+ //    try {
+ // 	 IFn getProjectID = Clojure.var("ln.codax-manager", "get-project-id");
    
-	 int project_id = ((Long)getProjectID.invoke()).intValue();
-      int plate_format_id =
-          Integer.parseInt(_plate_format_id);
-      int plate_type_id = _plate_type_id;
-      int plate_layout_id = _plate_layout_id;
+ // 	 int project_id = ((Long)getProjectID.invoke()).intValue();
+ //      int plate_format_id = Integer.parseInt(_plate_format_id);
+ //      int plate_type_id = _plate_type_id;
+ //      int plate_layout_id = _plate_layout_id;
          
 
-      String insertSql = "SELECT new_plate_set ( ?, ?, ?, ?, ?, ?, ?, ?);";
-      PreparedStatement insertPs =
-          conn.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS);
-      insertPs.setString(1, _description);
-      insertPs.setString(2, _name);
-      insertPs.setInt(3, Integer.valueOf(_num_plates));
-      insertPs.setInt(4, plate_format_id);
-      insertPs.setInt(5, plate_type_id);
-      insertPs.setInt(6, project_id);
-      insertPs.setInt(7, plate_layout_id);    
-      insertPs.setBoolean(8, true);
+ //      String insertSql = "SELECT new_plate_set ( ?, ?, ?, ?, ?, ?, ?, ?);";
+ //      PreparedStatement insertPs =
+ //          conn.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS);
+ //      insertPs.setString(1, _description);
+ //      insertPs.setString(2, _name);
+ //      insertPs.setInt(3, Integer.valueOf(_num_plates));
+ //      insertPs.setInt(4, plate_format_id);
+ //      insertPs.setInt(5, plate_type_id);
+ //      insertPs.setInt(6, project_id);
+ //      insertPs.setInt(7, plate_layout_id);    
+ //      insertPs.setBoolean(8, true);
 
-      // LOGGER.info(insertPs.toString());
-      int rowsAffected   = insertPs.executeUpdate();
-       ResultSet rsKey = insertPs.getGeneratedKeys();
-       rsKey.next();
-       int new_ps_id = rsKey.getInt(1);
-       insertPs.close();
-      //  SELECT new_plate_set ( 'descrip', 'myname', '10', '96', 'assay', 0, 't')
-    } catch (SQLException sqle) {
-      LOGGER.severe("Failed to create plate set: " + sqle);
-    }
- IFn getProjectSysName = Clojure.var("ln.codax-manager", "get-project-sys-name");
+ //      LOGGER.info(insertPs.toString());
+ //      int rowsAffected   = insertPs.executeUpdate();
+ //       ResultSet rsKey = insertPs.getGeneratedKeys();
+ //       rsKey.next();
+ //       int new_ps_id = rsKey.getInt(1);
+ //       insertPs.close();
+ //      //  SELECT new_plate_set ( 'descrip', 'myname', '10', '96', 'assay', 0, 't')
+ //    } catch (SQLException sqle) {
+ //      LOGGER.severe("Failed to create plate set: " + sqle);
+ //    }
+ // IFn getProjectSysName = Clojure.var("ln.codax-manager", "get-project-sys-name");
    
-    dbm.getDialogMainFrame().showPlateSetTable((String)getProjectSysName.invoke());    
-  }
+ //    dbm.getDialogMainFrame().showPlateSetTable((String)getProjectSysName.invoke());    
+ //  }
 
 }

@@ -22,16 +22,16 @@ import clojure.lang.IFn;
 
 public class FilterPanel extends JPanel {
 
-  private static final long serialVersionUID = 1L;
-  private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+    private static final long serialVersionUID = 1L;
+    private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
-  private JTable table;
-  private JScrollPane scrollPane;
-  private DialogMainFrame dmf;
+    private JTable table;
+    private JScrollPane scrollPane;
+    private DialogMainFrame dmf;
     private DatabaseManager dbm;
-  private JPanel textPanel;
-  private JButton clearButton;
-  private JButton refreshButton;
+    private JPanel textPanel;
+    private JButton clearButton;
+    private JButton refreshButton;
     private int entity_type;
     private int id;
     private JTextField textField;
@@ -48,10 +48,7 @@ public class FilterPanel extends JPanel {
     dmf = dbm.getDialogMainFrame();
     //session = parent.getSession();
     require.invoke(Clojure.read("ln.codax-manager"));
-    IFn getProjectSysName = Clojure.var("ln.codax-manager", "get-project-sys-name");
-    IFn getPlateSetSysName = Clojure.var("ln.codax-manager", "get-plate-set-sys-name");
-    IFn getPlateSysName = Clojure.var("ln.codax-manager", "get-plate-sys-name");
-
+   
     table = _table;
     id = _id;
     entity_type = _entity_type;
@@ -78,10 +75,17 @@ public class FilterPanel extends JPanel {
     refreshButton.addActionListener(
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
+	      System.out.println("entity: " + entity_type);
+	      IFn getProjectSysName = Clojure.var("ln.codax-manager", "get-project-sys-name");
+	      IFn getPlateSetSysName = Clojure.var("ln.codax-manager", "get-plate-set-sys-name");
+	      IFn getPlateSysName = Clojure.var("ln.codax-manager", "get-plate-sys-name");
 	      switch(entity_type){
 	      case DialogMainFrame.PROJECT: dbm.getDialogMainFrame().showProjectTable();
-	      case DialogMainFrame.PLATESET: dbm.getDialogMainFrame().showPlateSetTable((String)getPlateSetSysName.invoke());
-	      case DialogMainFrame.PLATE: dbm.getDialogMainFrame().showPlateTable((String)getPlateSysName.invoke());
+		  break;
+	      case DialogMainFrame.PLATESET: dbm.getDialogMainFrame().showPlateSetTable((String)getProjectSysName.invoke());
+		  break;
+	      case DialogMainFrame.PLATE: dbm.getDialogMainFrame().showPlateTable((String)getPlateSetSysName.invoke());
+		  break;
 		  //      case DialogMainFrame.WELL: dbm.getDialogMainFrame().showWellTable();
 	      }
 	      

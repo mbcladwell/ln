@@ -48,13 +48,6 @@
                   cider.nrepl.middleware.trace/wrap-trace
                   cider.nrepl.middleware.undef/wrap-undef]}
 
-  :eval-in-leiningen true
-
-  :plugins [ [lein-javadoc "0.3.1-SNAPSHOT"]]
-
-  :javadoc-opts {
-                 :package-names ["ln"]
-                 :java-source-paths ["src/java"]}
  ;; :main ^:skip-aot ln.session
   :main ln.session
   :aot [ ]
