@@ -1,7 +1,7 @@
 (ns ln.db-init
   (:require [clojure.java.jdbc :as jdbc]
-            [honeysql.core :as hsql]
-            [honeysql.helpers :refer :all :as helpers]
+            ;;[honeysql.core :as hsql]
+            ;;[honeysql.helpers :refer :all :as helpers]
             [clojure.data.csv :as csv]
             [ln.codax-manager :as cm]
             [codax.core :as c]

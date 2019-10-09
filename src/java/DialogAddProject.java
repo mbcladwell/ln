@@ -133,7 +133,7 @@ public class DialogAddProject extends JDialog {
             dbm.getDatabaseInserter()
                 .insertProject(
 			       nameField.getText(), descriptionField.getText(), (int)getUserID.invoke());
-            dmf.getProjectPanel().updatePanel();
+            dmf.showProjectTable();
             dispose();
           }
         }));

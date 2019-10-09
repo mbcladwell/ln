@@ -271,9 +271,6 @@ public class DialogAddPlateSet extends JDialog   {
 
         @Override
         public Void doInBackground() {
-	    System.out.println("in doinbackground");
-	    System.out.println("dbm: " + dbm);
-	    
 	    dbm.getDatabaseInserter()
 		.insertPlateSet(nameField.getText(),
 				descriptionField.getText(),
@@ -284,8 +281,7 @@ public class DialogAddPlateSet extends JDialog   {
 				((ComboItem)layoutList.getSelectedItem()).getKey(),
 				true);
 	
-	    System.out.println("after insertPlateSet in swingworker");
-            
+	   
             return null;
         }
  
@@ -300,7 +296,7 @@ public class DialogAddPlateSet extends JDialog   {
 	    IFn getProjectSysName = Clojure.var("ln.codax-manager", "get-project-sys-name");
 	    dbm.getDialogMainFrame().showPlateSetTable((String)getProjectSysName.invoke());
             dispose();
-	    System.out.println("complete done in swingworker in DialogAddPlateSet");
+	    //  System.out.println("complete done in swingworker in DialogAddPlateSet");
      }
     }
        

@@ -16,7 +16,7 @@
                  [seancorfield/next.jdbc "1.0.5"]
      ;;            [org.xerial/sqlite-jdbc "3.7.2"]
                  [org.clojure/tools.namespace "0.2.11"]
-                 [honeysql "0.9.1"]
+    ;;             [honeysql "0.9.1"]
                  [org.clojure/data.csv "0.1.4"]
                  [incanter/incanter-core "1.9.1"]
     ;;             [javax.help/javahelp "2.0.05"]
@@ -49,6 +49,12 @@
                   cider.nrepl.middleware.undef/wrap-undef]}
 
  ;; :main ^:skip-aot ln.session
+  :manifest {"Permissions" "all-permissions"
+             "Codebase" "http://www.labsolns.com/software/webstart"
+             "Application-Name" "LIMSNucleus"
+             "Application-title" "LIMSNucleus"
+             }
+  
   :main ln.session
   :aot [ ]
   :target-path "target/%s"

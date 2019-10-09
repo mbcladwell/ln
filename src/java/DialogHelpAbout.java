@@ -54,7 +54,7 @@ public class DialogHelpAbout extends JDialog {
     c.insets = new Insets(5, 5, 2, 2);
     pane.add(label, c);
 
-    label = new JLabel("LIMS*Nucleus v0.1", SwingConstants.CENTER);
+    label = new JLabel("LIMS*Nucleus v0.1.10.19", SwingConstants.CENTER);
     // c.fill = GridBagConstraints.HORIZONTAL;
     c.gridx = 0;
     c.gridy = 1;

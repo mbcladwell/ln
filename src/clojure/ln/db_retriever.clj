@@ -53,7 +53,7 @@
       (c/assoc-at  [:assets :session :user-group] ug-name)))))
     
 
-(defn get-layout-for-plate-set-sys-name [s]
+(defn get-layout-id-for-plate-set-sys-name [s]
   
 (let [
         layout-id-pre (j/execute-one!  cm/conn  ["SELECT plate_layout_name_id FROM plate_set WHERE plate_set_sys_name = (?)" s] )
@@ -62,9 +62,18 @@
   layout-id
   ))
 
-
-;;(get-layout-for-plate-set-sys-name "PS-5")
+;;(get-layout-id-for-plate-set-sys-name "PS-6")
 ;;(register-session 2)
 ;;(:lnsession/id (j/execute-one! dbm/pg-db-admin ["INSERT INTO lnsession(lnuser_id) values(?)" 2]{:return-keys true} ))
 
+(defn get-layout-name-descr-for-layout-id [i]
+  
+(let [
+        results-pre (j/execute-one!  cm/conn  ["SELECT plate_layout_name.name, plate_layout_name.descr FROM  plate_layout_name WHERE plate_layout_name.id = (?)" i] )
+        results (str (first(vals  results-pre)) ";" (first(rest(vals results-pre))))
+      ]
+  results
+  ))
+
  
+;;(get-layout-name-descr-for-layout-id 1)

@@ -1,11 +1,7 @@
 (ns ln.db-inserter
   (:require [next.jdbc :as j]
             [next.jdbc.prepare :as p]
-    
-            [honeysql.core :as hsql]
-            [honeysql.helpers :refer :all :as helpers]
             [clojure.string :only [split split-lines trim]]
- 
             [ln.codax-manager :as cm]
             [ln.db-manager :as dbm])
 

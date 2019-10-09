@@ -269,7 +269,7 @@ public int insertPlateSet(
     //    format_id = dbr.getPlateFormatID(plate_format);
     // determine type id
     int plateTypeID = dbm.getDatabaseRetriever().getIDForPlateType(plate_type);   
-    IFn getLayoutForPlateSetSysName = Clojure.var("ln.db-retriever", "get-layout-for-plate-set-sys-name");
+    IFn getLayoutForPlateSetSysName = Clojure.var("ln.db-retriever", "get-layout-id-for-plate-set-sys-name");
     int plate_layout_name_id = (int)getLayoutForPlateSetSysName.invoke(a_plate_set_sys_name);
     // determine plate.ids for plate_sys_names
     // use   public Integer[] getIDsForSysNames(String[] _sys_names, String _table, String _column)
@@ -363,12 +363,12 @@ public int insertPlateSet(
     // PreparedStatement preparedStatement;
 
     int format_id = Integer.parseInt(format);
-        
+      
 
     int plateTypeID = dbm.getDatabaseRetriever().getIDForPlateType(type);
     int num_plates = plates.size();
 
-    String sqlstring = "SELECT new_plate_set_from_group (?, ?, ?, ?, ?, ?, ?);";
+    String sqlstring = "SELECT new_plate_set_from_group (?, ?, ?, ?, ?, ?, ?, ?);";
 
     try {
       PreparedStatement preparedStatement =
@@ -380,6 +380,7 @@ public int insertPlateSet(
       preparedStatement.setInt(5, plateTypeID);
       preparedStatement.setInt(6, projectID);
       preparedStatement.setInt(7, plate_layout_name_id);
+      preparedStatement.setInt(8, session_id);
       
 
       preparedStatement.execute(); // executeUpdate expects no returns!!!
@@ -482,8 +483,8 @@ if(num_of_plate_ids*format_id!=table.size()-1){
         createAssayRun(assayName, descr, assay_type_id, plate_set_id[0], plate_layout_name_id);
 
 
-    System.out.println("assay_run_id: " + assay_run_id);
-    System.out.println("table: " + table);
+    //System.out.println("assay_run_id: " + assay_run_id);
+    //System.out.println("table: " + table);
     
     // read in data file an populate assay_result with data;
     // only continue if successful
@@ -506,7 +507,7 @@ if(num_of_plate_ids*format_id!=table.size()-1){
     }
 
     String insertSql = sql_statement.substring(0, sql_statement.length() - 2) + ";";
-    System.out.println(insertSql);
+    //System.out.println(insertSql);
     PreparedStatement insertPs;
     try {
       insertPs = conn.prepareStatement(insertSql);
@@ -683,7 +684,7 @@ if(num_of_plate_ids*format_id!=table.size()-1){
        
 	int dest_plate_num = (int)Math.ceil(source_plate_num*n_reps_source/4.0);
 	IFn getProjectID = Clojure.var("ln.codax-manager", "get-project-id");
-   	int project_id = ((Integer)getProjectID.invoke()).intValue();
+   	int project_id = ((Long)getProjectID.invoke()).intValue();
 	int dest_plate_set_id=0;
 
       // method signature:  reformat_plate_set(source_plate_set_id INTEGER, source_num_plates INTEGER, n_reps_source INTEGER, dest_descr VARCHAR(30), dest_plate_set_name VARCHAR(30), dest_num_plates INTEGER, dest_plate_format_id INTEGER, dest_plate_type_id INTEGER, project_id INTEGER, dest_plate_layout_name_id INTEGER )

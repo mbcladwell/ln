@@ -87,7 +87,7 @@ public class DatabaseManager {
     IFn setProjectSysName = Clojure.var("ln.codax-manager", "set-project-sys-name");
   
     setProjectSysName.invoke(project_sys_name);
-    LOGGER.info("Project sys name: " + project_sys_name);
+    // LOGGER.info("Project sys name: " + project_sys_name);
     try {
       String query =
           new String("SELECT id FROM project WHERE project_sys_name = '" + project_sys_name + "';");
@@ -97,7 +97,7 @@ public class DatabaseManager {
       results = rs.getInt("id");
       rs.close();
       st.close();
-      LOGGER.info("projectID: " + results);
+      // LOGGER.info("projectID: " + results);
       IFn setProjectID = Clojure.var("ln.codax-manager", "set-project-id");
       setProjectID.invoke(results);
 
@@ -237,7 +237,7 @@ public class DatabaseManager {
       // LOGGER.info("pltformat: " + results[k][2]);
       plateLayoutSet.add(results[k][5]);
     }
-    LOGGER.info("Size of plateFormatSet: " + plateFormatSet.size());
+    //LOGGER.info("Size of plateFormatSet: " + plateFormatSet.size());
     if (plateFormatSet.size() == 1 && plateLayoutSet.size() == 1 ) {
       HashMap<String, String> numberOfPlatesInPlateSets =
           dbRetriever.getNumberOfPlatesInPlateSets(plateSet);
@@ -328,7 +328,7 @@ public class DatabaseManager {
 	    String plate_type = (String)tableModel.getValueAt(selection[0], 4);
 	    int num_samples = this.getDatabaseRetriever().getNumberOfSamplesForPlateSetID(plate_set_id[0]);
 	    int plate_layout_name_id = this.getDatabaseRetriever().getPlateLayoutNameIDForPlateSetID((int)plate_set_id[0]);
-	    LOGGER.info("plate_set_id[0]: " + plate_set_id[0]);
+	    //LOGGER.info("plate_set_id[0]: " + plate_set_id[0]);
 	    switch(format){
 	    case "96":
 			DialogReformatPlateSet drps = new DialogReformatPlateSet( this, (int)plate_set_id[0], plate_set_sys_name[0], descr, num_plates, num_samples, plate_type, format, plate_layout_name_id);

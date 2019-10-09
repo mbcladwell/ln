@@ -14,6 +14,10 @@ import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.Date;
 import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
+
+
 import java.util.logging.Logger;
 
 import javax.swing.BorderFactory;
@@ -62,9 +66,9 @@ public class DialogGroupPlates extends JDialog {
       dbm = _dbm;
       this.dmf = dbm.getDialogMainFrame();
       //this.session = dmf.getSession();
-        require.invoke(Clojure.read("ln.codax-manager"));
-    IFn getUser = Clojure.var("ln.codax-manager", "get-user");
- 
+      require.invoke(Clojure.read("ln.codax-manager"));
+      IFn getUser = Clojure.var("ln.codax-manager", "get-user");
+      
       owner = (String)getUser.invoke();
     Set<String> plates = _plates;
     String num_plates = Integer.valueOf(plates.size()).toString();
@@ -78,6 +82,15 @@ public class DialogGroupPlates extends JDialog {
       plate_sys_names = plate_sys_names.substring(0, 70) + "...";
     }
 
+    //   List<String> list = new ArrayList<String>(plates);
+    // String a_ps = list.get(0); // a plate_set from which I will determine the layout
+    // LOGGER.info("a_ps: " + a_ps);
+    IFn getPlateSetSysName = Clojure.var("ln.codax-manager", "get-plate-set-sys-name");
+    
+    IFn getLayoutIDforPlateSetSysName = Clojure.var("ln.db-retriever", "get-layout-id-for-plate-set-sys-name");
+    int layout_id = (int)getLayoutIDforPlateSetSysName.invoke((String)getPlateSetSysName.invoke());
+    
+    
     // Create and set up the window.
     // JFrame frame = new JFrame("Add Project");
     // this.em = em;
@@ -204,7 +217,7 @@ public class DialogGroupPlates extends JDialog {
     c.anchor = GridBagConstraints.LINE_START;
     pane.add(typeList, c);
 
-        label = new JLabel("New Plate Set Layout:", SwingConstants.RIGHT);
+    label = new JLabel("New Plate Set Layout:", SwingConstants.RIGHT);
     c.gridx = 0;
     c.gridy = 7;
     c.gridheight = 1;
@@ -212,16 +225,19 @@ public class DialogGroupPlates extends JDialog {
     c.anchor = GridBagConstraints.LINE_END;
     pane.add(label, c);
 
-    ComboItem[] plateLayouts = dbm.getDatabaseRetriever().getSourcePlateLayoutNames(Integer.parseInt(format),((ComboItem)typeList.getSelectedItem()).getKey());
+    //ComboItem[] plateLayouts = dbm.getDatabaseRetriever().getSourcePlateLayoutNames(Integer.parseInt(format),((ComboItem)typeList.getSelectedItem()).getKey());
+  
+    IFn getLayoutNameDescrForLayoutID = Clojure.var("ln.db-retriever", "get-layout-name-descr-for-layout-id");
 
-    layoutList = new JComboBox<ComboItem>(plateLayouts);
-    layoutList.setSelectedIndex(0);
+    //layoutList = new JComboBox<ComboItem>(plateLayouts);
+    //layoutList.setSelectedIndex(0);
+    label = new JLabel((String)getLayoutNameDescrForLayoutID.invoke(layout_id));
     c.gridx = 1;
     c.gridy = 7;
     c.gridheight = 1;
     c.gridwidth = 1;
     c.anchor = GridBagConstraints.LINE_START;
-    pane.add(layoutList, c);
+    pane.add(label, c);
 
     
     okButton = new JButton("OK");
@@ -247,8 +263,8 @@ public class DialogGroupPlates extends JDialog {
                     plates,
                     format,
                     typeList.getSelectedItem().toString(),
-                    (int)getProjectID.invoke(),
-		    ((ComboItem)layoutList.getSelectedItem()).getKey());
+                    ((Long)getProjectID.invoke()).intValue(),
+		    layout_id);
 
             dispose();
           }
