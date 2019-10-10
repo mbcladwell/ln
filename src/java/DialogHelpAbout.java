@@ -21,20 +21,31 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
+import clojure.java.api.Clojure;
+import clojure.lang.IFn;
 
 public class DialogHelpAbout extends JDialog {
   static JButton button;
   static JLabel licenceKey;
   static JLabel picLabel;
   static JLabel label;
-
+    private String dbname;
+    private String dbsource;
   static JButton okButton;
   final Instant instant = Instant.now();
   final DateFormat df = new SimpleDateFormat("d MMMMM yyyy");
   private static final long serialVersionUID = 1L;
   private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+    private IFn require = Clojure.var("clojure.core", "require");
 
   public DialogHelpAbout() {
+
+      require.invoke(Clojure.read("ln.codax-manager"));
+    IFn getDBname = Clojure.var("ln.codax-manager", "get-dbname");
+    dbname = (String)getDBname.invoke();
+    IFn getDBsource = Clojure.var("ln.codax-manager", "get-source");
+    dbsource = (String)getDBsource.invoke();
+    
 
     // Create and set up the window.
     // JFrame frame = new JFrame("Add Project");
@@ -61,11 +72,25 @@ public class DialogHelpAbout extends JDialog {
     c.insets = new Insets(5, 5, 2, 2);
     pane.add(label, c);
 
+    label = new JLabel(new String("Database: " + dbname + " ( " + dbsource + " )"), SwingConstants.CENTER);
+    // c.fill = GridBagConstraints.HORIZONTAL;
+    c.gridx = 0;
+    c.gridy = 2;
+    c.insets = new Insets(5, 5, 2, 2);
+    pane.add(label, c);
+
     ImageIcon img = new ImageIcon(this.getClass().getResource("/images/las.png"));
     picLabel = new JLabel(img, SwingConstants.CENTER);
     c.gridx = 0;
-    c.gridy = 2;
+    c.gridy = 3;
     pane.add(picLabel, c);
+
+    label = new JLabel("email: info@labsolns.com", SwingConstants.CENTER);
+    // c.fill = GridBagConstraints.HORIZONTAL;
+    c.gridx = 0;
+    c.gridy = 4;
+    c.insets = new Insets(5, 5, 2, 2);
+    pane.add(label, c);
 
     okButton = new JButton("OK");
     okButton.setMnemonic(KeyEvent.VK_O);
@@ -73,7 +98,7 @@ public class DialogHelpAbout extends JDialog {
     okButton.setEnabled(true);
     c.fill = GridBagConstraints.HORIZONTAL;
     c.gridx = 2;
-    c.gridy = 3;
+    c.gridy = 4;
     c.gridwidth = 1;
     c.gridheight = 1;
     okButton.addActionListener(

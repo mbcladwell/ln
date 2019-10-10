@@ -565,7 +565,7 @@ if(num_of_plate_ids*format_id!=table.size()-1){
     }
 
     //Now I need to select hits if requested by user.  I have the assay_run_id, and the algorithm for hit selection.
-    // stored procedure: new_hit_list(_name VARCHAR, _descr VARCHAR, _num_hits INTEGER, _assay_run_id INTEGER, hit_list integer[])
+    // stored procedure: new_hit_list(_name VARCHAR, _descr VARCHAR, _num_hits INTEGER, _assay_run_id INTEGER,  _lnsession_id INTEGER, hit_list integer[])
     // DialogNewHitList(DialogMainFrame _session.getDialogMainFrame(), int  _assay_run_id, double[][] _selected_response, int _num_hits)
     // table = session.getDatabaseRetriever().getDataForScatterPlot(assay_run_id);
     // 	norm_response = new ResponseWrangler(table, ResponseWrangler.NORM);
@@ -809,14 +809,15 @@ if(num_of_plate_ids*format_id!=table.size()-1){
       
       
     try {
-      String insertSql = "SELECT new_hit_list ( ?, ?, ?, ?, ?);";
+      String insertSql = "SELECT new_hit_list ( ?, ?, ?, ?, ?, ?);";
       PreparedStatement insertPs =
           conn.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS);
       insertPs.setString(1, _name);
       insertPs.setString(2, _description);
       insertPs.setInt(3, _num_hits);
       insertPs.setInt(4, _assay_run_id);
-      insertPs.setArray(5, conn.createArrayOf("INTEGER", hit_list));
+      insertPs.setInt(5, session_id);
+      insertPs.setArray(6, conn.createArrayOf("INTEGER", hit_list));
    
       LOGGER.info(insertPs.toString());
       insertPs.executeUpdate();
@@ -938,7 +939,7 @@ if(num_of_plate_ids*format_id!=table.size()-1){
     try {
 	 IFn getProjectID = Clojure.var("ln.codax-manager", "get-project-id");
 	 //fails as long   
-	 int project_id = ((int)getProjectID.invoke());
+	 int project_id = ((Long)getProjectID.invoke()).intValue();
       int plate_format_id = _plate_format_id;
       int plate_type_id = _plate_type_id;
       int plate_layout_id = _plate_layout_id;
@@ -1097,14 +1098,16 @@ if(num_of_plate_ids*format_id!=table.size()-1){
 	Integer[] hit_list = Arrays.stream( _hit_list ).boxed().toArray( Integer[]::new );
 	//Object[] hit_list = (Integer[])_hit_list;
 	      try {
-      String insertSql = "SELECT new_hit_list ( ?, ?, ?, ?, ?);";
+      String insertSql = "SELECT new_hit_list ( ?, ?, ?, ?, ?, ?);";
       PreparedStatement insertPs =
           conn.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS);
       insertPs.setString(1, _name);
       insertPs.setString(2, _description);
       insertPs.setInt(3, _num_hits);
       insertPs.setInt(4, _assay_run_id);
-      insertPs.setArray(5, conn.createArrayOf("INTEGER", hit_list));
+      insertPs.setInt(5, session_id);
+      
+      insertPs.setArray(6, conn.createArrayOf("INTEGER", hit_list));
    
       LOGGER.info(insertPs.toString());
       insertPs.executeUpdate();
