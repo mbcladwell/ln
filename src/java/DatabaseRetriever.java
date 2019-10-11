@@ -1413,7 +1413,7 @@ int assay_run_id = _assay_run_id;
       ResultSet rs = pstmt.executeQuery();
 
       table = new CustomTable(dmf, dbm.buildTableModel(rs));
-       LOGGER.info("Got layout sources table " + table);
+      // LOGGER.info("Got layout sources table " + table);
       rs.close();
       pstmt.close();
     

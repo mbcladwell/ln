@@ -106,7 +106,7 @@ public class DatabaseInserter {
     
   public void insertPreparedStatement(PreparedStatement _preparedStatement) {
     PreparedStatement preparedStatement = _preparedStatement;
-    LOGGER.info(preparedStatement.toString());
+    //LOGGER.info(preparedStatement.toString());
 
     try {
       preparedStatement.executeUpdate();

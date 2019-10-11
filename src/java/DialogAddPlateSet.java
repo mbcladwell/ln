@@ -220,7 +220,7 @@ public class DialogAddPlateSet extends JDialog   {
 	      	     IFn getProjectID = Clojure.var("ln.codax-manager", "get-project-id");
 
 	      //task.addPropertyChangeListener(this);
-	    progress_bar.main( new String[] {"Creating Plate Sets"} );
+	    progress_bar.main( new String[] {"Creating Plate Set"} );
 	      task.execute();
 	      // dbm
 	      // 	    .getDatabaseInserter().insertPlateSet(

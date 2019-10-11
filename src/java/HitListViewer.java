@@ -197,7 +197,7 @@ public class HitListViewer extends JDialog implements java.awt.event.ActionListe
     if (e.getSource() == export_hits_button) {
 	Object[][] results = dbm.getDialogMainFrame().getUtilities().getSelectedRowsAndHeaderAsStringArray(hits_table);
 	if(results.length>1){
-	   LOGGER.info("hit list table: " + results);
+	    // LOGGER.info("hit list table: " + results);
 	   POIUtilities poi = new POIUtilities(dbm);
             poi.writeJTableToSpreadsheet("Hits", results);
             try {

@@ -423,14 +423,14 @@ assayid	PlateOrder	Well	Response	BkSub	Norm	NormPos	pEnhanced
    
    [ :well_numbers [:plate_format :well_name :row :row_num :col :total_col_count :by_row :by_col :quad :parent_well ]
    ;; ln.data-sets/well-numbers
-     (let   [  table (dbi/table-to-map "resources/data/well_numbers_for_import.txt")
+     (let   [  table (dbi/table-to-map (io/resource "data/well_numbers_for_import.txt"))
                content (into [] (map #(process-well-numbers-data %) table))]
        content)]
   
 
       [ :plate_layout [ :plate_layout_name_id :well_by_col :well_type_id :replicates :target]
       ;; ln.plate-layout-data/plate-layout-data
-        (let   [  table (dbi/table-to-map "resources/data/plate_layouts_for_import.txt")
+        (let   [  table (dbi/table-to-map (io/resource "data/plate_layouts_for_import.txt"))
                content (into [] (map #(process-layout-data %) table))]
          content)
     ]
@@ -472,7 +472,7 @@ assayid	PlateOrder	Well	Response	BkSub	Norm	NormPos	pEnhanced
   ; ;INSERT INTO assay_result (assay_run_id, plate_order, well, response) VALUES
 ;;assay_run_id | plate_order | well |  response  |  bkgrnd_sub  |     norm     |   norm_pos   | p_enhance 
   (jdbc/insert-multi! cm/conn :assay_result [:assay_run_id :plate_order :well :response :bkgrnd_sub :norm :norm_pos :p_enhance]
-                      (let   [  table (dbi/table-to-map "resources/data/processed_data_for_import.txt")
+                      (let   [  table (dbi/table-to-map (io/resource "data/processed_data_for_import.txt"))
                               content (into [] (map #(process-processed-assay-data %) table))]
                         content) )
 

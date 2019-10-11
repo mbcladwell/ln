@@ -214,7 +214,7 @@ case 1537:
 	int col = 0;
 	int nRow = input.length-1;
 	    
-    LOGGER.info("nRow: " + nRow);
+	// LOGGER.info("nRow: " + nRow);
     //96 well plate  tableData[row][col]
     switch(nRow){
     case 96:
@@ -233,7 +233,7 @@ case 1536:
 	for(int i=0; i < input[0].length; i++){
 	    if(input[0][i].equals(column_name)){
 		column_of_interest = i;
-		LOGGER.info("column of interest: " + i);
+		//LOGGER.info("column of interest: " + i);
 		break;
 	    }
 	}
@@ -266,7 +266,7 @@ case 1536:
     
     String[][] results = new String[rowCount + 1][colCount];
     for (int i = 0; i < colCount; i++) {
-      	LOGGER.info("ij: " + results[0][i]);
+	//	LOGGER.info("ij: " + results[0][i]);
       results[0][i] = table.getColumnName(i);
     }
 
