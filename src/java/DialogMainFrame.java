@@ -23,7 +23,8 @@ public class DialogMainFrame extends JFrame {
 
   private ProjectPanel project_card;
   private PlateSetPanel plate_set_card;
-  private PlatePanel plate_card;
+    private PlatePanel plate_card; //plates in PS
+    private PlatePanel all_plates_card; //plates in Project
   private WellPanel well_card;
 
   private static Utilities utils;
@@ -39,6 +40,7 @@ public class DialogMainFrame extends JFrame {
     public static final int PLATESET = 2; //Card with plate sets
     public static final int PLATE = 3; //Card with plates
     public static final int WELL = 4; //Card with wells
+    public static final int ALLPLATES = 5; //Card with plates but all plates for project
 
  
   public DialogMainFrame(DatabaseManager _dbm ) throws SQLException {
@@ -106,6 +108,16 @@ public class DialogMainFrame extends JFrame {
     
     cards.add(plate_card, "PlatePanel");
     card_layout.show(cards, "PlatePanel");
+  }
+
+      public void showAllPlatesTable(String _project_sys_name) {
+      
+      int project_id = Integer.parseInt(_project_sys_name.substring(4));
+      
+      all_plates_card = new PlatePanel(dbm, dbm.getDatabaseRetriever().getDMFTableData(project_id, DialogMainFrame.ALLPLATES), _project_sys_name);
+    
+    cards.add(all_plates_card, "AllPlatesPanel");
+    card_layout.show(cards, "AllPlatesPanel");
   }
 
 

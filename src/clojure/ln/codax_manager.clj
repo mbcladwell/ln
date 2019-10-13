@@ -201,7 +201,7 @@
 ;;(set-user-id 100)
 
 (defn get-user-id []
-  (c/get-at! props [:assets :session :user-id ]))
+(long  (c/get-at! props [:assets :session :user-id ])))
 
 
 (defn set-user-group [s]

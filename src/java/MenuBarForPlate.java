@@ -47,24 +47,36 @@ public class MenuBarForPlate extends JMenuBar {
         .setAccessibleDescription("The only menu in this program that has menu items");
     this.add(menu);
 
-    // a group of JMenuItems
-    // JMenuItem menuItem = new JMenuItem("Add plate set", KeyEvent.VK_A);
-    // menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_1, ActionEvent.ALT_MASK));
-    // menuItem.getAccessibleContext().setAccessibleDescription("Launch the Add Project dialog.");
-    // menuItem.addActionListener(
-    //     new ActionListener() {
-    //       public void actionPerformed(ActionEvent e) {
-    //         new DialogAddPlateSet(dbm);
-    //       }
-    //     });
-    // menu.add(menuItem);
+    //a group of JMenuItems
+    JMenuItem menuItem = new JMenuItem("All plates", KeyEvent.VK_A);
+    menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_1, ActionEvent.ALT_MASK));
+    menuItem.getAccessibleContext().setAccessibleDescription("Show all plates for this project.");
+    menuItem.addActionListener(
+        new ActionListener() {
+          public void actionPerformed(ActionEvent e) {
+	      try {
+	      IFn getProjectSysName = Clojure.var("ln.codax-manager", "get-project-sys-name");
+	      String project_sys_name = (String)getProjectSysName.invoke();
+	      int project_id = Integer.valueOf(project_sys_name.substring(4));
+		
+  
+	      dbm.getDatabaseRetriever().getDMFTableData(project_id, DialogMainFrame.ALLPLATES); 
+            
+          
+            } catch (IndexOutOfBoundsException s) {
+		JOptionPane.showMessageDialog(dbm.getDialogMainFrame(),
+					      "Select a row!","Error",JOptionPane.ERROR_MESSAGE);
+            }
+          }
+        });
+    menu.add(menuItem);
 
     menu = new JMenu("Utilities");
     menu.setMnemonic(KeyEvent.VK_U);
     menu.getAccessibleContext().setAccessibleDescription("Plate utilities");
     this.add(menu);
     
-    JMenuItem menuItem = new JMenuItem("Group");
+    menuItem = new JMenuItem("Group");
     menuItem.setMnemonic(KeyEvent.VK_G);
     menuItem.addActionListener(
         new ActionListener() {
@@ -119,7 +131,7 @@ public class MenuBarForPlate extends JMenuBar {
 		//int i = plate_table.getSelectedRow();
 		//String plate_sys_name = (String) plate_table.getValueAt(i, 0);
 	      String results[][] = plate_table.getSelectedRowsAndHeaderAsStringArray();
-	      String plate_sys_name = results[1][0];
+	      String plate_sys_name = results[1][1];
 	  
 	      //dbm.setPlateSysName(plate_sys_name);
 	      IFn setPlateSysName = Clojure.var("ln.codax-manager", "set-plate-sys-name");

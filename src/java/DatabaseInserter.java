@@ -555,7 +555,7 @@ if(num_of_plate_ids*format_id!=table.size()-1){
     String sql1 =
         "SELECT process_assay_run_data( " + assay_run_id + ");";
 
-    LOGGER.info("insertSql: " + sql1);
+    //LOGGER.info("insertSql: " + sql1);
     PreparedStatement insertPs2;
     try {
       insertPs2 = conn.prepareStatement(sql1);
@@ -819,7 +819,7 @@ if(num_of_plate_ids*format_id!=table.size()-1){
       insertPs.setInt(5, session_id);
       insertPs.setArray(6, conn.createArrayOf("INTEGER", hit_list));
    
-      LOGGER.info(insertPs.toString());
+      //LOGGER.info(insertPs.toString());
       insertPs.executeUpdate();
       //ResultSet resultSet = insertPs.getResultSet();
       //resultSet.next();
@@ -888,7 +888,7 @@ if(num_of_plate_ids*format_id!=table.size()-1){
     }
 
     String insertSql = "SELECT process_access_ids(?,?);";
-    LOGGER.info("sqlstatement: " + insertSql);
+    //LOGGER.info("sqlstatement: " + insertSql);
     PreparedStatement insertPs;
     try {
       insertPs = conn.prepareStatement(insertSql);

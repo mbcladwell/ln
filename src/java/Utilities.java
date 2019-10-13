@@ -262,11 +262,12 @@ case 1536:
      DefaultTableModel model = (DefaultTableModel) table.getModel();
     int colCount = model.getColumnCount();
     int rowCount = table.getSelectedRowCount();
+    	LOGGER.info("rowCount: " + rowCount);
     int[] selected_rows = table.getSelectedRows();
     
     String[][] results = new String[rowCount + 1][colCount];
     for (int i = 0; i < colCount; i++) {
-	//	LOGGER.info("ij: " + results[0][i]);
+		LOGGER.info("ij: " + results[0][i]);
       results[0][i] = table.getColumnName(i);
     }
 

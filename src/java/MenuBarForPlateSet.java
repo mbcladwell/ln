@@ -69,7 +69,7 @@ public class MenuBarForPlateSet extends JMenuBar {
 		  String description = plate_set_table.getValueAt(rowIndex, 6).toString();
 		  IFn getUserID = Clojure.var("ln.codax-manager", "get-user-id");
    
-		  if ( plate_set_owner_id == (int)getUserID.invoke()) {
+		  if ( plate_set_owner_id == ((Long)getUserID.invoke()).intValue()) {
 		      new DialogEditPlateSet(dbm, plate_set_sys_name, name, description);
 	      } else {
                 JOptionPane.showMessageDialog(
@@ -240,15 +240,17 @@ public class MenuBarForPlateSet extends JMenuBar {
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
 		if(!plate_set_table.getSelectionModel().isSelectionEmpty()){
+
+       		    
 		    Object[][] results = dbm.getDialogMainFrame().getUtilities().getSelectedRowsAndHeaderAsStringArray(plate_set_table);
 		    if(results.length>1){
 			String[] plate_set_ids = new String[results.length];
 			try{
 			    
 			    for(int i=0; i < results.length-1; i++){
-			    plate_set_ids[i] =  plate_set_table.getModel().getValueAt(i, 0).toString().substring(3);
-			    LOGGER.info("psid: " + plate_set_ids[i] );
-			    }
+			  plate_set_ids[i] =  plate_set_table.getModel().getValueAt(i, 0).toString().substring(3);
+			  LOGGER.info("psid: " + plate_set_ids[i] );
+			  }
 
 			    Object[][] plate_set_data = dbm.getDatabaseRetriever().getPlateSetData(plate_set_ids);
 			    POIUtilities poi = new POIUtilities(dbm);
