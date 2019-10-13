@@ -55,13 +55,11 @@ public class MenuBarForPlate extends JMenuBar {
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
 	      try {
-	      IFn getProjectSysName = Clojure.var("ln.codax-manager", "get-project-sys-name");
-	      String project_sys_name = (String)getProjectSysName.invoke();
-	      int project_id = Integer.valueOf(project_sys_name.substring(4));
-		
-  
-	      dbm.getDatabaseRetriever().getDMFTableData(project_id, DialogMainFrame.ALLPLATES); 
-            
+		  IFn getProjectSysName = Clojure.var("ln.codax-manager", "get-project-sys-name");
+		  String project_sys_name = (String)getProjectSysName.invoke();
+	 
+		  dbm.getDialogMainFrame().showAllPlatesTable(project_sys_name);
+		      
           
             } catch (IndexOutOfBoundsException s) {
 		JOptionPane.showMessageDialog(dbm.getDialogMainFrame(),
@@ -139,7 +137,7 @@ public class MenuBarForPlate extends JMenuBar {
 	      
 	      IFn setPlateID = Clojure.var("ln.codax-manager", "set-plate-id");
 	      setPlateID.invoke(Integer.parseInt(plate_sys_name.substring(4)));
-  
+	      
               dbm.getDialogMainFrame().showWellTable(plate_sys_name);
             } catch (ArrayIndexOutOfBoundsException s) {
 			JOptionPane.showMessageDialog(dbm.getDialogMainFrame(),

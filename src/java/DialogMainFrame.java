@@ -24,8 +24,9 @@ public class DialogMainFrame extends JFrame {
   private ProjectPanel project_card;
   private PlateSetPanel plate_set_card;
     private PlatePanel plate_card; //plates in PS
-    private PlatePanel all_plates_card; //plates in Project
+    private AllPlatesPanel all_plates_card; //plates in Project
   private WellPanel well_card;
+  private AllWellsPanel all_wells_card;
 
   private static Utilities utils;
     private DatabaseManager dbm;
@@ -41,6 +42,7 @@ public class DialogMainFrame extends JFrame {
     public static final int PLATE = 3; //Card with plates
     public static final int WELL = 4; //Card with wells
     public static final int ALLPLATES = 5; //Card with plates but all plates for project
+    public static final int ALLWELLS = 6; //Card with plates but all plates for project
 
  
   public DialogMainFrame(DatabaseManager _dbm ) throws SQLException {
@@ -114,7 +116,7 @@ public class DialogMainFrame extends JFrame {
       
       int project_id = Integer.parseInt(_project_sys_name.substring(4));
       
-      all_plates_card = new PlatePanel(dbm, dbm.getDatabaseRetriever().getDMFTableData(project_id, DialogMainFrame.ALLPLATES), _project_sys_name);
+      all_plates_card = new AllPlatesPanel(dbm, dbm.getDatabaseRetriever().getDMFTableData(project_id, DialogMainFrame.ALLPLATES), _project_sys_name);
     
     cards.add(all_plates_card, "AllPlatesPanel");
     card_layout.show(cards, "AllPlatesPanel");
@@ -123,10 +125,18 @@ public class DialogMainFrame extends JFrame {
 
   public void showWellTable(String _plate_sys_name) {
       int plate_id = Integer.parseInt(_plate_sys_name.substring(4));
-      
+      System.out.println(plate_id);
       well_card = new WellPanel(dbm, dbm.getDatabaseRetriever().getDMFTableData(plate_id, DialogMainFrame.WELL));
       cards.add(well_card, "Well");
       card_layout.show(cards, "Well");
+  }
+
+      public void showAllWellsTable(String _project_sys_name) {
+      int project_id = Integer.parseInt(_project_sys_name.substring(4));
+      
+      all_wells_card = new AllWellsPanel(dbm, dbm.getDatabaseRetriever().getDMFTableData(project_id, DialogMainFrame.ALLWELLS), _project_sys_name);
+      cards.add(all_wells_card, "AllWells");
+      card_layout.show(cards, "AllWells");
   }
 
     /**
