@@ -14,7 +14,12 @@ import javax.swing.JButton;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+
 import javax.swing.KeyStroke;
+import clojure.java.api.Clojure;
+import clojure.lang.IFn;
+
 
 public class MenuBarForWell extends JMenuBar {
 
@@ -23,6 +28,8 @@ public class MenuBarForWell extends JMenuBar {
     DatabaseManager dbm;
   CustomTable well_table;
     //    Session session;
+     private IFn require = Clojure.var("clojure.core", "require");
+
   private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
   public MenuBarForWell(DatabaseManager _dbm, CustomTable _table) {
@@ -30,6 +37,8 @@ public class MenuBarForWell extends JMenuBar {
       //session = _s;
       //dmf = session.getDialogMainFrame();
     well_table = _table;
+       require.invoke(Clojure.read("ln.codax-manager"));
+  
     // Create the menu bar.
     // JMenuBar menuBar = new JMenuBar();
     //    this.em = em;
@@ -41,16 +50,27 @@ public class MenuBarForWell extends JMenuBar {
     this.add(menu);
 
     // a group of JMenuItems
-    // JMenuItem menuItem = new JMenuItem("Add plate set", KeyEvent.VK_A);
-    // menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_1, ActionEvent.ALT_MASK));
-    // menuItem.getAccessibleContext().setAccessibleDescription("Launch the Add Project dialog.");
-    // menuItem.addActionListener(
-    //     new ActionListener() {
-    //       public void actionPerformed(ActionEvent e) {
-    //         new DialogAddPlateSet(dbm);
-    //       }
-    //     });
-    // menu.add(menuItem);
+    JMenuItem menuItem = new JMenuItem("All wells", KeyEvent.VK_A);
+    menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_1, ActionEvent.ALT_MASK));
+    menuItem.getAccessibleContext().setAccessibleDescription("Show all wells for this projet.");
+    menuItem.addActionListener(
+        new ActionListener() {
+          public void actionPerformed(ActionEvent e) {
+	      try {
+		  IFn getProjectSysName = Clojure.var("ln.codax-manager", "get-project-sys-name");
+		  String project_sys_name = (String)getProjectSysName.invoke();
+	 
+		  dbm.getDialogMainFrame().showAllWellsTable(project_sys_name);
+		      
+          
+            } catch (IndexOutOfBoundsException s) {
+		JOptionPane.showMessageDialog(dbm.getDialogMainFrame(),
+					      "Select a row!","Error",JOptionPane.ERROR_MESSAGE);
+            }
+
+          }
+        });
+    menu.add(menuItem);
 
     menu = new JMenu("Utilities");
     menu.setMnemonic(KeyEvent.VK_U);
@@ -58,7 +78,7 @@ public class MenuBarForWell extends JMenuBar {
     this.add(menu);
 
 
-    JMenuItem menuItem = new JMenuItem("Export", KeyEvent.VK_E);
+    menuItem = new JMenuItem("Export", KeyEvent.VK_E);
     // menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_1, ActionEvent.ALT_MASK));
     menuItem.getAccessibleContext().setAccessibleDescription("Export as .csv.");
     menuItem.putClientProperty("mf", dmf);
