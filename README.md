@@ -16,6 +16,19 @@ FIXME: explanation
 
 FIXME: listing of options this app accepts.
 
+## Build
+
+syncd/labsolns\$ hexo clean
+syncd/labsolns\$ hexo generate
+syncd/labsolns\$ hexo serve
+
+project/ln\$ lein uberjar
+project/ln\$ ./javadocs/makedocs.sh
+project/ln\$ ./schemaspy/makeschema.sh
+project/ln\$ ./webstart/signjar.sh
+
+syncd/labsolns\$ hexo deploy
+
 ## Examples
 
 ...
