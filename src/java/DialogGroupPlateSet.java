@@ -259,7 +259,7 @@ public class DialogGroupPlateSet extends JDialog {
                     plate_set_num_plates,
                     format,
                     typeList.getSelectedItem().toString(),
-                    (int)getProjectID.invoke(),             
+                    ((Long)getProjectID.invoke()).intValue(),             
 		    //((ComboItem)layoutList.getSelectedItem()).getKey(),
 		    plate_sys_names);
             dispose();

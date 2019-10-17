@@ -97,7 +97,7 @@ public class MenuBarForPlate extends JMenuBar {
           public void actionPerformed(ActionEvent e) {
 
             String[][] results = plate_table.getSelectedRowsAndHeaderAsStringArray();
-            LOGGER.info("results(plate): " + results);
+	    // LOGGER.info("results(plate): " + results);
             POIUtilities poi = new POIUtilities(dbm);
             poi.writeJTableToSpreadsheet("Plates", results);
             try {

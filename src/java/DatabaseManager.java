@@ -270,26 +270,27 @@ public class DatabaseManager {
     CustomTable plate_table = _table;
     TableModel tableModel = plate_table.getModel();
     int[] selection = plate_table.getSelectedRows();
-    String[][] results = new String[selection.length][4];
+    String[][] results = new String[selection.length][5];
     String numberOfPlates = Integer.valueOf(selection.length).toString();
 
     //  LOGGER.info("selection: " + selection.toString());
     Set<String> plateSet = new HashSet<String>();
 
     for (int i = 0; i < selection.length; i++) {
-      for (int j = 0; j < 4; j++) {
+      for (int j = 0; j < 5; j++) {
         results[i][j] = tableModel.getValueAt(selection[i], j).toString();
-        // LOGGER.info("i: " + i + " j: " + j + " results[i][j]: " + results[i][j]);
+	//LOGGER.info("i: " + i + " j: " + j + " results[i][j]: " + results[i][j]);
       }
     }
     for (int k = 0; k < selection.length; k++) {
       plateSet.add(results[k][0]);
-      // LOGGER.info("prjID: " + results[k][0]);
+      //LOGGER.info("psID: " + results[k][0]);
 
     }
     String format = new String();
     try{
-    format = results[1][3];
+    format = results[1][4];
+    //LOGGER.info("format: " + results[1][4]);
     new DialogGroupPlates(this, plateSet, format);
     }catch(ArrayIndexOutOfBoundsException aiob){
 	  JOptionPane.showMessageDialog(
