@@ -328,10 +328,10 @@ public int insertPlateSet(
     Iterator<Map.Entry<String,String>> it2 = plate_set_num_plates.entrySet().iterator();
     while (it2.hasNext()) {
 	HashMap.Entry<String,String> pair = (HashMap.Entry<String,String>) it2.next();
-      int plate_set_id =
+	int plate_set_id =
           dbm.getDatabaseRetriever().getPlateSetIDForPlateSetSysName((String) pair.getKey());
-      all_plate_ids.addAll(dbm.getDatabaseRetriever().getAllPlateIDsForPlateSetID(plate_set_id));
-      it2.remove(); // avoids a ConcurrentModificationException
+	all_plate_ids.addAll(dbm.getDatabaseRetriever().getAllPlateIDsForPlateSetID(plate_set_id));
+	it2.remove(); // avoids a ConcurrentModificationException
     }
 
     LOGGER.info("keys: " + plate_ids);

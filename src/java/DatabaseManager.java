@@ -283,7 +283,7 @@ public class DatabaseManager {
       }
     }
     for (int k = 0; k < selection.length; k++) {
-      plateSet.add(results[k][0]);
+      plateSet.add(results[k][1]);
       //LOGGER.info("psID: " + results[k][0]);
 
     }
