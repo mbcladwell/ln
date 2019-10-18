@@ -265,8 +265,8 @@ public class DatabaseManager {
    * plate, no need to check that there is only one format
    */
   public void groupPlates(CustomTable _table) {
-    // 4 columns in the plate  table
-    // plate_sys_name Order type format
+    // 6 columns in the plate  table
+    // plate_set_sys_name plate_sys_name Order type format barcode
     CustomTable plate_table = _table;
     TableModel tableModel = plate_table.getModel();
     int[] selection = plate_table.getSelectedRows();
@@ -282,9 +282,10 @@ public class DatabaseManager {
 	//LOGGER.info("i: " + i + " j: " + j + " results[i][j]: " + results[i][j]);
       }
     }
+    //build a set of the plate sys names, the second column
     for (int k = 0; k < selection.length; k++) {
       plateSet.add(results[k][1]);
-      //LOGGER.info("psID: " + results[k][0]);
+      //LOGGER.info("pltID: " + results[k][0]);
 
     }
     String format = new String();

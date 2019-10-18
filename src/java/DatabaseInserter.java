@@ -382,7 +382,7 @@ public int insertPlateSet(
       preparedStatement.setInt(7, plate_layout_name_id);
       preparedStatement.setInt(8, session_id);
       
-
+      //SELECT new_plate_set_from_group('desc', 'name1', 4, 96, 1, 1, 1, 1);
       preparedStatement.execute(); // executeUpdate expects no returns!!!
 
       ResultSet resultSet = preparedStatement.getResultSet();
@@ -400,7 +400,7 @@ public int insertPlateSet(
       plate_ids.add(dbm.getDatabaseRetriever().getIDForSysName(temp, "plate"));
     }
 
-    LOGGER.info("keys: " + plate_ids);
+   System.out.println("finished dbi.groupPlatesIntoPlateSet;  keys: " + plate_ids);
 
     this.associatePlateIDsWithPlateSetID(plate_ids, new_plate_set_id);
      IFn getProjectSysName = Clojure.var("ln.codax-manager", "get-project-sys-name");
@@ -417,13 +417,14 @@ public int insertPlateSet(
             .toArray(Integer[]::new);
 
     String sqlString = "SELECT assoc_plate_ids_with_plate_set_id(?,?)";
-    // LOGGER.info("insertSql: " + insertSql);
+    //SELECT assoc_plate_ids_with_plate_set_id(ARRAY[11,12,13],13);
     try {
       PreparedStatement preparedStatement = conn.prepareStatement(sqlString);
       preparedStatement.setArray(1, conn.createArrayOf("INTEGER", plate_ids));
       preparedStatement.setInt(2, plate_set_id);
       preparedStatement.execute(); // executeUpdate expects no returns!!!
-
+    System.out.println("In dbi.assocPlateIdsWithPlateSetID;  insertSql: " + preparedStatement);
+ 
     } catch (SQLException sqle) {
       LOGGER.warning("Failed to properly prepare  prepared statement: " + sqle);
     }

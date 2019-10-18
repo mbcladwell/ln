@@ -73,7 +73,7 @@ public class DialogGroupPlates extends JDialog {
     Set<String> plates = _plates;
     String num_plates = Integer.valueOf(plates.size()).toString();
     String format = _format;
-    String plate_sys_names = new String();
+    String plate_sys_names = new String(); //for display on the dialog box; may be truncated if too many plates
     for (String temp : plates) {
       plate_sys_names = plate_sys_names + temp + ";";
     }
@@ -85,6 +85,7 @@ public class DialogGroupPlates extends JDialog {
     //   List<String> list = new ArrayList<String>(plates);
     // String a_ps = list.get(0); // a plate_set from which I will determine the layout
     // LOGGER.info("a_ps: " + a_ps);
+    //figure out the layout from the parent plate_set
     IFn getPlateSetSysName = Clojure.var("ln.codax-manager", "get-plate-set-sys-name");
     
     IFn getLayoutIDforPlateSetSysName = Clojure.var("ln.db-retriever", "get-layout-id-for-plate-set-sys-name");
@@ -253,20 +254,18 @@ public class DialogGroupPlates extends JDialog {
     okButton.addActionListener(
         (new ActionListener() {
           public void actionPerformed(ActionEvent e) {
-   IFn getProjectID = Clojure.var("ln.codax-manager", "get-project-id");
- 
-            dbm
-                .getDatabaseInserter()
-                .groupPlatesIntoPlateSet(
-                    descriptionField.getText(),
-                    nameField.getText(),
-                    plates,
-                    format,
-                    typeList.getSelectedItem().toString(),
-                    ((Long)getProjectID.invoke()).intValue(),
-		    layout_id);
-
-            dispose();
+	      IFn getProjectID = Clojure.var("ln.codax-manager", "get-project-id");
+	      System.out.println("in DialogGrouPlates launching dbi.groupPlatesIntoPlateSet");
+	      dbm.getDatabaseInserter()
+		  .groupPlatesIntoPlateSet(
+					   descriptionField.getText(),
+					   nameField.getText(),
+					   plates,
+					   format,
+					   typeList.getSelectedItem().toString(),
+					   ((Long)getProjectID.invoke()).intValue(),
+					   layout_id);
+	      dispose();
           }
         }));
 

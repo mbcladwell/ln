@@ -79,6 +79,7 @@ public class MenuBarForPlate extends JMenuBar {
     menuItem.addActionListener(
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
+	      System.out.println("in MenuBarForPlates launching dbm.groupPlates");
             dbm.groupPlates(plate_table);
     	    IFn getPlateSetSysName = Clojure.var("ln.codax-manager", "get-plate-set-sys-name");
 
