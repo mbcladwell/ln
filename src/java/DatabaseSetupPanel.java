@@ -5,6 +5,8 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.Toolkit;
+import java.awt.Color;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -38,6 +40,7 @@ public class DatabaseSetupPanel extends JPanel {
     static JButton deleteTablesButton;
     static JButton deleteEgDataButton; 
     static JLabel urlLabel;
+    private JLabel  statusLabel;
     private ProgressBar progress_bar;
 
     public DatabaseSetupPanel() {
@@ -69,13 +72,13 @@ public class DatabaseSetupPanel extends JPanel {
     c.gridheight = 1;
     panel1.add(warningLabel, c);
 
-    JLabel  label = new JLabel("Buttons on this panel will delete your data. Use with caution!", SwingConstants.LEFT);
+    statusLabel = new JLabel("Buttons on this panel will delete your data. Use with caution!", SwingConstants.LEFT);
     c.gridx = 1;
     c.gridy = 0;
     c.anchor = GridBagConstraints.WEST;
     c.gridwidth = 2;
     c.gridheight = 1;
-    panel1.add(label, c);
+    panel1.add(statusLabel, c);
 
     
     JButton helpButton = new JButton("Help");
@@ -104,7 +107,7 @@ public class DatabaseSetupPanel extends JPanel {
     //helpButton.setSize(10, 10);
 
 
-    label = new JLabel("Read the help before proceeding.", SwingConstants.LEFT);
+    JLabel label = new JLabel("Read the help before proceeding.", SwingConstants.LEFT);
     c.gridx = 1;
     c.gridy = 1;
     c.gridwidth = 2;
@@ -244,11 +247,35 @@ public class DatabaseSetupPanel extends JPanel {
     this.add(panel2, BorderLayout.CENTER);
     this.add(panel3, BorderLayout.SOUTH);
     // this.pack();
+    validateLicenseKey();
     this.setLocation(
         (Toolkit.getDefaultToolkit().getScreenSize().width) / 2 - getWidth() / 2,
         (Toolkit.getDefaultToolkit().getScreenSize().height) / 2 - getHeight() / 2);
     this.setVisible(true);
 
+      
+  }
+
+     private void validateLicenseKey() {
+	IFn validateLicenseKeyCLJ = Clojure.var("ln.codax-manager", "validate-license-key");
+	if((boolean)validateLicenseKeyCLJ.invoke()){
+	statusLabel.setText("Buttons on this panel will delete your data. Use with caution!");
+	statusLabel.setForeground(Color.BLACK);
+	createTablesButton.setEnabled(true);
+	deleteTablesButton.setEnabled(true);
+	loadEgDataButton.setEnabled(true);
+	deleteEgDataButton.setEnabled(true);
+
+	}else{
+	statusLabel.setText("<html><font color='red'>Unlicensed</font><font color='black'> - functionality disabled. Register to activate.</font></html>");
+	//statusLabel.setForeground(Color.RED);
+	createTablesButton.setEnabled(false);
+	deleteTablesButton.setEnabled(false);
+	loadEgDataButton.setEnabled(false);
+	deleteEgDataButton.setEnabled(false);
+	
+    }
+    
 
   }
 
@@ -353,6 +380,6 @@ public class DatabaseSetupPanel extends JPanel {
      }
     }
 
-    
+   
 }
 

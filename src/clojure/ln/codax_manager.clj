@@ -327,6 +327,24 @@
       (c/assoc-at  [:assets :session :authenticated] auth))))
 
 
+
+(defn set-wid-lkey-email [ wid lkey email]
+  (c/with-write-transaction [props tx]
+    (-> tx
+      (c/assoc-at  [:assets :conn :customer-id] wid)
+      (c/assoc-at  [:assets :conn :license-key] lkey)
+      (c/assoc-at  [:assets :conn :email] email))))
+
+(defn get-customer-id []
+  (c/get-at! props [:assets :conn :customer-id]))
+
+(defn get-license-key []
+  (c/get-at! props [:assets :conn :license-key]))
+
+(defn get-email []
+  (c/get-at! props [:assets :conn :email]))
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;Printing methods
 
@@ -394,6 +412,10 @@
     (println (str ":source     " (get-source)))
     (println (str ":sslmode    " (get-sslmode)))
     (println (str ":help-url-prefix    " (get-help-url-prefix)))
+    (println (str ":customer-id    "  (c/get-at! props [:assets :conn :customer-id ])))
+    (println (str ":license-key    "  (c/get-at! props [:assets :conn :license-key ])))
+    (println (str ":email    "  (c/get-at! props [:assets :conn :email ])))
+    
     (println "-------------------")
     (println "session")
     (println (str ":session-id        " (get-session-id)))
@@ -414,6 +436,37 @@
     
     ))
 
+(defn sha256 [string]
+  (let [digest (.digest (java.security.MessageDigest/getInstance "SHA-256") (.getBytes string "UTF-8"))]
+    (apply str (map (partial format "%02x") digest))))
+
+
+(defn validate-license-key []
+  (let [cust-id (c/get-at! props [:assets :conn :customer-id ])
+        lic-key (c/get-at! props [:assets :conn :license-key ])
+        email (c/get-at! props [:assets :conn :email ])
+        hash (subs (sha256 (str cust-id email "lnsDFoKytr")) 0 34)
+        ]
+    (= lic-key hash)))
+
+;; (validate-lic-key)
+;; (open-or-create-props)
+
+;; (defn update-ln-props []
+;;   (c/with-write-transaction [props tx]
+;;     (-> tx
+;;       (c/assoc-at  [:assets :conn :customer-id] "1CK6KHY6MHgYvmRQ4PAafKYDrg1ejbH1cE")
+;;       (c/assoc-at  [:assets :conn :license-key] "8075677a1137ee249df3d475e97374c6a0")
+;;       (c/assoc-at  [:assets :conn :email] "plapan@disroot.org"))))
+;; (update-ln-props)
+
+(defn update-ln-props-to-fail []
+  (c/with-write-transaction [props tx]
+    (-> tx
+      (c/assoc-at  [:assets :conn :customer-id] "1CK6KHY6MHgYvmRQ4PAafKYDrg1ejbH1cE")
+      (c/assoc-at  [:assets :conn :license-key] "8075677a1137ee249df3d475e97374c")
+      (c/assoc-at  [:assets :conn :email] "plapan@disroot.org"))))
+;;(update-ln-props-to-fail)
 
 
 (defn look [] 

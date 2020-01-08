@@ -46,17 +46,16 @@ public class HelpMenu extends JMenu {
           }
         });
     this.add(menuItem);
-    /*
+    
     menuItem = new JMenuItem("License", KeyEvent.VK_L);
     menuItem.addActionListener(
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
-            new bllm.DialogLicenseManager(
-                "My Application", "./license.ser", "nszpx5U5Kt6d91JB3CW31n3SiNjSUzcZ");
+	        new DialogLicense();
           }
         });
     this.add(menuItem);
-    */
+    
     
     menuItem = new JMenuItem("About LIMS*Nucleus", KeyEvent.VK_A);
     // menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_1, ActionEvent.ALT_MASK));
