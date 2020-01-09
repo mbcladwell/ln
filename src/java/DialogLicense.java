@@ -2,6 +2,8 @@ package ln;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Desktop;
+
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -14,14 +16,11 @@ import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.Date;
 import java.util.logging.Logger;
-
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.SwingConstants;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.beans.*;
+import javax.swing.*;
 
 import clojure.java.api.Clojure;
 import clojure.lang.IFn;
@@ -92,9 +91,36 @@ public class DialogLicense extends JDialog {
     // c.fill = GridBagConstraints.HORIZONTAL;
     c.gridx = 1;
     c.gridy = 0;
+    c.gridwidth = 1;
     c.anchor = GridBagConstraints.LINE_START;
     pane.add(label, c);
 
+    JButton helpButton = new JButton("Help");
+    helpButton.setMnemonic(KeyEvent.VK_H);
+    helpButton.setActionCommand("help");
+    c.anchor = GridBagConstraints.LINE_END;
+    c.gridx = 3;
+    c.gridy = 0;
+    c.gridwidth = 1;
+    c.gridheight = 1;
+    pane.add(helpButton, c);
+      try {
+      ImageIcon help =
+          new ImageIcon(this.getClass().getResource("/toolbarButtonGraphics/general/Help16.gif"));
+      helpButton.setIcon(help);
+    } catch (Exception ex) {
+      System.out.println("Can't find help icon: " + ex);
+    }
+    helpButton.addActionListener(
+        new ActionListener() {
+          public void actionPerformed(ActionEvent e) {
+	          IFn getHelpURLPrefix = Clojure.var("ln.codax-manager", "get-help-url-prefix");
+
+		  openWebpage(URI.create((String)getHelpURLPrefix.invoke() + "register"));
+          }
+        });
+
+    
     statusLabel = new JLabel();
     c.gridx = 1;
     c.gridy = 1;
@@ -105,7 +131,7 @@ public class DialogLicense extends JDialog {
 
     customerIDField = new JTextField(30);
     customerIDField.setText((String)getCustomerID.invoke());
-    c.gridwidth = 2;
+    c.gridwidth = 3;
     c.gridx = 1;
     c.gridy = 2;
     pane.add(customerIDField, c);
@@ -128,6 +154,22 @@ public class DialogLicense extends JDialog {
     c.gridheight = 1;
     pane.add(emailField, c);
 
+    cancelButton = new JButton("Cancel");
+    cancelButton.setMnemonic(KeyEvent.VK_C);
+    cancelButton.setActionCommand("cancel");
+    cancelButton.setEnabled(true);
+    cancelButton.setForeground(Color.RED);
+    c.gridx = 1;
+    c.gridy = 6;
+    c.gridwidth = 1;
+    pane.add(cancelButton, c);
+    cancelButton.addActionListener(
+        (new ActionListener() {
+          public void actionPerformed(ActionEvent e) {
+            dispose();
+          }
+        }));
+
     okButton = new JButton("OK");
     okButton.setMnemonic(KeyEvent.VK_O);
     okButton.setActionCommand("ok");
@@ -136,33 +178,23 @@ public class DialogLicense extends JDialog {
     c.fill = GridBagConstraints.HORIZONTAL;
     c.gridx = 2;
     c.gridy = 6;
-    c.gridwidth = 1;
+    c.gridwidth = 2;
     c.gridheight = 1;
     okButton.addActionListener(
         (new ActionListener() {
           public void actionPerformed(ActionEvent e) {
 	      IFn setLicenseCredentials = Clojure.var("ln.codax-manager", "set-wid-lkey-email");
 	      setLicenseCredentials.invoke(customerIDField.getText(), licenseKeyField.getText(), emailField.getText() );
-	      validateLicenseKey();
+	      if(!(validateLicenseKey())){JOptionPane.showMessageDialog(DialogLicense.this,
+								      "Invalid license key.",
+								      "Error",
+								      JOptionPane.ERROR_MESSAGE);}
           }
         }));
-
     pane.add(okButton, c);
 
-    cancelButton = new JButton("Cancel");
-    cancelButton.setMnemonic(KeyEvent.VK_C);
-    cancelButton.setActionCommand("cancel");
-    cancelButton.setEnabled(true);
-    cancelButton.setForeground(Color.RED);
-    c.gridx = 1;
-    c.gridy = 6;
-    pane.add(cancelButton, c);
-    cancelButton.addActionListener(
-        (new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-            dispose();
-          }
-        }));
+
+
 
     validateLicenseKey();
     this.getContentPane().add(pane, BorderLayout.CENTER);
@@ -173,9 +205,23 @@ public class DialogLicense extends JDialog {
     this.setVisible(true);
   }
 
-  private void validateLicenseKey() {
+    public static boolean openWebpage(URI uri) {
+    Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
+    if (desktop != null && desktop.isSupported(Desktop.Action.BROWSE)) {
+        try {
+            desktop.browse(uri);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    return false;
+}
+
+  private boolean validateLicenseKey() {
     IFn validateLicenseKeyCLJ = Clojure.var("ln.codax-manager", "validate-license-key");
-    if((boolean)validateLicenseKeyCLJ.invoke()){
+    boolean result = (boolean)validateLicenseKeyCLJ.invoke();
+    if(result){
 	statusLabel.setText("Licensed");
 	statusLabel.setForeground(Color.GREEN);
 	customerIDField.setEnabled(false);
@@ -191,6 +237,6 @@ public class DialogLicense extends JDialog {
 	okButton.setEnabled(true);
 	
     }
-      
+    return result;   
   }
 }

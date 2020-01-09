@@ -331,9 +331,9 @@
 (defn set-wid-lkey-email [ wid lkey email]
   (c/with-write-transaction [props tx]
     (-> tx
-      (c/assoc-at  [:assets :conn :customer-id] wid)
-      (c/assoc-at  [:assets :conn :license-key] lkey)
-      (c/assoc-at  [:assets :conn :email] email))))
+      (c/assoc-at  [:assets :conn :customer-id] (clojure.string/trim wid))
+      (c/assoc-at  [:assets :conn :license-key] (clojure.string/trim lkey))
+      (c/assoc-at  [:assets :conn :email] (clojure.string/trim email)))))
 
 (defn get-customer-id []
   (c/get-at! props [:assets :conn :customer-id]))
@@ -456,18 +456,18 @@
 ;;   (c/with-write-transaction [props tx]
 ;;     (-> tx
 ;;       (c/assoc-at  [:assets :conn :customer-id] "1CK6KHY6MHgYvmRQ4PAafKYDrg1ejbH1cE")
-;;       (c/assoc-at  [:assets :conn :license-key] "8075677a1137ee249df3d475e97374c6a0")
-;;       (c/assoc-at  [:assets :conn :email] "plapan@disroot.org"))))
+;;       (c/assoc-at  [:assets :conn :license-key] "a77f0e51340a16a36420b021a53d9ea71d")
+;;       (c/assoc-at  [:assets :conn :email] "info@labsolns.com"))))
 ;; (update-ln-props)
 
 (defn update-ln-props-to-fail []
   (c/with-write-transaction [props tx]
     (-> tx
       (c/assoc-at  [:assets :conn :customer-id] "1CK6KHY6MHgYvmRQ4PAafKYDrg1ejbH1cE")
-      (c/assoc-at  [:assets :conn :license-key] "8075677a1137ee249df3d475e97374c")
-      (c/assoc-at  [:assets :conn :email] "plapan@disroot.org"))))
+      (c/assoc-at  [:assets :conn :license-key] "a77f0e51340a16a36420b021a53d9ea")
+      (c/assoc-at  [:assets :conn :email] "info@labsolns.com"))))
 ;;(update-ln-props-to-fail)
-
+;;(print (subs (sha256 "1CK6KHY6MHgYvmRQ4PAafKYDrg1ejbH1cEinfo@labsolns.comlnsDFoKytr") 0 34))
 
 (defn look [] 
     (def props (c/open-database! "ln-props"))
