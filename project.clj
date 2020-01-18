@@ -1,4 +1,4 @@
-(defproject ln "0.1.1-SNAPSHOT"
+(defproject ln "0.1.0-SNAPSHOT"
   :description "FIXME: write description"
   :url "http://labsolns.com"
   :license {:name "Proprietary"

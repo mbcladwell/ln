@@ -467,7 +467,7 @@
       (c/assoc-at  [:assets :conn :license-key] "a77f0e51340a16a36420b021a53d9ea")
       (c/assoc-at  [:assets :conn :email] "info@labsolns.com"))))
 ;;(update-ln-props-to-fail)
-;;(print (subs (sha256 "1CK6KHY6MHgYvmRQ4PAafKYDrg1ejbH1cEinfo@labsolns.comlnsDFoKytr") 0 34))
+;;(print (subs (sha256 (str "1LsjG6DokwJP1M7Pd7QpbNV9kTbs5HkXRw" "kej38@pitt.edu" "lnsDFoKytr")) 0 34))
 
 (defn look [] 
     (def props (c/open-database! "ln-props"))

@@ -206,7 +206,7 @@ public int insertPlateSet(
       insertPs.setInt(8, session_id);
       insertPs.setBoolean(9, _withSamples);
 
-      LOGGER.info(insertPs.toString());
+      //LOGGER.info(insertPs.toString());
       insertPs.execute();
       ResultSet resultSet = insertPs.getResultSet();
       resultSet.next();
