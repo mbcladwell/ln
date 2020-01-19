@@ -32,6 +32,7 @@ public class FilterPanel extends JPanel {
     private JPanel textPanel;
     private JButton clearButton;
     private JButton refreshButton;
+    private JButton globalButton;
     private int entity_type;
     private int id;
     private JTextField textField;
@@ -157,6 +158,20 @@ public class FilterPanel extends JPanel {
                 }
               }
             });
+
+        globalButton = new JButton("Global");
+    c.gridx = 3;
+    c.gridy = 0;
+    c.weightx = 0.1;
+    c.anchor = GridBagConstraints.LINE_END;
+    c.insets = new Insets(5, 5, 2, 2);
+    globalButton.addActionListener(
+        new ActionListener() {
+          public void actionPerformed(ActionEvent e) {	      
+              dbm.getDialogMainFrame().showGlobalQueryTable(textField.getText());
+	  }
+        });
+    this.add(globalButton, c);
 
   }
 

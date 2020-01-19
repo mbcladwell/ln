@@ -114,7 +114,7 @@ public class WellPanel extends JPanel {
     public void updatePanel(String _plate_sys_name) {
     String plate_sys_name = _plate_sys_name;
       int plate_id = Integer.parseInt(plate_sys_name.substring(4));
-    JTable table = dbm.getDatabaseRetriever().getDMFTableData(plate_id, DialogMainFrame.WELL);
+      JTable table = dbm.getDatabaseRetriever().getDMFTableData(plate_id, DialogMainFrame.WELL, null);
     TableModel model = table.getModel();
     this.table.setModel(model);
   }

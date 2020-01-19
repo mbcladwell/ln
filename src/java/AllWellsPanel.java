@@ -96,7 +96,7 @@ public class AllWellsPanel extends JPanel {
   public void updatePanel(String _project_sys_name) {
     String project_sys_name = _project_sys_name;
       int project_id = Integer.parseInt(project_sys_name.substring(4));
-    JTable table = dbm.getDatabaseRetriever().getDMFTableData(project_id, DialogMainFrame.ALLWELLS);
+      JTable table = dbm.getDatabaseRetriever().getDMFTableData(project_id, DialogMainFrame.ALLWELLS, null);
     TableModel model = table.getModel();
     this.table.setModel(model);
   }

@@ -56,10 +56,11 @@ public class DatabaseRetriever {
      * @param _id the primary key for the table
      * @param _the desired table as an int
      */
-    public CustomTable getDMFTableData(int _id, int _desired_table) {
+    public CustomTable getDMFTableData(int _id, int _desired_table, String _search_term) {
     	int id = _id;
 	int desired_table = _desired_table;
 	String sql_statement = new String();
+	String search_term = _search_term;
 	//System.out.println("desired_table: " + desired_table);
     try {
 
@@ -84,6 +85,9 @@ public class DatabaseRetriever {
 	  break;
       case DialogMainFrame.ALLWELLS:
 	  sql_statement = "SELECT plate_set.plate_set_sys_name AS \"PlateSetID\", plate.plate_sys_name AS \"PlateID\", well_numbers.well_name AS \"Well\", well.by_col AS \"Well_NUM\", sample.sample_sys_name AS \"Sample\", sample.accs_id as \"Accession\" FROM  plate_plate_set, plate_set, plate, sample, well_sample, well JOIN well_numbers ON ( well.by_col= well_numbers.by_col)  WHERE plate.id = well.plate_id AND well_sample.well_id=well.id AND well_sample.sample_id=sample.id AND plate_set.project_id = ? AND plate_plate_set.plate_id = plate.id AND plate_plate_set.plate_set_id = plate_set.ID AND  well_numbers.plate_format = (SELECT plate_format_id  FROM plate_set WHERE plate_set.ID =  (SELECT plate_set_id FROM plate_plate_set WHERE plate_id = plate.ID LIMIT 1) ) ORDER BY plate_set.id, plate.id, well.by_col DESC;";
+	  break;
+      case DialogMainFrame.GLOBALQUERY:
+	  sql_statement = "SELECT * FROM global_search(\"" + search_term + "\")";
 	  break;
 	  
       }

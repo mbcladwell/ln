@@ -652,12 +652,80 @@ END;
 $BODY$
   LANGUAGE plpgsql VOLATILE;"])
 
+(def drop-global-search ["DROP FUNCTION IF EXISTS global_search(_term character varying);"])
+
+
+(def global-search ["CREATE OR REPLACE FUNCTION global_search(_term character varying)
+  RETURNS TABLE ("Project" CHARACTER VARYING 
+                  ,"PlateSet" CHARACTER VARYING
+		  ,"Entity" TEXT 
+		  ,"NAME" CHARACTER VARYING
+		  ,"Description" CHARACTER VARYING
+		  ) AS
+$func$
+BEGIN
+CREATE TEMP VIEW gsearch AS SELECT project_sys_name , '' AS "plate_set_sys_name",  'Project' AS "entity", project_name AS  entity_name , descr  FROM project
+UNION
+SELECT project.project_sys_name , plate_set.plate_set_sys_name , 'PlateSet' AS "entity", plate_set_name AS "entity_name" , plate_set.descr FROM plate_set, project WHERE plate_set.project_id=project.ID      
+UNION
+SELECT project.project_sys_name , plate_set.plate_set_sys_name , 'Plate' AS "entity", plate.plate_sys_name AS "entity_name" , plate.barcode AS descr FROM plate_set, project, plate, plate_plate_set WHERE plate_set.project_id=project.ID AND plate_plate_set.plate_set_id=plate_set.ID AND plate_plate_set.plate_id=plate.id       
+UNION
+SELECT project.project_sys_name , plate_set.plate_set_sys_name , 'Sample' AS "entity", sample.sample_sys_name AS "entity_name" , sample.accs_id AS descr FROM plate_set, project, plate, plate_plate_set, well, well_sample, sample WHERE plate_set.project_id=project.ID AND plate_plate_set.plate_set_id=plate_set.ID AND plate_plate_set.plate_id=plate.ID AND well.plate_id=plate.ID AND well_sample.well_id=well.ID AND well_sample.sample_id=sample.id      
+UNION
+SELECT project.project_sys_name , plate_set.plate_set_sys_name , 'AssayRun' AS "entity", assay_run_name AS "entity_name" , assay_run.assay_run_sys_name || '; ' || assay_run.descr AS descr FROM plate_set, project, assay_run WHERE plate_set.project_id=project.ID AND assay_run.plate_set_id=plate_set.ID      
+UNION
+SELECT project.project_sys_name , plate_set.plate_set_sys_name , 'HitList' AS "entity", hitlist_name AS "entity_name" , hit_list.hitlist_sys_name || '; ' || hit_list.descr AS descr FROM plate_set, project, assay_run, hit_list WHERE plate_set.project_id=project.ID AND assay_run.plate_set_id=plate_set.ID AND hit_list.assay_run_id=assay_run.id;      
+
+RETURN query
+SELECT * FROM gsearch WHERE project_sys_name LIKE '%'|| _term || '%'
+UNION
+SELECT * FROM gsearch WHERE plate_set_sys_name LIKE '%'|| _term || '%'
+UNION
+SELECT * FROM gsearch WHERE entity LIKE '%'|| _term || '%'
+UNION
+SELECT * FROM gsearch WHERE entity_name LIKE '%'|| _term || '%'
+UNION
+SELECT * FROM gsearch WHERE descr LIKE '%'|| _term || '%' ORDER BY project_sys_name, plate_set_sys_name, entity;
+
+DROP VIEW gsearch;
+
+END;
+$func$
+  LANGUAGE plpgsql VOLATILE;")
 
 (def drop-all-functions
-[drop-new-user drop-new-project drop-new-plate-set drop-new-plate-set-from-group drop-get-num-samples-for-plate-set drop-assoc-plate-ids-with-plate-set-id drop-new-plate drop-new-sample drop-new-assay-run drop-get-ids-for-sys-names drop-get-number-samples-for-psid drop-new-plate-layout drop-reformat-plate-set drop-process-assay-run-data drop-get-scatter-plot-data drop-new-hit-list drop-process-access-ids drop-rearray-transfer-samples drop-create-layout-records drop-get-all-data-for-assay-run])
+  [drop-new-user
+   drop-new-project
+   drop-new-plate-set
+   drop-new-plate-set-from-group
+   drop-get-num-samples-for-plate-set
+   drop-assoc-plate-ids-with-plate-set-id
+   drop-new-plate drop-new-sample
+   drop-new-assay-run
+   drop-get-ids-for-sys-names
+   drop-get-number-samples-for-psid
+   drop-new-plate-layout
+   drop-reformat-plate-set
+   drop-process-assay-run-data
+   drop-get-scatter-plot-data
+   drop-new-hit-list
+   drop-process-access-ids
+   drop-rearray-transfer-samples
+   drop-create-layout-records
+   drop-get-all-data-for-assay-run
+   drop-global-search])
 
 (def all-functions
   ;;for use in a map function that will create all functions
   ;;single command looks like:  (jdbc/drop-table-ddl :lnuser {:conditional? true } )
-  [new-user  new-project  new-plate-set new-plate-set-from-group get-num-samples-for-plate-set assoc-plate-ids-with-plate-set-id new-plate new-sample new-assay-run get-ids-for-sys-names get-number-samples-for-psid new-plate-layout reformat-plate-set process-assay-run-data get-scatter-plot-data new-hit-list process-access-ids rearray-transfer-samples create-layout-records get-all-data-for-assay-run])
+  [new-user
+   new-project
+   new-plate-set
+   new-plate-set-from-group
+   get-num-samples-for-plate-set
+   assoc-plate-ids-with-plate-set-id
+   new-plate new-sample new-assay-run
+   get-ids-for-sys-names
+   get-number-samples-for-psid new-plate-layout reformat-plate-set process-assay-run-data get-scatter-plot-data new-hit-list process-access-ids rearray-transfer-samples create-layout-records get-all-data-for-assay-run
+   global-search])
 
