@@ -67,9 +67,7 @@ public class DatabaseRetriever {
       switch(desired_table){
       case DialogMainFrame.PROJECT:
 	  sql_statement = "SELECT project_sys_name AS \"ProjectID\", project_name As \"Name\", lnuser_name AS \"Owner\", descr AS \"Description\" FROM project, lnuser, lnsession  WHERE project.lnsession_id=lnsession.id AND lnuser.id=lnsession.lnuser_id ORDER BY project.id DESC;";
-	  break;
-
-	 
+	  break;	 
       case DialogMainFrame.PLATESET:
  
 	  sql_statement = "SELECT plate_set.plate_set_sys_name AS \"PlateSetID\", plate_set_name As \"Name\", format AS \"Format\", num_plates AS \"# plates\" , plate_type.plate_type_name AS \"Type\", plate_layout_name.name AS \"Layout\", plate_set.descr AS \"Description\", rearray_pairs.ID AS \"Worklist\" FROM  plate_format, plate_type, plate_layout_name, plate_set FULL outer JOIN rearray_pairs ON plate_set.id= rearray_pairs.dest WHERE plate_format.id = plate_set.plate_format_id AND plate_set.plate_layout_name_id = plate_layout_name.id  AND plate_set.plate_type_id = plate_type.id  AND project_id = ? ORDER BY plate_set.id DESC;";
@@ -87,19 +85,42 @@ public class DatabaseRetriever {
 	  sql_statement = "SELECT plate_set.plate_set_sys_name AS \"PlateSetID\", plate.plate_sys_name AS \"PlateID\", well_numbers.well_name AS \"Well\", well.by_col AS \"Well_NUM\", sample.sample_sys_name AS \"Sample\", sample.accs_id as \"Accession\" FROM  plate_plate_set, plate_set, plate, sample, well_sample, well JOIN well_numbers ON ( well.by_col= well_numbers.by_col)  WHERE plate.id = well.plate_id AND well_sample.well_id=well.id AND well_sample.sample_id=sample.id AND plate_set.project_id = ? AND plate_plate_set.plate_id = plate.id AND plate_plate_set.plate_set_id = plate_set.ID AND  well_numbers.plate_format = (SELECT plate_format_id  FROM plate_set WHERE plate_set.ID =  (SELECT plate_set_id FROM plate_plate_set WHERE plate_id = plate.ID LIMIT 1) ) ORDER BY plate_set.id, plate.id, well.by_col DESC;";
 	  break;
       case DialogMainFrame.GLOBALQUERY:
-	  sql_statement = "SELECT * FROM global_search(\"" + search_term + "\")";
-	  break;
+	  sql_statement = "SELECT * from global_search(?);";
+ 	  break;
 	  
       }
       
       java.sql.PreparedStatement pstmt =  conn.prepareStatement(sql_statement);
-      if(desired_table != DialogMainFrame.PROJECT){
+
+
+      switch(desired_table){
+      case DialogMainFrame.PROJECT:
+	  break;
+      case DialogMainFrame.PLATESET: 
 	  pstmt.setInt(1, id);
+	  break;
+      case DialogMainFrame.PLATE:
+	  pstmt.setInt(1, id);
+	  break;
+      case DialogMainFrame.WELL:
+	  pstmt.setInt(1, id);
+	  break;
+      case DialogMainFrame.ALLPLATES:
+	  pstmt.setInt(1, id);
+	  break;
+      case DialogMainFrame.ALLWELLS:
+	  pstmt.setInt(1, id);
+	  break;
+      case DialogMainFrame.GLOBALQUERY:
+	  pstmt.setString(1, search_term);
+ 	  break;	  
       }
+
 
       ResultSet rs =  pstmt.executeQuery();
       CustomTable table = new CustomTable(dmf, buildTableModel(rs));
-
+      //LOGGER.info("table: " + table.getTableModel().getDataVector());
+ 
       rs.close();
       pstmt.close();
       return table;

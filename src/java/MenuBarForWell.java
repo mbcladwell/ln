@@ -113,6 +113,9 @@ public class MenuBarForWell extends JMenuBar {
     upbutton.addActionListener(
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
+	      // IFn getPlateSysName = Clojure.var("ln.codax-manager", "get-plate-sys-name");
+	      //String plate_sys_name = (String)getPlateSysName.invoke();
+	      //dbm.getDialogMainFrame().showWellTable(plate_sys_name);
 	      dbm.getDialogMainFrame().flipToPlate();
           }
         });

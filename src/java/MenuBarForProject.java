@@ -51,17 +51,21 @@ public class MenuBarForProject extends JMenuBar {
     menuItem.addActionListener(
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
-
+	      try{
             String[][] results = project_table.getSelectedRowsAndHeaderAsStringArray();
             POIUtilities poi = new POIUtilities(dbm);
             poi.writeJTableToSpreadsheet("Projects", results);
-            try {
+            
               Desktop d = Desktop.getDesktop();
               d.open(new File("./Writesheet.xlsx"));
             } catch (IOException ioe) {
+            }  catch(ArrayIndexOutOfBoundsException aioob) {
+              JOptionPane.showMessageDialog(
+                  dbm.getDialogMainFrame(), "Please select some rows!", "Error", JOptionPane.ERROR_MESSAGE);
+            }catch(IndexOutOfBoundsException ioob) {
+              JOptionPane.showMessageDialog(
+                  dbm.getDialogMainFrame(), "Please select some rows!", "Error", JOptionPane.ERROR_MESSAGE);
             }
-            // JWSFileChooserDemo jwsfcd = new JWSFileChooserDemo();
-            // jwsfcd.createAndShowGUI();
 
           }
         });

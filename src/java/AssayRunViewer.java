@@ -76,7 +76,7 @@ public class AssayRunViewer extends JDialog implements java.awt.event.ActionList
      IFn getProjectID = Clojure.var("ln.codax-manager", "get-project-id");
      //cannot be (Integer)    ...intValue()
      // project is long, others are int??
-     System.out.println((getProjectID.invoke()).getClass());
+     //System.out.println((getProjectID.invoke()).getClass());
      //System.out.println(((Integer)getProjectID.invoke()).getClass());
      //     System.out.println(((Long)getProjectID.invoke()).getClass());
      
