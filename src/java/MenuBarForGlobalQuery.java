@@ -58,6 +58,16 @@ public class MenuBarForGlobalQuery extends JMenuBar {
     utilitiesMenu.setMnemonic(KeyEvent.VK_U);
     this.add(utilitiesMenu);
 
+         JMenuItem    selectAllMenuItem = new JMenuItem("Select All", KeyEvent.VK_S);
+    // menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_1, ActionEvent.ALT_MASK));
+    selectAllMenuItem.addActionListener(
+        new ActionListener() {
+          public void actionPerformed(ActionEvent e) {
+          search_table.selectAll();
+          }
+        });
+    utilitiesMenu.add(selectAllMenuItem);
+
    
      JMenuItem    menuItem = new JMenuItem("Export", KeyEvent.VK_E);
     // menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_1, ActionEvent.ALT_MASK));
@@ -101,12 +111,14 @@ public class MenuBarForGlobalQuery extends JMenuBar {
     downbutton.addActionListener(
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
-	      System.out.println("in action listener");
+	      //  System.out.println("in action listener");
 
             try {
 		//int i = plate_set_table.getSelectedRow();
 		//String plate_set_sys_name = (String) plate_set_table.getValueAt(i, 0);
 	      String results[][] = search_table.getSelectedRowsAndHeaderAsStringArray();
+	      String project_sys_name = results[1][0];
+	      int project_id = Integer.valueOf(project_sys_name.substring(4));
 	      String plate_set_sys_name = new String();    //   =results[1][1]; does not exist for project
 	      int plate_set_id = 0;            //= Integer.valueOf(plate_set_sys_name.substring(3));
 	      String entity_name = results[1][2];
@@ -117,7 +129,7 @@ public class MenuBarForGlobalQuery extends JMenuBar {
 
 	      switch (entity_name){
 	      case "Sample":
-		  plate_set_sys_name  =results[1][1];
+		  plate_set_sys_name  = results[1][1];
 		  plate_set_id = Integer.valueOf(plate_set_sys_name.substring(3));
 		  int sample_id = Integer.valueOf(entity_sys_name.substring(4));
 	 	  		     	     
@@ -141,35 +153,26 @@ public class MenuBarForGlobalQuery extends JMenuBar {
 	 
 		  break;
 	      case "Plate":
-		  int plate_id = Integer.valueOf(entity_sys_name.substring(4));	  		     	     
-		  try {
-		      PreparedStatement pstmt = conn.prepareStatement("SELECT plate.plate_sys_name  FROM  plate WHERE  plate.id=?;");
-
-		      pstmt.setInt(1, plate_set_id);
-		      
-		      ResultSet rs = pstmt.executeQuery();
-		      rs.next();
-		      String plate_sys_name = rs.getString("plate_sys_name");
-		      // LOGGER.info("resuklt plate layout name: " + result);
-		      rs.close();
-		      pstmt.close();
-		    dmf.showWellTable(plate_sys_name);
-		      
-		  } catch (SQLException sqle) {
-		      LOGGER.severe("SQL exception getting assay_type_id: " + sqle);
-		  }
-	
-		  
+		  plate_set_sys_name = results[1][1];
+		  dmf.showPlateTable(plate_set_sys_name);
 		  break;
-	      case "PlateSet":		  
-		  plate_set_sys_name =results[1][1]; 
+	      case "PlateSet":
+		  plate_set_sys_name = results[1][1];
 		    dmf.showPlateTable(plate_set_sys_name);		  
 		  break;
 	      case "Project":
-		    dmf.showPlateSetTable(entity_sys_name);		  
+		    dmf.showPlateSetTable(project_sys_name);		  
 		  break;
 	      case "AssayRun":
-		    dmf.showPlateSetTable(entity_sys_name);		  
+		  //must set the project so the AssayRunViewer opens with correct project
+		  
+		  	IFn setProjectSysName = Clojure.var("ln.codax-manager", "set-project-sys-name");
+			setProjectSysName.invoke(project_sys_name);
+		  	IFn setProjectID = Clojure.var("ln.codax-manager", "set-project-id");
+			setProjectID.invoke(project_id);
+
+			new AssayRunViewer(dbm);
+			dmf.showPlateSetTable(project_sys_name);		  
 		  
 		  break;
 	      case "HitList":
@@ -177,13 +180,6 @@ public class MenuBarForGlobalQuery extends JMenuBar {
 		  new HitListViewer(dbm, hit_list_id);
 		  break;
 	      }
-	      // IFn setPlateSetSysName = Clojure.var("ln.codax-manager", "set-plate-set-sys-name");
-              //setPlateSetSysName.invoke(plate_set_sys_name);
-	      //IFn setPlateSetID = Clojure.var("ln.codax-manager", "set-plate-set-id");
-	      //setPlateSetID.invoke(Integer.parseInt(plate_set_sys_name.substring(3)));
-	      // System.out.println("plate_set_sys_name: " + plate_set_sys_name);
-	      //System.out.println("plate_set_id: " + Integer.parseInt(plate_set_sys_name.substring(3)));
-
 	      //need this here to go to different tables
               //dbm.getDialogMainFrame().showPlateTable(plate_set_sys_name);
             } catch (ArrayIndexOutOfBoundsException s) {

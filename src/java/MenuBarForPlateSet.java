@@ -319,7 +319,7 @@ public class MenuBarForPlateSet extends JMenuBar {
           new ImageIcon(this.getClass().getResource("/toolbarButtonGraphics/navigation/Up16.gif"));
       upbutton.setIcon(up);
     } catch (Exception ex) {
-      System.out.println(ex);
+	System.out.println(ex);
     }
     upbutton.addActionListener(
         new ActionListener() {

@@ -96,7 +96,7 @@ public class AssayRunViewer extends JDialog implements java.awt.event.ActionList
     //this failed as Integer
     //getAssayRuns requires and int
     assay_runs_table = dbm.getDatabaseRetriever().getAssayRuns(((Long)getProjectID.invoke()).intValue());
-  assay_runs_table.getSelectionModel().addListSelectionListener(						     
+    assay_runs_table.getSelectionModel().addListSelectionListener(						     
 	  new ListSelectionListener() {
 	      public void valueChanged(ListSelectionEvent e) {
 		  ListSelectionModel lsm = (ListSelectionModel) e.getSource();
@@ -198,7 +198,7 @@ public class AssayRunViewer extends JDialog implements java.awt.event.ActionList
 		public void actionPerformed(ActionEvent e) {
 		    Object[][] results = dbm.getDialogMainFrame().getUtilities().getSelectedRowsAndHeaderAsStringArray(assay_runs_table);
 		    if(results.length>1){
-			   LOGGER.info("hit list table: " + results);
+			// LOGGER.info("hit list table: " + results);
 			POIUtilities poi = new POIUtilities(dbm);
 			poi.writeJTableToSpreadsheet("Assay Runs", results);
 			try {
@@ -221,25 +221,6 @@ public class AssayRunViewer extends JDialog implements java.awt.event.ActionList
 			int row = assay_runs_table.getSelectedRow();
 			int assay_run_id = Integer.parseInt(( (String)assay_runs_table.getModel().getValueAt(row,0)).substring(3));
 
-			/*
-		    Object[][] results = dbm.getDialogMainFrame().getUtilities().getSelectedRowsAndHeaderAsStringArray(assay_runs_table);
-		    if(results.length>1){
-			String[] assay_run_ids = new String[results.length];
-			try{
-			    //this plans ahead to accept an array, but all must be same format
-			    //stick to one for now
-			    for(int i=0; i < results.length-1; i++){
-				int modelRow =  assay_runs_table.convertRowIndexToModel(i);
-			    assay_run_ids[i] =  assay_runs_table.getModel().getValueAt(modelRow, 0).toString().substring(3);
-			 LOGGER.info("modelRow: " + modelRow);
-			   LOGGER.info("full string: " + assay_runs_table.getModel().getValueAt(modelRow, 0).toString());
-			  
-			    LOGGER.info("assay_run_ids[i]; i: " + i + ": " + assay_run_ids[i]);
-			 
-			    }
-			    //just work with the first one
-			    int assay_run_id = Integer.parseInt(assay_run_ids[0]);
-			*/
 			    Object[][] assay_run_data = dbm.getDatabaseRetriever().getAssayRunData(assay_run_id);
 			    POIUtilities poi = new POIUtilities(dbm);
 			    
