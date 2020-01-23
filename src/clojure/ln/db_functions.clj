@@ -395,6 +395,55 @@ DECLARE
    format INTEGER;
 BEGIN
 
+
+CREATE TEMP TABLE data_set  ON COMMIT DROP AS
+SELECT max(assay_result.assay_run_id) as assay_run_id, max(assay_result.plate_order) as plate_order, max(assay_result.well) as well, avg( assay_result.response) as response, avg(assay_result.bkgrnd_sub) as bkgrnd_sub, max(assay_result.norm) AS norm, max(assay_result.norm_pos) AS norm_pos, max(plate_layout.well_by_col) AS well_by_col, max(plate_layout.well_type_id) AS well_type_id, plate_layout.replicates, plate_layout.target, max(assay_run.plate_layout_name_id) AS plate_layout_name_id, well_numbers.parent_well
+FROM assay_result, assay_run, plate_layout, well_numbers
+WHERE  assay_result.well = plate_layout.well_by_col AND 
+       assay_result.assay_run_id = assay_run.id AND  
+       well_numbers.by_col = plate_layout.well_by_col AND
+       plate_layout.plate_layout_name_id = assay_run.plate_layout_name_id  AND 
+       assay_run.ID = _assay_run_id
+GROUP BY well_numbers.parent_well, replicates, target;
+
+
+SELECT ARRAY (SELECT distinct plate_order FROM data_set WHERE data_set.assay_run_id = _assay_run_id  ORDER BY plate_order) INTO plates;
+
+FOR plate_var IN 1..array_length(plates,1) LOOP
+
+SELECT AVG(data_set.response) FROM data_set WHERE data_set.plate_order = plate_var AND data_set.well_type_id=2 INTO positives;
+SELECT AVG(data_set.response) FROM data_set WHERE data_set.plate_order = plate_var AND data_set.well_type_id=3 INTO negatives;
+SELECT AVG(data_set.response) FROM data_set WHERE data_set.plate_order = plate_var AND data_set.well_type_id=4 INTO background;
+SELECT MAX(data_set.response) FROM data_set WHERE data_set.plate_order = plate_var AND data_set.well_type_id=1 INTO unk_max;
+
+SELECT plate_layout_name.plate_format_id FROM plate_layout_name, assay_run WHERE assay_run.plate_layout_name_id=plate_layout_name.ID AND assay_run.id=_assay_run_id INTO format;
+
+       FOR well_var IN 1..format LOOP
+
+          UPDATE assay_result SET bkgrnd_sub  = (assay_result.response-background), norm = ((assay_result.response-background)/unk_max), norm_pos = ((response-background)/positives), p_enhance = 100*(((assay_result.response-negatives)/(positives-negatives))-1) WHERE assay_result.assay_run_id=_assay_run_id AND assay_result.plate_order=plate_var AND assay_result.well = well_var;
+
+   END LOOP;
+
+END LOOP;
+DROP TABLE data_set;
+
+END;
+$BODY$
+  LANGUAGE plpgsql VOLATILE;"])
+
+(def process-assay-run-data-pre-replicates ["CREATE OR REPLACE FUNCTION process_assay_run_data(_assay_run_id integer)
+  RETURNS void AS
+$BODY$
+DECLARE
+   plates INTEGER[];   
+   background decimal;
+   positives decimal;
+   negatives DECIMAL;
+   unk_max DECIMAL;
+   norm_factor DECIMAL;
+   format INTEGER;
+BEGIN
+
 CREATE TEMP TABLE data_set  ON COMMIT DROP AS SELECT assay_result.assay_run_id, assay_result.plate_order, assay_result.well, assay_result.response, assay_result.bkgrnd_sub, assay_result.norm, assay_result.norm_pos, plate_layout.well_by_col, plate_layout.well_type_id, plate_layout.replicates, plate_layout.target FROM assay_result JOIN plate_layout  ON (assay_result.well = plate_layout.well_by_col)  WHERE assay_result.assay_run_id = _assay_run_id AND  plate_layout.plate_layout_name_id = (SELECT plate_layout_name_id FROM assay_run WHERE assay_run.ID = _assay_run_id);
 
 SELECT ARRAY (SELECT distinct plate_order FROM data_set WHERE data_set.assay_run_id = _assay_run_id  ORDER BY plate_order) INTO plates;
@@ -562,7 +611,7 @@ $BODY$
 
 (def drop-get-all-data-for-assay-run["DROP FUNCTION IF EXISTS get_all_data_for_assay_run(_assay_run_ids INTEGER );"])
 
-(def get-all-data-for-assay-run["CREATE OR REPLACE FUNCTION get_all_data_for_assay_run(_assay_run_id INTEGER )
+(def get-all-data-for-assay-run ["CREATE OR REPLACE FUNCTION get_all_data_for_assay_run(_assay_run_id INTEGER )
 RETURNS TABLE(assay_run_sys_name VARCHAR,  plate_set_sys_name VARCHAR(32),  plate_sys_name VARCHAR(32), plate_order INT, well_name VARCHAR, type_well VARCHAR,  by_col INTEGER, response REAL, bkgrnd_sub REAL, norm REAL, norm_pos REAL, p_enhance REAL, sample_sys_name VARCHAR(32), accs_id VARCHAR, target INT)  AS
 $BODY$
 DECLARE

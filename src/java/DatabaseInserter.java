@@ -670,6 +670,16 @@ if(num_of_plate_ids*format_id!=table.size()-1){
      
     /**
      * Called from DialogReformatPlateSet OK action listener
+	   dbi.reformatPlateSet(old_plate_set_id,
+			      dmf,
+			      nameField.getText(),
+			      old_num_plates,
+			      descriptionField.getText(),			      
+			      new_plate_format_id,
+			      ((ComboItem)typeList.getSelectedItem()).getKey(),
+			      dest_layout[0].getKey(),			      
+			      ((ComboItem)sampleRepsList.getSelectedItem()).getKey()
+
      */
     public void reformatPlateSet(int _source_plate_set_id, DialogMainFrame _dmf,  String _dest_plate_set_name, int _source_plate_num,
 				 String _dest_descr, int _dest_plate_format_id, int _dest_plate_type_id,  int _dest_plate_layout_name_id, int _n_reps_source){
@@ -689,7 +699,7 @@ if(num_of_plate_ids*format_id!=table.size()-1){
 	int dest_plate_set_id=0;
 
       // method signature:  reformat_plate_set(source_plate_set_id INTEGER, source_num_plates INTEGER, n_reps_source INTEGER, dest_descr VARCHAR(30), dest_plate_set_name VARCHAR(30), dest_num_plates INTEGER, dest_plate_format_id INTEGER, dest_plate_type_id INTEGER, project_id INTEGER, dest_plate_layout_name_id INTEGER )
-      
+	System.out.println("dest-plate-id: " + dest_plate_layout_name_id);
       
     try {
       String insertSql = "SELECT reformat_plate_set( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";

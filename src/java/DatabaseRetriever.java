@@ -230,6 +230,7 @@ public class DatabaseRetriever {
   }
 
     
+    
   public String getPlateSetSysNameForPlateSysName(String _plate_sys_name) {
     String result = new String();
     try {
@@ -270,6 +271,27 @@ public class DatabaseRetriever {
     return result;
   }
 
+      public String getLayoutForPlateSet(int _plate_set_id) {
+    String result = new String();
+    try {
+      PreparedStatement pstmt =
+          conn.prepareStatement("SELECT plate_layout_name.sys_name, plate_layout_name.descr  FROM  plate_set, plate_layout_name WHERE plate_set.id = ? and plate_set.plate_layout_name_id=plate_layout_name.id;");
+
+      pstmt.setInt(1, _plate_set_id);
+      ResultSet rs = pstmt.executeQuery();
+      rs.next();
+      result = rs.getString("sys_name") + ";" + rs.getString("descr");
+      //LOGGER.info("Description: " + result);
+      rs.close();
+      pstmt.close();
+
+    } catch (SQLException sqle) {
+      LOGGER.severe("SQL exception getting description: " + sqle);
+    }
+    return result;
+  }
+
+    
   public int getPlateSetIDForPlateSetSysName(String _plateset_sys_name) {
     String plateset_sys_name = _plateset_sys_name;
     // int plate_set_id;

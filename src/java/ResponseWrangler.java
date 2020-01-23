@@ -111,7 +111,7 @@ public class ResponseWrangler {
 	    }
 	    if(well_type_id==2){  //if it is a positive control
 		pos_list.add(Double.valueOf((float)dtm.getValueAt(row, 2)));
-		LOGGER.info("Positives: " + Double.valueOf((float)dtm.getValueAt(row, 2)));
+		//LOGGER.info("Positives: " + Double.valueOf((float)dtm.getValueAt(row, 2)));
 	    }
 	    if(well_type_id==1){  //if it is an unknown
 		unknowns_list.add(Double.valueOf((float)dtm.getValueAt(row, 2)));

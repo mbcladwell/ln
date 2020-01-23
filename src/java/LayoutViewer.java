@@ -205,11 +205,11 @@ public class LayoutViewer extends JDialog implements java.awt.event.ActionListen
 	      public void valueChanged(ListSelectionEvent e) {
 		  if(!e.getValueIsAdjusting() & destTable.getSelectedRow()>=0){
 		  ListSelectionModel lsm = (ListSelectionModel) e.getSource();
-		   	LOGGER.info("dest source: " + e);
+		  //LOGGER.info("dest source: " + e);
 			int row = destTable.getSelectedRow();
 			
 			int dest_layout_id = Integer.parseInt(( (String)destTable.getModel().getValueAt(row,0)).substring(4));
-			LOGGER.info("dest_source_layout_id: " + dest_layout_id);
+			//LOGGER.info("dest_source_layout_id: " + dest_layout_id);
 			refreshLayoutTable(dest_layout_id);
 		  }
 	      }

@@ -64,13 +64,14 @@ public class MenuBarForPlateSet extends JMenuBar {
 		  int rowIndex = plate_set_table.getSelectedRow();
 		  String plate_set_sys_name = plate_set_table.getValueAt(rowIndex, 0).toString();
 		  int plate_set_id = Integer.valueOf(plate_set_sys_name.substring(3));
+		  String layout = dbm.getDatabaseRetriever().getLayoutForPlateSet(plate_set_id);
 		  String name = plate_set_table.getValueAt(rowIndex, 1).toString();
 		  int plate_set_owner_id = dbm.getDatabaseRetriever().getPlateSetOwnerID(plate_set_id);
 		  String description = plate_set_table.getValueAt(rowIndex, 6).toString();
 		  IFn getUserID = Clojure.var("ln.codax-manager", "get-user-id");
    
 		  if ( plate_set_owner_id == ((Long)getUserID.invoke()).intValue()) {
-		      new DialogEditPlateSet(dbm, plate_set_sys_name, name, description);
+		      new DialogEditPlateSet(dbm, plate_set_sys_name, name, description, layout);
 	      } else {
                 JOptionPane.showMessageDialog(
                     dbm.getDialogMainFrame(),
@@ -110,9 +111,12 @@ public class MenuBarForPlateSet extends JMenuBar {
     menuItem.addActionListener(
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
-            dbm.reformatPlateSet(plate_set_table);
-          }
-        });
+	    if(!plate_set_table.getSelectionModel().isSelectionEmpty()){
+		dbm.reformatPlateSet(plate_set_table);
+	    }else{
+		JOptionPane.showMessageDialog(dbm.getDialogMainFrame(), "Select a Plate Set to reformat!");
+	    }
+	  }});
     utilitiesMenu.add(menuItem);
 
     menuItem = new JMenuItem("Import assay data");

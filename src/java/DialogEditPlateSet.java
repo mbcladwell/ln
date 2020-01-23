@@ -49,7 +49,7 @@ public class DialogEditPlateSet extends JDialog {
     private IFn require = Clojure.var("clojure.core", "require");
 
   public DialogEditPlateSet(
-      DatabaseManager _dbm, String _plate_set_sys_name, String _name, String _description) {
+			    DatabaseManager _dbm, String _plate_set_sys_name, String _name, String _description, String _layout) {
       dbm = _dbm;
       dmf = dbm.getDialogMainFrame();
       require.invoke(Clojure.read("ln.codax-manager"));
@@ -94,6 +94,11 @@ public class DialogEditPlateSet extends JDialog {
     c.gridy = 3;
     pane.add(label, c);
 
+    label = new JLabel("Layout:", SwingConstants.RIGHT);
+    c.gridx = 0;
+    c.gridy = 4;
+    pane.add(label, c);
+
     label = new JLabel(df.format(Date.from(instant)));
     // c.fill = GridBagConstraints.HORIZONTAL;
     c.gridx = 1;
@@ -120,9 +125,14 @@ public class DialogEditPlateSet extends JDialog {
     descriptionField.setText(_description);
     c.gridx = 1;
     c.gridy = 3;
-    c.gridheight = 2;
     pane.add(descriptionField, c);
 
+    label = new JLabel(_layout, SwingConstants.RIGHT);
+    c.gridx = 1;
+    c.gridy = 4;
+    pane.add(label, c);
+
+    
     okButton = new JButton("OK");
     okButton.setMnemonic(KeyEvent.VK_O);
     okButton.setActionCommand("ok");

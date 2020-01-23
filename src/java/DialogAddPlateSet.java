@@ -189,7 +189,7 @@ public class DialogAddPlateSet extends JDialog   {
     pane.add(label, c);
 
     ComboItem[] layoutTypes = dbm.getDatabaseRetriever().getPlateLayoutNames(96);
-    LOGGER.info("layoutTypes: " + layoutTypes[0].toString());
+    //LOGGER.info("layoutTypes: " + layoutTypes[0].toString());
     layoutList = new JComboBox<ComboItem>(layoutTypes);
     layoutList.setSelectedIndex(0);
     c.gridx = 1;

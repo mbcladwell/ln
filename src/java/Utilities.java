@@ -87,7 +87,7 @@ public class Utilities {
 
     for (int i = 0; i < count; i++) {
       result[i] = inputArray[i];
-      LOGGER.info("result: " + result[i]);
+      //LOGGER.info("result: " + result[i]);
     }
     return result;
   }
@@ -98,7 +98,7 @@ public class Utilities {
     int row = 0;
     int col = 0;
     int nRow = tm.getRowCount();
-    LOGGER.info("nRow: " + nRow);
+    //LOGGER.info("nRow: " + nRow);
     //96 well plate  tableData[row][col]
     switch(nRow){
     case 96:
