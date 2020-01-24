@@ -180,7 +180,15 @@
                            [:norm :real]
                            [:norm_pos :real]
                            [:p_enhance :real]
-                           
+                            [:updated  :timestamp "with time zone not null DEFAULT current_timestamp"]                          
+                           ["FOREIGN KEY (assay_run_id) REFERENCES assay_run(id)"]
+                           ])]
+
+       [(jdbc/create-table-ddl :assay_result_pre
+                          [   [:assay_run_id :int]
+                            [:plate_order :int]
+                            [:well :int]
+                           [:response :real]                        
                             [:updated  :timestamp "with time zone not null DEFAULT current_timestamp"]                          
                            ["FOREIGN KEY (assay_run_id) REFERENCES assay_run(id)"]
                            ])]
