@@ -386,28 +386,33 @@ LANGUAGE plpgsql VOLATILE;"])
   RETURNS void AS
 $BODY$
 DECLARE
-   plates INTEGER[];   
+   plates INTEGER[]; 
+   wells INTEGER[];  
    background decimal;
    positives decimal;
    negatives DECIMAL;
    unk_max DECIMAL;
    norm_factor DECIMAL;
-   format INTEGER;
+--   format INTEGER;
 BEGIN
 
 
-CREATE TEMP TABLE data_set  ON COMMIT DROP AS
-SELECT max(assay_result.assay_run_id) as assay_run_id, max(assay_result.plate_order) as plate_order, max(assay_result.well) as well, avg( assay_result.response) as response, avg(assay_result.bkgrnd_sub) as bkgrnd_sub, max(assay_result.norm) AS norm, max(assay_result.norm_pos) AS norm_pos, max(plate_layout.well_by_col) AS well_by_col, max(plate_layout.well_type_id) AS well_type_id, plate_layout.replicates, plate_layout.target, max(assay_run.plate_layout_name_id) AS plate_layout_name_id, well_numbers.parent_well
-FROM assay_result, assay_run, plate_layout, well_numbers
-WHERE  assay_result.well = plate_layout.well_by_col AND 
-       assay_result.assay_run_id = assay_run.id AND  
+CREATE TABLE data_set AS
+SELECT max(assay_result_pre.assay_run_id) as assay_run_id, assay_result_pre.plate_order, max(assay_result_pre.well) as well, avg( assay_result_pre.response) as response, '' AS bkgrnd_sub, '' AS norm,'' AS norm_pos,'' AS p_enhance,  max(plate_layout.well_by_col) AS well_by_col, max(plate_layout.well_type_id) AS well_type_id, plate_layout.replicates, plate_layout.target, max(assay_run.plate_layout_name_id) AS plate_layout_name_id, well_numbers.parent_well
+FROM assay_result_pre, assay_run, plate_layout, plate_layout_name, well_numbers
+WHERE  assay_result_pre.well = plate_layout.well_by_col AND 
+       assay_result_pre.assay_run_id = assay_run.id AND  
        well_numbers.by_col = plate_layout.well_by_col AND
+       well_numbers.plate_format=plate_layout_name.plate_format_id AND
+       assay_run.plate_layout_name_id=plate_layout_name.id AND
        plate_layout.plate_layout_name_id = assay_run.plate_layout_name_id  AND 
-       assay_run.ID = _assay_run_id
-GROUP BY well_numbers.parent_well, replicates, target;
+       assay_run.ID = _assay_run_id::INTEGER
+GROUP BY well_numbers.parent_well, plate_layout.replicates, plate_layout.target, assay_result_pre.plate_order
+ORDER BY plate_order, parent_well;
 
 
-SELECT ARRAY (SELECT distinct plate_order FROM data_set WHERE data_set.assay_run_id = _assay_run_id  ORDER BY plate_order) INTO plates;
+-- SELECT ARRAY (SELECT distinct plate_order FROM data_set WHERE data_set.assay_run_id = _assay_run_id  ORDER BY plate_order) INTO plates;
+SELECT ARRAY (SELECT distinct plate_order FROM data_set  ORDER BY plate_order) INTO plates;
 
 FOR plate_var IN 1..array_length(plates,1) LOOP
 
@@ -416,16 +421,21 @@ SELECT AVG(data_set.response) FROM data_set WHERE data_set.plate_order = plate_v
 SELECT AVG(data_set.response) FROM data_set WHERE data_set.plate_order = plate_var AND data_set.well_type_id=4 INTO background;
 SELECT MAX(data_set.response) FROM data_set WHERE data_set.plate_order = plate_var AND data_set.well_type_id=1 INTO unk_max;
 
-SELECT plate_layout_name.plate_format_id FROM plate_layout_name, assay_run WHERE assay_run.plate_layout_name_id=plate_layout_name.ID AND assay_run.id=_assay_run_id INTO format;
+SELECT ARRAY (SELECT distinct well FROM data_set WHERE plate_order=plate_var ORDER BY well) INTO wells;
 
-       FOR well_var IN 1..format LOOP
+       FOR well_var IN 1..array_length(wells,1) LOOP
 
-          UPDATE assay_result SET bkgrnd_sub  = (assay_result.response-background), norm = ((assay_result.response-background)/unk_max), norm_pos = ((response-background)/positives), p_enhance = 100*(((assay_result.response-negatives)/(positives-negatives))-1) WHERE assay_result.assay_run_id=_assay_run_id AND assay_result.plate_order=plate_var AND assay_result.well = well_var;
+
+          UPDATE data_set SET bkgrnd_sub  = (data_set.response-background), norm = ((data_set.response-background)/unk_max), norm_pos = ((data_set.response-background)/positives), p_enhance = 100*(((data_set.response-negatives)/(positives-negatives))-1) WHERE assay_run_id = _assay_run_id AND plate_order=plate_var AND well = wells[well_var];
+-- raise notice 'well: %; plate %', wells[well_var], plate_var;
 
    END LOOP;
 
 END LOOP;
-DROP TABLE data_set;
+
+INSERT INTO assay_result SELECT assay_run_id, plate_order, well, response , bkgrnd_sub::REAL, norm::REAL, norm_pos::REAL, p_enhance::REAL from data_set;
+DROP TABLE IF EXISTS data_set;
+TRUNCATE TABLE assay_result_pre;
 
 END;
 $BODY$
