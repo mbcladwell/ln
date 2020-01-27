@@ -328,6 +328,7 @@ public class MenuBarForPlateSet extends JMenuBar {
     upbutton.addActionListener(
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
+	      //project table is always initiated - no need to check or provide alternative
             dbm.getDialogMainFrame().flipToProjectTable();
 	    	    	      dbm.getDialogMainFrame().setMainFrameTitle("");
 

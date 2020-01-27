@@ -527,7 +527,7 @@ public static boolean openWebpage(URI uri) {
 					  checkBox.isSelected(),
 					  ((ComboItem)algorithmList.getSelectedItem()).getKey(),
 					  top_n_number);
-       System.out.println("top n number: " + top_n_number);
+	    //System.out.println("top n number: " + top_n_number);
        
 	    return null;
         }

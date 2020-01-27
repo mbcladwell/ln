@@ -483,6 +483,7 @@ $BODY$
 
 (def drop-get-scatter-plot-data ["DROP FUNCTION IF exists get_scatter_plot_data( integer);"])
 
+;; need the join to preserve the controls which do not have sample IDs
 (def get-scatter-plot-data ["CREATE OR REPLACE FUNCTION get_scatter_plot_data(_assay_run_id INTEGER)
 RETURNS TABLE(  plate INTEGER, well INTEGER, response REAL, bkgrnd_sub REAL,   norm REAL,   norm_pos REAL, p_enhance REAL,  well_type_id INTEGER,  replicates integer, target integer, sample_id integer ) AS
 $BODY$

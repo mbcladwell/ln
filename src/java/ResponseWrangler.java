@@ -62,8 +62,8 @@ public class ResponseWrangler {
     /**
      * 
      *	 Array looks like
-     * plate, well, response, bkgrnd_sub,   norm,   norm_pos, p_enhance,  well_type_id,  replicates, target 
-     * 1,1,0.293825507,0.293825507,0.434007883,0.511445642, -89.01, 1,1,a
+     * plate, well, response, bkgrnd_sub,   norm,   norm_pos, p_enhance,  well_type_id,  replicates, target, sample_id 
+     * 1,1,0.293825507,0.293825507,0.434007883,0.511445642, -89.01, 1,1,1,1234
      * class org.postgresql.jdbc.PgArray
      * set up some variable with data limits
      *
@@ -97,7 +97,7 @@ public class ResponseWrangler {
 	    if(dtm.getValueAt(row, 10) != null){
 		sample_id = (int)dtm.getValueAt(row, 10);
 	    }
-		sorted_response[row][3] = sample_id;
+	    sorted_response[row][3] = sample_id;
 	  
 	switch(_desired_response){
 	case 0: //raw
@@ -235,15 +235,15 @@ public class ResponseWrangler {
     // 	System.out.println("pos_hits: " + getHitsAboveThreshold(mean_pos));
     // }
 
-    /*
-    for(int i=0; i < sorted_response.length; i++){
-	System.out.println("[" + i + "][0] " + sorted_response[i][0] );
-	System.out.println("[" + i + "][1] " + sorted_response[i][1]);
-	System.out.println("[" + i + "][2] " + sorted_response[i][2]);
-	System.out.println("[" + i + "][3] " + sorted_response[i][3]);
+    
+    // for(int i=0; i < sorted_response.length; i++){
+    // 	System.out.println("[" + i + "][0] " + sorted_response[i][0] );
+    // 	System.out.println("[" + i + "][1] " + sorted_response[i][1]);
+    // 	System.out.println("[" + i + "][2] " + sorted_response[i][2]);
+    // 	System.out.println("[" + i + "][3] " + sorted_response[i][3]);
 	
-    }
-    */
+    // }
+    
 	
     
     }

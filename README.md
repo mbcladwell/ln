@@ -29,6 +29,20 @@ project/ln\$ ./webstart/signjar.sh
 
 syncd/labsolns\$ hexo deploy
 
+## Versions
+
+0.1.02.01 
+
+implemented global search, averaging of replicates, up navigation uses codax tracking
+
+0.1.01.20 
+
+License key requirement added
+
+0.1
+
+
+
 ## Examples
 
 ...

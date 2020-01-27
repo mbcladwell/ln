@@ -379,12 +379,17 @@ public class ScatterPlot extends JFrame {
 		    scaleY = (hgt-margin)/max_response;  
 		}
 	
-		scaleX = (wth-margin)/Double.valueOf(format);
+		//	scaleX = (wth-margin)/Double.valueOf(format);
+		scaleX = (wth-margin)/Double.valueOf(sortedResponse.length);
+		
 		//    double[][]  sortedResponse [response] [well] [type_id] [sample_id]
 		
 		for (int i = 0; i < sortedResponse.length; i++) {
-	     
-
+	// System.out.println("[" + i + "][0] " + sortedResponse[i][0] );
+	// System.out.println("[" + i + "][1] " + sortedResponse[i][1]);
+	// System.out.println("[" + i + "][2] " + sortedResponse[i][2]);
+	// System.out.println("[" + i + "][3] " + sortedResponse[i][3]);
+	
 		    //set // commentlor based on well type
 		    switch((int)Math.round(sortedResponse[i][2])){
 		    case 1: g.setColor(Color.black);
@@ -392,7 +397,7 @@ public class ScatterPlot extends JFrame {
 		    case 2: g.setColor(Color.green);
 			break;
 		    case 3: g.setColor(Color.red);
-			//LOGGER.info("color set to red");
+			LOGGER.info("color set to red");
 			break;
 		    case 4: g.setColor(Color.gray);
 			break;
@@ -401,48 +406,53 @@ public class ScatterPlot extends JFrame {
 		    }
 
 	      
-		    int xpt = (int)Math.round(originX + scaleX*sortedResponse[i][1]);
+		    //int xpt = (int)Math.round(originX + scaleX*sortedResponse[i][1]);
+		    int xpt = (int)Math.round(originX + scaleX*i);
 		    int ypt = (int)Math.round(originY - scaleY*sortedResponse[i][0]);
-	      // LOGGER.info("scaleX: " + scaleX + " response: " + sortedResponse[i][0] + " xpt: " + xpt);
+		    //  LOGGER.info("scaleX: " + scaleX + " response: " + sortedResponse[i][0] + " xpt: " + xpt);
+		    //LOGGER.info("scaleY: " + scaleY + " yval: " + sortedResponse[i][1] + " ypt: " + ypt);
 
-	      g.drawString("X", xpt, ypt);
+	      
+	       g.drawString("X", xpt, ypt);
+		   	      
 
 	      g.setColor(Color.black);
 	      g.drawLine(margin, 0,  margin, hgt-margin); // y-axis
 	      g.drawLine(margin, hgt-margin, wth-10, hgt-margin); // x-axis
 
 	      if(selected_response == p_enhanced_response ){
-		  g.drawString("Well", (int)Math.round(originX + (wth-margin)/2)  , (int)Math.round(originY*2 + margin/2 + 10) );
+		  g.drawString("Index of Sorted Response (High to Low)", (int)Math.round(originX + (wth-margin)/2 - 120)  , (int)Math.round(originY*2 + margin/2 ) );
 	      }else{
-		  g.drawString("Well", (int)Math.round(originX + (wth-margin)/2)  , (int)Math.round(originY + margin/2 + 10) );
+		  g.drawString("Index of Sorted Response (High to Low)", (int)Math.round(originX + (wth-margin)/2 - 120)  , (int)Math.round(originY + margin/2 ) );
 	      }
 	     
 	      
 	      //draw the axes ticks and labels
+	      //This only worked when plotting well on X axis - and only for singlicates
 	      
-	      switch(format){
-	      case 96:		  
-		  for( int j = 10; j <100; j=j+10 ){  //X- axis
-		      g.drawLine( (int)Math.round(originX +scaleX*j), hgt-margin,   (int)Math.round(originX +scaleX*j), hgt-margin+10);
-		      g.drawString(String.valueOf(j),  (int)Math.round(originX +scaleX*j - 10), hgt-margin+25 );
-		  }		  
-		  break;
-	      case 384:
-		  for( int j = 50; j <=400; j=j+50 ){  //X- axis
-		      g.drawLine( (int)Math.round(originX +scaleX*j), hgt-margin,   (int)Math.round(originX +scaleX*j), hgt-margin+10);
-		      g.drawString(String.valueOf(j),  (int)Math.round(originX +scaleX*j - 10), hgt-margin+25 );
-		  }		  
+	      // switch(format){
+	      // case 96:		  
+	      // 	  for( int j = 10; j <100; j=j+10 ){  //X- axis
+	      // 	      g.drawLine( (int)Math.round(originX +scaleX*j), hgt-margin,   (int)Math.round(originX +scaleX*j), hgt-margin+10);
+	      // 	      g.drawString(String.valueOf(j),  (int)Math.round(originX +scaleX*j - 10), hgt-margin+25 );
+	      // 	  }		  
+	      // 	  break;
+	      // case 384:
+	      // 	  for( int j = 50; j <=400; j=j+50 ){  //X- axis
+	      // 	      g.drawLine( (int)Math.round(originX +scaleX*j), hgt-margin,   (int)Math.round(originX +scaleX*j), hgt-margin+10);
+	      // 	      g.drawString(String.valueOf(j),  (int)Math.round(originX +scaleX*j - 10), hgt-margin+25 );
+	      // 	  }		  
 		  
-		  break;    
-	      case 1536:
-		  for( int j = 155; j <1550; j=j+155 ){  //X- axis
-		      g.drawLine( (int)Math.round(originX +scaleX*j), hgt-margin,   (int)Math.round(originX +scaleX*j), hgt-margin+10);
-		      g.drawString(String.valueOf(j),  (int)Math.round(originX +scaleX*j - 10), hgt-margin+25 );
-		  }		  
+	      // 	  break;    
+	      // case 1536:
+	      // 	  for( int j = 155; j <1550; j=j+155 ){  //X- axis
+	      // 	      g.drawLine( (int)Math.round(originX +scaleX*j), hgt-margin,   (int)Math.round(originX +scaleX*j), hgt-margin+10);
+	      // 	      g.drawString(String.valueOf(j),  (int)Math.round(originX +scaleX*j - 10), hgt-margin+25 );
+	      // 	  }		  
 
 		  
-		  break;	    
-	      }
+	      // 	  break;	    
+	      // }
 
 	      //scale Y is 280 i.e. Y axis broke into 280 units, 140 on each side of 0
 	      //so height - margin is 280

@@ -209,7 +209,7 @@ public class MenuBarForGlobalQuery extends JMenuBar {
 	IFn getProjectSysName = Clojure.var("ln.codax-manager", "get-project-sys-name");
 
 	String project_sys_name = (String)getProjectSysName.invoke();
-            dbm.getDialogMainFrame().showPlateSetTable(project_sys_name);
+            dbm.getDialogMainFrame().flipToProjectTable();
 	    	    	      dbm.getDialogMainFrame().setMainFrameTitle("");
 
           }

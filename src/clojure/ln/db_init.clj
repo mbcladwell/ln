@@ -19,7 +19,7 @@
 (def all-table-names
   ;;for use in a map function that will delete all tables
   ;;single command looks like:  (jdbc/drop-table-ddl :lnuser {:conditional? true } )
-  ["well_numbers" "worklists" "rearray_pairs" "temp_accs_id" "import_plate_layout" "plate_layout" "well_type" "hit_sample" "hit_list" "assay_result" "assay_run" "assay_type" "well_sample" "sample" "well" "plate" "plate_plate_set" "plate_set" "layout_source_dest" "plate_layout_name" "plate_format" "plate_type" "project" "lnsession" "lnuser" "lnuser_groups"] )
+  ["well_numbers" "worklists" "rearray_pairs" "temp_accs_id" "import_plate_layout" "plate_layout" "well_type" "hit_sample" "hit_list" "assay_result" "assay_result_pre" "assay_run" "assay_type" "well_sample" "sample" "well" "plate" "plate_plate_set" "plate_set" "layout_source_dest" "plate_layout_name" "plate_format" "plate_type" "project" "lnsession" "lnuser" "lnuser_groups"] )
 
 
 
@@ -185,7 +185,7 @@
                            ])]
 
        [(jdbc/create-table-ddl :assay_result_pre
-                          [   [:assay_run_id :int]
+                          [ [:assay_run_id :int]
                             [:plate_order :int]
                             [:well :int]
                            [:response :real]                        
