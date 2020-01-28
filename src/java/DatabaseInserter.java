@@ -814,10 +814,9 @@ if(num_of_plate_ids*format_id!=table.size()-1){
       for(int i = 0; i < sorted_response.length; i++){
 	  if(sorted_response[i][2]== 1 && counter < _num_hits && sorted_response[i][3]!= 0){
 	  hit_list[counter] = (Object)Math.round(sorted_response[i][3]);
+	  // System.out.println("i: " + i + "    counter: "  + counter + "  hit_list[counter]: " + hit_list[counter]);
 	  counter++;
 	  }
-       
-	  System.out.println("i: " + i + " " + sorted_response[i][0] + " " + sorted_response[i][1]+ " " + sorted_response[i][2]+ " " + sorted_response[i][3] + "     counter:  " + (counter-1) +  "       hit_list[counter-1]:  " +  hit_list[counter-1]);
       }
       
       

@@ -181,7 +181,6 @@ public class AdminMenu extends JMenu {
         });
     this.add(menuItem);
 
-        projectMenu.add(menuItem);
 
     menuItem = new JMenuItem("DB Utilities", KeyEvent.VK_U);
     menuItem.addActionListener(

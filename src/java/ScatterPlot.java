@@ -397,7 +397,7 @@ public class ScatterPlot extends JFrame {
 		    case 2: g.setColor(Color.green);
 			break;
 		    case 3: g.setColor(Color.red);
-			LOGGER.info("color set to red");
+			//	LOGGER.info("color set to red");
 			break;
 		    case 4: g.setColor(Color.gray);
 			break;
