@@ -398,7 +398,7 @@ BEGIN
 
 
 CREATE TABLE data_set AS
-SELECT max(assay_result_pre.assay_run_id) as assay_run_id, assay_result_pre.plate_order, max(assay_result_pre.well) as well, avg( assay_result_pre.response) as response, '' AS bkgrnd_sub, '' AS norm,'' AS norm_pos,'' AS p_enhance,  max(plate_layout.well_by_col) AS well_by_col, max(plate_layout.well_type_id) AS well_type_id, plate_layout.replicates, plate_layout.target, max(assay_run.plate_layout_name_id) AS plate_layout_name_id, well_numbers.parent_well
+SELECT max(assay_result_pre.assay_run_id) as assay_run_id, assay_result_pre.plate_order, max(assay_result_pre.well) as well, avg( assay_result_pre.response) as response, 0.0 AS bkgrnd_sub, 0.0 AS norm, 0.0 AS norm_pos,0.0 AS p_enhance,  max(plate_layout.well_by_col) AS well_by_col, max(plate_layout.well_type_id) AS well_type_id, plate_layout.replicates, plate_layout.target, max(assay_run.plate_layout_name_id) AS plate_layout_name_id, well_numbers.parent_well
 FROM assay_result_pre, assay_run, plate_layout, plate_layout_name, well_numbers
 WHERE  assay_result_pre.well = plate_layout.well_by_col AND 
        assay_result_pre.assay_run_id = assay_run.id AND  
@@ -410,32 +410,45 @@ WHERE  assay_result_pre.well = plate_layout.well_by_col AND
 GROUP BY well_numbers.parent_well, plate_layout.replicates, plate_layout.target, assay_result_pre.plate_order
 ORDER BY plate_order, parent_well;
 
+-- background subtract
 
--- SELECT ARRAY (SELECT distinct plate_order FROM data_set WHERE data_set.assay_run_id = _assay_run_id  ORDER BY plate_order) INTO plates;
-SELECT ARRAY (SELECT distinct plate_order FROM data_set  ORDER BY plate_order) INTO plates;
+SELECT ARRAY (SELECT distinct plate_order FROM data_set WHERE data_set.assay_run_id = _assay_run_id  ORDER BY plate_order) INTO plates;
 
 FOR plate_var IN 1..array_length(plates,1) LOOP
+  SELECT AVG(data_set.response) FROM data_set WHERE data_set.plate_order = plate_var AND data_set.well_type_id=4 INTO background;
+  SELECT ARRAY (SELECT distinct well FROM data_set WHERE plate_order=plate_var ORDER BY well) INTO wells;
 
-SELECT AVG(data_set.response) FROM data_set WHERE data_set.plate_order = plate_var AND data_set.well_type_id=2 INTO positives;
-SELECT AVG(data_set.response) FROM data_set WHERE data_set.plate_order = plate_var AND data_set.well_type_id=3 INTO negatives;
-SELECT AVG(data_set.response) FROM data_set WHERE data_set.plate_order = plate_var AND data_set.well_type_id=4 INTO background;
-SELECT MAX(data_set.response) FROM data_set WHERE data_set.plate_order = plate_var AND data_set.well_type_id=1 INTO unk_max;
+  FOR well_var IN 1..array_length(wells,1) LOOP
 
-SELECT ARRAY (SELECT distinct well FROM data_set WHERE plate_order=plate_var ORDER BY well) INTO wells;
-
-       FOR well_var IN 1..array_length(wells,1) LOOP
-
-
-          UPDATE data_set SET bkgrnd_sub  = (data_set.response-background), norm = ((data_set.response-background)/unk_max), norm_pos = ((data_set.response-background)/positives), p_enhance = 100*(((data_set.response-negatives)/(positives-negatives))-1) WHERE assay_run_id = _assay_run_id AND plate_order=plate_var AND well = wells[well_var];
+          UPDATE data_set SET bkgrnd_sub  = GREATEST( (data_set.response-background), 0) WHERE assay_run_id = _assay_run_id AND plate_order=plate_var AND well = wells[well_var];
 -- raise notice 'well: %; plate %', wells[well_var], plate_var;
 
    END LOOP;
 
 END LOOP;
 
+-- use background subtracted values
+
+FOR plate_var IN 1..array_length(plates,1) LOOP
+
+SELECT AVG(data_set.bkgrnd_sub) FROM data_set WHERE data_set.plate_order = plate_var AND data_set.well_type_id=2 INTO positives;
+SELECT AVG(data_set.bkgrnd_sub) FROM data_set WHERE data_set.plate_order = plate_var AND data_set.well_type_id=3 INTO negatives;
+SELECT MAX(data_set.bkgrnd_sub) FROM data_set WHERE data_set.plate_order = plate_var AND data_set.well_type_id=1 INTO unk_max;
+raise notice 'plate %; unk_max: %', plate_var, unk_max;
+
+SELECT ARRAY (SELECT distinct well FROM data_set WHERE plate_order=plate_var ORDER BY well) INTO wells;
+
+       FOR well_var IN 1..array_length(wells,1) LOOP
+
+          UPDATE data_set SET  norm = (data_set.bkgrnd_sub/unk_max), norm_pos = (data_set.bkgrnd_sub/positives), p_enhance = 100*(((data_set.bkgrnd_sub-negatives)/(positives-negatives))-1) WHERE assay_run_id = _assay_run_id AND plate_order=plate_var AND well = wells[well_var];
+   END LOOP;
+
+END LOOP;
+
+
 INSERT INTO assay_result SELECT assay_run_id, plate_order, well, response , bkgrnd_sub::REAL, norm::REAL, norm_pos::REAL, p_enhance::REAL from data_set;
-DROP TABLE IF EXISTS data_set;
-TRUNCATE TABLE assay_result_pre;
+ DROP TABLE IF EXISTS data_set;
+ TRUNCATE TABLE assay_result_pre;
 
 END;
 $BODY$
@@ -757,6 +770,30 @@ END;
 $func$
   LANGUAGE plpgsql VOLATILE;"])
 
+
+(def drop-delete-neg-value ["DROP FUNCTION IF EXISTS delete_neg_response();"])
+
+(def delete-neg-value ["
+CREATE OR REPLACE FUNCTION delete_neg_response()
+  RETURNS trigger AS
+$BODY$
+BEGIN
+
+NEW.response= GREATEST(NEW.response,0);
+
+ RETURN NEW;
+END;
+$BODY$
+  LANGUAGE plpgsql VOLATILE;"])
+
+(def drop-delete-neg-value-trigger ["DROP TRIGGER IF EXISTS delete_neg_value;"])
+
+(def delete-neg-value-trigger ["CREATE TRIGGER delete_neg_value BEFORE INSERT ON assay_result_pre
+                              FOR EACH ROW EXECUTE PROCEDURE delete_neg_response();"])
+
+
+
+
 (def drop-all-functions
   [drop-new-user
    drop-new-project
@@ -777,7 +814,9 @@ $func$
    drop-rearray-transfer-samples
    drop-create-layout-records
    drop-get-all-data-for-assay-run
-   drop-global-search])
+   drop-global-search
+   drop-delete-neg-value
+   drop-delete-neg-value-trigger])
 
 (def all-functions
   ;;for use in a map function that will create all functions
@@ -790,6 +829,17 @@ $func$
    assoc-plate-ids-with-plate-set-id
    new-plate new-sample new-assay-run
    get-ids-for-sys-names
-   get-number-samples-for-psid new-plate-layout reformat-plate-set process-assay-run-data get-scatter-plot-data new-hit-list process-access-ids rearray-transfer-samples create-layout-records get-all-data-for-assay-run
-   global-search])
+   get-number-samples-for-psid
+   new-plate-layout
+   reformat-plate-set
+   process-assay-run-data
+   get-scatter-plot-data
+   new-hit-list
+   process-access-ids
+   rearray-transfer-samples
+   create-layout-records
+   get-all-data-for-assay-run
+   global-search
+   delete-neg-value
+   delete-neg-value-trigger])
 
