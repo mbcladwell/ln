@@ -771,7 +771,7 @@ $func$
   LANGUAGE plpgsql VOLATILE;"])
 
 
-(def drop-delete-neg-value ["DROP FUNCTION IF EXISTS delete_neg_response();"])
+(def drop-delete-neg-value ["DROP FUNCTION IF EXISTS delete_neg_response() CASCADE;"])
 
 (def delete-neg-value ["
 CREATE OR REPLACE FUNCTION delete_neg_response()
@@ -786,7 +786,7 @@ END;
 $BODY$
   LANGUAGE plpgsql VOLATILE;"])
 
-(def drop-delete-neg-value-trigger ["DROP TRIGGER IF EXISTS delete_neg_value;"])
+(def drop-delete-neg-value-trigger ["DROP TRIGGER IF EXISTS delete_neg_value ON assay_result_pre;"])
 
 (def delete-neg-value-trigger ["CREATE TRIGGER delete_neg_value BEFORE INSERT ON assay_result_pre
                               FOR EACH ROW EXECUTE PROCEDURE delete_neg_response();"])

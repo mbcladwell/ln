@@ -494,3 +494,5 @@ assayid	PlateOrder	Well	Response	BkSub	Norm	NormPos	pEnhanced
 
 ;;(add-example-data)
 ;;(println cm/conn)
+
+;;(jdbc/db-do-commands cm/conn true  ln.db-functions/drop-delete-neg-value)
