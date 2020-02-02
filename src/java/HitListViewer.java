@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.util.logging.Logger;
 
 import javax.swing.BorderFactory;
+import javax.swing.border.TitledBorder;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
@@ -52,6 +53,7 @@ public class HitListViewer extends JDialog implements java.awt.event.ActionListe
     private JPanel arButtons;
     private JPanel hlButtons;
     private int current_project_id;
+    private TitledBorder hits_pane_border;
     private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
   // final EntityManager em;
   private static final long serialVersionUID = 1L;
@@ -79,7 +81,7 @@ public class HitListViewer extends JDialog implements java.awt.event.ActionListe
 
     hits_pane = new JPanel(new BorderLayout());
     hits_pane.setBorder(BorderFactory.createRaisedBevelBorder());
-    javax.swing.border.TitledBorder hits_pane_border = BorderFactory.createTitledBorder("Hits (Total count = "+ hits_table.getRowCount()  +  "):");
+    hits_pane_border = BorderFactory.createTitledBorder("Hits (Total count = "+ hits_table.getRowCount()  +  "):");
     hits_pane_border.setTitlePosition(javax.swing.border.TitledBorder.TOP);
     hits_pane.setBorder(hits_pane_border);
 
@@ -186,6 +188,8 @@ public class HitListViewer extends JDialog implements java.awt.event.ActionListe
 	JTable new_counts_table = dbm.getDatabaseRetriever().getHitCountPerPlateSet(((Long)getProjectID.invoke()).intValue(), selected_hit_list_id);
 	TableModel new_model2 = new_counts_table.getModel();
 	counts_table.setModel(new_model2);
+	hits_pane_border.setTitle("Hits (Total count = "+ hits_table.getRowCount()  +  "):");
+	repaint();
 
     }
 
