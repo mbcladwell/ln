@@ -1054,7 +1054,7 @@ int plate_layout_name_id = _plate_layout_name_id;
 
 	String plate_set_id[] = _plate_set_id;
 	CustomTable ct;
-	String sqlstring_pre = "SELECT plate_set.plate_set_sys_name as \"Plate Set\", plate.plate_sys_name as \"Plate\", well.by_col as \"Well\", sample.sample_sys_name as \"Sample\", sample.accs_id as \"Accession\"  FROM  plate_plate_set, plate_set, plate, well, well_sample, sample WHERE  plate_plate_set.plate_set_id=plate_set.id AND plate_plate_set.plate_id=plate.ID and plate.id=well.plate_id and well_sample.well_id=well.id and well_sample.sample_id=sample.id  and plate_set.id IN (";
+	String sqlstring_pre = "SELECT plate_set.plate_set_sys_name as \"Plate Set\", plate.plate_sys_name as \"Plate\", plate_plate_set.plate_order AS \"Order\", well.by_col as \"Well\", sample.sample_sys_name as \"Sample\", sample.accs_id as \"Accession\"  FROM  plate_plate_set, plate_set, plate, well, well_sample, sample WHERE  plate_plate_set.plate_set_id=plate_set.id AND plate_plate_set.plate_id=plate.ID and plate.id=well.plate_id and well_sample.well_id=well.id and well_sample.sample_id=sample.id  and plate_set.id IN (";
 
 	String sqlstring_mid  = new String();
 

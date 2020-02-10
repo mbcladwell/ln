@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 import java.util.logging.Logger;
+import org.postgresql.util.PSQLException;
 
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
@@ -191,7 +192,6 @@ public int insertPlateSet(
       int new_plate_set_id=0;
       //SELECT new_plate_set('d1', 'n1', 2,96,1,1,1,1,true);
     try {
-	LOGGER.info("in dbi");
 
       String insertSql = "SELECT new_plate_set( ?, ?, ?, ?, ?, ?, ?, ?, ?);";
       PreparedStatement insertPs =
@@ -400,7 +400,7 @@ public int insertPlateSet(
       plate_ids.add(dbm.getDatabaseRetriever().getIDForSysName(temp, "plate"));
     }
 
-   System.out.println("finished dbi.groupPlatesIntoPlateSet;  keys: " + plate_ids);
+    //System.out.println("finished dbi.groupPlatesIntoPlateSet;  keys: " + plate_ids);
 
     this.associatePlateIDsWithPlateSetID(plate_ids, new_plate_set_id);
      IFn getProjectSysName = Clojure.var("ln.codax-manager", "get-project-sys-name");
@@ -423,7 +423,7 @@ public int insertPlateSet(
       preparedStatement.setArray(1, conn.createArrayOf("INTEGER", plate_ids));
       preparedStatement.setInt(2, plate_set_id);
       preparedStatement.execute(); // executeUpdate expects no returns!!!
-    System.out.println("In dbi.assocPlateIdsWithPlateSetID;  insertSql: " + preparedStatement);
+      // System.out.println("In dbi.assocPlateIdsWithPlateSetID;  insertSql: " + preparedStatement);
  
     } catch (SQLException sqle) {
       LOGGER.warning("Failed to properly prepare  prepared statement: " + sqle);
@@ -469,16 +469,24 @@ public int insertPlateSet(
 
 
     
-Integer[] plate_set_id =
+    Integer[] plate_set_id =
         dbm.getDatabaseRetriever()
             .getIDsForSysNames(plate_set_sys_name, "plate_set", "plate_set_sys_name");
 
- int num_of_plate_ids = dbm.getDatabaseRetriever().getAllPlateIDsForPlateSetID(plate_set_id[0]).size();
-//check that there are the correct number of rows in the table
-if(num_of_plate_ids*format_id!=table.size()-1){
+    int num_of_plate_ids = dbm.getDatabaseRetriever().getAllPlateIDsForPlateSetID(plate_set_id[0]).size();
+    //check that there are the correct number of rows in the table
+    if(num_of_plate_ids*format_id!=table.size()-1){
     	JOptionPane.showMessageDialog(dbm.getDialogMainFrame(), new String("Expecting " + String.valueOf(num_of_plate_ids*format_id) + " rows but found " + (table.size()-1) + " rows." ), "Import Error", JOptionPane.ERROR_MESSAGE);
 	return;
+    }
+    
+    if(table.get(0).length > 3){
+    JOptionPane.showMessageDialog(dbm.getDialogMainFrame(), new String("Found " + (table.get(0)).length + " columns, expecting 3: plate, well, response. "  ), "Import Error", JOptionPane.ERROR_MESSAGE);
+	return;
+    
 }
+
+  
 
     int assay_run_id =
         createAssayRun(assayName, descr, assay_type_id, plate_set_id[0], plate_layout_name_id);
@@ -520,8 +528,6 @@ if(num_of_plate_ids*format_id!=table.size()-1){
       return;
     }
 
-    
-    
     /**
      *
      * <p>Diagnostic query
@@ -552,7 +558,7 @@ if(num_of_plate_ids*format_id!=table.size()-1){
 
     //here I need to call process_assay_run_data(_assay_run_id integer) to normalize and background subtract
     //normalized data is in existing columns in assay_result
-    
+     
     String sql1 =
         "SELECT process_assay_run_data( " + assay_run_id + ");";
 
@@ -560,11 +566,14 @@ if(num_of_plate_ids*format_id!=table.size()-1){
     PreparedStatement insertPs2;
     try {
       insertPs2 = conn.prepareStatement(sql1);
-      insertPreparedStatement(insertPs2);
+      insertPs2.execute();         //executeUpdate() expects no returns
     } catch (SQLException sqle) {
-      LOGGER.warning("Failed to properly prepare  prepared statement: " + sqle);
+      JOptionPane.showMessageDialog(
+				    dbm.getDialogMainFrame(), "SQL Exception: " + (((SQLException)sqle).getMessage()).substring(0,150) + "...\n\nDoes the data match the layout?\n\nRead \"Simplifying Assumptions\" in the help.", "Error", JOptionPane.ERROR_MESSAGE);
+	   
+      //LOGGER.warning("Failed to properly prepare  prepared statement: " + sqle);
     }
-
+    
     //Now I need to select hits if requested by user.  I have the assay_run_id, and the algorithm for hit selection.
     // stored procedure: new_hit_list(_name VARCHAR, _descr VARCHAR, _num_hits INTEGER, _assay_run_id INTEGER,  _lnsession_id INTEGER, hit_list integer[])
     // DialogNewHitList(DialogMainFrame _session.getDialogMainFrame(), int  _assay_run_id, double[][] _selected_response, int _num_hits)
@@ -572,14 +581,16 @@ if(num_of_plate_ids*format_id!=table.size()-1){
     // 	norm_response = new ResponseWrangler(table, ResponseWrangler.NORM);
    //    double[][]  sortedResponse [response] [well] [type_id] [sample_id];
     // selected_response.getHitsAboveThreshold(threshold))
+   LOGGER.info("auto select: " + auto_select_hits);
  
     
     if(auto_select_hits){
-
+	
 	ResponseWrangler rw = new ResponseWrangler(dbm.getDatabaseRetriever().getDataForScatterPlot(assay_run_id),ResponseWrangler.NORM);
 	double[][] sorted_response = rw.getSortedResponse();
 	int number_of_hits = 0;
-       
+       LOGGER.info("algorith: " + hit_selection_algorithm);
+	
 	
 	switch(hit_selection_algorithm){
 	case 1: //Top N
@@ -651,10 +662,11 @@ if(num_of_plate_ids*format_id!=table.size()-1){
 
     /**
      * Called from AdminMenu
+     * Not used - no cascading delete in Postgres
      */
     public void deleteProject(int _prj_id){
 	int prj_id = _prj_id;
-    String sqlstring = "delete from project  WHERE project.id = ?;";
+    String sqlstring = "delete from project  WHERE project.id = ? CASCADE;";
     PreparedStatement preparedStatement;
     try {
       preparedStatement = conn.prepareStatement(sqlstring);
@@ -699,7 +711,7 @@ if(num_of_plate_ids*format_id!=table.size()-1){
 	int dest_plate_set_id=0;
 
       // method signature:  reformat_plate_set(source_plate_set_id INTEGER, source_num_plates INTEGER, n_reps_source INTEGER, dest_descr VARCHAR(30), dest_plate_set_name VARCHAR(30), dest_num_plates INTEGER, dest_plate_format_id INTEGER, dest_plate_type_id INTEGER, project_id INTEGER, dest_plate_layout_name_id INTEGER )
-	System.out.println("dest-plate-id: " + dest_plate_layout_name_id);
+	//System.out.println("dest-plate-id: " + dest_plate_layout_name_id);
       
     try {
       String insertSql = "SELECT reformat_plate_set( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
@@ -719,7 +731,7 @@ if(num_of_plate_ids*format_id!=table.size()-1){
       insertPs.setInt(11, session_id);
       
 
-      LOGGER.info(insertPs.toString());
+      //LOGGER.info(insertPs.toString());
       insertPs.execute();
       ResultSet resultSet = insertPs.getResultSet();
       resultSet.next();
@@ -733,7 +745,7 @@ if(num_of_plate_ids*format_id!=table.size()-1){
       
 	
 	
-	LOGGER.info("new_(reformatted)plate_set_id: " + dest_plate_set_id);
+    //	LOGGER.info("new_(reformatted)plate_set_id: " + dest_plate_set_id);
       
 }
     
@@ -851,10 +863,7 @@ if(num_of_plate_ids*format_id!=table.size()-1){
 	String plate_set_sys_name = new String("PS-" + String.valueOf(plate_set_id));
 	int plate_num = dbm.getDatabaseRetriever().getNumberOfPlatesForPlateSetID(plate_set_id);
 	int format_id = dbm.getDatabaseRetriever().getFormatForPlateSetID(plate_set_id);
-	   
-		new DialogImportPlateSetAccessionIDs(dbm, plate_set_sys_name, plate_set_id, format_id, plate_num);
-	
-	
+	new DialogImportPlateSetAccessionIDs(dbm, plate_set_sys_name, plate_set_id, format_id, plate_num);
     }
 
     /**
