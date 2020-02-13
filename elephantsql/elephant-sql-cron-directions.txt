@@ -1,0 +1,14 @@
+Set up a cron job to refresh elephantsql every night
+
+
+su 
+
+#crontab -e
+
+
+# m h  dom mon dow   command
+ 0 0 * * * psql postgres://klohymim:hwc3v4_rbkT-1EL2KI-JBaqFq0thCXM_@raja.db.elephantsql.com:5432/klohymim < /home/mbc/Downloads/create_data.sql
+
+assay_data_for_elephantsql.sql has multiple inserts, scroll down to see the data processing commands
+
+
