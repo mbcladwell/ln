@@ -132,7 +132,7 @@
          <column autoUpdated="false" digits="0" id="0" name="src" nullable="false" remarks="" size="10" type="int4"/>
          <column autoUpdated="false" digits="0" id="1" name="dest" nullable="false" remarks="" size="10" type="int4"/>
       </table>
-      <table name="lnsession" numRows="2" remarks="" schema="lims_nucleus" type="TABLE">
+      <table name="lnsession" numRows="4" remarks="" schema="lims_nucleus" type="TABLE">
          <column autoUpdated="true" defaultValue="nextval('lnsession_id_seq'::regclass)" digits="0" id="0" name="id" nullable="false" remarks="" size="10" type="serial">
             <child column="lnsession_id" foreignKey="assay_run_lnsession_id_fkey" implied="false" onDeleteCascade="false" schema="lims_nucleus" table="assay_run"/>
             <child column="lnsession_id" foreignKey="hit_list_lnsession_id_fkey" implied="false" onDeleteCascade="false" schema="lims_nucleus" table="hit_list"/>

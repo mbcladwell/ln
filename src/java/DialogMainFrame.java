@@ -127,7 +127,7 @@ public class DialogMainFrame extends JFrame {
 
   public void showWellTable(String _plate_sys_name) {
       int plate_id = Integer.parseInt(_plate_sys_name.substring(4));
-      System.out.println(plate_id);
+      //System.out.println(plate_id);
       well_card = new WellPanel(dbm, dbm.getDatabaseRetriever().getDMFTableData(plate_id, DialogMainFrame.WELL, null));
       cards.add(well_card, "Well");
       card_layout.show(cards, "Well");
