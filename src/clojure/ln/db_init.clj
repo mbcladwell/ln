@@ -19,7 +19,7 @@
 (def all-table-names
   ;;for use in a map function that will delete all tables
   ;;single command looks like:  (jdbc/drop-table-ddl :lnuser {:conditional? true } )
-  ["well_numbers" "worklists" "rearray_pairs" "temp_accs_id" "import_plate_layout" "plate_layout" "well_type" "hit_sample" "hit_list" "assay_result" "assay_result_pre" "assay_run" "assay_type" "well_sample" "sample" "well" "plate" "plate_plate_set" "plate_set" "layout_source_dest" "plate_layout_name" "plate_format" "plate_type" "project" "lnsession" "lnuser" "lnuser_groups"] )
+  ["well_numbers" "worklists" "rearray_pairs" "temp_accs_id" "import_plate_layout" "plate_layout" "well_type" "hit_sample" "hit_list" "assay_result" "assay_result_pre" "assay_run" "assay_type" "well_sample" "sample" "well" "plate" "plate_plate_set" "plate_set" "layout_source_dest" "plate_layout_name" "plate_format" "plate_type" "project" "lnsession" "lnuser" "lnuser_groups" "target" "target_layout" "target_layout_name"] )
 
 
 
@@ -91,9 +91,38 @@
                            [[:src :int "NOT NULL"]
                             [:dest :int "NOT NULL"]
                             ])]
+   [(jdbc/create-table-ddl :target
+                           [[:id "SERIAL PRIMARY KEY"]
+                            [:target_sys_name "varchar(30)"]
+                            [:project_id :int]
+                            [:target_name "VARCHAR(30)"]
+                            [:descr "VARCHAR(250)"]
+                            [:accs_id "varchar(30)"]
+                            ["FOREIGN KEY (project_id) REFERENCES project(id)"]
+		           ])]
+
+
+   [(jdbc/create-table-ddl :target_layout_name
+                           [[:id "SERIAL PRIMARY KEY"]
+                            [:project_id :int]
+                            [:target_layout_id :int]
+                            [:target_layout_name_sys_name "varchar(30)"]
+                            [:target_layout_name_name "VARCHAR(30)"]
+                            [:target_layout_name_desc "VARCHAR(250)"]
+                            ["FOREIGN KEY (project_id) REFERENCES project(id)"]
+  		           ])]
+
+   [(jdbc/create-table-ddl :target_layout
+                           [[:target_layout_name_id :int]
+                            [:target_id :int]
+                            [:quad :int]
+                            ["FOREIGN KEY (target_id) REFERENCES target(id)"]
+                            ["FOREIGN KEY (target_layout_name_id) REFERENCES target_layout_name(id)"]
+		           ])]
+
    [(jdbc/create-table-ddl :plate_set
                            [[:id "SERIAL PRIMARY KEY"]
-                             [:plate_set_name "varchar(250)"]
+                            [:plate_set_name "varchar(250)"]
                             [:descr "varchar(250)"]
                             [:plate_set_sys_name "varchar(30)"]
                             [:num_plates :int ]
@@ -102,12 +131,14 @@
                             [:project_id :int ]
                             [:plate_layout_name_id :int ]
                             [:lnsession_id :int ]
+                            [:target_layout_name_id :int]
                             [:updated  :timestamp "with time zone not null DEFAULT current_timestamp"]
                             ["FOREIGN KEY (plate_type_id) REFERENCES plate_type(id)"]
                             ["FOREIGN KEY (plate_format_id) REFERENCES plate_format(id)"]
                             ["FOREIGN KEY (project_id) REFERENCES project(id) on delete cascade"]
                             ["FOREIGN KEY (lnsession_id) REFERENCES lnsession(id) on delete cascade"]
                             ["FOREIGN KEY (plate_layout_name_id) REFERENCES plate_layout_name(id)"]
+                            ["FOREIGN KEY (target_layout_name_id) REFERENCES target_layout_name(id)"]
                             ])]
 
     [(jdbc/create-table-ddl :plate
@@ -149,7 +180,7 @@
 		            ["FOREIGN KEY (sample_id) REFERENCES sample(id)"]
 		           ])]
 
-    
+   
   [(jdbc/create-table-ddl :assay_type
                            [[:id "SERIAL PRIMARY KEY"]
                             [:assay_type_name "varchar(250)"]
@@ -308,6 +339,8 @@
    ["CREATE INDEX ON rearray_pairs(src);"]
    ["CREATE INDEX ON rearray_pairs(dest);"]
    ["CREATE INDEX ON well_numbers(by_col);"]
+   ["CREATE INDEX ON target_layout(target_layout_name_id);"]
+   
    ])
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -443,8 +476,22 @@ assayid	PlateOrder	Well	Response	BkSub	Norm	NormPos	pEnhanced
          content)
     ]
 
-   ])
+   [:target [:id :target_sys_name :project_id :target_name :descr]
+    [[1 "TRG-1" nil "Target1" "Generic Target 1"]
+     [2 "TRG-2" nil "Target2" "Generic Target 2"]
+     [3 "TRG-3" nil "Target3" "Generic Target 3"]
+     [4 "TRG-4" nil "Target4" "Generic Target 4"]]]
 
+   [:target_layout_name [:id :project_id :target_layout_id :target_layout_name_sys_name :target_layout_name_name :target_layout_name_desc ] [[1 nil 1 "TLN-1" "Default" "Generic default target layout" ]]]
+
+   [:target_layout [:target_layout_name_id :target_id :quad]
+ [[1 1 1][1 2 2][1 3 3][1 4 4]]]
+
+
+
+
+]) ;;required-data end
+   
 (defn drop-all-tables
 ;;
 []

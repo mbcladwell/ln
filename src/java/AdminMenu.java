@@ -5,6 +5,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
+import java.util.Arrays;
+
 import java.util.logging.Logger;
 
 import javax.swing.JFileChooser;
@@ -22,7 +24,8 @@ public class AdminMenu extends JMenu {
     private DialogMainFrame dmf;
     private CustomTable project_table;
     static JTextField fileField;
-    private ArrayList<String[]> imported_layout;;    
+    private ArrayList<String[]> imported_layout;   
+    private ArrayList<String[]> imported_targets;    
     private JFileChooser fileChooser;
     private JMenu projectMenu;
     //    private Session session;
@@ -171,6 +174,52 @@ public class AdminMenu extends JMenu {
 							 JOptionPane.ERROR_MESSAGE);
 		       }
 		       new DialogImportLayoutViewer(dbm, imported_layout);
+		 
+		   } else {
+		       LOGGER.info("Open command cancelled by user.\n");
+		   }
+
+	      
+	  }
+        });
+    this.add(menuItem);
+
+        menuItem = new JMenuItem("Bulk target import", KeyEvent.VK_B);
+    menuItem.addActionListener(
+	   new ActionListener() {
+	       public void actionPerformed(ActionEvent e) {
+	       
+		   JFileChooser file_chooser= new JFileChooser();
+		   int returnVal = file_chooser.showOpenDialog(null);
+		   
+		   if (returnVal == JFileChooser.APPROVE_OPTION) {
+		       java.io.File file = file_chooser.getSelectedFile();
+		       // This is where a real application would open the file.
+		       imported_targets = utils.loadDataFile(file.toString());
+		       int cols_data = imported_targets.get(0).length; //for header
+		       if(cols_data!= 3 && cols_data!=4 ){
+			   JOptionPane.showMessageDialog(dmf,
+							 "Target import file must contain 3 or 4 columns of data.\nproject, target, description, (optionally) accession.\nSee Help targets for more information",
+							 "File format Error",
+							 JOptionPane.ERROR_MESSAGE);
+		       }
+		       //note that header is imported, test for col names
+		       //repackage into string matrix
+		       String[][] out_data = new String[cols_data][imported_targets.size()];
+		       for(int i = 1;  i < (imported_targets.size() ); i++){
+			   
+			   out_data[0][i] = imported_targets.get(i)[0];
+			   out_data[1][i] = imported_targets.get(i)[1];
+			   out_data[2][i] = imported_targets.get(i)[2];
+	       
+			   if(cols_data==4){
+			       out_data[3][i] = imported_targets.get(i)[3];
+			   }
+			   // System.out.println("i: " + i + "  out_data[0][i]: " + out_data[0][i] + "  out_data[1][i]: " + out_data[1][i] + "  out_data[2][i]: " + out_data[2][i] + "  out_data[3][i]: " + out_data[3][i]  );
+			   
+		       }
+			   
+		       dbm.getDatabaseInserter().bulkTargetUpload(out_data);  
 		 
 		   } else {
 		       LOGGER.info("Open command cancelled by user.\n");

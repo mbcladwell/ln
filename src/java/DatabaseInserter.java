@@ -1194,4 +1194,29 @@ public int insertPlateSet(
  //    dbm.getDialogMainFrame().showPlateSetTable((String)getProjectSysName.invoke());    
  //  }
 
+    public void bulkTargetUpload(String[][] _data){
+
+	//Integer[] hit_list = Arrays.stream( _hit_list ).boxed().toArray( Integer[]::new );
+	//Object[] hit_list = (Integer[])_hit_list;
+	      try {
+      String insertSql = "SELECT bulk_target_upload ( ? );";
+      PreparedStatement insertPs =
+          conn.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS);
+      
+      insertPs.setArray(1, conn.createArrayOf("STRING[]", _data));
+   
+      LOGGER.info(insertPs.toString());
+      insertPs.executeUpdate();
+      //ResultSet resultSet = insertPs.getResultSet();
+      //resultSet.next();
+      //new_plate_set_id = resultSet.getInt("new_plate_set");
+     
+    } catch (SQLException sqle) {
+	LOGGER.warning("SQLE at inserting new plate set: " + sqle);
+    }
+
+
+      }
+
+    
 }

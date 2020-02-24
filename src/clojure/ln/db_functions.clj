@@ -221,6 +221,44 @@ END;
 $BODY$
   LANGUAGE plpgsql VOLATILE;"])
 
+(def drop-new-target ["DROP FUNCTION IF EXISTS new_target(INTEGER,VARCHAR,VARCHAR,VARCHAR);"])
+
+(def new-target ["CREATE OR REPLACE FUNCTION new_(_project_id INTEGER, _trg_name varchar(30), _descr varchar(250), _accs_id varchar(30))
+  RETURNS void AS
+$BODY$
+DECLARE
+   v_id integer;
+BEGIN
+   
+   INSERT INTO target(project_id, trg_name, descr, accs_id)
+   VALUES (_project_id, _trg_name, _descr,   _accs_id)
+   RETURNING id INTO v_id;
+
+    UPDATE target SET target_sys_name = 'TRG-'||v_id WHERE id=v_id RETURNING id;
+END;
+$BODY$
+  LANGUAGE plpgsql VOLATILE;"])
+
+(def drop-new-target-layout-name ["DROP FUNCTION IF EXISTS new_target_layout_name(INTEGER,INTEGER,VARCHAR,VARCHAR);"])
+
+(def new-target-layout-name ["CREATE OR REPLACE FUNCTION new_target_layout_name(_project_id INTEGER, _trg_lyt_id INTEGER, _trg_lyt_name varchar(30), _descr varchar(250))
+  RETURNS void AS
+$BODY$
+DECLARE
+   v_id integer;
+BEGIN
+   
+   INSERT INTO target_layout_name(project_id, target_layout_id, trg_lyt_name_name, trg_lyt_name_descr)
+   VALUES (_project_id, _trg_lyt_id,  _trg_lyt_name, _descr)
+   RETURNING id INTO v_id;
+
+    UPDATE targetlayout_name SET target_layout_name_sys_name = 'TLY-'||v_id WHERE id=v_id RETURNING id;
+END;
+$BODY$
+  LANGUAGE plpgsql VOLATILE;"])
+
+
+
 (def drop-new-assay-run ["DROP FUNCTION IF EXISTS new_assay_run(  VARCHAR(30), VARCHAR(30), INTEGER,  INTEGER, INTEGER);"])
 
 (def new-assay-run [" CREATE OR REPLACE FUNCTION new_assay_run( _assay_run_name VARCHAR(30), _descr VARCHAR(30), _assay_type_id INTEGER, _plate_set_id INTEGER, _plate_layout_name_id INTEGER, _lnsession_id INTEGER )
