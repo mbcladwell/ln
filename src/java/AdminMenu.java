@@ -204,16 +204,16 @@ public class AdminMenu extends JMenu {
 							 JOptionPane.ERROR_MESSAGE);
 		       }
 		       //note that header is imported, test for col names
-		       //repackage into string matrix
-		       String[][] out_data = new String[cols_data][imported_targets.size()];
+		       //repackage into string matrix  String[rows][columns]
+		       String[][] out_data = new String[(imported_targets.size()-1)][cols_data];
 		       for(int i = 1;  i < (imported_targets.size() ); i++){
 			   
-			   out_data[0][i] = imported_targets.get(i)[0];
-			   out_data[1][i] = imported_targets.get(i)[1];
-			   out_data[2][i] = imported_targets.get(i)[2];
+			   out_data[i-1][0] = imported_targets.get(i)[0];
+			   out_data[i-1][1] = imported_targets.get(i)[1];
+			   out_data[i-1][2] = imported_targets.get(i)[2];
 	       
 			   if(cols_data==4){
-			       out_data[3][i] = imported_targets.get(i)[3];
+			       out_data[i-1][3] = imported_targets.get(i)[3];
 			   }
 			   // System.out.println("i: " + i + "  out_data[0][i]: " + out_data[0][i] + "  out_data[1][i]: " + out_data[1][i] + "  out_data[2][i]: " + out_data[2][i] + "  out_data[3][i]: " + out_data[3][i]  );
 			   

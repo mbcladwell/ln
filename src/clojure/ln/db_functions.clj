@@ -264,7 +264,21 @@ END;
 $BODY$
   LANGUAGE plpgsql VOLATILE;"])
 
+(def drop-bulk-target-upload ["DROP FUNCTION IF EXISTS bulk_target_upload( _fields text[]);"])
 
+(def bulk-target-upload ["CREATE OR REPLACE FUNCTION bulk_target_upload( _fields text[])
+   RETURNS void AS
+$func$
+DECLARE
+   m text[];
+BEGIN
+   FOREACH m SLICE 1 IN ARRAY _fields
+   LOOP
+         PERFORM new_target( CAST(m[1] AS INTEGER), m[2], m[3], m[4]);
+--      RAISE NOTICE '% EXECUTING fieldname: %, stats: %', now()::text, m[1], m[2];
+   END LOOP;
+END
+$func$  LANGUAGE plpgsql;"])
 
 (def drop-new-assay-run ["DROP FUNCTION IF EXISTS new_assay_run(  VARCHAR(30), VARCHAR(30), INTEGER,  INTEGER, INTEGER);"])
 
@@ -846,7 +860,11 @@ $BODY$
    drop-new-plate-set-from-group
    drop-get-num-samples-for-plate-set
    drop-assoc-plate-ids-with-plate-set-id
-   drop-new-plate drop-new-sample
+   drop-new-plate
+   drop-new-sample
+   drop-new-target
+   drop-new-target-layout-name
+   drop-bulk-target-upload
    drop-new-assay-run
    drop-get-ids-for-sys-names
    drop-get-number-samples-for-psid
@@ -872,7 +890,11 @@ $BODY$
    new-plate-set-from-group
    get-num-samples-for-plate-set
    assoc-plate-ids-with-plate-set-id
-   new-plate new-sample new-assay-run
+   new-plate new-sample
+   new-target
+   new-target-layout-name
+   bulk-target-upload
+   new-assay-run
    get-ids-for-sys-names
    get-number-samples-for-psid
    new-plate-layout

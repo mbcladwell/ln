@@ -1203,7 +1203,7 @@ public int insertPlateSet(
 		  PreparedStatement insertPs =
 		      conn.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS);
 		  
-		  insertPs.setArray(1, conn.createArrayOf("text[][]", _data));
+		  insertPs.setArray(1, conn.createArrayOf("VARCHAR", _data));
 		  
 		  LOGGER.info(insertPs.toString());
 		  insertPs.executeUpdate();
@@ -1232,7 +1232,7 @@ public int insertPlateSet(
 		  insertPs.setString(3, _descr);
 		  insertPs.setString(4, _accs);
 		  
-		  LOGGER.info(insertPs.toString());
+		  // LOGGER.info(insertPs.toString());
 		  insertPs.execute();
 		  //ResultSet resultSet = insertPs.getResultSet();
 		  //resultSet.next();
