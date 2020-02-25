@@ -209,6 +209,30 @@ public class MenuBarForPlateSet extends JMenuBar {
         });
     utilitiesMenu.add(menuItem);
 
+     menu = new JMenu("Targets");
+     utilitiesMenu.add(menu);    
+
+    menuItem = new JMenuItem("Add New Target", KeyEvent.VK_A);
+    // menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_1, ActionEvent.ALT_MASK));
+    menuItem.addActionListener(
+        new ActionListener() {
+          public void actionPerformed(ActionEvent e) {
+	      new DialogAddTarget(dbm);
+          }
+        });
+    menu.add(menuItem);
+
+        menuItem = new JMenuItem("Create Target Layout", KeyEvent.VK_C);
+    // menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_1, ActionEvent.ALT_MASK));
+    menuItem.addActionListener(
+        new ActionListener() {
+          public void actionPerformed(ActionEvent e) {
+	      new DialogCreateTargetLayout(dbm);
+	  }     
+        });
+    menu.add(menuItem);
+
+    
      menu = new JMenu("Export");
      utilitiesMenu.add(menu);    
     

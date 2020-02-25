@@ -33,20 +33,14 @@ import javax.swing.event.DocumentEvent;
 import clojure.java.api.Clojure;
 import clojure.lang.IFn;
 
-public class DialogImportTargets extends JDialog
+public class DialogAddTarget extends JDialog
     implements java.awt.event.ActionListener, javax.swing.event.DocumentListener {
   static JButton button;
   static JLabel label;
-  static JLabel nLabel;
-  static JComboBox<ComboItem> assayTypes;
-  static JComboBox<ComboItem> plateLayouts;
-  static JComboBox<ComboItem> algorithmList;
     
-  static JTextField fileField;
   static JTextField nameField;
-  static JTextField descrField;
-  static JTextField layoutField;
-  static JTextField nField;
+  static JTextField descriptionField;
+  static JTextField accsField;
     
   static JButton okButton;
 
@@ -59,22 +53,17 @@ public class DialogImportTargets extends JDialog
   private DatabaseRetriever dbr;
   private DatabaseInserter dbi;
 
-  private ComboItem plate_set;
-   
-  private String plate_set_description;
-  private JFileChooser fileChooser;
-    private JCheckBox checkBox;
-    private ArrayList<String[]>  accessions; 
-    //    private Session session;
     private IFn require = Clojure.var("clojure.core", "require");
         
   private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
-  public DialogImportTargets( DatabaseManager _dbm) {
+  public DialogAddTarget( DatabaseManager _dbm) {
 
     require.invoke(Clojure.read("ln.codax-manager"));
     //    expected_rows = dbr.getNumberOfSamplesForPlateSetID(_plate_set_id);
     // Create and set up the window.
+        IFn getProjectSysName = Clojure.var("ln.codax-manager", "get-project-sys-name");
+	// IFn getProjectName = Clojure.var("ln.codax-manager", "get-project-name");
     // JFrame frame = new JFrame("Add Project");
     this.dbm = _dbm;
     //  this.session = dmf.getSession();
@@ -82,41 +71,59 @@ public class DialogImportTargets extends JDialog
     this.dbr = dbm.getDatabaseRetriever();
     this.dbi = dbm.getDatabaseInserter();
     
-    fileChooser = new JFileChooser();
 
     JPanel pane = new JPanel(new GridBagLayout());
     pane.setBorder(BorderFactory.createRaisedBevelBorder());
 
     GridBagConstraints c = new GridBagConstraints();
-    // Image img = new
-    // ImageIcon(DialogAddProject.class.getResource("../resources/mwplate.png")).getImage();
-    // this.setIconImage(img);
-    this.setTitle("Import Targets");
-    // c.gridwidth = 2;
+     c.insets = new Insets(5, 5, 2, 2);
 
+    this.setTitle("Add Target to project " + (String)getProjectSysName.invoke() );
 
-    
-    select =
-        new JButton(
-            "Select Targets file...", createImageIcon("/toolbarButtonGraphics/general/Open16.gif"));
-    select.setMnemonic(KeyEvent.VK_S);
-    select.setActionCommand("select");
-    select.setEnabled(true);
-    c.fill = GridBagConstraints.HORIZONTAL;
+    label = new JLabel("Project:", SwingConstants.RIGHT);
     c.gridx = 0;
-    c.gridy = 6;
-    c.gridwidth = 1;
-    c.gridheight = 1;
-    select.addActionListener(this);
-    pane.add(select, c);
+    c.gridy = 0;
+    c.anchor = GridBagConstraints.LINE_END;
+    pane.add(label, c);
 
-    fileField = new JTextField(30);
+    label = new JLabel("Target Name:", SwingConstants.RIGHT);
+    c.gridx = 0;
+    c.gridy = 1;
+    pane.add(label, c);
+
+    label = new JLabel("Description:", SwingConstants.RIGHT);
+    c.gridx = 0;
+    c.gridy = 2;
+    pane.add(label, c);
+
+    label = new JLabel("Accession ID:", SwingConstants.RIGHT);
+    c.gridx = 0;
+    c.gridy = 3;
+    pane.add(label, c);
+
+    label = new JLabel( (String)getProjectSysName.invoke(), SwingConstants.LEFT);
     c.gridx = 1;
-    c.gridy = 6;
-    c.gridwidth = 5;
+    c.gridy = 0;
+    c.anchor = GridBagConstraints.LINE_START;
+    pane.add(label, c);
+
+    nameField = new JTextField(30);
+    c.gridwidth = 3;
+    c.gridx = 1;
+    c.gridy = 1;
+    nameField.getDocument().addDocumentListener(this);
+    pane.add(nameField, c);
+
+    descriptionField = new JTextField(30);
+    c.gridx = 1;
+    c.gridy = 2;
+    pane.add(descriptionField, c);
+
+    accsField = new JTextField(30);
+    c.gridx = 1;
+    c.gridy = 3;
     c.gridheight = 1;
-    fileField.getDocument().addDocumentListener(this);
-    pane.add(fileField, c);
+    pane.add(accsField, c);
 
     
     okButton = new JButton("OK");
@@ -128,7 +135,6 @@ public class DialogImportTargets extends JDialog
     c.gridx = 1;
     c.gridy = 8;
     c.gridwidth = 1;
-    c.gridheight = 1;
     pane.add(okButton, c);
     okButton.setEnabled(false);
     okButton.addActionListener(this);
@@ -148,11 +154,11 @@ public class DialogImportTargets extends JDialog
           }
         }));
 
-        helpButton = new JButton("Help");
+    helpButton = new JButton("Help");
     helpButton.setMnemonic(KeyEvent.VK_H);
     helpButton.setActionCommand("help");
     helpButton.setEnabled(true);
-    c.gridx = 4;
+    c.gridx = 3;
     c.gridy = 8;
     pane.add(helpButton, c);
     helpButton.addActionListener(
@@ -160,7 +166,7 @@ public class DialogImportTargets extends JDialog
           public void actionPerformed(ActionEvent e) {
 	          IFn getHelpURLPrefix = Clojure.var("ln.codax-manager", "get-help-url-prefix");
 
-		  openWebpage(URI.create((String)getHelpURLPrefix.invoke() + "accessionids"));
+		  openWebpage(URI.create((String)getHelpURLPrefix.invoke() + "targets"));
             
           }
         }));
@@ -185,32 +191,18 @@ public class DialogImportTargets extends JDialog
   }
 
   public void actionPerformed(ActionEvent e) {
-      int top_n_number = 0;
-
+      
     if (e.getSource() == okButton) {
-
-	accessions = dbm.getDialogMainFrame().getUtilities().loadDataFile(fileField.getText());
-	    
-	return;	    
-	
+	IFn getProjectID = Clojure.var("ln.codax-manager", "get-project-id");
+	dbm.getDatabaseInserter().addTarget(((Long)getProjectID.invoke()).intValue(), nameField.getText(), descriptionField.getText(), accsField.getText());
+	return;	    	
     }
 
-    if (e.getSource() == select) {
-      int returnVal = fileChooser.showOpenDialog(DialogImportTargets.this);
-
-      if (returnVal == JFileChooser.APPROVE_OPTION) {
-        java.io.File file = fileChooser.getSelectedFile();
-        // This is where a real application would open the file.
-        fileField.setText(file.toString());
-      } else {
-        LOGGER.info("Open command cancelled by user.\n");
-      }
-    }
   }
 
   public void insertUpdate(DocumentEvent e) {
 
-    if ( fileField.getText().length() > 0) {
+    if ( nameField.getText().length() > 0) {
       okButton.setEnabled(true);
     } else {
       okButton.setEnabled(false);
@@ -218,7 +210,7 @@ public class DialogImportTargets extends JDialog
   }
 
   public void removeUpdate(DocumentEvent e) {
-    if ( fileField.getText().length() > 0) {
+    if ( nameField.getText().length() > 0) {
       okButton.setEnabled(true);
     } else {
       okButton.setEnabled(false);

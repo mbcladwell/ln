@@ -1199,24 +1199,82 @@ public int insertPlateSet(
 	//Integer[] hit_list = Arrays.stream( _hit_list ).boxed().toArray( Integer[]::new );
 	//Object[] hit_list = (Integer[])_hit_list;
 	      try {
-      String insertSql = "SELECT bulk_target_upload ( ? );";
-      PreparedStatement insertPs =
-          conn.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS);
-      
-      insertPs.setArray(1, conn.createArrayOf("STRING[]", _data));
-   
-      LOGGER.info(insertPs.toString());
-      insertPs.executeUpdate();
-      //ResultSet resultSet = insertPs.getResultSet();
-      //resultSet.next();
-      //new_plate_set_id = resultSet.getInt("new_plate_set");
-     
-    } catch (SQLException sqle) {
-	LOGGER.warning("SQLE at inserting new plate set: " + sqle);
+		  String insertSql = "SELECT bulk_target_upload ( ? );";
+		  PreparedStatement insertPs =
+		      conn.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS);
+		  
+		  insertPs.setArray(1, conn.createArrayOf("text[][]", _data));
+		  
+		  LOGGER.info(insertPs.toString());
+		  insertPs.executeUpdate();
+		  //ResultSet resultSet = insertPs.getResultSet();
+		  //resultSet.next();
+		  //new_plate_set_id = resultSet.getInt("new_plate_set");
+		  
+	      } catch (SQLException sqle) {
+		  LOGGER.warning("SQLE at inserting new target: " + sqle);
+	      }
+
+
     }
 
+    public void addTarget(int _project_id, String _name, String _descr, String _accs){
 
-      }
+	//Integer[] hit_list = Arrays.stream( _hit_list ).boxed().toArray( Integer[]::new );
+	//Object[] hit_list = (Integer[])_hit_list;
+	      try {
+		  String insertSql = "SELECT new_target ( ?, ?, ?, ? );";
+		  PreparedStatement insertPs =
+		      conn.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS);
+		  
+		  insertPs.setInt(1,  _project_id);
+		  insertPs.setString(2, _name);
+		  insertPs.setString(3, _descr);
+		  insertPs.setString(4, _accs);
+		  
+		  LOGGER.info(insertPs.toString());
+		  insertPs.execute();
+		  //ResultSet resultSet = insertPs.getResultSet();
+		  //resultSet.next();
+		  //new_plate_set_id = resultSet.getInt("new_plate_set");
+		  
+	      } catch (SQLException sqle) {
+		  LOGGER.warning("SQLE at inserting new target in dbi.addTarget: " + sqle);
+	      }
+
+
+    }
+
+    
+    public void addTargetLayoutName(int _project_id, String _name, String _descr, int _q1, int _q2, int _q3, int _q4){
+
+	//Integer[] hit_list = Arrays.stream( _hit_list ).boxed().toArray( Integer[]::new );
+	//Object[] hit_list = (Integer[])_hit_list;
+	      try {
+		  String insertSql = "SELECT new_target_layout_name ( ?, ?, ?, ?, ?, ?, ? );";
+		  PreparedStatement insertPs =
+		      conn.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS);
+		  
+		  insertPs.setInt(1,  _project_id);
+		  insertPs.setString(2, _name);
+		  insertPs.setString(3, _descr);
+		  insertPs.setInt(4, _q1);
+		  insertPs.setInt(5, _q2);
+		  insertPs.setInt(6, _q3);
+		  insertPs.setInt(7, _q4);
+		  
+		  LOGGER.info(insertPs.toString());
+		  insertPs.execute();
+		  //ResultSet resultSet = insertPs.getResultSet();
+		  //resultSet.next();
+		  //new_plate_set_id = resultSet.getInt("new_plate_set");
+		  
+	      } catch (SQLException sqle) {
+		  LOGGER.warning("SQLE at inserting new target in dbi.addTargetLayoutName: " + sqle);
+	      }
+
+
+    }
 
     
 }

@@ -223,36 +223,43 @@ $BODY$
 
 (def drop-new-target ["DROP FUNCTION IF EXISTS new_target(INTEGER,VARCHAR,VARCHAR,VARCHAR);"])
 
-(def new-target ["CREATE OR REPLACE FUNCTION new_(_project_id INTEGER, _trg_name varchar(30), _descr varchar(250), _accs_id varchar(30))
-  RETURNS void AS
+(def new-target ["CREATE OR REPLACE FUNCTION new_target(_project_id INTEGER, _trg_name varchar(30), _descr varchar(250), _accs_id varchar(30))
+  RETURNS integer AS
 $BODY$
 DECLARE
    v_id integer;
 BEGIN
    
-   INSERT INTO target(project_id, trg_name, descr, accs_id)
+   INSERT INTO target(project_id, target_name, descr, accs_id)
    VALUES (_project_id, _trg_name, _descr,   _accs_id)
    RETURNING id INTO v_id;
 
-    UPDATE target SET target_sys_name = 'TRG-'||v_id WHERE id=v_id RETURNING id;
+    UPDATE target SET target_sys_name = 'TRG-'||v_id WHERE id=v_id;
+
+RETURN v_id;
 END;
 $BODY$
   LANGUAGE plpgsql VOLATILE;"])
 
-(def drop-new-target-layout-name ["DROP FUNCTION IF EXISTS new_target_layout_name(INTEGER,INTEGER,VARCHAR,VARCHAR);"])
 
-(def new-target-layout-name ["CREATE OR REPLACE FUNCTION new_target_layout_name(_project_id INTEGER, _trg_lyt_id INTEGER, _trg_lyt_name varchar(30), _descr varchar(250))
+
+(def drop-new-target-layout-name ["DROP FUNCTION IF EXISTS new_target_layout_name(INTEGER,VARCHAR,VARCHAR,INTEGER,INTEGER,INTEGER,INTEGER);"])
+
+(def new-target-layout-name ["CREATE OR REPLACE FUNCTION new_target_layout_name(_project_id INTEGER,  _trg_lyt_name varchar(30), _descr varchar(250), q1_id INTEGER, q2_id INTEGER, q3_id INTEGER, q4_id INTEGER)
   RETURNS void AS
 $BODY$
 DECLARE
    v_id integer;
-BEGIN
-   
-   INSERT INTO target_layout_name(project_id, target_layout_id, trg_lyt_name_name, trg_lyt_name_descr)
-   VALUES (_project_id, _trg_lyt_id,  _trg_lyt_name, _descr)
+BEGIN  
+   INSERT INTO target_layout_name(project_id,  target_layout_name_name, target_layout_name_desc)
+   VALUES (_project_id,  _trg_lyt_name, _descr)
    RETURNING id INTO v_id;
 
-    UPDATE targetlayout_name SET target_layout_name_sys_name = 'TLY-'||v_id WHERE id=v_id RETURNING id;
+    UPDATE target_layout_name SET target_layout_name_sys_name = 'TLY-'||v_id WHERE id=v_id;
+
+    INSERT INTO target_layout(target_layout_name_id, target_id, quad) VALUES (v_id, q1_id, 1),
+    (v_id, q2_id, 2),(v_id, q3_id, 3),(v_id, q4_id, 4);
+
 END;
 $BODY$
   LANGUAGE plpgsql VOLATILE;"])

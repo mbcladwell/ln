@@ -105,7 +105,6 @@
    [(jdbc/create-table-ddl :target_layout_name
                            [[:id "SERIAL PRIMARY KEY"]
                             [:project_id :int]
-                            [:target_layout_id :int]
                             [:target_layout_name_sys_name "varchar(30)"]
                             [:target_layout_name_name "VARCHAR(30)"]
                             [:target_layout_name_desc "VARCHAR(250)"]

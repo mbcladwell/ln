@@ -33,7 +33,7 @@ import javax.swing.event.DocumentEvent;
 import clojure.java.api.Clojure;
 import clojure.lang.IFn;
 
-public class DialogImportPlateSetAccessionIDs extends JDialog
+public class DialogAddTarget extends JDialog
     implements java.awt.event.ActionListener, javax.swing.event.DocumentListener {
   static JButton button;
   static JLabel label;
@@ -62,10 +62,6 @@ public class DialogImportPlateSetAccessionIDs extends JDialog
   private ComboItem plate_set;
    
   private String plate_set_description;
-    private ComboItem format;
-    private int plate_num;
-    private int expected_rows;
-    private ComboItem plate_layout;
   private JFileChooser fileChooser;
     private JCheckBox checkBox;
     private ArrayList<String[]>  accessions; 
@@ -74,16 +70,8 @@ public class DialogImportPlateSetAccessionIDs extends JDialog
         
   private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
-  public DialogImportPlateSetAccessionIDs(
-      DatabaseManager _dbm,
-      String _plate_set_sys_name,
-      int _plate_set_id,
-      int _format_id,
-      int _plate_num) {
+  public DialogAddTarget( DatabaseManager _dbm) {
 
-    plate_set = new ComboItem(_plate_set_id, _plate_set_sys_name);
-    format = new ComboItem(_format_id, String.valueOf(_format_id));
-    plate_num = _plate_num;
     require.invoke(Clojure.read("ln.codax-manager"));
     //    expected_rows = dbr.getNumberOfSamplesForPlateSetID(_plate_set_id);
     // Create and set up the window.
@@ -93,11 +81,6 @@ public class DialogImportPlateSetAccessionIDs extends JDialog
     // this.dbm = session.getDatabaseManager();
     this.dbr = dbm.getDatabaseRetriever();
     this.dbi = dbm.getDatabaseInserter();
-    expected_rows = dbr.getNumberOfSamplesForPlateSetID(_plate_set_id);
-
-    //LOGGER.info("plate_set_id: " + plate_set_id);
-    plate_set_description = dbr.getDescriptionForPlateSet(_plate_set_sys_name);
-    
     
     fileChooser = new JFileChooser();
 
@@ -108,85 +91,14 @@ public class DialogImportPlateSetAccessionIDs extends JDialog
     // Image img = new
     // ImageIcon(DialogAddProject.class.getResource("../resources/mwplate.png")).getImage();
     // this.setIconImage(img);
-    this.setTitle("Import Accession IDs for Plate Set " + plate_set.toString());
+    this.setTitle("Import Targets");
     // c.gridwidth = 2;
 
-    label = new JLabel("Plate set:", SwingConstants.RIGHT);
-    // c.fill = GridBagConstraints.HORIZONTAL;
-    c.gridx = 0;
-    c.gridy = 0;
-    c.gridwidth = 1;
-
-    c.anchor = GridBagConstraints.LINE_END;
-    c.insets = new Insets(5, 5, 2, 2);
-
-    pane.add(label, c);
-
-    label = new JLabel(plate_set.toString(), SwingConstants.LEFT);
-    // c.fill = GridBagConstraints.HORIZONTAL;
-    c.gridx = 1;
-    c.gridy = 0;
-    c.anchor = GridBagConstraints.LINE_START;
-    pane.add(label, c);
-
-    label = new JLabel("Format:", SwingConstants.RIGHT);
-    // c.fill = GridBagConstraints.HORIZONTAL;
-    c.gridx = 2;
-    c.gridy = 0;
-    c.anchor = GridBagConstraints.LINE_END;
-    pane.add(label, c);
-
-    label = new JLabel(format.toString(), SwingConstants.LEFT);
-    // c.fill = GridBagConstraints.HORIZONTAL;
-    c.gridx = 3;
-    c.gridy = 0;
-    c.anchor = GridBagConstraints.LINE_START;
-    pane.add(label, c);
-
-    label = new JLabel("# plates:", SwingConstants.RIGHT);
-    // c.fill = GridBagConstraints.HORIZONTAL;
-    c.gridx = 4;
-    c.gridy = 0;
-    c.anchor = GridBagConstraints.LINE_END;
-    pane.add(label, c);
-
-    label = new JLabel(String.valueOf(plate_num), SwingConstants.LEFT);
-    // c.fill = GridBagConstraints.HORIZONTAL;
-    c.gridx = 5;
-    c.gridy = 0;
-    c.anchor = GridBagConstraints.LINE_START;
-    pane.add(label, c);
-
-    label = new JLabel("Plate set description:", SwingConstants.RIGHT);
-    // c.fill = GridBagConstraints.HORIZONTAL;
-    c.gridx = 0;
-    c.gridy = 1;
-    c.anchor = GridBagConstraints.LINE_END;
-    pane.add(label, c);
-
-    label = new JLabel(plate_set_description, SwingConstants.LEFT);
-    // c.fill = GridBagConstraints.HORIZONTAL;
-    c.gridx = 1;
-    c.gridy = 1;
-    c.anchor = GridBagConstraints.LINE_START;
-    pane.add(label, c);
-
-    label = new JLabel("Expected row count:", SwingConstants.RIGHT);
-    c.gridx = 0;
-    c.gridy = 2;
-    c.anchor = GridBagConstraints.LINE_END;
-    pane.add(label, c);
-
-    label = new JLabel(String.valueOf(expected_rows), SwingConstants.LEFT);
-    c.gridx = 1;
-    c.gridy = 2;
-    c.anchor = GridBagConstraints.LINE_START;
-    pane.add(label, c);
 
     
     select =
         new JButton(
-            "Select IDs file...", createImageIcon("/toolbarButtonGraphics/general/Open16.gif"));
+            "Select Targets file...", createImageIcon("/toolbarButtonGraphics/general/Open16.gif"));
     select.setMnemonic(KeyEvent.VK_S);
     select.setActionCommand("select");
     select.setEnabled(true);
@@ -278,20 +190,13 @@ public class DialogImportPlateSetAccessionIDs extends JDialog
     if (e.getSource() == okButton) {
 
 	accessions = dbm.getDialogMainFrame().getUtilities().loadDataFile(fileField.getText());
-	if(!((accessions.size()-1) == expected_rows)){  //If Top N is the algorithm
-	    	JOptionPane.showMessageDialog(dmf,
-					      new String("Expecting " + String.valueOf(expected_rows) + " rows but found " + (accessions.size()-1) + " rows." ), "Import Error",      JOptionPane.ERROR_MESSAGE);
-		return;
 	    
-	    
-	}
+	return;	    
 	
-      dbi.associateAccessionsWithPlateSet( plate_set.getKey(), format.getKey(), accessions);
-      dispose();
     }
 
     if (e.getSource() == select) {
-      int returnVal = fileChooser.showOpenDialog(DialogImportPlateSetAccessionIDs.this);
+      int returnVal = fileChooser.showOpenDialog(DialogImportTargets.this);
 
       if (returnVal == JFileChooser.APPROVE_OPTION) {
         java.io.File file = fileChooser.getSelectedFile();
