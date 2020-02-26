@@ -694,7 +694,7 @@ public int insertPlateSet(
 
      */
     public void reformatPlateSet(int _source_plate_set_id, DialogMainFrame _dmf,  String _dest_plate_set_name, int _source_plate_num,
-				 String _dest_descr, int _dest_plate_format_id, int _dest_plate_type_id,  int _dest_plate_layout_name_id, int _n_reps_source){
+				 String _dest_descr, int _dest_plate_format_id, int _dest_plate_type_id,  int _dest_plate_layout_name_id, int _n_reps_source, int _target_layout_name_id){
 	int source_plate_set_id = _source_plate_set_id;
 	DialogMainFrame dmf = _dmf;
 	String dest_plate_set_name = _dest_plate_set_name;
@@ -709,12 +709,13 @@ public int insertPlateSet(
 	IFn getProjectID = Clojure.var("ln.codax-manager", "get-project-id");
    	int project_id = ((Long)getProjectID.invoke()).intValue();
 	int dest_plate_set_id=0;
+	int target_layout_name_id = _target_layout_name_id;
 
       // method signature:  reformat_plate_set(source_plate_set_id INTEGER, source_num_plates INTEGER, n_reps_source INTEGER, dest_descr VARCHAR(30), dest_plate_set_name VARCHAR(30), dest_num_plates INTEGER, dest_plate_format_id INTEGER, dest_plate_type_id INTEGER, project_id INTEGER, dest_plate_layout_name_id INTEGER )
 	//System.out.println("dest-plate-id: " + dest_plate_layout_name_id);
       
     try {
-      String insertSql = "SELECT reformat_plate_set( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+      String insertSql = "SELECT reformat_plate_set( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
       PreparedStatement insertPs =
           conn.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS);
       insertPs.setInt(1, source_plate_set_id);
@@ -729,6 +730,7 @@ public int insertPlateSet(
       insertPs.setInt(9, project_id);
       insertPs.setInt(10, dest_plate_layout_name_id);
       insertPs.setInt(11, session_id);
+      insertPs.setInt(12, target_layout_name_id);
       
 
       //LOGGER.info(insertPs.toString());
@@ -1246,22 +1248,24 @@ public int insertPlateSet(
     }
 
     
-    public void addTargetLayoutName(int _project_id, String _name, String _descr, int _q1, int _q2, int _q3, int _q4){
+    public void addTargetLayoutName(int _project_id, String _name, String _descr, int _reps, int _q1, int _q2, int _q3, int _q4){
 
 	//Integer[] hit_list = Arrays.stream( _hit_list ).boxed().toArray( Integer[]::new );
 	//Object[] hit_list = (Integer[])_hit_list;
 	      try {
-		  String insertSql = "SELECT new_target_layout_name ( ?, ?, ?, ?, ?, ?, ? );";
+		  String insertSql = "SELECT new_target_layout_name ( ?, ?, ?, ?, ?, ?, ?, ? );";
 		  PreparedStatement insertPs =
 		      conn.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS);
 		  
 		  insertPs.setInt(1,  _project_id);
 		  insertPs.setString(2, _name);
 		  insertPs.setString(3, _descr);
-		  insertPs.setInt(4, _q1);
-		  insertPs.setInt(5, _q2);
-		  insertPs.setInt(6, _q3);
-		  insertPs.setInt(7, _q4);
+		  insertPs.setInt(4, _reps);
+		  
+		  insertPs.setInt(5, _q1);
+		  insertPs.setInt(6, _q2);
+		  insertPs.setInt(7, _q3);
+		  insertPs.setInt(8, _q4);
 		  
 		  LOGGER.info(insertPs.toString());
 		  insertPs.execute();

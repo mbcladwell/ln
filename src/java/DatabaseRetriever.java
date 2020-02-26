@@ -1718,6 +1718,10 @@ int assay_run_id = _assay_run_id;
 	
     }
 
+    /* Also include targets without associated project
+     * i.e. those where
+     *
+     */
       public ComboItem[] getTargetsForProject(int _project_id) {
 	  int project_id = _project_id;
     ComboItem[] output = null;
@@ -1725,7 +1729,7 @@ int assay_run_id = _assay_run_id;
     ArrayList<ComboItem> combo_items = new ArrayList<ComboItem>();
     try {
       PreparedStatement pstmt =
-          conn.prepareStatement( "SELECT target.id, target.target_name   FROM target WHERE target.project_id= ? OR target.project_id= NULL;");
+          conn.prepareStatement( "SELECT target.id, target.target_name FROM target WHERE (target.project_id= ?) OR (target.project_id IS NULL);");
 
       pstmt.setInt(1, project_id);
 
@@ -1744,6 +1748,38 @@ int assay_run_id = _assay_run_id;
 
     } catch (SQLException sqle) {
       LOGGER.severe("SQL exception getting targets in dbr.getTargetsForProjects(): " + sqle);
+    }
+    return (ComboItem[])output;
+  }
+
+    public ComboItem[] getTargetLayoutNamesForProject(int _project_id, int _reps) {
+	  int project_id = _project_id;
+    ComboItem[] output = null;
+    Array results = null;
+    ArrayList<ComboItem> combo_items = new ArrayList<ComboItem>();
+    try {
+      PreparedStatement pstmt =
+          conn.prepareStatement( "SELECT id, target_layout_name_name FROM target_layout_name WHERE (project_id= ? AND reps = ?) OR (project_id IS NULL AND reps = ?);");
+
+      pstmt.setInt(1, project_id);
+ pstmt.setInt(2, _reps);
+ pstmt.setInt(3, _reps);
+
+      ResultSet rs = pstmt.executeQuery();
+      //rs.next();
+ while (rs.next()) {
+     //all_plate_ids.add(rs.getInt(1));
+	combo_items.add(new ComboItem(rs.getInt(1), rs.getString(2)));
+        // LOGGER.info("A plate set ID: " + rs.getInt(1));
+      }
+
+
+      rs.close();
+      pstmt.close();
+      output = combo_items.toArray(new ComboItem[combo_items.size()]);
+
+    } catch (SQLException sqle) {
+      LOGGER.severe("SQL exception getting targets in dbr.getTargetLayoutNameForProjects(): " + sqle);
     }
     return (ComboItem[])output;
   }

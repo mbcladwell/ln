@@ -52,8 +52,11 @@ public class DialogReformatPlateSet extends JDialog implements ActionListener {
     static JComboBox<ComboItem> layoutList;
     static JComboBox<ComboItem> sampleRepsList;
     static JComboBox<ComboItem> targetRepsList;
+    static JComboBox<ComboItem> targetLayoutList;
     public ComboItem[] target_reps;
     public ComboItem[] sample_reps;
+    public ComboItem[] target_layout_names;
+    
   static JButton okButton;
     static JButton cancelButton;
     final Instant instant = Instant.now();
@@ -76,6 +79,7 @@ public int new_plate_format_id;
     
   private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
     private IFn require = Clojure.var("clojure.core", "require");
+    static  IFn getProjectID;
   // final EntityManager em;
 
   /**
@@ -101,6 +105,7 @@ public int new_plate_format_id;
      IFn getUser = Clojure.var("ln.codax-manager", "get-user");
      owner = (String)getUser.invoke();
     old_plate_set_id = _plate_set_id;
+      getProjectID = Clojure.var("ln.codax-manager", "get-project-id");
     //  HashMap<String, String> plate_set_num_plates = _plate_set_num_plates;
     String old_plate_format = _plate_format;
     String new_plate_format = _plate_format;
@@ -435,7 +440,7 @@ target_reps_list_model =  new DefaultComboBoxModel<ComboItem>( target_reps );
     pane3.add(targetRepsList, c);
 
     
-        label = new JLabel("New Plate Set Layout:", SwingConstants.RIGHT);
+    label = new JLabel("New Plate Set Sample Layout:", SwingConstants.RIGHT);
     c.gridx = 0;
     c.gridy = 8;
     c.gridheight = 1;
@@ -460,6 +465,34 @@ target_reps_list_model =  new DefaultComboBoxModel<ComboItem>( target_reps );
 
     JPanel pane4 = new JPanel(new GridBagLayout());
 
+    label = new JLabel("New Plate Set Target Layout:", SwingConstants.RIGHT);
+    c.gridx = 0;
+    c.gridy = 9;
+    c.gridheight = 1;
+    c.gridwidth = 1;
+    c.anchor = GridBagConstraints.LINE_END;
+    pane3.add(label, c);
+
+    target_layout_names = dbm.getDatabaseRetriever().getTargetLayoutNamesForProject( ((Long)getProjectID.invoke()).intValue(), 4);
+
+    targetLayoutList = new JComboBox<ComboItem>(target_layout_names);
+    targetLayoutList.setSelectedIndex(0);
+    c.gridx = 1;
+    c.gridy = 9;
+    c.gridheight = 1;
+    c.gridwidth = 1;
+    c.anchor = GridBagConstraints.LINE_START;
+    targetLayoutList.addActionListener(this);
+    pane3.add(targetLayoutList, c);
+
+   label = new JLabel("(Optional)", SwingConstants.LEFT);
+    c.gridx = 2;
+    c.gridy = 9;
+    c.gridheight = 1;
+    c.gridwidth = 1;
+    c.anchor = GridBagConstraints.LINE_START;
+    pane3.add(label, c);
+
     
     okButton = new JButton("OK");
     okButton.setMnemonic(KeyEvent.VK_O);
@@ -468,7 +501,7 @@ target_reps_list_model =  new DefaultComboBoxModel<ComboItem>( target_reps );
     okButton.setForeground(Color.GREEN);
     c.fill = GridBagConstraints.HORIZONTAL;
     c.gridx = 2;
-    c.gridy = 9;
+    c.gridy = 10;
     c.gridwidth = 2;
     c.gridheight = 1;
     okButton.addActionListener(this);
@@ -480,7 +513,7 @@ target_reps_list_model =  new DefaultComboBoxModel<ComboItem>( target_reps );
     cancelButton.setEnabled(true);
     cancelButton.setForeground(Color.RED);
     c.gridx = 1;
-    c.gridy = 9;
+    c.gridy = 10;
     c.gridwidth = 1;
     pane4.add(cancelButton, c);
     cancelButton.addActionListener(
@@ -517,8 +550,8 @@ target_reps_list_model =  new DefaultComboBoxModel<ComboItem>( target_reps );
 			      new_plate_format_id,
 			      ((ComboItem)typeList.getSelectedItem()).getKey(),
 			      dest_layout[0].getKey(),			      
-			      ((ComboItem)sampleRepsList.getSelectedItem()).getKey()
-			      
+			      ((ComboItem)sampleRepsList.getSelectedItem()).getKey(),
+			      ((ComboItem)targetLayoutList.getSelectedItem()).getKey()			      
 	    );
 	
             dispose();
@@ -575,7 +608,11 @@ target_reps_list_model =  new DefaultComboBoxModel<ComboItem>( target_reps );
 	        dest_layout = dbm.getDatabaseRetriever().getLayoutDestinationsForSourceID(old_plate_layout_name_id,((ComboItem)sampleRepsList.getSelectedItem()).getKey(),((ComboItem)targetRepsList.getSelectedItem()).getKey());
 	
 	      destLayoutLabel.setText(dest_layout[0].toString());
-	 
+	      
+	     target_layout_names = dbm.getDatabaseRetriever().getTargetLayoutNamesForProject( ((Long)getProjectID.invoke()).intValue(), ((ComboItem)targetRepsList.getSelectedItem()).getKey());
+	     
+	     targetLayoutList.setModel(new DefaultComboBoxModel<ComboItem>(target_layout_names));
+
 
      }
 	 }

@@ -108,6 +108,7 @@
                             [:target_layout_name_sys_name "varchar(30)"]
                             [:target_layout_name_name "VARCHAR(30)"]
                             [:target_layout_name_desc "VARCHAR(250)"]
+                            [:reps :int]
                             ["FOREIGN KEY (project_id) REFERENCES project(id)"]
   		           ])]
 
@@ -390,16 +391,16 @@ assayid	PlateOrder	Well	Response	BkSub	Norm	NormPos	pEnhanced
   ;;inserts required data into table using jdbc/insert-multi!
   ;;this is data that should not be deleted when repopulating with example data
   ;;this is data that is needed for basic functionality
-  [[ :lnuser_groups 
-    [ :usergroup ]
-    [["administrator"]
-     ["user" ]]]
+  [[ :lnuser_groups  [ :usergroup ]
+    [["administrator"]["user" ]]]
                      
    [ :lnuser 
     [ :lnuser_name :tags :usergroup_id :password ]
     [["ln_admin" "ln_admin@labsolns.com" 1  "welcome"]
      ["ln_user" "ln_user@labsolns.com" 2 "welcome"]]]
    ;;  ["klohymim" "NA" 2 "hwc3v4_rbkT-1EL2KI-JBaqFq0thCXM_"]]]
+
+   [:lnsession [:lnuser_id][[1]]]
    
    [ :plate_type [:plate_type_name]
     [["assay"]["rearray"]["master"]["daughter"]["archive"]["replicate"]]]
@@ -475,18 +476,16 @@ assayid	PlateOrder	Well	Response	BkSub	Norm	NormPos	pEnhanced
          content)
     ]
 
-   [:target [:id :target_sys_name :project_id :target_name :descr]
-    [[1 "TRG-1" nil "Target1" "Generic Target 1"]
-     [2 "TRG-2" nil "Target2" "Generic Target 2"]
-     [3 "TRG-3" nil "Target3" "Generic Target 3"]
-     [4 "TRG-4" nil "Target4" "Generic Target 4"]]]
+ ;;   [:target [:id :target_sys_name :project_id :target_name :descr]
+ ;;    [[1 "TRG-1" nil "Target1" "Generic Target 1"]
+ ;;     [2 "TRG-2" nil "Target2" "Generic Target 2"]
+ ;;     [3 "TRG-3" nil "Target3" "Generic Target 3"]
+ ;;     [4 "TRG-4" nil "Target4" "Generic Target 4"]]]
 
-   [:target_layout_name [:id :project_id :target_layout_id :target_layout_name_sys_name :target_layout_name_name :target_layout_name_desc ] [[1 nil 1 "TLN-1" "Default" "Generic default target layout" ]]]
+ ;;   [:target_layout_name [:id :project_id  :target_layout_name_sys_name :target_layout_name_name :target_layout_name_desc ] [[1 nil "TLN-1" "Default" "Generic default target layout" ]]]
 
-   [:target_layout [:target_layout_name_id :target_id :quad]
- [[1 1 1][1 2 2][1 3 3][1 4 4]]]
-
-
+ ;;   [:target_layout [:target_layout_name_id :target_id :quad]
+ ;; [[1 1 1][1 2 2][1 3 3][1 4 4]]]
 
 
 ]) ;;required-data end
@@ -512,6 +511,7 @@ assayid	PlateOrder	Well	Response	BkSub	Norm	NormPos	pEnhanced
   (doall  (map #(apply jdbc/insert-multi! cm/conn % ) required-data))
   (doall (map #(jdbc/db-do-commands cm/conn true  %) ln.db-functions/drop-all-functions))
   (doall (map #(jdbc/db-do-commands cm/conn true  %) ln.db-functions/all-functions))
+  (doall (jdbc/db-do-commands cm/conn true ln.example-data/add-target-related ))
   (if (not (c/is-open? cm/props)) (cm/open-or-create-props))
   (cm/set-init false))
  

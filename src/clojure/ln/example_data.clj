@@ -1,8 +1,8 @@
 (ns ln.example-data)
 
-;;must be executed in order
+;;must be executed in order; reset resets the index counter
 
-(def delete-example-data ["TRUNCATE project, plate_set, plate, hit_sample, hit_list, assay_run, assay_result, sample, well, lnsession RESTART IDENTITY CASCADE;"])
+(def delete-example-data ["TRUNCATE project, plate_set, plate, hit_sample, hit_list, assay_run, assay_result, sample, well, lnsession, target, target_layout, target_layout_name RESTART IDENTITY CASCADE;"])
 
 (def create-session ["INSERT INTO lnsession (lnuser_id) VALUES (1);"]) 
 
@@ -20,13 +20,13 @@
                    ])
 
 (def add-plate-sets [
-            "SELECT new_plate_set('with AR (low values), HL','2 96 well plates',2,96,1,1,1,1,TRUE);"
-            "SELECT new_plate_set('with AR (low values), HL','2 96 well plates',2,96,1,1,1,1,TRUE);"
-            "SELECT new_plate_set('with AR (high values), HL','2 96 well plates',2,96,1,1,1,1,TRUE);"
-            "SELECT new_plate_set('with AR (low values), HL','2 384 well plates',2,384,1,2,13,1,TRUE);"
-            "SELECT new_plate_set('with AR (low values), HL','1 1536 well plate',1, 1536, 1, 3, 37, 1,TRUE);"
-            "SELECT new_plate_set('using LYT-1/;96/;4in12','Plates only',10,96,1,10,1,1,TRUE);"
-             "SELECT new_plate_set('using LYT-1/;96/;4in12','Plates only',10,96,1,10,1,1,TRUE);"
+            "SELECT new_plate_set('with AR (low values), HL','2 96 well plates',2,96,1,1,1,1,TRUE,NULL);"
+            "SELECT new_plate_set('with AR (low values), HL','2 96 well plates',2,96,1,1,1,1,TRUE,NULL);"
+            "SELECT new_plate_set('with AR (high values), HL','2 96 well plates',2,96,1,1,1,1,TRUE,NULL);"
+            "SELECT new_plate_set('with AR (low values), HL','2 384 well plates',2,384,1,2,13,1,TRUE,NULL);"
+            "SELECT new_plate_set('with AR (low values), HL','1 1536 well plate',1, 1536, 1, 3, 37, 1,TRUE,NULL);"
+            "SELECT new_plate_set('using LYT-1/;96/;4in12','Plates only',10,96,1,10,1,1,TRUE,NULL);"
+             "SELECT new_plate_set('using LYT-1/;96/;4in12','Plates only',10,96,1,10,1,1,TRUE,NULL);"
                      ])
 
 (def add-assay-runs [
@@ -48,9 +48,20 @@
                     "SELECT new_hit_list('hit list 6', 'descr6', 20, 3, 1, ARRAY[545, 514, 479, 516, 528, 544, 501, 472, 463, 494, 531, 482, 513, 468, 465, 510, 535, 478, 502, 488]);"
                  ])
 
+;; target related also used during no example-data init
+(def add-target-related [
+                         "SELECT new_target(  NULL, 'Target1', 'Generic Target 1', NULL);"
+                         "SELECT new_target(  NULL, 'Target2', 'Generic Target 2', NULL);"
+                         "SELECT new_target(  NULL, 'Target3', 'Generic Target 3', NULL);"
+                         "SELECT new_target(  NULL, 'Target4', 'Generic Target 4', NULL);"
+                         "SELECT new_target_layout_name ( NULL, 'DefaultSinglicates', 'Generic default target layout for singlicates',1,1,2,3,4);"
+                         "SELECT new_target_layout_name ( NULL, 'DefaultDuplicates', 'Generic default target layout for duplicates',2,1,2,3,4);"
+                         "SELECT new_target_layout_name ( NULL, 'DefaultQuadruplicates', 'Generic default target layout for quadruplicates',4,1,2,3,4);"])
+
+
 (def add-example-data-pre-assay [ delete-example-data create-session add-projects add-plate-sets add-assay-runs ])
 
-(def add-example-data-post-assay [  add-hit-lists ])
+(def add-example-data-post-assay [  add-hit-lists add-target-related ])
 
 
 

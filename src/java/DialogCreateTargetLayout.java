@@ -327,6 +327,7 @@ public class DialogCreateTargetLayout extends JDialog
 	case 1:
 	dbm.getDatabaseInserter().addTargetLayoutName(((Long)getProjectID.invoke()).intValue(), nameField.getText(),
 						      descriptionField.getText(),
+						      1,
 						      ((ComboItem)quad1.getSelectedItem()).getKey(),
 						      ((ComboItem)quad2.getSelectedItem()).getKey(),
 						      ((ComboItem)quad3.getSelectedItem()).getKey(),
@@ -335,6 +336,7 @@ public class DialogCreateTargetLayout extends JDialog
 	case 2:
 	    dbm.getDatabaseInserter().addTargetLayoutName(((Long)getProjectID.invoke()).intValue(), nameField.getText(),
 							  descriptionField.getText(),
+							  2,
 							  ((ComboItem)quad1.getSelectedItem()).getKey(),
 							  ((ComboItem)quad2.getSelectedItem()).getKey(),
 							  ((ComboItem)quad1.getSelectedItem()).getKey(),
@@ -345,6 +347,7 @@ public class DialogCreateTargetLayout extends JDialog
 	case 4:
 	    	dbm.getDatabaseInserter().addTargetLayoutName(((Long)getProjectID.invoke()).intValue(), nameField.getText(),
 						      descriptionField.getText(),
+							      4,
 						      ((ComboItem)quad1.getSelectedItem()).getKey(),
 						      ((ComboItem)quad1.getSelectedItem()).getKey(),
 						      ((ComboItem)quad1.getSelectedItem()).getKey(),
@@ -353,7 +356,7 @@ public class DialogCreateTargetLayout extends JDialog
 	    break;
 	
 	}
-	//dispose();
+	dispose();
 	return;	    	
     }
 

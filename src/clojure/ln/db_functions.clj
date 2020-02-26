@@ -31,10 +31,10 @@ END;
 $BODY$
   LANGUAGE plpgsql VOLATILE;"])
 
-(def drop-new-plate-set ["DROP FUNCTION IF exists new_plate_set(_descr VARCHAR(30), _plate_set_name VARCHAR(30), _num_plates INTEGER, _plate_format_id INTEGER,  _plate_type_id INTEGER, _project_id INTEGER, _plate_layout_name_id INTEGER, _lnsession_id INTEGER,  _with_samples boolean);"])
+(def drop-new-plate-set ["DROP FUNCTION IF exists new_plate_set(_descr VARCHAR(30), _plate_set_name VARCHAR(30), _num_plates INTEGER, _plate_format_id INTEGER,  _plate_type_id INTEGER, _project_id INTEGER, _plate_layout_name_id INTEGER, _lnsession_id INTEGER,  _with_samples boolean, _target_layout_name_id INTEGER);"])
 
 
-(def new-plate-set ["CREATE OR REPLACE FUNCTION new_plate_set(_descr VARCHAR(30),_plate_set_name VARCHAR(30), _num_plates INTEGER, _plate_format_id INTEGER, _plate_type_id INTEGER, _project_id INTEGER, _plate_layout_name_id INTEGER, _lnsession_id INTEGER, _with_samples boolean)
+(def new-plate-set ["CREATE OR REPLACE FUNCTION new_plate_set(_descr VARCHAR(30),_plate_set_name VARCHAR(30), _num_plates INTEGER, _plate_format_id INTEGER, _plate_type_id INTEGER, _project_id INTEGER, _plate_layout_name_id INTEGER, _lnsession_id INTEGER, _with_samples boolean, _target_layout_name_id INTEGER)
   RETURNS integer AS
 $BODY$
 DECLARE
@@ -46,10 +46,11 @@ DECLARE
    plt_id INTEGER;
    play_n_id INTEGER;
    w_spls BOOLEAN := _with_samples;
+   trg_lyt_name_id INTEGER := _target_layout_name_id;
 BEGIN
    
-   INSERT INTO plate_set(descr, plate_set_name, num_plates, plate_format_id, plate_type_id, project_id, plate_layout_name_id, lnsession_id)
-   VALUES (_descr, _plate_set_name, _num_plates, _plate_format_id, _plate_type_id, _project_id, _plate_layout_name_id, _lnsession_id )
+   INSERT INTO plate_set(descr, plate_set_name, num_plates, plate_format_id, plate_type_id, project_id, plate_layout_name_id, lnsession_id, target_layout_name_id)
+   VALUES (_descr, _plate_set_name, _num_plates, _plate_format_id, _plate_type_id, _project_id, _plate_layout_name_id, _lnsession_id, trg_lyt_name_id )
    RETURNING ID, plate_format_id, num_plates, project_id, plate_type_id, plate_layout_name_id INTO ps_id, p_form, n_plates, prj_id, p_type, play_n_id;
    UPDATE plate_set SET plate_set_sys_name = 'PS-'||ps_id WHERE id=ps_id;
 
@@ -243,16 +244,16 @@ $BODY$
 
 
 
-(def drop-new-target-layout-name ["DROP FUNCTION IF EXISTS new_target_layout_name(INTEGER,VARCHAR,VARCHAR,INTEGER,INTEGER,INTEGER,INTEGER);"])
+(def drop-new-target-layout-name ["DROP FUNCTION IF EXISTS new_target_layout_name(INTEGER,VARCHAR,VARCHAR,INTEGER,INTEGER,INTEGER,INTEGER,INTEGER);"])
 
-(def new-target-layout-name ["CREATE OR REPLACE FUNCTION new_target_layout_name(_project_id INTEGER,  _trg_lyt_name varchar(30), _descr varchar(250), q1_id INTEGER, q2_id INTEGER, q3_id INTEGER, q4_id INTEGER)
+(def new-target-layout-name ["CREATE OR REPLACE FUNCTION new_target_layout_name(_project_id INTEGER,  _trg_lyt_name varchar(30), _descr varchar(250), _reps INTEGER, q1_id INTEGER, q2_id INTEGER, q3_id INTEGER, q4_id INTEGER)
   RETURNS void AS
 $BODY$
 DECLARE
    v_id integer;
 BEGIN  
-   INSERT INTO target_layout_name(project_id,  target_layout_name_name, target_layout_name_desc)
-   VALUES (_project_id,  _trg_lyt_name, _descr)
+   INSERT INTO target_layout_name(project_id,  target_layout_name_name, target_layout_name_desc, reps)
+   VALUES (_project_id,  _trg_lyt_name, _descr, _reps)
    RETURNING id INTO v_id;
 
     UPDATE target_layout_name SET target_layout_name_sys_name = 'TLY-'||v_id WHERE id=v_id;
@@ -385,9 +386,9 @@ $BODY$
   LANGUAGE plpgsql VOLATILE;"])
 
 
-(def drop-reformat-plate-set ["DROP FUNCTION IF exists reformat_plate_set(source_plate_set_id INTEGER, source_num_plates INTEGER, n_reps_source INTEGER, dest_descr VARCHAR(30), dest_plate_set_name VARCHAR(30), dest_num_plates INTEGER, dest_plate_format_id INTEGER, dest_plate_type_id INTEGER, project_id INTEGER, dest_plate_layout_name_id INTEGER, lnsession_id INTEGER );"])
+(def drop-reformat-plate-set ["DROP FUNCTION IF exists reformat_plate_set(source_plate_set_id INTEGER, source_num_plates INTEGER, n_reps_source INTEGER, dest_descr VARCHAR(30), dest_plate_set_name VARCHAR(30), dest_num_plates INTEGER, dest_plate_format_id INTEGER, dest_plate_type_id INTEGER, project_id INTEGER, dest_plate_layout_name_id INTEGER, lnsession_id INTEGER, target_layout_name_id INTEGER );"])
 
-(def reformat-plate-set ["CREATE OR REPLACE FUNCTION reformat_plate_set(source_plate_set_id INTEGER, source_num_plates INTEGER, n_reps_source INTEGER, dest_descr VARCHAR(30), dest_plate_set_name VARCHAR(30), dest_num_plates INTEGER, dest_plate_format_id INTEGER, dest_plate_type_id INTEGER, project_id INTEGER, dest_plate_layout_name_id INTEGER, lnsession_id INTEGER)
+(def reformat-plate-set ["CREATE OR REPLACE FUNCTION reformat_plate_set(source_plate_set_id INTEGER, source_num_plates INTEGER, n_reps_source INTEGER, dest_descr VARCHAR(30), dest_plate_set_name VARCHAR(30), dest_num_plates INTEGER, dest_plate_format_id INTEGER, dest_plate_type_id INTEGER, project_id INTEGER, dest_plate_layout_name_id INTEGER, lnsession_id INTEGER, target_layout_name_id INTEGER)
 RETURNS integer AS
 $BODY$
 DECLARE
