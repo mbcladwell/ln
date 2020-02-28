@@ -141,40 +141,6 @@ public class DatabaseInserter {
     return new DefaultTableModel(data, columnNames);
   }
 
-  // public void insertPlateSet2(
-  //     String _name,
-  //     String _description,
-  //     String _num_plates,
-  //     String _plate_size_id,
-  //     String _plate_type_id,
-  //     String _project_id,
-  //     String _withSamples) {
-  //     int new_plate_set_id;
-
-  //   try {
-   
-  //     String insertSql = "SELECT new_plate_set ( ?, ?, ?, ?, ?, ?, ?, ?);";
-  //     PreparedStatement insertPs =
-  //         conn.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS);
-  //     insertPs.setString(1, _description);
-  //     insertPs.setString(2, _name);
-  //     insertPs.setString(3, _num_plates);
-  //     insertPs.setString(4, _plate_size_id);
-  //     insertPs.setString(5, _plate_type_id);
-  //     insertPs.setString(6, _project_id);
-  //     insertPs.setInt(7,  session_id);
-  //     insertPs.setString(8, _withSamples);
-  //     LOGGER.info(insertPs.toString());
-  //     insertPs.executeUpdate();
-  //     //ResultSet resultSet = insertPs.getResultSet();
-  //     //resultSet.next();
-  //     //new_plate_set_id = resultSet.getInt("new_plate_set");
-     
-  //   } catch (SQLException sqle) {
-  // 	LOGGER.warning("SQLE at inserting new plate set: " + sqle);
-  //   }
-    
-  // }
 
     /**
      * Modification of insertPlateSet using integers and returning ps_id
@@ -187,13 +153,14 @@ public int insertPlateSet(
       int _plate_type_id,
       int _project_id,
       int _plate_layout_name_id,
-      boolean _withSamples) {
+      boolean _withSamples,
+      int _target_layout_id) {
     
       int new_plate_set_id=0;
       //SELECT new_plate_set('d1', 'n1', 2,96,1,1,1,1,true);
     try {
 
-      String insertSql = "SELECT new_plate_set( ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+      String insertSql = "SELECT new_plate_set( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
       PreparedStatement insertPs =
           conn.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS);
       insertPs.setString(1, _description);
@@ -205,6 +172,7 @@ public int insertPlateSet(
       insertPs.setInt(7, _plate_layout_name_id);
       insertPs.setInt(8, session_id);
       insertPs.setBoolean(9, _withSamples);
+      insertPs.setInt(10, _target_layout_id);
 
       //LOGGER.info(insertPs.toString());
       insertPs.execute();

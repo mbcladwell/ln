@@ -401,7 +401,7 @@ holder INTEGER;
 
 BEGIN
 --here I am creating the destination plate set, no samples included
-SELECT new_plate_set(dest_descr ,dest_plate_set_name, dest_num_plates, dest_plate_format_id, dest_plate_type_id, project_id, dest_plate_layout_name_id, lnsession_id, false) INTO dest_plate_set_id;
+SELECT new_plate_set(dest_descr ,dest_plate_set_name, dest_num_plates, dest_plate_format_id, dest_plate_type_id, project_id, dest_plate_layout_name_id, lnsession_id, false, target_layout_name_id) INTO dest_plate_set_id;
 
 --RAISE notice 'dest_plate_set_id: (%)', dest_plate_set_id;
 

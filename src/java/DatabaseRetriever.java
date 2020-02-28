@@ -1059,7 +1059,7 @@ int plate_layout_name_id = _plate_layout_name_id;
 
 	String plate_set_id[] = _plate_set_id;
 	CustomTable ct;
-	String sqlstring_pre = "SELECT plate_set.plate_set_sys_name as \"Plate Set\", plate.plate_sys_name as \"Plate\", plate_plate_set.plate_order AS \"Order\", well.by_col as \"Well\", sample.sample_sys_name as \"Sample\", sample.accs_id as \"Accession\"  FROM  plate_plate_set, plate_set, plate, well, well_sample, sample WHERE  plate_plate_set.plate_set_id=plate_set.id AND plate_plate_set.plate_id=plate.ID and plate.id=well.plate_id and well_sample.well_id=well.id and well_sample.sample_id=sample.id  and plate_set.id IN (";
+	String sqlstring_pre = "SELECT plate_set.plate_set_sys_name as \"Plate Set\", plate.plate_sys_name as \"Plate\", plate_plate_set.plate_order AS \"Order\", well.by_col as \"Well\", sample.sample_sys_name as \"Sample\", sample.accs_id as \"spl.accs\", target.target_name AS \"Target\", target.accs_id AS \"trg.accs\"  FROM  plate_plate_set, plate_set, plate, well, well_sample, sample, target, target_layout_name, target_layout, well_numbers WHERE plate_set.plate_format_id=well_numbers.plate_format AND well_numbers.by_col=well.by_col AND well_numbers.quad=target_layout.quad AND  plate_plate_set.plate_set_id=plate_set.id AND plate_plate_set.plate_id=plate.ID and plate.id=well.plate_id and well_sample.well_id=well.id and well_sample.sample_id=sample.id and plate_set.target_layout_name_id=target_layout.target_layout_name_id and target_layout.target_id = target.id AND target_layout_name.id=target_layout.target_layout_name_id and plate_set.id IN (";
 
 	String sqlstring_mid  = new String();
 
@@ -1070,7 +1070,7 @@ int plate_layout_name_id = _plate_layout_name_id;
 	sqlstring_mid = sqlstring_mid.substring(0,sqlstring_mid.length()-1);
 	String sqlstring_post = ") order by plate_set.plate_set_sys_name, plate.plate_sys_name, well.by_col;";
 	String sqlstring = sqlstring_pre + sqlstring_mid + sqlstring_post;
-	LOGGER.info("SQL : " + sqlstring);
+	//LOGGER.info("SQL : " + sqlstring);
 
 	try {
 	    PreparedStatement preparedStatement =
@@ -1111,7 +1111,7 @@ int plate_layout_name_id = _plate_layout_name_id;
 	    // LOGGER.info("resultset: " + result);
 
 	} catch (SQLException sqle) {
-	    LOGGER.warning("SQLE at getPlateLayoutNameIDforPlateSetID: " + sqle);
+	    LOGGER.warning("SQLE at getPlateSetData: " + sqle);
 	}
 	return null;
     }

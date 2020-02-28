@@ -262,12 +262,12 @@ case 1536:
      DefaultTableModel model = (DefaultTableModel) table.getModel();
     int colCount = model.getColumnCount();
     int rowCount = table.getSelectedRowCount();
-    	LOGGER.info("rowCount: " + rowCount);
+    	LOGGER.info("rowCount: " + rowCount + "  colcount: " + colCount);
     int[] selected_rows = table.getSelectedRows();
+    	LOGGER.info("selectedrows: " + selected_rows);
     
     String[][] results = new String[rowCount + 1][colCount];
     for (int i = 0; i < colCount; i++) {
-		LOGGER.info("ij: " + results[0][i]);
       results[0][i] = table.getColumnName(i);
     }
 
@@ -275,6 +275,8 @@ case 1536:
       for (int j = 0; j < colCount; j++) {
 	  if(model.getValueAt(selected_rows[i-1], j) != null){ //accessions might be null
 	      results[i][j] = model.getValueAt(selected_rows[i-1], j).toString();
+	      //	LOGGER.info("[" + i + "][" + j + "]:  " + results[i][j]);
+
 	  }
       }
     }

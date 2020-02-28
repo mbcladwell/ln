@@ -271,13 +271,17 @@ public class MenuBarForPlateSet extends JMenuBar {
 
        		    
 		    Object[][] results = dbm.getDialogMainFrame().getUtilities().getSelectedRowsAndHeaderAsStringArray(plate_set_table);
+		    //  LOGGER.info("results length: " + results.length );
+		    
 		    if(results.length>1){
 			String[] plate_set_ids = new String[results.length];
 			try{
 			    
-			    for(int i=0; i < results.length-1; i++){
-			  plate_set_ids[i] =  plate_set_table.getModel().getValueAt(i, 0).toString().substring(3);
-			  // LOGGER.info("psid: " + plate_set_ids[i] );
+			    for(int i=1; i < results.length; i++){
+				plate_set_ids[i] = ((String)results[i][0]).substring(3);
+			 	
+				//plate_set_ids[i] =  plate_set_table.getModel().getValueAt(i, 0).toString().substring(3);
+			  LOGGER.info("i: "+ i + "  psid: " + plate_set_ids[i] );
 			  }
 
 			    Object[][] plate_set_data = dbm.getDatabaseRetriever().getPlateSetData(plate_set_ids);
