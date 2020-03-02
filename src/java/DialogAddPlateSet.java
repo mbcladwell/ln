@@ -39,6 +39,7 @@ public class DialogAddPlateSet extends JDialog   {
     private JComboBox<ComboItem> sampleLayoutList;
     private JComboBox<ComboItem> targetLayoutList;
     private DefaultComboBoxModel<ComboItem> sample_layout_names_list_model;
+    private DefaultComboBoxModel<ComboItem> target_layout_types_list_model;
     private ProgressBar progress_bar;
     private int target_layout_name_id;    
     private int project_id;    
@@ -161,8 +162,7 @@ public class DialogAddPlateSet extends JDialog   {
     formatList.addActionListener(
 				 (new ActionListener() {
 					 public void actionPerformed(ActionEvent e) {
-					     handleDropdownSelections();
-					     
+					     handleDropdownSelections();					     
 					 }
 					 
 				     }));
@@ -235,9 +235,9 @@ public class DialogAddPlateSet extends JDialog   {
     targetOptionalLabel = new JLabel("(only for assay plates)", SwingConstants.RIGHT);
     c.gridx = 4;
     c.gridy = 6;
-   c.gridwidth = 1;
+   c.gridwidth = 2;
     c.gridheight = 1;
-    c.anchor = GridBagConstraints.LINE_END;
+    c.anchor = GridBagConstraints.LINE_START;
     pane.add(targetOptionalLabel, c);
 
 
@@ -257,7 +257,6 @@ public class DialogAddPlateSet extends JDialog   {
           public void actionPerformed(ActionEvent e) {
 	      Task task = new Task();
 	      //  	     IFn getProjectID = Clojure.var("ln.codax-manager", "get-project-id");
-
 	      //task.addPropertyChangeListener(this);
 	    progress_bar.main( new String[] {"Creating Plate Set"} );
 	      task.execute();
@@ -292,13 +291,16 @@ public class DialogAddPlateSet extends JDialog   {
   }
 
     private void handleDropdownSelections(){
-	String selectedType = typeList.getSelectedItem().toString();
-	 int selectedFormat = (int)formatList.getSelectedItem();
+	String selectedType = typeList.getSelectedItem().toString(); //assay, master, archive
+	int selectedFormat = (int)formatList.getSelectedItem();  //96, 384, 1536
 	 if(selectedType.equals("assay")){
 	    switch(selectedFormat){
 	    case 96:
-		targetOptionalLabel.setText("(invalid for 96 well)");
-		targetLayoutList.setEnabled(false);
+		targetOptionalLabel.setText("(only singlicates)");
+		   targetLayoutTypes = dbm.getDatabaseRetriever().getTargetLayoutNamesForProject(project_id, 1);
+		   target_layout_types_list_model  = new DefaultComboBoxModel<ComboItem>( targetLayoutTypes );
+		   targetLayoutList.setModel(target_layout_types_list_model);
+		targetLayoutList.setEnabled(true);
 		break;
 	    default:
 		sampleLayoutNames = dbm.getDatabaseRetriever().getSourcePlateLayoutNames(selectedFormat, 0);
@@ -306,6 +308,10 @@ public class DialogAddPlateSet extends JDialog   {
 		sampleLayoutList.setModel(sample_layout_names_list_model );
 	    //sampleLayoutList.setSelectedIndex(-1);
 		targetOptionalLabel.setText("(optional)");
+		   targetLayoutTypes = dbm.getDatabaseRetriever().getTargetLayoutNamesForProject(project_id, 0);
+		   target_layout_types_list_model  = new DefaultComboBoxModel<ComboItem>( targetLayoutTypes );
+		   targetLayoutList.setModel(target_layout_types_list_model);
+ 
 		targetLayoutList.setEnabled(true);
 		break;
 	    }

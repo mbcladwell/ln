@@ -1752,19 +1752,27 @@ int assay_run_id = _assay_run_id;
     return (ComboItem[])output;
   }
 
+    /***
+     *reps is 0,1,2,4
+     *If 0, return 1,2,4
+     */
     public ComboItem[] getTargetLayoutNamesForProject(int _project_id, int _reps) {
 	  int project_id = _project_id;
     ComboItem[] output = null;
     Array results = null;
     ArrayList<ComboItem> combo_items = new ArrayList<ComboItem>();
     try {
-      PreparedStatement pstmt =
-          conn.prepareStatement( "SELECT id, target_layout_name_name FROM target_layout_name WHERE (project_id= ? AND reps = ?) OR (project_id IS NULL AND reps = ?);");
-
+	PreparedStatement pstmt;
+	if(_reps == 0){
+	    pstmt = conn.prepareStatement( "SELECT id, target_layout_name_name FROM target_layout_name WHERE (project_id= ?  OR project_id IS NULL );");
+	    pstmt.setInt(1, project_id);
+ 
+	}else{	    
+	    pstmt = conn.prepareStatement( "SELECT id, target_layout_name_name FROM target_layout_name WHERE (project_id= ? AND reps = ?) OR (project_id IS NULL AND reps = ?);");
       pstmt.setInt(1, project_id);
- pstmt.setInt(2, _reps);
- pstmt.setInt(3, _reps);
-
+      pstmt.setInt(2, _reps);
+      pstmt.setInt(3, _reps);
+	}
       ResultSet rs = pstmt.executeQuery();
       //rs.next();
  while (rs.next()) {

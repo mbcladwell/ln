@@ -934,9 +934,10 @@ public int insertPlateSet(
       int plate_format_id = _plate_format_id;
       int plate_type_id = _plate_type_id;
       int plate_layout_id = _plate_layout_id;
-      // new_plate_set(_descr VARCHAR(30),_plate_set_name VARCHAR(30), _num_plates INTEGER, _plate_format_id INTEGER, _plate_type_id INTEGER, _project_id INTEGER, _plate_layout_name_id INTEGER, _lnsession_id INTEGER, _with_samples boolean)         
+      // new_plate_set(_descr VARCHAR(30),_plate_set_name VARCHAR(30), _num_plates INTEGER, _plate_format_id INTEGER, _plate_type_id INTEGER, _project_id INTEGER, _plate_layout_name_id INTEGER, _lnsession_id INTEGER, _with_samples boolean, _trg_layout_name_id INTEGER)         
 
-      String insertSql1 = "SELECT new_plate_set ( ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+      //using DefaultQuadruplicates for target layout : 3
+      String insertSql1 = "SELECT new_plate_set ( ?, ?, ?, ?, ?, ?, ?, ?, ?, 3);";
       PreparedStatement insertPs =
           conn.prepareStatement(insertSql1, Statement.RETURN_GENERATED_KEYS);
       insertPs.setString(1, _description);

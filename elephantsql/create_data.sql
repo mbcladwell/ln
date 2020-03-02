@@ -1,14 +1,23 @@
-TRUNCATE project, plate_set, plate, hit_sample, hit_list, assay_run, assay_result, sample, well, lnsession RESTART IDENTITY CASCADE;
+TRUNCATE project, plate_set, plate, hit_sample, hit_list, assay_run, assay_result, sample, well, lnsession, target_layout, target, target_layout_name RESTART IDENTITY CASCADE;
 
 INSERT INTO lnsession (lnuser_id) VALUES (1);
+
+SELECT new_target(  NULL, 'Target1', 'Generic Target 1', NULL);
+SELECT new_target(  NULL, 'Target2', 'Generic Target 2', NULL);
+SELECT new_target(  NULL, 'Target3', 'Generic Target 3', NULL);
+SELECT new_target(  NULL, 'Target4', 'Generic Target 4', NULL);
+SELECT new_target_layout_name ( NULL, 'DefaultSinglicates', 'Generic default target layout for singlicates',1,1,2,3,4);
+SELECT new_target_layout_name ( NULL, 'DefaultDuplicates', 'Generic default target layout for duplicates',2,1,2,1,2);
+SELECT new_target_layout_name ( NULL, 'DefaultQuadruplicates', 'Generic default target layout for quadruplicates',4,1,1,1,1);
+
 
 --new_project(_descr character varying, _project_name character VARYING, _lnsession_id INTEGER)
 SELECT new_project('3 plate sets with 2 96 well plates each', 'With AR, HL', 1 );
 
 --new_plate_set(_descr VARCHAR(30),_plate_set_name VARCHAR(30), _num_plates INTEGER, _plate_format_id INTEGER, _plate_type_id INTEGER, _project_id INTEGER, _plate_layout_name_id INTEGER, _lnsession_id INTEGER, _with_samples boolean)
-SELECT new_plate_set('with AR (low values), HL','2 96 well plates',2,96,1,1,1,1,TRUE);
-SELECT new_plate_set('with AR (low values), HL','2 96 well plates',2,96,1,1,1,1,TRUE);
-SELECT new_plate_set('with AR (high values), HL','2 96 well plates',2,96,1,1,1,1,TRUE);
+SELECT new_plate_set('with AR (low values), HL','2 96 well plates',2,96,1,1,1,1,TRUE,3);
+SELECT new_plate_set('with AR (low values), HL','2 96 well plates',2,96,1,1,1,1,TRUE,3);
+SELECT new_plate_set('with AR (high values), HL','2 96 well plates',2,96,1,1,1,1,TRUE,3);
 
 --new_assay_run( _assay_run_name VARCHAR(30), _descr VARCHAR(30), _assay_type_id INTEGER, _plate_set_id INTEGER, _plate_layout_name_id INTEGER, _lnsession_id INTEGER )
 select new_assay_run( 'assay_run1', 'PS-1 LYT-1;96;4in12', 1, 1, 1,1);
@@ -18,13 +27,13 @@ select new_assay_run( 'assay_run3', 'PS-3 LYT-1;96;4in12', 5, 3, 1,1);
 
 
 SELECT new_project('1 plate set with 2 384 well plates each', 'With AR', 1 );
-SELECT new_plate_set('with AR (low values), HL','2 384 well plates',2,384,1,2,13,1,TRUE);
+SELECT new_plate_set('with AR (low values), HL','2 384 well plates',2,384,1,2,13,1,TRUE,3);
 select new_assay_run( 'assay_run4', 'PS-4 LYT-13;384;8in24', 1, 4, 13, 1);
 
 
 
 SELECT new_project('1 plate set with 1 1536 well plate', 'With AR', 1 );
-SELECT new_plate_set('with AR (low values), HL','1 1536 well plate',1, 1536, 1, 3, 37, 1,TRUE);
+SELECT new_plate_set('with AR (low values), HL','1 1536 well plate',1, 1536, 1, 3, 37, 1,TRUE,3);
 select new_assay_run( 'assay_run4', 'PS-5 LYT-37;1536;32in47,48', 1, 5, 37, 1);
 
 
@@ -38,8 +47,17 @@ SELECT new_project('description 8', 'MyTestProj8', 1 );
 SELECT new_project('description 9', 'MyTestProj9', 1 );
 
 SELECT new_project('2 plate sets with 10 96 well plates each', 'Plates only, no data', 1 );
-SELECT new_plate_set('using LYT-1;96;4in12','Plates only',10,96,1,10,1,1,TRUE);
-SELECT new_plate_set('using LYT-1;96;4in12','Plates only',10,96,1,10,1,1,TRUE);
+SELECT new_plate_set('using LYT-1;96;4in12','Plates only',10,96,1,10,1,1,TRUE,3);
+SELECT new_plate_set('using LYT-1;96;4in12','Plates only',10,96,1,10,1,1,TRUE,3);
+
+SELECT new_target( 10,	'muCD71','Mouse transferrin receptor','FHD8SU29');
+SELECT new_target( 10,	'huCD71','Human transferrin receptor','JDHSU789');
+SELECT new_target( 10,	'cynoCD71','Monkey transferrin receptor','KSIOW8H3');
+SELECT new_target( 10,	'BSA','Bovine serum albumin','KEUI87YH');
+SELECT new_target( 10,	'Lysozyme','Lysozyme','KDJFG98D');
+SELECT new_target( 10,	'GAPDH','Glyceraldehyde Phosphate Dehydrogenase','KFIIOD09');
+SELECT new_target( 10,	'ICAM4','ICAM 4 integrin','KL0OIE7U');
+SELECT new_target( 10,	'IL21R','IL21 receptor','KOI89IUY');
 
 
 \i /home/mbc/Downloads/assay_data_for_elephantsql.sql

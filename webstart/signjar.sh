@@ -5,7 +5,7 @@ jarsigner -keystore /home/mbc/projects/PlateManager/webstart/keystore/JWSKeystor
 ##clicking on jnlp in local directory will not work.  
 ##jnlp will launch  whatever is installed on web site	
 
-cp /home/mbc/projects/ln/target/uberjar/ln-0.1-SNAPSHOT-standalone.jar /home/mbc/syncd/labsolns/public/client
+##cp /home/mbc/projects/ln/target/uberjar/ln-0.1-SNAPSHOT-standalone.jar /home/mbc/syncd/labsolns/public/client
 
 cp /home/mbc/projects/ln/target/uberjar/ln-0.1-SNAPSHOT-standalone.jar /home/mbc/syncd/labsolns/public/webstart
 
