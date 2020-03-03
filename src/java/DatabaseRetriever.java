@@ -1016,7 +1016,7 @@ int plate_layout_name_id = _plate_layout_name_id;
 	     ResultSetMetaData metaData = rs.getMetaData();
 
     // names of columns
-	     String[] columnNamespre = {"AssayRun","PlateSet","Plate","PlateOrder","Well","WellType","WellNum","Response","Bk_Sub","Norm","NormPos","pEnhanced","Sample","accession","Target"};
+	     String[] columnNamespre = {"AssayRun","PlateSet","Plate","PlateOrder","Well","WellType","WellNum","Response","Bk_Sub","Norm","NormPos","pEnhanced","Sample","sample.accs","Target","target.accs"};
 	     Vector<String> columnNames = new Vector<String>(Arrays.asList(columnNamespre));
     int columnCount = metaData.getColumnCount();
     /*    for (int column = 1; column <= columnCount; column++) {
