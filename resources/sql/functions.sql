@@ -663,7 +663,7 @@ INSERT INTO plate_layout_name (NAME, descr, plate_format_id, replicates, targets
     UPDATE plate_layout_name SET sys_name = 'LYT-'|| source_id WHERE id=source_id;
 
 --insert source
-INSERT INTO plate_layout (SELECT source_id AS \"plate_layout_name_id\", well_by_col, well_type_id, replicates, target FROM import_plate_layout); 
+INSERT INTO plate_layout (SELECT source_id AS "plate_layout_name_id", well_by_col, well_type_id, replicates, target FROM import_plate_layout); 
 
 
 --insert destinations
@@ -671,7 +671,7 @@ FOR i IN 1..5 loop
 INSERT INTO plate_layout_name ( descr, plate_format_id, replicates, targets, use_edge, num_controls, unknown_n, control_loc, source_dest) VALUES ( dest_layout_descr[i], dest_format, 1, 1, edge, n_controls, n_unknowns, control_location, 'dest') RETURNING ID INTO dest_id;
  UPDATE plate_layout_name SET sys_name = 'LYT-'|| dest_id WHERE id=dest_id;
 
-INSERT INTO plate_layout (SELECT dest_id AS \"plate_layout_name_id\", well_numbers.by_col AS \"well_by_col\", import_plate_layout.well_type_id, plate_layout.replicates, plate_layout.target FROM well_numbers, import_plate_layout, plate_layout WHERE well_numbers.plate_format = dest_format AND import_plate_layout.well_by_col=well_numbers.parent_well AND plate_layout.plate_layout_name_id=dest_layout_ids[i] AND plate_layout.well_by_col=well_numbers.by_col);
+INSERT INTO plate_layout (SELECT dest_id AS "plate_layout_name_id", well_numbers.by_col AS "well_by_col", import_plate_layout.well_type_id, plate_layout.replicates, plate_layout.target FROM well_numbers, import_plate_layout, plate_layout WHERE well_numbers.plate_format = dest_format AND import_plate_layout.well_by_col=well_numbers.parent_well AND plate_layout.plate_layout_name_id=dest_layout_ids[i] AND plate_layout.well_by_col=well_numbers.by_col);
 
 
 INSERT INTO layout_source_dest (src, dest) VALUES (source_id, dest_id);
@@ -707,11 +707,11 @@ SELECT assay_run.plate_layout_name_id FROM assay_run WHERE assay_run.ID =v_assay
 --get the plate set
 CREATE TEMP TABLE plate_set_data(assay_run_sys_name VARCHAR, plate_set_sys_name VARCHAR, plate_sys_name VARCHAR, plate_order INT, well_name VARCHAR, type_well VARCHAR, by_col INT, well_id INT, response REAL, bkgrnd_sub REAL, norm REAL, norm_pos REAL, p_enhance REAL, target_name varchar, target_accs VARCHAR );
 
-INSERT INTO plate_set_data SELECT assay_run.assay_run_sys_name, plate_set.plate_set_sys_name , plate.plate_sys_name, plate_plate_set.plate_order, well_numbers.well_name, well_type.name, well.by_col, well.ID AS \"well_id\", assay_result.response, assay_result.bkgrnd_sub, assay_result.norm, assay_result.norm_pos, assay_result.p_enhance,  target.target_name, target.accs_id  FROM  plate_set, plate_plate_set, plate, well, assay_result, assay_run, well_numbers, plate_layout, well_type, target, target_layout_name, target_layout WHERE plate_plate_set.plate_set_id=plate_set.id AND plate_plate_set.plate_id=plate.ID and plate.id=well.plate_id  AND plate_set.ID = v_plate_set_id AND assay_result.assay_run_id= v_assay_run_id AND assay_result.plate_order=plate_plate_set.plate_order AND assay_result.well=well.by_col AND assay_run.ID = v_assay_run_id AND well_numbers.plate_format= v_plate_format AND well_numbers.by_col=well.by_col AND plate_layout.plate_layout_name_id=v_layout_id AND plate_layout.well_type_id=well_type.ID AND plate_layout.well_by_col=well.by_col AND well_numbers.quad=target_layout.quad and plate_set.target_layout_name_id=target_layout.target_layout_name_id and target_layout.target_id = target.id AND target_layout_name.id=target_layout.target_layout_name_id ;
+INSERT INTO plate_set_data SELECT assay_run.assay_run_sys_name, plate_set.plate_set_sys_name , plate.plate_sys_name, plate_plate_set.plate_order, well_numbers.well_name, well_type.name, well.by_col, well.ID AS "well_id", assay_result.response, assay_result.bkgrnd_sub, assay_result.norm, assay_result.norm_pos, assay_result.p_enhance,  target.target_name, target.accs_id  FROM  plate_set, plate_plate_set, plate, well, assay_result, assay_run, well_numbers, plate_layout, well_type, target, target_layout_name, target_layout WHERE plate_plate_set.plate_set_id=plate_set.id AND plate_plate_set.plate_id=plate.ID and plate.id=well.plate_id  AND plate_set.ID = v_plate_set_id AND assay_result.assay_run_id= v_assay_run_id AND assay_result.plate_order=plate_plate_set.plate_order AND assay_result.well=well.by_col AND assay_run.ID = v_assay_run_id AND well_numbers.plate_format= v_plate_format AND well_numbers.by_col=well.by_col AND plate_layout.plate_layout_name_id=v_layout_id AND plate_layout.well_type_id=well_type.ID AND plate_layout.well_by_col=well.by_col AND well_numbers.quad=target_layout.quad and plate_set.target_layout_name_id=target_layout.target_layout_name_id and target_layout.target_id = target.id AND target_layout_name.id=target_layout.target_layout_name_id ;
 
 CREATE TEMP TABLE sample_names(well_id INT, sample_sys_name VARCHAR, accs_id VARCHAR);
 
-INSERT INTO sample_names SELECT well.ID AS \"well_id\", sample.sample_sys_name, sample.accs_id  FROM well, well_sample, sample WHERE well_sample.sample_id=sample.ID AND well_sample.well_id=well.ID AND well.ID IN (SELECT well.ID FROM  plate_plate_set, plate, well WHERE plate_plate_set.plate_id = plate.ID AND well.plate_id = plate.ID AND plate_plate_set.plate_set_id = v_plate_set_id);
+INSERT INTO sample_names SELECT well.ID AS "well_id", sample.sample_sys_name, sample.accs_id  FROM well, well_sample, sample WHERE well_sample.sample_id=sample.ID AND well_sample.well_id=well.ID AND well.ID IN (SELECT well.ID FROM  plate_plate_set, plate, well WHERE plate_plate_set.plate_id = plate.ID AND well.plate_id = plate.ID AND plate_plate_set.plate_set_id = v_plate_set_id);
 
 RETURN query
   SELECT  plate_set_data.assay_run_sys_name,  plate_set_data.plate_set_sys_name, plate_set_data.plate_sys_name, plate_set_data.plate_order, plate_set_data.well_name, plate_set_data.type_well ,  plate_set_data.by_col, plate_set_data.response, plate_set_data.bkgrnd_sub, plate_set_data.norm, plate_set_data.norm_pos, plate_set_data.p_enhance, sample_names.sample_sys_name, sample_names.accs_id, plate_set_data.target_name, plate_set_data.target_accs FROM plate_set_data LEFT JOIN sample_names on (plate_set_data.well_id=sample_names.well_id) ORDER BY plate_set_data.plate_order desc, plate_set_data.by_col DESC;
@@ -721,7 +721,7 @@ DROP TABLE sample_names;
 
 END;
 $BODY$
-LANGUAGE plpgsql VOLATILE;"] )
+LANGUAGE plpgsql VOLATILE;
 
 
 
@@ -762,11 +762,11 @@ INSERT INTO rearray_pairs (src, dest) VALUES (source_plate_set_id, dest_plate_se
 
 CREATE TEMP TABLE temp1 (plate_sys_name VARCHAR(10), by_col INTEGER, sample_id INTEGER);
 
-INSERT INTO temp1 SELECT  plate.plate_sys_name, well.by_col, sample.ID AS \"sample_id\"  FROM plate_set, plate_plate_set, plate, well, well_sample, sample  WHERE plate_plate_set.plate_set_id=plate_set.ID AND plate_plate_set.plate_id=plate.id AND well.plate_id=plate.ID AND well_sample.well_id=well.ID AND well_sample.sample_id=sample.ID and plate_set.id=source_plate_set_id  AND sample.ID IN  (SELECT hit_sample.sample_id FROM hit_sample WHERE hit_sample.hitlist_id = hit_list_id ORDER BY sample.ID);
+INSERT INTO temp1 SELECT  plate.plate_sys_name, well.by_col, sample.ID AS "sample_id"  FROM plate_set, plate_plate_set, plate, well, well_sample, sample  WHERE plate_plate_set.plate_set_id=plate_set.ID AND plate_plate_set.plate_id=plate.id AND well.plate_id=plate.ID AND well_sample.well_id=well.ID AND well_sample.sample_id=sample.ID and plate_set.id=source_plate_set_id  AND sample.ID IN  (SELECT hit_sample.sample_id FROM hit_sample WHERE hit_sample.hitlist_id = hit_list_id ORDER BY sample.ID);
 
 CREATE TEMP TABLE temp2 (plate_sys_name VARCHAR(10), by_col INTEGER, sample_id INTEGER);
 
-INSERT INTO temp2 SELECT  plate.plate_sys_name, well.by_col, sample.ID AS \"sample_id\" FROM plate_set, plate_plate_set, plate, well, well_sample, sample  WHERE plate_plate_set.plate_set_id=plate_set.ID AND plate_plate_set.plate_id=plate.id AND well.plate_id=plate.ID AND well_sample.well_id=well.ID AND well_sample.sample_id=sample.ID and plate_set.id=dest_plate_set_id  ORDER BY sample.ID;
+INSERT INTO temp2 SELECT  plate.plate_sys_name, well.by_col, sample.ID AS "sample_id" FROM plate_set, plate_plate_set, plate, well, well_sample, sample  WHERE plate_plate_set.plate_set_id=plate_set.ID AND plate_plate_set.plate_id=plate.id AND well.plate_id=plate.ID AND well_sample.well_id=well.ID AND well_sample.sample_id=sample.ID and plate_set.id=dest_plate_set_id  ORDER BY sample.ID;
 
 INSERT INTO worklists ( rearray_pairs_id, sample_id, source_plate, source_well, dest_plate, dest_well) SELECT rp_id, temp1.sample_id, temp1.plate_sys_name, temp1.by_col, temp2.plate_sys_name, temp2.by_col FROM temp1, temp2 WHERE temp1.sample_id = temp2.sample_id;
 
@@ -780,26 +780,26 @@ DROP FUNCTION IF EXISTS global_search(_term character varying);
 
 
 CREATE OR REPLACE FUNCTION global_search(_term character varying)
-  RETURNS TABLE (\"Project\" CHARACTER VARYING 
-                  ,\"PlateSet\" CHARACTER VARYING
-		  ,\"Entity\" TEXT 
-		  ,\"SysName\" CHARACTER VARYING  
-		  ,\"Name\" CHARACTER VARYING
-		  ,\"Description\" CHARACTER VARYING
+  RETURNS TABLE ("Project" CHARACTER VARYING 
+                  ,"PlateSet" CHARACTER VARYING
+		  ,"Entity" TEXT 
+		  ,"SysName" CHARACTER VARYING  
+		  ,"Name" CHARACTER VARYING
+		  ,"Description" CHARACTER VARYING
 		  ) AS
 $func$
 BEGIN
-CREATE TEMP VIEW gsearch AS SELECT project_sys_name , '' AS \"plate_set_sys_name\",  'Project' AS \"entity\", project_sys_name AS \"entity_sys_name\" , project_name AS  entity_name , descr  FROM project
+CREATE TEMP VIEW gsearch AS SELECT project_sys_name , '' AS "plate_set_sys_name",  'Project' AS "entity", project_sys_name AS "entity_sys_name" , project_name AS  entity_name , descr  FROM project
 UNION
-SELECT project.project_sys_name , plate_set.plate_set_sys_name , 'PlateSet' AS \"entity\",plate_set_sys_name AS \"entity_sys_name\" , plate_set_name AS \"entity_name\" , plate_set.descr FROM plate_set, project WHERE plate_set.project_id=project.ID      
+SELECT project.project_sys_name , plate_set.plate_set_sys_name , 'PlateSet' AS "entity",plate_set_sys_name AS "entity_sys_name" , plate_set_name AS "entity_name" , plate_set.descr FROM plate_set, project WHERE plate_set.project_id=project.ID      
 UNION
-SELECT project.project_sys_name , plate_set.plate_set_sys_name , 'Plate' AS \"entity\", plate_sys_name AS \"entity_sys_name\" , '' AS \"entity_name\" , plate.barcode AS descr FROM plate_set, project, plate, plate_plate_set WHERE plate_set.project_id=project.ID AND plate_plate_set.plate_set_id=plate_set.ID AND plate_plate_set.plate_id=plate.id       
+SELECT project.project_sys_name , plate_set.plate_set_sys_name , 'Plate' AS "entity", plate_sys_name AS "entity_sys_name" , '' AS "entity_name" , plate.barcode AS descr FROM plate_set, project, plate, plate_plate_set WHERE plate_set.project_id=project.ID AND plate_plate_set.plate_set_id=plate_set.ID AND plate_plate_set.plate_id=plate.id       
 UNION
-SELECT project.project_sys_name , plate_set.plate_set_sys_name , 'Sample' AS \"entity\", sample_sys_name AS \"entity_sys_name\" , '' AS \"entity_name\" , sample.accs_id AS descr FROM plate_set, project, plate, plate_plate_set, well, well_sample, sample WHERE plate_set.project_id=project.ID AND plate_plate_set.plate_set_id=plate_set.ID AND plate_plate_set.plate_id=plate.ID AND well.plate_id=plate.ID AND well_sample.well_id=well.ID AND well_sample.sample_id=sample.id      
+SELECT project.project_sys_name , plate_set.plate_set_sys_name , 'Sample' AS "entity", sample_sys_name AS "entity_sys_name" , '' AS "entity_name" , sample.accs_id AS descr FROM plate_set, project, plate, plate_plate_set, well, well_sample, sample WHERE plate_set.project_id=project.ID AND plate_plate_set.plate_set_id=plate_set.ID AND plate_plate_set.plate_id=plate.ID AND well.plate_id=plate.ID AND well_sample.well_id=well.ID AND well_sample.sample_id=sample.id      
 UNION
-SELECT project.project_sys_name , plate_set.plate_set_sys_name , 'AssayRun' AS \"entity\", assay_run_sys_name AS \"entity_sys_name\" , assay_run_name AS \"entity_name\" ,  assay_run.descr AS descr FROM plate_set, project, assay_run WHERE plate_set.project_id=project.ID AND assay_run.plate_set_id=plate_set.ID      
+SELECT project.project_sys_name , plate_set.plate_set_sys_name , 'AssayRun' AS "entity", assay_run_sys_name AS "entity_sys_name" , assay_run_name AS "entity_name" ,  assay_run.descr AS descr FROM plate_set, project, assay_run WHERE plate_set.project_id=project.ID AND assay_run.plate_set_id=plate_set.ID      
 UNION
-SELECT project.project_sys_name , plate_set.plate_set_sys_name , 'HitList' AS \"entity\", hitlist_sys_name AS \"entity_sys_name\" , hitlist_name AS \"entity_name\" ,  hit_list.descr AS descr FROM plate_set, project, assay_run, hit_list WHERE plate_set.project_id=project.ID AND assay_run.plate_set_id=plate_set.ID AND hit_list.assay_run_id=assay_run.id;      
+SELECT project.project_sys_name , plate_set.plate_set_sys_name , 'HitList' AS "entity", hitlist_sys_name AS "entity_sys_name" , hitlist_name AS "entity_name" ,  hit_list.descr AS descr FROM plate_set, project, assay_run, hit_list WHERE plate_set.project_id=project.ID AND assay_run.plate_set_id=plate_set.ID AND hit_list.assay_run_id=assay_run.id;      
 
 
 RETURN query

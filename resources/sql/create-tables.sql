@@ -36,7 +36,7 @@ CREATE TABLE lnsession
 	updated TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT current_timestamp,
         FOREIGN KEY (lnuser_id) REFERENCES lnuser(id));
 
-INSERT INTO lnsession (id) VALUES (1);
+INSERT INTO lnsession (lnuser_id) VALUES (1);
 
 DROP TABLE IF EXISTS project CASCADE;
 DROP SEQUENCE IF EXISTS  project_id_seq CASCADE;
@@ -168,51 +168,7 @@ CREATE TABLE layout_source_dest (
                 dest INTEGER NOT NULL);
 
 
-INSERT INTO layout_source_dest( src, dest ) VALUES (1,2);
-INSERT INTO layout_source_dest( src, dest ) VALUES (1,3);
-INSERT INTO layout_source_dest( src, dest ) VALUES (1,4);
-INSERT INTO layout_source_dest( src, dest ) VALUES (1,5);
-INSERT INTO layout_source_dest( src, dest ) VALUES (1,6);
-
-
-INSERT INTO layout_source_dest( src, dest ) VALUES (7,8);
-INSERT INTO layout_source_dest( src, dest ) VALUES (7,9);
-INSERT INTO layout_source_dest( src, dest ) VALUES (7,10);
-INSERT INTO layout_source_dest( src, dest ) VALUES (7,11);
-INSERT INTO layout_source_dest( src, dest ) VALUES (7,12);
-
-INSERT INTO layout_source_dest( src, dest ) VALUES (13,14);
-INSERT INTO layout_source_dest( src, dest ) VALUES (13,15);
-INSERT INTO layout_source_dest( src, dest ) VALUES (13,16);
-INSERT INTO layout_source_dest( src, dest ) VALUES (13,17);
-INSERT INTO layout_source_dest( src, dest ) VALUES (13,18);
-
-
-
-INSERT INTO layout_source_dest( src, dest ) VALUES (19,20);
-INSERT INTO layout_source_dest( src, dest ) VALUES (19,21);
-INSERT INTO layout_source_dest( src, dest ) VALUES (19,22);
-INSERT INTO layout_source_dest( src, dest ) VALUES (19,23);
-INSERT INTO layout_source_dest( src, dest ) VALUES (19,24);
-
-
-INSERT INTO layout_source_dest( src, dest ) VALUES (25,26);
-INSERT INTO layout_source_dest( src, dest ) VALUES (25,27);
-INSERT INTO layout_source_dest( src, dest ) VALUES (25,28);
-INSERT INTO layout_source_dest( src, dest ) VALUES (25,29);
-INSERT INTO layout_source_dest( src, dest ) VALUES (25,30);
-
-INSERT INTO layout_source_dest( src, dest ) VALUES (31,32);
-INSERT INTO layout_source_dest( src, dest ) VALUES (31,33);
-INSERT INTO layout_source_dest( src, dest ) VALUES (31,34);
-INSERT INTO layout_source_dest( src, dest ) VALUES (31,35);
-INSERT INTO layout_source_dest( src, dest ) VALUES (31,36);
-
-
-INSERT INTO layout_source_dest( src, dest ) VALUES (37,41);
-INSERT INTO layout_source_dest( src, dest ) VALUES (38,41);
-INSERT INTO layout_source_dest( src, dest ) VALUES (39,41);
-INSERT INTO layout_source_dest( src, dest ) VALUES (40,41);
+INSERT INTO layout_source_dest( src, dest ) VALUES (1,2),(1,3),(1,4),(1,5),(1,6),(7,8),(7,9),(7,10),(7,11),(7,12),(13,14),(13,15),(13,16),(13,17),(13,18),(19,20),(19,21),(19,22),(19,23),(19,24),(25,26),(25,27),(25,28),(25,29),(25,30),(31,32),(31,33),(31,34),(31,35),(31,36),(37,41),(38,41),(39,41),(40,41);
 
 DROP TABLE IF EXISTS target CASCADE;
 DROP SEQUENCE IF EXISTS target_id_seq;
@@ -232,8 +188,8 @@ DROP SEQUENCE IF EXISTS target_layout_name_id_seq;
                            (id SERIAL PRIMARY KEY,
                             project_id INTEGER,
                             target_layout_name_sys_name varchar(30),
-                            target_layout_name_name "VARCHAR(30),
-                            target_layout_name_desc "VARCHAR(250).
+                            target_layout_name_name VARCHAR(30),
+                            target_layout_name_desc VARCHAR(250),
                             reps INTEGER,
                             FOREIGN KEY (project_id) REFERENCES project(id));
  
@@ -540,9 +496,11 @@ CREATE TABLE well_numbers(plate_format INTEGER,
 --FOR EACH row EXECUTE PROCEDURE calc_by_row_num_func();
 CREATE INDEX ON well_numbers(by_col);
 
+\copy well_numbers FROM './resources/data/well_numbers_for_import.txt' delimiter E'\t' csv header; 
+\copy plate_layout FROM './resources/data/plate_layouts_for_import.txt' delimiter E'\t' csv header; 
 
-\i /home/mbc/projects/postgres/well_numbers_for_import.sql
-\i /home/mbc/projects/postgres/plate_layouts_for_import.sql
+-- \i /home/mbc/projects/postgres/well_numbers_for_import.sql
+-- \i /home/mbc/projects/postgres/plate_layouts_for_import.sql
 
 
 

@@ -55,6 +55,16 @@ License key requirement added
 ### That You Think
 ### Might be Useful
 
+### Everything into postgres
+
+at start:
+30 tables
+90 endogenous functions
+115 when LIMS*Nucleus functions added
+
+56 source files
+
+
 ## License
 
 Copyright © 2019 FIXME
