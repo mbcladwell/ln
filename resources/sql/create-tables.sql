@@ -180,7 +180,13 @@ CREATE TABLE target
         target_name VARCHAR(30),
         descr VARCHAR(250),
 	accs_id VARCHAR(30),
-	FOREIGN KEY (project_id) REFERENCES project(id));
+	FOREIGN KEY (project_id) REFERENCES project(ID));
+
+INSERT INTO target (target_sys_name,  target_name, descr ) VALUES
+('TRG-1', 'Target1', 'Generic Target 1'),
+(  'TRG-2', 'Target2', 'Generic Target 2'),
+(  'TRG-3', 'Target3', 'Generic Target 3'),
+(  'TRG-4', 'Target4', 'Generic Target 4');
 
 DROP TABLE IF EXISTS target_layout_name CASCADE;
 DROP SEQUENCE IF EXISTS target_layout_name_id_seq;
@@ -191,8 +197,14 @@ DROP SEQUENCE IF EXISTS target_layout_name_id_seq;
                             target_layout_name_name VARCHAR(30),
                             target_layout_name_desc VARCHAR(250),
                             reps INTEGER,
-                            FOREIGN KEY (project_id) REFERENCES project(id));
+                            FOREIGN KEY (project_id) REFERENCES project(ID));
  
+
+INSERT INTO target_layout_name ( target_layout_name_sys_name, target_layout_name_name, target_layout_name_desc, reps) VALUES
+('TLY-1','DefaultSinglicates', 'Generic default target layout for singlicates', 1 ),
+('TLY-2','DefaultDuplicates', 'Generic default target layout for duplicates', 2 ),
+('TLY-3','DefaultQuadruplicates', 'Generic default target layout for quadruplicates', 4 );
+
 
 DROP TABLE IF EXISTS target_layout CASCADE;
 CREATE TABLE target_layout
@@ -203,6 +215,11 @@ CREATE TABLE target_layout
                             FOREIGN KEY (target_layout_name_id) REFERENCES target_layout_name(id));
 		           
  CREATE INDEX ON target_layout(target_layout_name_id);		           
+
+INSERT INTO target_layout (target_layout_name_id, target_id, quad ) VALUES
+(1,1,1),(1,2,2),(1,3,3),(1,4,4),
+(2,1,1),(2,2,2),(2,1,3),(2,2,4),
+(3,1,1),(3,1,2),(3,1,3),(3,1,4);
 
 -----------------------------
 DROP TABLE IF EXISTS plate_set CASCADE;
