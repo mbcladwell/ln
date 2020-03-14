@@ -210,23 +210,23 @@ public class DatabaseSetupPanel extends JPanel {
     loadEgDataButton.setSize(10, 10);
 
 
-     deleteEgDataButton = new JButton("Delete");
-    deleteEgDataButton.setMnemonic(KeyEvent.VK_T);
-    c.gridx = 0;
-    c.gridy = 1;
-    c.gridwidth = 1;
-    c.gridheight = 1;
-    panel3.add(deleteEgDataButton, c);
-    deleteEgDataButton.addActionListener(
-        new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-	      DropEgTask dropeg_task = new DropEgTask();
-	      progress_bar.main( new String[] {"Dropping example data."} );
-	      dropeg_task.execute();
-	      // deleteExampleData.invoke();
-	  }
-        });
-    deleteEgDataButton.setSize(10, 10);
+    //  deleteEgDataButton = new JButton("Delete");
+    // deleteEgDataButton.setMnemonic(KeyEvent.VK_T);
+    // c.gridx = 0;
+    // c.gridy = 1;
+    // c.gridwidth = 1;
+    // c.gridheight = 1;
+    // panel3.add(deleteEgDataButton, c);
+    // deleteEgDataButton.addActionListener(
+    //     new ActionListener() {
+    //       public void actionPerformed(ActionEvent e) {
+    // 	      DropEgTask dropeg_task = new DropEgTask();
+    // 	      progress_bar.main( new String[] {"Dropping example data."} );
+    // 	      dropeg_task.execute();
+    // 	      // deleteExampleData.invoke();
+    // 	  }
+    //     });
+    // deleteEgDataButton.setSize(10, 10);
 
         label = new JLabel("Load optional example data that will allow you to excercise LIMS*Nucleus.", SwingConstants.LEFT);
     c.gridx = 1;
@@ -235,7 +235,8 @@ public class DatabaseSetupPanel extends JPanel {
     c.gridheight = 1;
     panel3.add(label, c);
 
-        label = new JLabel("Delete optional example data only, preserving tables, functions and required data.", SwingConstants.LEFT);
+    //        label = new JLabel("Delete optional example data only, preserving tables, functions and required data.", SwingConstants.LEFT);
+        label = new JLabel("To delete optional example data, delete base tables (above) and recreate the database.", SwingConstants.LEFT);
     c.gridx = 1;
     c.gridy = 1;
     c.gridwidth = 1;

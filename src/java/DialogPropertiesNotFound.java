@@ -586,59 +586,6 @@ tabbedPane.addTab("Database setup", icon, panel3,
 	messageLabel.setText("updated");
    }
 
-   //     if (e.getSource() == readlnpropsButton) {
-	
-   // 	IFn getAllPropsMethod  = Clojure.var("ln.codax-manager", "get-all-props");	
-   // 	Map<String, String>  props = (Map<String, String>)getAllPropsMethod.invoke();
-
-   // 	hostField.setText(props.get(":host"));
-   // 	portField.setText(props.get(":port"));
-   // 	dbnameField.setText(props.get(":dbname"));
-   // 	if (props.get(":sslmode").equals("true")){trueButton.setSelected(true);}else{falseButton.setSelected(true);}
-   // 	//    sourceDescription,
-   // 		 //	Boolean.toString(trueButton.isSelected());
-   // 	userField.setText(props.get(":user"));
-   // 	passwordField.setText(props.get(":password"));
-   // }
-
-    
-
-    /*    
-    if (e.getSource() == select) { //find the ln-props directory and populate text fields
-	fileChooser.setFileSelectionMode( JFileChooser.DIRECTORIES_ONLY);
-      int returnVal = fileChooser.showOpenDialog(DialogPropertiesNotFound.this);
-
-      if (returnVal == JFileChooser.APPROVE_OPTION) {
-        java.io.File file = fileChooser.getSelectedFile();
-	selectedLabelResponse.setText(file.toString());
-	IFn setLnProps  = Clojure.var("ln.codax-manager", "set-ln-props");
-	setLnProps.invoke(file.toString());
-	IFn getAllProps  = Clojure.var("ln.codax-manager", "get-all-props");
-	
-	Map<String, String> results = new HashMap<>();
-	results = (Map<String, String>)getAllProps.invoke();
-	LOGGER.info("results: " + results);
-	LOGGER.info("results.get(:port): " + results.get(":port"));
-	LOGGER.info("results.get(:sslmode): " + results.get(":sslmode"));
-	
-
-		vendorBox.setEnabled(false);
-		sourceBox.setEnabled(false);
-		hostField.setText(results.get(":host"));
-		portField.setText(results.get(":port"));
-		if(Boolean.valueOf(results.get(":sslmode"))){trueButton.setSelected(true);}else{falseButton.setSelected(true);};
-		userField.setText(results.get(":user"));
-		passwordField.setText(results.get(":password"));
-		tabbedPane.setSelectedIndex(1);
-		updateLnProps.setEnabled(false);
-		updateLnProps.setText("Updated");
-      } else {
-        LOGGER.info("Open command cancelled by user.\n");
-      }
-    }
-  
-
-    */
   }
     
   public void insertUpdate(DocumentEvent e) {
