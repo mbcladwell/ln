@@ -469,7 +469,12 @@ CREATE TABLE temp_accs_id(plate_order INTEGER,
 CREATE INDEX ON temp_accs_id(plate_order);
 CREATE INDEX ON temp_accs_id(by_col);
 
+-----------------------------------
+DROP TABLE IF EXISTS temp_barcode_id CASCADE;
+CREATE TABLE temp_barcode_id(plate_order INTEGER, 
+                           barcode_id VARCHAR(30));
 
+CREATE INDEX ON temp_barcode_id(plate_order);
 
 
 -----------------------------------

@@ -872,3 +872,30 @@ END;
 $BODY$
   LANGUAGE plpgsql VOLATILE;
 
+
+DROP FUNCTION IF EXISTS process_barcode_ids( INTEGER, VARCHAR);
+
+CREATE OR REPLACE FUNCTION process_barcode_ids(ps_id INTEGER, sql_statement VARCHAR )
+ RETURNS SETOF temp_barcode_id AS
+$BODY$
+DECLARE
+  r temp_barcode_id%rowtype;
+BEGIN
+
+TRUNCATE temp_barcode_id RESTART IDENTITY CASCADE;
+execute sql_statement;
+
+   FOR r IN
+      SELECT * FROM temp_barcode_id
+   loop
+
+UPDATE plate SET barcode = r.barcode_id WHERE plate.ID IN ( SELECT plate.id FROM plate_set, plate_plate_set, plate  WHERE plate_plate_set.plate_set_id=ps_id AND plate_plate_set.plate_id=plate.id  AND plate_plate_set.plate_order=r.plate_order);
+
+       RETURN NEXT r;
+   END LOOP;
+
+TRUNCATE temp_barcode_id RESTART IDENTITY CASCADE;
+END;
+$BODY$
+  LANGUAGE plpgsql VOLATILE;
+  

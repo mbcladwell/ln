@@ -912,6 +912,66 @@ public int insertPlateSet(
     }
 
 
+        /**
+     * Loads table and make the association
+     *
+     * barcodes looks like:
+     * plate     barcode.id
+     * 1    	AMRVK5473H
+     * 2    	KMNCX9294W
+     * 3    	EHRXZ2102Z
+     * 4    	COZHR7852Q
+     * 5    	FJVNR6433Q
+     */
+    public void associateBarcodesWithPlateSet(int  _plate_set_id, ArrayList<String[]> _barcodes){
+
+	int plate_set_id = _plate_set_id;
+	ArrayList<String[]> barcodes = _barcodes;
+	
+	    // read in data file an populate assay_result with data;
+    // only continue if successful
+    String sql_statement = new String("INSERT INTO temp_barcode_id (plate_order, barcode_id) VALUES ");
+    LOGGER.info(barcodes.get(0)[0] + " " +barcodes.get(0)[1] );	
+    if (barcodes.get(0)[0].equals("plate") & barcodes.get(0)[1].equals("barcode.id")) {
+
+    barcodes.remove(0); // get rid of the header
+    for (String[] row : barcodes) {
+      sql_statement =
+          sql_statement
+	  + "("
+	  + Integer.parseInt(row[0])
+	  + ", "
+	  + row[1]
+	  + "'), ";
+    }
+    }else{
+    JOptionPane.showMessageDialog(
+				  dbm.getDialogMainFrame(), "Expecting the headers \"plate\",  and \"barcode.id\", but found\n" + barcodes.get(0)[0] +   ", and " + barcodes.get(0)[1] + "." , "Error", JOptionPane.ERROR_MESSAGE);
+    return;
+  	
+    }
+
+    String insertSql = "SELECT process_barcode_ids(?,?);";
+    //LOGGER.info("sqlstatement: " + insertSql);
+    PreparedStatement insertPs;
+    try {
+      insertPs = conn.prepareStatement(insertSql);
+          insertPs.setInt(1, plate_set_id);
+      insertPs.setString(2, sql_statement.substring(0, sql_statement.length() - 2));
+  
+      insertPreparedStatement(insertPs);
+    } catch (SQLException sqle) {
+      LOGGER.warning("Failed to properly prepare  prepared statement: " + sqle);
+      JOptionPane.showMessageDialog(
+          dmf, "Problems parsing barcode ids file!.", "Error", JOptionPane.ERROR_MESSAGE);
+      return;
+    }
+
+    
+
+    }
+
+
     
   public void insertRearrayedPlateSet(
       String _name,

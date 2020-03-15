@@ -271,7 +271,14 @@
                             [:by_col :int]
                             [:accs_id "varchar(30)"]
                            ])]
-     
+
+         [(jdbc/create-table-ddl :temp_barcode_id
+                          [   [:plate_order :int]
+                            
+                            [:barcode_id "varchar(30)"]
+                           ])]
+
+   
         [(jdbc/create-table-ddl :rearray_pairs
                                 [[:id "SERIAL PRIMARY KEY"]
                                  [:src :int]

@@ -86,7 +86,7 @@ public class DialogImportPlateSetBarcodeIDs extends JDialog
     plate_num = _plate_num;
     plate_set_id = _plate_set_id;
     require.invoke(Clojure.read("ln.codax-manager"));
-    require.invoke(Clojure.read("ln.db-inserter"));
+    //require.invoke(Clojure.read("ln.db-inserter"));
     //    expected_rows = dbr.getNumberOfSamplesForPlateSetID(_plate_set_id);
     // Create and set up the window.
     // JFrame frame = new JFrame("Add Project");
@@ -286,9 +286,7 @@ public class DialogImportPlateSetBarcodeIDs extends JDialog
 					      new String("Expecting " + String.valueOf(expected_rows) + " rows but found " + (barcodes.size()-1) + " rows." ), "Import Error",      JOptionPane.ERROR_MESSAGE);
 		return;	    
 	}
-
-	IFn importBarcodeIDs = Clojure.var("ln.db-inserter", "import-barcode-ids");
-	importBarcodeIDs.invoke(plate_set_id, fileField.getText());
+	dbm.getDatabaseInserter().associateBarcodesWithPlateSet( plate_set_id, barcodes);
       dispose();
     }
 
