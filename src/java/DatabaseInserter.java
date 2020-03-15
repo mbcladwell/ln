@@ -49,7 +49,7 @@ public class DatabaseInserter {
     require.invoke(Clojure.read("ln.db-inserter"));
     require.invoke(Clojure.read("ln.codax-manager"));
     IFn getSessionID = Clojure.var("ln.codax-manager", "get-session-id");
-    require.invoke(Clojure.read("ln.db-retriever"));
+    //    require.invoke(Clojure.read("ln.db-retriever"));
     
     session_id = ((Long)getSessionID.invoke()).intValue();
     // this.utils = dmf.getUtilities();
@@ -237,8 +237,7 @@ public int insertPlateSet(
     //    format_id = dbr.getPlateFormatID(plate_format);
     // determine type id
     int plateTypeID = dbm.getDatabaseRetriever().getIDForPlateType(plate_type);   
-    IFn getLayoutForPlateSetSysName = Clojure.var("ln.db-retriever", "get-layout-id-for-plate-set-sys-name");
-    int plate_layout_name_id = (int)getLayoutForPlateSetSysName.invoke(a_plate_set_sys_name);
+    int plate_layout_name_id = dbm.getDatabaseRetriever().getLayoutIDForPlateSetSysName(a_plate_set_sys_name);
     // determine plate.ids for plate_sys_names
     // use   public Integer[] getIDsForSysNames(String[] _sys_names, String _table, String _column)
     // {

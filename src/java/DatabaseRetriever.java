@@ -1117,61 +1117,6 @@ int plate_layout_name_id = _plate_layout_name_id;
     }
 
 
-    /*  Before converting to handling int array
-    
-    public String[][] getAssayRunData(int _assay_run_id){
-
-	int assay_run_id = _assay_run_id;
-	CustomTable ct;
-	String sqlstring = "SELECT plate_set.plate_set_sys_name as \"Plate SET\", plate.plate_sys_name as \"Plate\", assay_result.well, assay_result.response, assay_result.bkgrnd_sub,   assay_result.norm,  assay_result.norm_pos  FROM assay_result, assay_run, plate_plate_set, plate_set, plate WHERE assay_run.plate_set_id=plate_plate_set.plate_set_id and assay_result.assay_run_id=assay_run.id AND plate_plate_set.plate_order=assay_result.plate_order AND plate_plate_set.plate_set_id=plate_set.id AND plate_plate_set.plate_id=plate.ID and assay_run.id = ?;";
-	//LOGGER.info("SQL : " + sqlstring);
-
-	try {
-	    PreparedStatement preparedStatement =
-		conn.prepareStatement(sqlstring, Statement.RETURN_GENERATED_KEYS);
-	    preparedStatement.setInt(1, assay_run_id);
-	    preparedStatement.executeQuery(); // executeUpdate expects no returns!!!
-	    ResultSet rs = preparedStatement.getResultSet();
-	     ResultSetMetaData metaData = rs.getMetaData();
-
-    // names of columns
-    Vector<String> columnNames = new Vector<String>();
-    int columnCount = metaData.getColumnCount();
-    for (int column = 1; column <= columnCount; column++) {
-        columnNames.add(metaData.getColumnName(column));
-    }
-
-    //set up a row counter which will generate a vector of selected row indices
-    //used to select all rows for export to a spreadsheet
-    Integer row_counter = 0;
-    Vector<Integer> selected_rows = new Vector<Integer>();
-    // data of the table
-    Vector<Vector<Object>> data = new Vector<Vector<Object>>();
-    while (rs.next()) {
-        Vector<Object> vector = new Vector<Object>();
-        for (int columnIndex = 1; columnIndex <= columnCount; columnIndex++) {
-            vector.add(rs.getObject(columnIndex));
-        }
-        data.add(vector);
-	selected_rows.add(row_counter);
-	row_counter = row_counter + 1;
-    }
-
-    ct = new CustomTable( dmf, new DefaultTableModel(data, columnNames));
-    ct.setSelectedRows(selected_rows);
-
-    return ct.getSelectedRowsAndHeaderAsStringArray();
-    
-	    // LOGGER.info("resultset: " + result);
-
-	} catch (SQLException sqle) {
-	    LOGGER.warning("SQLE at getPlateLayoutNameIDforPlateSetID: " + sqle);
-	}
-	return null;
-    }
-
-    */
-    
     
     
   public int getAssayIDForAssayType(String _assay_name) {
@@ -1242,6 +1187,53 @@ int plate_layout_name_id = _plate_layout_name_id;
 	
     }
 
+     public int getLayoutIDForPlateSetSysName (String _plate_set_sys_name){
+	 int result =0;
+    try {
+      PreparedStatement pstmt =
+          conn.prepareStatement("SELECT  get_layout_id_for_plate_set_sys_name(?);");
+      pstmt.setString(1, _plate_set_sys_name);
+
+      ResultSet rs = pstmt.executeQuery();
+      rs.next();
+      result = rs.getInt(1);
+      //LOGGER.info("number of samples: " + result);
+      rs.close();
+      pstmt.close();
+
+    } catch (SQLException sqle) {
+      LOGGER.severe("SQL exception getting plate set ID: " + sqle);
+    }
+    return result;
+	
+    }
+
+    
+     public String getLayoutNameDescrForLayoutID (int _sample_layout_id){
+	 String result =new String();
+    try {
+      PreparedStatement pstmt =
+          conn.prepareStatement("SELECT  get_layout_name_descr_for_layout_id(?);");
+      pstmt.setInt(1, _sample_layout_id);
+
+      ResultSet rs = pstmt.executeQuery();
+      rs.next();
+      result = rs.getString(1);
+      //LOGGER.info("number of samples: " + result);
+      rs.close();
+      pstmt.close();
+
+    } catch (SQLException sqle) {
+      LOGGER.severe("SQL exception getting plate set ID: " + sqle);
+    }
+    return result;
+	
+    }
+
+
+
+
+    
       public ComboItem[] getPlateFormats() {
     ComboItem[] output = null;
     Array results = null;

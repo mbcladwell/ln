@@ -6,17 +6,52 @@
    [clojure.data.csv :as csv]
    [ln.codax-manager :as cm]
    [clojure.java.browse :as browse]
-   ;; [ln.db-inserter :as dbi]
-   [ln.db-retriever :as dbr]
-   [ln.db-inserter :as dbi]
-   [ln.db-manager :as dbm]
-   
+   [next.jdbc :as j]  
    [ln.dialog :as d])
   (:import javax.swing.JOptionPane)
   (:gen-class ))
 
 ;;https://push-language.hampshire.edu/t/calling-clojure-code-from-java/865
 ;;(open-props-if-exists)
+
+
+(defn authenticate-user
+  ;;variable from codax
+  []
+  (let [
+        user (cm/get-user)
+        password (cm/get-password)
+        results (j/execute-one! cm/conn ["SELECT lnuser.id, lnuser.password, lnuser_groups.id, lnuser_groups.usergroup  FROM lnuser, lnuser_groups  WHERE lnuser_groups.id = lnuser.usergroup_id and lnuser_name = ?"  user ])]
+    (if (= password (:lnuser/password results) )
+      (do
+        (cm/set-uid-ugid-ug-auth
+           (get  results :lnuser/id)         
+           (get results :lnuser_groups/id)
+           (get  results :lnuser_groups/usergroup)
+           true))
+      (cm/set-authenticated false));;invalid
+    ))
+
+
+(defn register-session
+  ;;user id
+  [ uid ]
+(let [
+        user-id-pre (j/execute-one!  cm/conn  ["INSERT INTO lnsession(lnuser_id) values(?)" uid] )
+        ;;user-id (first(vals  user-id-pre))  ;;ERROR!! insert gives the count, not the uid
+        ug-id-pre (j/execute-one!  cm/conn ["SELECT usergroup_id FROM lnuser WHERE lnuser.id =?" uid ] )
+        ug-id (first (vals  ug-id-pre))
+        ug-name-pre (j/execute-one!  cm/conn ["SELECT usergroup FROM lnuser_groups WHERE id =?" uid ] )
+        ug-name (first (vals  ug-name-pre))
+        ]
+    (c/with-write-transaction [cm/props tx]
+    (-> tx
+      (c/assoc-at  [:assets :session :user-id] uid )   
+      (c/assoc-at  [:assets :session :user-group-id] ug-id)
+      (c/assoc-at  [:assets :session :user-group] ug-name)))))
+    
+
+
 
 (defn login-to-database
   ;;if user is blank or auto-login is false, pop up the login dialog
@@ -33,17 +68,17 @@
                                         ;;codax open continuously to this point
       (if (eval completed?)
         (do        
-          (dbr/authenticate-user)      
+          (authenticate-user)      
         (if(cm/get-authenticated)
           (do
-            (dbr/register-session (cm/get-user-id))
+            (register-session (cm/get-user-id))
             (ln.DatabaseManager.))
           (do
             (cm/set-auto-login false)
             (JOptionPane/showMessageDialog nil "Invalid login credentials!" ))))
       (recur  (realized? d/p)))));; the if is true i.e. need a login dialog
     (do
-      (dbr/register-session (cm/get-user-id))
+      (register-session (cm/get-user-id))
       (ln.DatabaseManager. )))))  ;;if is false - can auto-login
 
 ;;(cm/set-u-p-al "aaa" "bbb" false)

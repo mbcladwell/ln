@@ -637,6 +637,10 @@ $BODY$
   LANGUAGE plpgsql VOLATILE;
   "])
 
+
+
+
+
 (def drop-create-layout-records ["DROP FUNCTION IF EXISTS create_layout_records(VARCHAR, VARCHAR, VARCHAR, INTEGER, INTEGER, INTEGER, integer );"])
 
 (def create-layout-records ["CREATE OR REPLACE FUNCTION create_layout_records(source_name VARCHAR, source_description VARCHAR, control_location VARCHAR, n_controls INTEGER, n_unknowns INTEGER, format INTEGER, n_edge integer)
@@ -850,7 +854,40 @@ $BODY$
                               FOR EACH ROW EXECUTE PROCEDURE delete_neg_response();"])
 
 
+;;below her to be added to sql script inot-postgres campaign
 
+
+(def drop-get-layout-id-for-plate-set-sys-name["DROP FUNCTION IF EXISTS get_layout_id_for_plate_set_sys_name(VARCHAR);"])
+
+(def get-layout-id-for-plate-set-sys-name ["CREATE OR REPLACE FUNCTION get_layout_id_for_plate_set_sys_name( _plate_set_sys_name varchar(8))
+  RETURNS integer AS
+$BODY$
+DECLARE
+   v_id integer;
+BEGIN
+ SELECT plate_layout_name_id FROM plate_set WHERE plate_set_sys_name = _plate_set_sys_name into v_id;
+RETURN v_id;
+END;
+$BODY$
+  LANGUAGE plpgsql VOLATILE;"])
+
+
+(def drop-get-layout-name-descr-for-layout-id["DROP FUNCTION IF EXISTS get_layout_name_descr_for_layout_id(INTEGER);"]
+
+(def get-layout-name-descr-for-id["CREATE OR REPLACE FUNCTION get_layout_name_descr_for_layout_id( _plate_layout_id integer)
+  RETURNS VARCHAR AS
+$BODY$
+DECLARE
+    r record;
+
+   result VARCHAR(250);
+BEGIN
+SELECT plate_layout_name.name, plate_layout_name.descr FROM  plate_layout_name WHERE plate_layout_name.id = _plate_layout_id into r;
+result := r.name || ';' || r.descr;
+RETURN result;
+END;
+$BODY$
+  LANGUAGE plpgsql VOLATILE;"]
 
 (def drop-all-functions
   [drop-new-user
@@ -878,7 +915,9 @@ $BODY$
    drop-get-all-data-for-assay-run
    drop-global-search
    drop-delete-neg-value
-   drop-delete-neg-value-trigger])
+   drop-delete-neg-value-trigger
+   drop-get-layout-id-for-plate-set-sys-name
+   drop-get-layout-name-descr-for-id])
 
 (def all-functions
   ;;for use in a map function that will create all functions
@@ -907,5 +946,7 @@ $BODY$
    get-all-data-for-assay-run
    global-search
    delete-neg-value
-   delete-neg-value-trigger])
+   delete-neg-value-trigger
+   get-layout-id-for-plate-set-sys-name
+   get-layout-name-descr-for-id])
 

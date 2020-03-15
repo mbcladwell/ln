@@ -88,8 +88,7 @@ public class DialogGroupPlates extends JDialog {
     //figure out the layout from the parent plate_set
     IFn getPlateSetSysName = Clojure.var("ln.codax-manager", "get-plate-set-sys-name");
     
-    IFn getLayoutIDforPlateSetSysName = Clojure.var("ln.db-retriever", "get-layout-id-for-plate-set-sys-name");
-    int layout_id = (int)getLayoutIDforPlateSetSysName.invoke((String)getPlateSetSysName.invoke());
+    int layout_id = dbm.getDatabaseRetriever().getLayoutIDForPlateSetSysName((String)getPlateSetSysName.invoke());
     
     
     // Create and set up the window.
@@ -227,12 +226,10 @@ public class DialogGroupPlates extends JDialog {
     pane.add(label, c);
 
     //ComboItem[] plateLayouts = dbm.getDatabaseRetriever().getSourcePlateLayoutNames(Integer.parseInt(format),((ComboItem)typeList.getSelectedItem()).getKey());
-  
-    IFn getLayoutNameDescrForLayoutID = Clojure.var("ln.db-retriever", "get-layout-name-descr-for-layout-id");
-
+   
     //layoutList = new JComboBox<ComboItem>(plateLayouts);
     //layoutList.setSelectedIndex(0);
-    label = new JLabel((String)getLayoutNameDescrForLayoutID.invoke(layout_id));
+    label = new JLabel(dbm.getDatabaseRetriever().getLayoutNameDescrForLayoutID(layout_id));
     c.gridx = 1;
     c.gridy = 7;
     c.gridheight = 1;

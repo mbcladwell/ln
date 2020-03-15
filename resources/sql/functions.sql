@@ -843,3 +843,32 @@ CREATE TRIGGER delete_neg_value BEFORE INSERT ON assay_result_pre
 
 
 
+DROP FUNCTION IF EXISTS get_layout_id_for_plate_set_sys_name(VARCHAR);
+CREATE OR REPLACE FUNCTION get_layout_id_for_plate_set_sys_name( _plate_set_sys_name varchar(8))
+  RETURNS integer AS
+$BODY$
+DECLARE
+   v_id integer;
+BEGIN
+ SELECT plate_layout_name_id FROM plate_set WHERE plate_set_sys_name = _plate_set_sys_name into v_id;
+RETURN v_id;
+END;
+$BODY$
+  LANGUAGE plpgsql VOLATILE;
+
+
+DROP FUNCTION IF EXISTS get_layout_name_descr_for_layout_id(INTEGER);
+CREATE OR REPLACE FUNCTION get_layout_name_descr_for_layout_id( _plate_layout_id integer)
+  RETURNS VARCHAR AS
+$BODY$
+DECLARE
+    r record;
+   result VARCHAR(250);
+BEGIN
+SELECT plate_layout_name.name, plate_layout_name.descr FROM  plate_layout_name WHERE plate_layout_name.id = _plate_layout_id into r;
+result := r.name || ';' || r.descr;
+RETURN result;
+END;
+$BODY$
+  LANGUAGE plpgsql VOLATILE;
+
