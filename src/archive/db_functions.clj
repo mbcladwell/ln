@@ -857,7 +857,7 @@ $BODY$
 ;;below her to be added to sql script inot-postgres campaign
 
 
-(def drop-get-layout-id-for-plate-set-sys-name["DROP FUNCTION IF EXISTS get_layout_id_for_plate_set_sys_name(VARCHAR);"])
+(def drop-get-layout-id-for-plate-set-sys-name ["DROP FUNCTION IF EXISTS get_layout_id_for_plate_set_sys_name(VARCHAR);"])
 
 (def get-layout-id-for-plate-set-sys-name ["CREATE OR REPLACE FUNCTION get_layout_id_for_plate_set_sys_name( _plate_set_sys_name varchar(8))
   RETURNS integer AS
@@ -872,9 +872,9 @@ $BODY$
   LANGUAGE plpgsql VOLATILE;"])
 
 
-(def drop-get-layout-name-descr-for-layout-id["DROP FUNCTION IF EXISTS get_layout_name_descr_for_layout_id(INTEGER);"]
+(def drop-get-layout-name-descr-for-layout-id ["DROP FUNCTION IF EXISTS get_layout_name_descr_for_layout_id(INTEGER);"])
 
-(def get-layout-name-descr-for-id["CREATE OR REPLACE FUNCTION get_layout_name_descr_for_layout_id( _plate_layout_id integer)
+(def get-layout-name-descr-for-layout-id ["CREATE OR REPLACE FUNCTION get_layout_name_descr_for_layout_id( _plate_layout_id integer)
   RETURNS VARCHAR AS
 $BODY$
 DECLARE
@@ -887,7 +887,8 @@ result := r.name || ';' || r.descr;
 RETURN result;
 END;
 $BODY$
-  LANGUAGE plpgsql VOLATILE;"]
+  LANGUAGE plpgsql VOLATILE;"])
+  
 
 (def drop-all-functions
   [drop-new-user
@@ -917,7 +918,7 @@ $BODY$
    drop-delete-neg-value
    drop-delete-neg-value-trigger
    drop-get-layout-id-for-plate-set-sys-name
-   drop-get-layout-name-descr-for-id])
+   drop-get-layout-name-descr-for-layout-id])
 
 (def all-functions
   ;;for use in a map function that will create all functions
@@ -948,5 +949,5 @@ $BODY$
    delete-neg-value
    delete-neg-value-trigger
    get-layout-id-for-plate-set-sys-name
-   get-layout-name-descr-for-id])
+   get-layout-name-descr-for-layout-id])
 

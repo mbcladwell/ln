@@ -5,7 +5,6 @@
             [clojure.data.csv :as csv]
             [ln.codax-manager :as cm]
             [codax.core :as c]
-            [ln.db-inserter :as dbi]
             [clojure.java.io :as io])
            
   (:import java.sql.DriverManager)
@@ -15,6 +14,30 @@
 (load "/ln/db_functions")
 (load "/ln/example_data")
 
+(defn tokens
+  [s]
+  (-> s clojure.string/trim (clojure.string/split #"\s+")))
+
+(defn pairs
+  [coll1 coll2]
+  (map vector coll1 coll2))
+
+(defn parse-table
+  [raw-table-data]
+  (let [table-data (map tokens (clojure.string/split-lines raw-table-data))
+        column-keys (map keyword (first table-data))
+        contents  (next table-data)]
+    (for [x contents]
+  (into (sorted-map)(pairs column-keys x)))))
+
+(defn table-to-map [ file]
+  (->
+    file
+    slurp
+    parse-table))
+
+(defn get-col-names [ file ]
+ (first (map tokens (clojure.string/split-lines (slurp file)))))
 
 (def all-table-names
   ;;for use in a map function that will delete all tables
@@ -471,14 +494,14 @@ assayid	PlateOrder	Well	Response	BkSub	Norm	NormPos	pEnhanced
    
    [ :well_numbers [:plate_format :well_name :row :row_num :col :total_col_count :by_row :by_col :quad :parent_well ]
    ;; ln.data-sets/well-numbers
-     (let   [  table (dbi/table-to-map (io/resource "data/well_numbers_for_import.txt"))
+     (let   [  table (table-to-map (io/resource "data/well_numbers_for_import.txt"))
                content (into [] (map #(process-well-numbers-data %) table))]
        content)]
   
 
       [ :plate_layout [ :plate_layout_name_id :well_by_col :well_type_id :replicates :target]
       ;; ln.plate-layout-data/plate-layout-data
-        (let   [  table (dbi/table-to-map (io/resource "data/plate_layouts_for_import.txt"))
+        (let   [  table (table-to-map (io/resource "data/plate_layouts_for_import.txt"))
                content (into [] (map #(process-layout-data %) table))]
          content)
     ]
@@ -533,7 +556,7 @@ assayid	PlateOrder	Well	Response	BkSub	Norm	NormPos	pEnhanced
   ; ;INSERT INTO assay_result (assay_run_id, plate_order, well, response) VALUES
 ;;assay_run_id | plate_order | well |  response  |  bkgrnd_sub  |     norm     |   norm_pos   | p_enhance 
   (jdbc/insert-multi! cm/conn :assay_result [:assay_run_id :plate_order :well :response :bkgrnd_sub :norm :norm_pos :p_enhance]
-                      (let   [  table (dbi/table-to-map (io/resource "data/processed_data_for_import.txt"))
+                      (let   [  table (table-to-map (io/resource "data/processed_data_for_import.txt"))
                               content (into [] (map #(process-processed-assay-data %) table))]
                         content) )
 

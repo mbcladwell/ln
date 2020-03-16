@@ -883,8 +883,9 @@ DECLARE
 BEGIN
 
 TRUNCATE temp_barcode_id RESTART IDENTITY CASCADE;
+--raise NOTice 'sql: (%)', sql_statement;
 execute sql_statement;
-
+--raise NOTice 'post execute: (%)', 2;
    FOR r IN
       SELECT * FROM temp_barcode_id
    loop

@@ -11,6 +11,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.util.logging.Logger;
+import java.io.*;
 
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
@@ -52,7 +53,9 @@ public class DatabaseSetupPanel extends JPanel {
 
     //setup desired Clojure methods
     IFn require = Clojure.var("clojure.core", "require");
-    require.invoke(Clojure.read("ln.db-init"));
+    //require.invoke(Clojure.read("ln.db-init"));
+    require.invoke(Clojure.read("ln.codax-manager"));
+
     
     GridBagConstraints c = new GridBagConstraints();
         c.insets = new Insets(5, 5, 2, 2);
@@ -143,7 +146,7 @@ public class DatabaseSetupPanel extends JPanel {
 	      InitTask init_task = new InitTask();
 	      progress_bar.main( new String[] {"Initializing tables, indices, functions."} );
 	      init_task.execute();
-
+	 
 	      //initLimsNucleus.invoke();
           }
         });
@@ -265,7 +268,7 @@ public class DatabaseSetupPanel extends JPanel {
 	createTablesButton.setEnabled(true);
 	deleteTablesButton.setEnabled(true);
 	loadEgDataButton.setEnabled(true);
-	deleteEgDataButton.setEnabled(true);
+	//deleteEgDataButton.setEnabled(true);
 
 	}else{
 	statusLabel.setText("<html><font color='red'>Unlicensed</font><font color='black'> - functionality disabled. Register to activate.</font></html>");
@@ -273,7 +276,7 @@ public class DatabaseSetupPanel extends JPanel {
 	createTablesButton.setEnabled(false);
 	deleteTablesButton.setEnabled(false);
 	loadEgDataButton.setEnabled(false);
-	deleteEgDataButton.setEnabled(false);
+	//deleteEgDataButton.setEnabled(false);
 	
     }
     
@@ -284,16 +287,70 @@ public class DatabaseSetupPanel extends JPanel {
 	urlLabel.setText("Connection URL: " + s);
     }
 
-      class InitTask extends SwingWorker<Void, Void> {
+    class InitTask extends SwingWorker<Void, Void> {
         /*
          * Main task. Executed in background thread.
          */
-	  IFn initLimsNucleus = Clojure.var("ln.db-init", "initialize-limsnucleus");
+	//	  IFn initLimsNucleus = Clojure.var("ln.db-init", "initialize-limsnucleus");
+
+    IFn getHost = Clojure.var("ln.codax-manager", "get-host");
+    IFn getPort = Clojure.var("ln.codax-manager", "get-port");
+    IFn getUser = Clojure.var("ln.codax-manager", "get-user");
+    IFn getDBname = Clojure.var("ln.codax-manager", "get-dbname");
 
         @Override
         public Void doInBackground() {
-	    initLimsNucleus.invoke();
-       
+	    //initLimsNucleus.invoke();
+	   
+		  String psql_command = new String("psql -h " + (String)getHost.invoke() + " -p " + getPort.invoke().toString() + " -U ln_admin " + " -d " +  (String)getDBname.invoke() + " -f ./resources/sql/create-tables.sql");
+	    LOGGER.info("sql: " + psql_command);
+	  String psql_command2 = new String("psql -h " + (String)getHost.invoke() + " -p " + getPort.invoke().toString() + " -U ln_admin " + " -d " +  (String)getDBname.invoke() + " -f ./resources/sql/functions.sql");
+	    LOGGER.info("sql2: " + psql_command2);
+
+	    
+	    try{
+		Process p = Runtime.getRuntime().exec(psql_command);
+		Process p2 = Runtime.getRuntime().exec(psql_command2);
+		
+	    }catch (IOException ioe) {
+		LOGGER.info("Failed to execute psql!");
+	    }
+	    return null;	    
+        }
+ 
+        /*
+         * Executed in event dispatching thread
+         */
+        @Override
+        public void done() {
+            Toolkit.getDefaultToolkit().beep();
+            setCursor(null); //turn off the wait cursor
+	    progress_bar.dispose();
+     }
+    }
+    
+    class DropTask extends SwingWorker<Void, Void> {
+        /*
+         * Main task. Executed in background thread.
+         */
+	//        IFn dropAllTables = Clojure.var("ln.db-init", "drop-all-tables");
+    IFn getHost = Clojure.var("ln.codax-manager", "get-host");
+    IFn getPort = Clojure.var("ln.codax-manager", "get-port");
+    IFn getUser = Clojure.var("ln.codax-manager", "get-user");
+    IFn getDBname = Clojure.var("ln.codax-manager", "get-dbname");
+
+        @Override
+        public Void doInBackground() {
+	    //dropAllTables.invoke();
+	  String psql_command = new String("psql -h " + (String)getHost.invoke() + " -p " + getPort.invoke().toString() + " -U ln_admin " + " -d " +  (String)getDBname.invoke() + " -f ./resources/sql/drop-func-tables.sql");
+	 
+	    
+	    try{
+		Process p = Runtime.getRuntime().exec(psql_command);	
+	    }catch (IOException ioe) {
+		LOGGER.info("Failed to execute psql!");
+	    }
+	    
 	    return null;
         }
  
@@ -308,16 +365,29 @@ public class DatabaseSetupPanel extends JPanel {
      }
     }
 
-          class DropTask extends SwingWorker<Void, Void> {
+
+    class AddEgTask extends SwingWorker<Void, Void> {
         /*
          * Main task. Executed in background thread.
          */
-	          IFn dropAllTables = Clojure.var("ln.db-init", "drop-all-tables");
+	// IFn addExampleData = Clojure.var("ln.db-init", "add-example-data");
+    IFn getHost = Clojure.var("ln.codax-manager", "get-host");
+    IFn getPort = Clojure.var("ln.codax-manager", "get-port");
+    IFn getUser = Clojure.var("ln.codax-manager", "get-user");
+    IFn getDBname = Clojure.var("ln.codax-manager", "get-dbname");
 
         @Override
         public Void doInBackground() {
-	    dropAllTables.invoke();
-       
+	    // addExampleData.invoke();
+       String psql_command = new String("psql -h " + (String)getHost.invoke() + " -p " + getPort.invoke().toString() + " -U ln_admin " + " -d " +  (String)getDBname.invoke() + " -f ./resources/sql/example-data.sql");
+	 
+	    
+	    try{
+		Process p = Runtime.getRuntime().exec(psql_command);	
+	    }catch (IOException ioe) {
+		LOGGER.info("Failed to execute psql!");
+	    }
+	    
 	    return null;
         }
  
@@ -332,54 +402,29 @@ public class DatabaseSetupPanel extends JPanel {
      }
     }
 
+    //       class DropEgTask extends SwingWorker<Void, Void> {
+    //     /*
+    //      * Main task. Executed in background thread.
+    //      */
+    // 	      IFn deleteExampleData = Clojure.var("ln.db-init", "delete-example-data");
 
-              class AddEgTask extends SwingWorker<Void, Void> {
-        /*
-         * Main task. Executed in background thread.
-         */
-    IFn addExampleData = Clojure.var("ln.db-init", "add-example-data");
-
-        @Override
-        public Void doInBackground() {
-	    addExampleData.invoke();
+    //     @Override
+    //     public Void doInBackground() {
+    // 	    deleteExampleData.invoke();
        
-	    return null;
-        }
+    // 	    return null;
+    //     }
  
-        /*
-         * Executed in event dispatching thread
-         */
-        @Override
-        public void done() {
-            Toolkit.getDefaultToolkit().beep();
-            setCursor(null); //turn off the wait cursor
-	    progress_bar.dispose();
-     }
-    }
-
-          class DropEgTask extends SwingWorker<Void, Void> {
-        /*
-         * Main task. Executed in background thread.
-         */
-	      IFn deleteExampleData = Clojure.var("ln.db-init", "delete-example-data");
-
-        @Override
-        public Void doInBackground() {
-	    deleteExampleData.invoke();
-       
-	    return null;
-        }
- 
-        /*
-         * Executed in event dispatching thread
-         */
-        @Override
-        public void done() {
-            Toolkit.getDefaultToolkit().beep();
-            setCursor(null); //turn off the wait cursor
-	    progress_bar.dispose();
-     }
-    }
+    //     /*
+    //      * Executed in event dispatching thread
+    //      */
+    //     @Override
+    //     public void done() {
+    //         Toolkit.getDefaultToolkit().beep();
+    //         setCursor(null); //turn off the wait cursor
+    // 	    progress_bar.dispose();
+    //  }
+    // }
 
    
 }

@@ -46,7 +46,6 @@ public class DatabaseInserter {
     // this.dbr = dbm.getDatabaseRetriever();
     //session = dbm.getSession();
     this.dmf = dbm.getDialogMainFrame();
-    require.invoke(Clojure.read("ln.db-inserter"));
     require.invoke(Clojure.read("ln.codax-manager"));
     IFn getSessionID = Clojure.var("ln.codax-manager", "get-session-id");
     //    require.invoke(Clojure.read("ln.db-retriever"));
@@ -931,7 +930,7 @@ public int insertPlateSet(
 	    // read in data file an populate assay_result with data;
     // only continue if successful
     String sql_statement = new String("INSERT INTO temp_barcode_id (plate_order, barcode_id) VALUES ");
-    LOGGER.info(barcodes.get(0)[0] + " " +barcodes.get(0)[1] );	
+    //LOGGER.info(barcodes.get(0)[0] + " " +barcodes.get(0)[1] );	
     if (barcodes.get(0)[0].equals("plate") & barcodes.get(0)[1].equals("barcode.id")) {
 
     barcodes.remove(0); // get rid of the header
@@ -940,7 +939,7 @@ public int insertPlateSet(
           sql_statement
 	  + "("
 	  + Integer.parseInt(row[0])
-	  + ", "
+	  + ", '"
 	  + row[1]
 	  + "'), ";
     }
@@ -957,6 +956,7 @@ public int insertPlateSet(
     try {
       insertPs = conn.prepareStatement(insertSql);
           insertPs.setInt(1, plate_set_id);
+	  // LOGGER.info("sql: " + sql_statement.substring(0, sql_statement.length() - 2));
       insertPs.setString(2, sql_statement.substring(0, sql_statement.length() - 2));
   
       insertPreparedStatement(insertPs);
