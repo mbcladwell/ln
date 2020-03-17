@@ -55,7 +55,7 @@
              "Application-title" "LIMSNucleus"
              }
   
-  :main ln.session
+  :main ln.Session
   :aot [ ]
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all}})
