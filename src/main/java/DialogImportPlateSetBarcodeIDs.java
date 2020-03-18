@@ -70,7 +70,7 @@ public class DialogImportPlateSetBarcodeIDs extends JDialog
   private JFileChooser fileChooser;
     private JCheckBox checkBox;
     private ArrayList<String[]>  barcodes; 
-    //    private Session session;
+    private Session session;
     
         
   private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
@@ -81,6 +81,7 @@ public class DialogImportPlateSetBarcodeIDs extends JDialog
       int _plate_set_id,
       int _plate_num) {
 
+      session = _s;
     plate_set = new ComboItem(_plate_set_id, _plate_set_sys_name);
     // format = new ComboItem(_format_id, String.valueOf(_format_id));
     plate_num = _plate_num;

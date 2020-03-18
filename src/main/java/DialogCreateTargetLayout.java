@@ -68,15 +68,14 @@ public class DialogCreateTargetLayout extends JDialog
   private DatabaseRetriever dbr;
   private DatabaseInserter dbi;
     private int replication = 1;
-    static IFn  getProjectID;
-
+    private Session session;
     
         
   private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
   public DialogCreateTargetLayout( Session _s) {
 
-    
+      session = _s;
     //    expected_rows = dbr.getNumberOfSamplesForPlateSetID(_plate_set_id);
     // Create and set up the window.
         

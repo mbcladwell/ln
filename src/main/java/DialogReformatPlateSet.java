@@ -79,9 +79,6 @@ public int new_plate_format_id;
     
   private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
     
-    static  IFn getProjectID;
-  // final EntityManager em;
-
   /**
    * Called from DatabaseInserter.reformatPlateSet()
    *
@@ -98,7 +95,7 @@ public int new_plate_format_id;
       String _plate_type,
       String _plate_format,
       int _plate_layout_name_id) {
-      this.session = _session;
+      this.session = _s;
       dbm = session.getDatabaseManager();
       this.dmf = session.getDialogMainFrame();
     

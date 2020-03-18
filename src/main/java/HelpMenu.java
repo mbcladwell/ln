@@ -22,12 +22,12 @@ public class HelpMenu extends JMenu {
 
   // DialogMainFrame dmf;
   // J/Table table;
-    //    private Session session;
+       private Session session;
   private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
     
 
-  public HelpMenu( ) {
-      //      session = _s;
+  public HelpMenu(Session _s ) {
+          session = _s;
     
 
     this.setText("Help");
@@ -41,20 +41,20 @@ public class HelpMenu extends JMenu {
 	       
 
 	      openWebpage(URI.create(session.getHelpURLPrefix() + "toc"));
-	      System.out.println(session.getHelpURLPrefix() + "toc");
+	      //System.out.println(session.getHelpURLPrefix() + "toc");
 	      //            new OpenHelpDialog();
           }
         });
     this.add(menuItem);
     
-    menuItem = new JMenuItem("License", KeyEvent.VK_L);
-    menuItem.addActionListener(
-        new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-	        new DialogLicense();
-          }
-        });
-    this.add(menuItem);
+    // menuItem = new JMenuItem("License", KeyEvent.VK_L);
+    // menuItem.addActionListener(
+    //     new ActionListener() {
+    //       public void actionPerformed(ActionEvent e) {
+    // 	          new DialogLicense();
+    //       }
+    //     });
+    // this.add(menuItem);
     
     
     menuItem = new JMenuItem("About LIMS*Nucleus", KeyEvent.VK_A);
@@ -63,7 +63,7 @@ public class HelpMenu extends JMenu {
     menuItem.addActionListener(
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
-            new DialogHelpAbout();
+            new DialogHelpAbout(session);
           }
         });
     this.add(menuItem);

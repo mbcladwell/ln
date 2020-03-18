@@ -32,8 +32,6 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableModel;
 
 
-
-
 public class AssayRunViewer extends JDialog implements java.awt.event.ActionListener {
   static JButton hitListFromFile;
   static JButton exportAssayRun;
@@ -200,7 +198,7 @@ public class AssayRunViewer extends JDialog implements java.awt.event.ActionList
 		    Object[][] results = session.getDialogMainFrame().getUtilities().getSelectedRowsAndHeaderAsStringArray(assay_runs_table);
 		    if(results.length>1){
 			// LOGGER.info("hit list table: " + results);
-			POIUtilities poi = new POIUtilities(dbm);
+			POIUtilities poi = new POIUtilities(session);
 			poi.writeJTableToSpreadsheet("Assay Runs", results);
 			try {
 			    Desktop d = Desktop.getDesktop();
@@ -223,7 +221,7 @@ public class AssayRunViewer extends JDialog implements java.awt.event.ActionList
 			int assay_run_id = Integer.parseInt(( (String)assay_runs_table.getModel().getValueAt(row,0)).substring(3));
 
 			    Object[][] assay_run_data = session.getDatabaseRetriever().getAssayRunData(assay_run_id);
-			    POIUtilities poi = new POIUtilities(dbm);
+			    POIUtilities poi = new POIUtilities(session);
 			    
 			    poi.writeJTableToSpreadsheet("Assay Run Data", assay_run_data);
 			    //poi.writeJTableToSpreadsheet("Assay Run Data for " + assay_runs_sys_name, assay_run_data);
@@ -288,7 +286,7 @@ public class AssayRunViewer extends JDialog implements java.awt.event.ActionList
 	    int row = assay_runs_table.getSelectedRow();
 	    String assay_runs_sys_name =  assay_runs_table.getModel().getValueAt(row, 0).toString();
 	    int  assay_runs_id = Integer.parseInt(assay_runs_sys_name.substring(3));
-	    new ScatterPlot(dbm, assay_runs_id);
+	    new ScatterPlot(session, assay_runs_id);
 	}
 	else{
 	    JOptionPane.showMessageDialog(session.getDialogMainFrame(), "Select an Assay Run!");	      
@@ -300,7 +298,7 @@ public class AssayRunViewer extends JDialog implements java.awt.event.ActionList
 	Object[][] results = session.getDialogMainFrame().getUtilities().getSelectedRowsAndHeaderAsStringArray(hit_lists_table);
 	if(results.length>1){
 	//   LOGGER.info("hit list table: " + results);
-	       POIUtilities poi = new POIUtilities(dbm);
+	       POIUtilities poi = new POIUtilities(session);
             poi.writeJTableToSpreadsheet("Hit Lists", results);
             try {
               Desktop d = Desktop.getDesktop();
@@ -319,7 +317,7 @@ public class AssayRunViewer extends JDialog implements java.awt.event.ActionList
 		 int row = hit_lists_table.getSelectedRow();
 		 String hit_list_sys_name =  hit_lists_table.getModel().getValueAt(row, 0).toString();
 		 int  hit_list_id = Integer.parseInt(hit_list_sys_name.substring(3));
-		 new HitListViewer( dbm, hit_list_id);}
+		 new HitListViewer(session, hit_list_id);}
   else{
 	      JOptionPane.showMessageDialog(session.getDialogMainFrame(), "Select a Hit List!");	      
 	    }
@@ -334,12 +332,10 @@ public class AssayRunViewer extends JDialog implements java.awt.event.ActionList
     if (e.getSource() == projectList) {
 	if(projectList.getSelectedIndex() > -1){
 	    project_id  = ((ComboItem)projectList.getSelectedItem()).getKey();
-	    IFn setProjectID = Clojure.var("ln.codax-manager", "set-project-id");
 
-	    setProjectID.invoke(project_id);
-	    IFn setProjectSysName = Clojure.var("ln.codax-manager", "set-project-sys-name");
-    
-	    setProjectSysName.invoke(((ComboItem)projectList.getSelectedItem()).toString());
+	    session.setProjectID(project_id);
+   
+	    session.setProjectSysName(((ComboItem)projectList.getSelectedItem()).toString());
 	    this.refreshTables(); 
 	}
     }  

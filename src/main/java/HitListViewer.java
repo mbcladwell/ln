@@ -203,7 +203,7 @@ public class HitListViewer extends JDialog implements java.awt.event.ActionListe
 	Object[][] results = session.getDialogMainFrame().getUtilities().getSelectedRowsAndHeaderAsStringArray(hits_table);
 	if(results.length>1){
 	    // LOGGER.info("hit list table: " + results);
-	   POIUtilities poi = new POIUtilities(dbm);
+	   POIUtilities poi = new POIUtilities(session);
             poi.writeJTableToSpreadsheet("Hits", results);
             try {
               Desktop d = Desktop.getDesktop();
@@ -226,7 +226,7 @@ public class HitListViewer extends JDialog implements java.awt.event.ActionListe
 	Object[][] results = dmf.getUtilities().getSelectedRowsAndHeaderAsStringArray(counts_table);
 	if(results.length>1){
 	//   LOGGER.info("hit list table: " + results);
-	    POIUtilities poi = new POIUtilities(dbm);
+	    POIUtilities poi = new POIUtilities(session);
             poi.writeJTableToSpreadsheet("Counts", results);
             try {
               Desktop d = Desktop.getDesktop();
@@ -259,7 +259,7 @@ public class HitListViewer extends JDialog implements java.awt.event.ActionListe
 		TableModel hit_list_model = hits_table.getModel();		 
 		int hit_list_id =  Integer.valueOf(hits_table.getModel().getValueAt(0, 0).toString());
 		String hit_list_sys_name =  new String("HL-" + hit_list_id);
-		new DialogRearrayHitList(dbm, plate_set_id, plate_set_sys_name, source_plate_set_format, hit_list_id, hit_list_sys_name, sample_count);
+		new DialogRearrayHitList(session, plate_set_id, plate_set_sys_name, source_plate_set_format, hit_list_id, hit_list_sys_name, sample_count);
 	
 	    }catch(ArrayIndexOutOfBoundsException aiobe){
 		JOptionPane.showMessageDialog(dmf, "Select a row!");

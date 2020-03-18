@@ -37,7 +37,7 @@ public class DialogAddProject extends JDialog {
   static JButton cancelButton;
   final Instant instant = Instant.now();
   static DialogMainFrame dmf;
-    //private static Session session;
+  private static Session session;
   private static DatabaseManager dbm;
   final DateFormat df = new SimpleDateFormat("MM/dd/yyyy");
   private static final long serialVersionUID = 1L;
@@ -45,6 +45,7 @@ public class DialogAddProject extends JDialog {
     
 
   public DialogAddProject(Session _s) {
+      session = _s;
       dbm = session.getDatabaseManager();
       dmf = session.getDialogMainFrame();
     
@@ -125,14 +126,14 @@ public class DialogAddProject extends JDialog {
     okButton.addActionListener(
         (new ActionListener() {
           public void actionPerformed(ActionEvent e) {
-    IFn getUserID = Clojure.var("ln.codax-manager", "get-user-id");
+    
 
             // DatabaseManager dm = new DatabaseManager();
             // dbm.persistObject(new Project(descriptionField.getText(), ownerField.getText(),
             // nameField.getText()));
             dbm.getDatabaseInserter()
                 .insertProject(
-			       nameField.getText(), descriptionField.getText(), ((Long)getUserID.invoke()).intValue());
+			       nameField.getText(), descriptionField.getText(), session.getUserID());
             dmf.showProjectTable();
             dispose();
           }

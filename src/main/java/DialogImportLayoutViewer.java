@@ -48,7 +48,7 @@ public class DialogImportLayoutViewer extends JDialog implements java.awt.event.
   static JLabel label;
 
     final DialogMainFrame dmf;
-    // final Session session;
+     final Session session;
     private String owner;
   private JTable table;
   private JTable sourceTable;
@@ -84,6 +84,7 @@ public class DialogImportLayoutViewer extends JDialog implements java.awt.event.
 
     
     public DialogImportLayoutViewer(Session _s, ArrayList<String[]> _data) {
+	session = _s;
 	dbm = session.getDatabaseManager();
 	this.dmf = session.getDialogMainFrame();
 	//   this.session = dmf.getSession();

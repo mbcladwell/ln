@@ -12,10 +12,12 @@ import javax.swing.KeyStroke;
 public class ViewerMenu extends JMenu{
     DialogMainFrame dmf;
     DatabaseManager dbm;
+    Session session;
   // J/Table table;
   private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
   public ViewerMenu(Session _s) {
+      session = _s;
       dbm = session.getDatabaseManager();
       this.dmf = session.getDialogMainFrame();
     this.setText("Viewers");
@@ -27,7 +29,7 @@ public class ViewerMenu extends JMenu{
     menuItem.addActionListener(
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
-            new LayoutViewer(dbm);
+            new LayoutViewer(session);
           }
         });
     this.add(menuItem);
@@ -37,7 +39,7 @@ public class ViewerMenu extends JMenu{
     menuItem.addActionListener(
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
-	      AssayRunViewer arv = new AssayRunViewer(dbm);
+	      AssayRunViewer arv = new AssayRunViewer(session);
           }
         });
     this.add(menuItem);

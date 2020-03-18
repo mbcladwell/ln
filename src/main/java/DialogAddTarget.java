@@ -52,13 +52,13 @@ public class DialogAddTarget extends JDialog
   private DatabaseManager dbm;
   private DatabaseRetriever dbr;
   private DatabaseInserter dbi;
-
+    private Session session;
     
         
   private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
   public DialogAddTarget( Session _s) {
-
+      session = _s;
     
     //    expected_rows = dbr.getNumberOfSamplesForPlateSetID(_plate_set_id);
     // Create and set up the window.
@@ -69,7 +69,7 @@ public class DialogAddTarget extends JDialog
     //  this.session = dmf.getSession();
     // this.dbm = session.getDatabaseManager();
     this.dbr = session.getDatabaseRetriever();
-    this.dbi = dbm.getDatabaseInserter();
+    this.dbi = session.getDatabaseInserter();
     
 
     JPanel pane = new JPanel(new GridBagLayout());

@@ -36,14 +36,14 @@ public class FilterPanel extends JPanel {
     private int entity_type;
     private int id;
     private JTextField textField;
-    //    private Session session;    
+      private Session session;    
     
 
   /**
    * @param id the project/plateset/plate etc id for fetching the main table
  */
     public FilterPanel(Session _s, JTable _table, int _id, int _entity_type) {
-	
+	session = _s;	
     this.setLayout(new GridBagLayout());
     dbm = session.getDatabaseManager();
     dmf = session.getDialogMainFrame();
@@ -85,7 +85,7 @@ public class FilterPanel extends JPanel {
 		  break;
 	      case DialogMainFrame.PLATESET: session.getDialogMainFrame().showPlateSetTable(session.getProjectSysName());
 		  break;
-	      case DialogMainFrame.PLATE: session.getDialogMainFrame().showPlateTable((String)getPlateSetSysName.invoke());
+	      case DialogMainFrame.PLATE: session.getDialogMainFrame().showPlateTable(session.getPlateSetSysName());
 		  break;
 		  //      case DialogMainFrame.WELL: session.getDialogMainFrame().showWellTable();
 	      }

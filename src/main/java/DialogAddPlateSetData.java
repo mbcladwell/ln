@@ -58,7 +58,7 @@ public class DialogAddPlateSetData extends JDialog
     private ComboItem plate_layout;
   private JFileChooser fileChooser;
     private JCheckBox checkBox;
-    //    private Session session;
+     private Session session;
     
     
   private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
@@ -70,6 +70,7 @@ public class DialogAddPlateSetData extends JDialog
       int _format_id,
       int _plate_num) {
 
+      session = _s;
     plate_set = new ComboItem(_plate_set_id, _plate_set_sys_name);
     format = new ComboItem(_format_id, String.valueOf(_format_id));
     plate_num = _plate_num;

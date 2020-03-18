@@ -89,7 +89,7 @@ public class MenuBarForWell extends JMenuBar {
           public void actionPerformed(ActionEvent e) {
 
             String[][] results = well_table.getSelectedRowsAndHeaderAsStringArray();
-            POIUtilities poi = new POIUtilities(dbm);
+            POIUtilities poi = new POIUtilities(session);
             poi.writeJTableToSpreadsheet("Projects", results);
             try {
               Desktop d = Desktop.getDesktop();
@@ -124,12 +124,12 @@ public class MenuBarForWell extends JMenuBar {
 
     this.add(upbutton);
 
-      menu = new ViewerMenu(dbm);
+      menu = new ViewerMenu(session);
     this.add(menu);
 
     this.add(Box.createHorizontalGlue());
 
-          menu = new HelpMenu();
+          menu = new HelpMenu(session);
     this.add(menu);
   
    }

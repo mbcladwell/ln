@@ -38,13 +38,14 @@ public class DialogAddUser extends JDialog {
 
   final Instant instant = Instant.now();
   static DialogMainFrame dmf;
-    //  private static Session session;
+    private static Session session;
   private static DatabaseManager dbm;
   final DateFormat df = new SimpleDateFormat("MM/dd/yyyy");
   private static final long serialVersionUID = 1L;
   private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
   public DialogAddUser(Session _s) {
+      session = _s;
       dbm = session.getDatabaseManager();
       dmf = session.getDialogMainFrame();
       // session = dmf.getSession();

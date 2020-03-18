@@ -37,7 +37,7 @@ public class WellPanel extends JPanel {
     
     JPanel headerPanel = new JPanel();
     headerPanel.setLayout(new BorderLayout());
-    headerPanel.add(new MenuBarForWell(dbm, table), BorderLayout.NORTH);
+    headerPanel.add(new MenuBarForWell(session, table), BorderLayout.NORTH);
 
     textPanel = new JPanel();
     textPanel.setLayout(new GridBagLayout());
@@ -103,7 +103,7 @@ public class WellPanel extends JPanel {
     scrollPane = new JScrollPane(table);
     this.add(scrollPane, BorderLayout.CENTER);
     table.setFillsViewportHeight(true);
-    FilterPanel fp = new FilterPanel(dbm, (JTable)table, Integer.parseInt(plate_sys_name.substring(4)) , DialogMainFrame.WELL );
+    FilterPanel fp = new FilterPanel(session, (JTable)table, Integer.parseInt(plate_sys_name.substring(4)) , DialogMainFrame.WELL );
     this.add(fp, BorderLayout.SOUTH);
   }
 

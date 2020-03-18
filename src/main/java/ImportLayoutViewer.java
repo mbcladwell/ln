@@ -34,7 +34,7 @@ public class ImportLayoutViewer extends JDialog implements java.awt.event.Action
   static JButton okButton;
   static JButton cancelButton;
   final DialogMainFrame dmf;
-    // final Session session;
+   final Session session;
     private String owner;
   private JTable table;
   private JScrollPane scrollPane;
@@ -51,7 +51,8 @@ public class ImportLayoutViewer extends JDialog implements java.awt.event.Action
     private DefaultComboBoxModel<ComboItem> layout_names_list_model;
     
     public ImportLayoutViewer(Session _s, Object[][] _gridData) {
-	dbm= _dbm;
+	session = _s;
+	dbm = session.getDatabaseManager();
 	this.dmf = session.getDialogMainFrame();
     this.gridData = dmf.getUtilities().convertTableToPlate( _gridData, "type");
     //this.session = dmf.getSession();

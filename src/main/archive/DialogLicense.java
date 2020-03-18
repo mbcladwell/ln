@@ -220,7 +220,7 @@ public class DialogLicense extends JDialog {
 
   private boolean validateLicenseKey() {
     
-    boolean result = (boolean)validateLicenseKeyCLJ.invoke();
+    boolean result = session.validateLicenseKeyCLJ();
     if(result){
 	statusLabel.setText("Licensed");
 	statusLabel.setForeground(Color.GREEN);

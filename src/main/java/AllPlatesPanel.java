@@ -24,10 +24,11 @@ public class AllPlatesPanel extends JPanel {
     private DatabaseManager dbm;
   private JPanel textPanel;
   private String project_sys_name;
-    // private Session session;
+     private Session session;
     
     public AllPlatesPanel(Session _s, CustomTable _table, String _project_sys_name) {
     this.setLayout(new BorderLayout());
+    session = _s;
     dbm = session.getDatabaseManager();
     dmf = session.getDialogMainFrame();
     project_sys_name = _project_sys_name;
@@ -36,7 +37,7 @@ public class AllPlatesPanel extends JPanel {
 
     JPanel headerPanel = new JPanel();
     headerPanel.setLayout(new BorderLayout());
-    headerPanel.add(new MenuBarForPlate(dbm, table), BorderLayout.NORTH);
+    headerPanel.add(new MenuBarForPlate(session, table), BorderLayout.NORTH);
 
     textPanel = new JPanel();
     textPanel.setLayout(new GridBagLayout());
@@ -85,7 +86,7 @@ public class AllPlatesPanel extends JPanel {
     scrollPane = new JScrollPane(table);
     this.add(scrollPane, BorderLayout.CENTER);
     table.setFillsViewportHeight(true);
-    FilterPanel fp = new FilterPanel(dbm, table, Integer.parseInt(project_sys_name.substring(4)) ,DialogMainFrame.ALLPLATES );
+    FilterPanel fp = new FilterPanel(session, table, Integer.parseInt(project_sys_name.substring(4)) ,DialogMainFrame.ALLPLATES );
     this.add(fp, BorderLayout.SOUTH);
   }
 

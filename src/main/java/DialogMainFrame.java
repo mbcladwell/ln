@@ -62,7 +62,7 @@ public class DialogMainFrame extends JFrame {
    
     cards = new JPanel(new CardLayout());
     card_layout = (CardLayout) cards.getLayout();
-    project_card = new ProjectPanel(dbm, session.getDatabaseRetriever().getDMFTableData(0, DialogMainFrame.PROJECT, null));
+    project_card = new ProjectPanel(session, session.getDatabaseRetriever().getDMFTableData(0, DialogMainFrame.PROJECT, null));
     cards.add(project_card, "ProjectPanel");
   
     
@@ -86,7 +86,7 @@ public class DialogMainFrame extends JFrame {
 
 
   public void showProjectTable() {
-    project_card = new ProjectPanel(dbm, session.getDatabaseRetriever().getDMFTableData(0, DialogMainFrame.PROJECT, null));
+    project_card = new ProjectPanel(session, session.getDatabaseRetriever().getDMFTableData(0, DialogMainFrame.PROJECT, null));
     cards.add(project_card, "ProjectPanel");
     card_layout.show(cards, "ProjectPanel");
   }
@@ -95,8 +95,8 @@ public class DialogMainFrame extends JFrame {
   public void showPlateSetTable(String _project_sys_name) {
       int project_id = Integer.parseInt(_project_sys_name.substring(4));
      
-      //  plate_set_card = new PlateSetPanel(dbm, dbm.getPlateSetTableData(_project_sys_name), _project_sys_name);
-      plate_set_card = new PlateSetPanel(dbm, session.getDatabaseRetriever().getDMFTableData(project_id, DialogMainFrame.PLATESET, null), _project_sys_name);
+      //  plate_set_card = new PlateSetPanel(session, dbm.getPlateSetTableData(_project_sys_name), _project_sys_name);
+      plate_set_card = new PlateSetPanel(session, session.getDatabaseRetriever().getDMFTableData(project_id, DialogMainFrame.PLATESET, null), _project_sys_name);
 
     cards.add(plate_set_card, "PlateSetPanel");
     card_layout.show(cards, "PlateSetPanel");
@@ -107,7 +107,7 @@ public class DialogMainFrame extends JFrame {
       
       int plate_set_id = Integer.parseInt(_plate_set_sys_name.substring(3));
       
-      plate_card = new PlatePanel(dbm, session.getDatabaseRetriever().getDMFTableData(plate_set_id, DialogMainFrame.PLATE, null),  _plate_set_sys_name);
+      plate_card = new PlatePanel(session, session.getDatabaseRetriever().getDMFTableData(plate_set_id, DialogMainFrame.PLATE, null),  _plate_set_sys_name);
     
     cards.add(plate_card, "PlatePanel");
     card_layout.show(cards, "PlatePanel");
@@ -117,7 +117,7 @@ public class DialogMainFrame extends JFrame {
       
       int project_id = Integer.parseInt(_project_sys_name.substring(4));
       
-      all_plates_card = new AllPlatesPanel(dbm, session.getDatabaseRetriever().getDMFTableData(project_id, DialogMainFrame.ALLPLATES, null), _project_sys_name);
+      all_plates_card = new AllPlatesPanel(session, session.getDatabaseRetriever().getDMFTableData(project_id, DialogMainFrame.ALLPLATES, null), _project_sys_name);
     
     cards.add(all_plates_card, "AllPlatesPanel");
     card_layout.show(cards, "AllPlatesPanel");
@@ -127,7 +127,7 @@ public class DialogMainFrame extends JFrame {
   public void showWellTable(String _plate_sys_name) {
       int plate_id = Integer.parseInt(_plate_sys_name.substring(4));
       //System.out.println(plate_id);
-      well_card = new WellPanel(dbm, session.getDatabaseRetriever().getDMFTableData(plate_id, DialogMainFrame.WELL, null));
+      well_card = new WellPanel(session, session.getDatabaseRetriever().getDMFTableData(plate_id, DialogMainFrame.WELL, null));
       cards.add(well_card, "Well");
       card_layout.show(cards, "Well");
   }
@@ -135,13 +135,13 @@ public class DialogMainFrame extends JFrame {
       public void showAllWellsTable(String _project_sys_name) {
       int project_id = Integer.parseInt(_project_sys_name.substring(4));
       
-      all_wells_card = new AllWellsPanel(dbm, session.getDatabaseRetriever().getDMFTableData(project_id, DialogMainFrame.ALLWELLS, null), _project_sys_name);
+      all_wells_card = new AllWellsPanel(session, session.getDatabaseRetriever().getDMFTableData(project_id, DialogMainFrame.ALLWELLS, null), _project_sys_name);
       cards.add(all_wells_card, "AllWells");
       card_layout.show(cards, "AllWells");
   }
 
       public void showGlobalQueryTable(String _search_term) {
-	  global_query_card = new GlobalQueryPanel(dbm, session.getDatabaseRetriever().getDMFTableData(0, DialogMainFrame.GLOBALQUERY, _search_term), _search_term);
+	  global_query_card = new GlobalQueryPanel(session, session.getDatabaseRetriever().getDMFTableData(0, DialogMainFrame.GLOBALQUERY, _search_term), _search_term);
       cards.add(global_query_card, "GlobalQuery");
       card_layout.show(cards, "GlobalQuery");
   }

@@ -259,7 +259,7 @@ public class DatabaseSetupPanel extends JPanel {
 
      private void validateLicenseKey() {
 	
-	if((boolean)validateLicenseKeyCLJ.invoke()){
+	 //	if(session.validateLicenseKeyCLJ()){
 	statusLabel.setText("Buttons on this panel will delete your data. Use with caution!");
 	statusLabel.setForeground(Color.BLACK);
 	createTablesButton.setEnabled(true);
@@ -267,15 +267,15 @@ public class DatabaseSetupPanel extends JPanel {
 	loadEgDataButton.setEnabled(true);
 	//deleteEgDataButton.setEnabled(true);
 
-	}else{
-	statusLabel.setText("<html><font color='red'>Unlicensed</font><font color='black'> - functionality disabled. Register to activate.</font></html>");
-	//statusLabel.setForeground(Color.RED);
-	createTablesButton.setEnabled(false);
-	deleteTablesButton.setEnabled(false);
-	loadEgDataButton.setEnabled(false);
-	//deleteEgDataButton.setEnabled(false);
+    // 	}else{
+    // 	statusLabel.setText("<html><font color='red'>Unlicensed</font><font color='black'> - functionality disabled. Register to activate.</font></html>");
+    // 	//statusLabel.setForeground(Color.RED);
+    // 	createTablesButton.setEnabled(false);
+    // 	deleteTablesButton.setEnabled(false);
+    // 	loadEgDataButton.setEnabled(false);
+    // 	//deleteEgDataButton.setEnabled(false);
 	
-    }
+    // }
     
 
   }
@@ -299,9 +299,9 @@ public class DatabaseSetupPanel extends JPanel {
         public Void doInBackground() {
 	    //initLimsNucleus.invoke();
 	   
-		  String psql_command = new String("psql -h " + session.getHost() + " -p " + session.getPort().toString() + " -U ln_admin " + " -d " +  session.getDBname() + " -f ./resources/sql/create-tables.sql");
+		  String psql_command = new String("psql -h " + session.getHost() + " -p " + session.getPort() + " -U ln_admin " + " -d " +  session.getDBname() + " -f ./resources/sql/create-tables.sql");
 	    LOGGER.info("sql: " + psql_command);
-	  String psql_command2 = new String("psql -h " + session.getHost() + " -p " + session.getPort().toString() + " -U ln_admin " + " -d " +  session.getDBname() + " -f ./resources/sql/functions.sql");
+	  String psql_command2 = new String("psql -h " + session.getHost() + " -p " + session.getPort() + " -U ln_admin " + " -d " +  session.getDBname() + " -f ./resources/sql/functions.sql");
 	    LOGGER.info("sql2: " + psql_command2);
 
 	    
@@ -339,7 +339,7 @@ public class DatabaseSetupPanel extends JPanel {
         @Override
         public Void doInBackground() {
 	    //dropAllTables.invoke();
-	  String psql_command = new String("psql -h " + session.getHost() + " -p " + getPort.invoke().toString() + " -U ln_admin " + " -d " +  (String)getDBname.invoke() + " -f ./resources/sql/drop-func-tables.sql");
+	  String psql_command = new String("psql -h " + session.getHost() + " -p " + session.getPort() + " -U ln_admin " + " -d " +  session.getDBname() + " -f ./resources/sql/drop-func-tables.sql");
 	 
 	    
 	    try{
@@ -376,7 +376,7 @@ public class DatabaseSetupPanel extends JPanel {
         @Override
         public Void doInBackground() {
 	    // addExampleData.invoke();
-       String psql_command = new String("psql -h " + session.getHost() + " -p " + getPort.invoke().toString() + " -U ln_admin " + " -d " +  (String)getDBname.invoke() + " -f ./resources/sql/example-data.sql");
+       String psql_command = new String("psql -h " + session.getHost() + " -p " + session.getPort() + " -U ln_admin " + " -d " +  session.getDBname() + " -f ./resources/sql/example-data.sql");
 	 
 	    
 	    try{
@@ -398,30 +398,6 @@ public class DatabaseSetupPanel extends JPanel {
 	    progress_bar.dispose();
      }
     }
-
-    //       class DropEgTask extends SwingWorker<Void, Void> {
-    //     /*
-    //      * Main task. Executed in background thread.
-    //      */
-    // 	      IFn deleteExampleData = Clojure.var("ln.db-init", "delete-example-data");
-
-    //     @Override
-    //     public Void doInBackground() {
-    // 	    deleteExampleData.invoke();
-       
-    // 	    return null;
-    //     }
- 
-    //     /*
-    //      * Executed in event dispatching thread
-    //      */
-    //     @Override
-    //     public void done() {
-    //         Toolkit.getDefaultToolkit().beep();
-    //         setCursor(null); //turn off the wait cursor
-    // 	    progress_bar.dispose();
-    //  }
-    // }
 
    
 }

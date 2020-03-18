@@ -85,7 +85,7 @@ public class MenuBarForPlate extends JMenuBar {
             dbm.groupPlates(plate_table);
     	    
 
-    	    session.getDialogMainFrame().showPlateTable((String)getPlateSetSysName.invoke());
+    	    session.getDialogMainFrame().showPlateTable(session.getPlateSetSysName());
           }
         });
     menu.add(menuItem);
@@ -101,7 +101,7 @@ public class MenuBarForPlate extends JMenuBar {
 
             String[][] results = plate_table.getSelectedRowsAndHeaderAsStringArray();
 	    // LOGGER.info("results(plate): " + results);
-            POIUtilities poi = new POIUtilities(dbm);
+            POIUtilities poi = new POIUtilities(session);
             poi.writeJTableToSpreadsheet("Plates", results);
             try {
               Desktop d = Desktop.getDesktop();
@@ -134,12 +134,12 @@ public class MenuBarForPlate extends JMenuBar {
 	      String results[][] = plate_table.getSelectedRowsAndHeaderAsStringArray();
 	      String plate_sys_name = results[1][1];
 	  
-	      //dbm.setPlateSysName(plate_sys_name);
+	      session.setPlateSysName(plate_sys_name);
 	      
-	      setPlateSysName.invoke(plate_sys_name);
+	      //session.setPlateSysName(plate_sys_name);
 	      
-	      IFn setPlateID = Clojure.var("ln.codax-manager", "set-plate-id");
-	      setPlateID.invoke(Integer.parseInt(plate_sys_name.substring(4)));
+	      
+	      session.setPlateID(Integer.parseInt(plate_sys_name.substring(4)));
 	      
               session.getDialogMainFrame().showWellTable(plate_sys_name);
             } catch (ArrayIndexOutOfBoundsException s) {
@@ -172,12 +172,12 @@ public class MenuBarForPlate extends JMenuBar {
 
     this.add(upbutton);
 
-        menu = new ViewerMenu(dbm);
+        menu = new ViewerMenu(session);
     this.add(menu);
 
     this.add(Box.createHorizontalGlue());
 
-        menu = new HelpMenu();
+        menu = new HelpMenu(session);
     this.add(menu);
   
 

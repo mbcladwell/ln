@@ -47,7 +47,7 @@ public class DialogGroupPlateSet extends JDialog {
   final Instant instant = Instant.now();
   final DialogMainFrame dmf;
   private DatabaseManager dbm;
-    //final Session session;
+   final Session session;
   final DateFormat df = new SimpleDateFormat("yyyy/MM/dd");
     
   private static final long serialVersionUID = 1L;
@@ -67,7 +67,7 @@ public class DialogGroupPlateSet extends JDialog {
 			       String _format,
 			       ArrayList<String> _plate_sys_names,
 			       String _layout) {
-      //this.session = _session;
+      this.session = _s;
       dbm = session.getDatabaseManager();
     this.dmf = session.getDialogMainFrame();
     

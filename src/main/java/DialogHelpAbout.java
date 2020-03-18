@@ -36,18 +36,16 @@ public class DialogHelpAbout extends JDialog {
   final DateFormat df = new SimpleDateFormat("d MMMMM yyyy");
   private static final long serialVersionUID = 1L;
   private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
-    
+    private Session session;    
 
-  public DialogHelpAbout() {
-
+  public DialogHelpAbout(Session _s) {
+      session = _s;
       
     
-    dbname = (String)getDBname.invoke();
-    IFn getDBsource = Clojure.var("ln.codax-manager", "get-source");
-    dbsource = (String)getDBsource.invoke();
+    dbname = session.getDBname();
+    dbsource = session.getSource();
     
-
-    // Create and set up the window.
+   // Create and set up the window.
     // JFrame frame = new JFrame("Add Project");
     JPanel pane = new JPanel(new GridBagLayout());
     pane.setBorder(BorderFactory.createRaisedBevelBorder());

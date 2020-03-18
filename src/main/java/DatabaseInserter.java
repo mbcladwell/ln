@@ -35,22 +35,21 @@ public class DatabaseInserter {
   JTable table;
   Utilities utils;
     int session_id; 
-    //  Session session;
+     Session session;
     private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
     
 
   /** */
   public DatabaseInserter(Session _s) {
+      session = _s;
     this.dbm = session.getDatabaseManager();
     this.conn = dbm.getConnection();
     // this.dbr = session.getDatabaseRetriever();
     //session = dbm.getSession();
     this.dmf = session.getDialogMainFrame();
     
-    IFn getSessionID = Clojure.var("ln.codax-manager", "get-session-id");
-    //    require.invoke(Clojure.read("ln.db-retriever"));
     
-    session_id = ((Long)getSessionID.invoke()).intValue();
+    session_id = session.getSessionID();
     // this.utils = dmf.getUtilities();
     //this.session = dmf.getSession();
   }
@@ -574,7 +573,7 @@ public int insertPlateSet(
 	    break;
 	    
 	}
-	DialogNewHitList dnhl = new DialogNewHitList(dbm, assay_run_id, sorted_response, number_of_hits);
+	DialogNewHitList dnhl = new DialogNewHitList(session, assay_run_id, sorted_response, number_of_hits);
 	
     }
   
@@ -831,7 +830,7 @@ public int insertPlateSet(
 	String plate_set_sys_name = new String("PS-" + String.valueOf(plate_set_id));
 	int plate_num = session.getDatabaseRetriever().getNumberOfPlatesForPlateSetID(plate_set_id);
 	int format_id = session.getDatabaseRetriever().getFormatForPlateSetID(plate_set_id);
-	new DialogImportPlateSetAccessionIDs(dbm, plate_set_sys_name, plate_set_id, format_id, plate_num);
+	new DialogImportPlateSetAccessionIDs(session, plate_set_sys_name, plate_set_id, format_id, plate_num);
     }
 
     /**
@@ -907,7 +906,7 @@ public int insertPlateSet(
 	int plate_num = session.getDatabaseRetriever().getNumberOfPlatesForPlateSetID(plate_set_id);
 	//	int format_id = session.getDatabaseRetriever().getFormatForPlateSetID(plate_set_id);
 	   
-		new DialogImportPlateSetBarcodeIDs(dbm, plate_set_sys_name, plate_set_id,  plate_num);	
+		new DialogImportPlateSetBarcodeIDs(session, plate_set_sys_name, plate_set_id,  plate_num);	
     }
 
 
@@ -1138,7 +1137,7 @@ public int insertPlateSet(
         }
 	    
 	}
-	new DialogNewHitListFromFile(dbm, assay_run_id, s_ids);
+	new DialogNewHitListFromFile(session, assay_run_id, s_ids);
     }
 
     /**

@@ -196,7 +196,7 @@ public class ScatterPlot extends JFrame {
     panel2.add(genHitsBtn, c);
     genHitsBtn.addActionListener(new ActionListener() { 
         public void actionPerformed(ActionEvent evt) {
-            new DialogNewHitList(dbm, assay_run_id, sortedResponse, num_hits);
+            new DialogNewHitList(session, assay_run_id, sortedResponse, num_hits);
         }
     });
 

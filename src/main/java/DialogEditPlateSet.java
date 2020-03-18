@@ -41,7 +41,7 @@ public class DialogEditPlateSet extends JDialog {
   final Instant instant = Instant.now();
   static DialogMainFrame dmf;
   
-    //  private static Session session;
+    private static Session session;
   private static DatabaseManager dbm;
   final DateFormat df = new SimpleDateFormat("MM/dd/yyyy");
   private static final long serialVersionUID = 1L;
@@ -50,6 +50,7 @@ public class DialogEditPlateSet extends JDialog {
 
   public DialogEditPlateSet(
 			    Session _s, String _plate_set_sys_name, String _name, String _description, String _layout) {
+      session = _s;
       dbm = session.getDatabaseManager();
       dmf = session.getDialogMainFrame();
       

@@ -48,10 +48,9 @@ public class DialogEditProject extends JDialog {
 
   public DialogEditProject(
       Session _s, String _projectid, String _name, String _description) {
+      session = _s;
       dbm = session.getDatabaseManager();
       dmf = session.getDialogMainFrame();
-       session = dmf.getSession();
-      //dbm = session.getDatabaseManager();
     projectID = _projectid;
     
 

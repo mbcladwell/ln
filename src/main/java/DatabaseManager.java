@@ -52,7 +52,7 @@ public class DatabaseManager {
 	  Class.forName("org.postgresql.Driver");
    
 	  String target = session.getSource();
-	  String url = session.getURL(target);
+	  String url = session.getConnURL(target);
 	  Properties props = new Properties();
 	  props.setProperty("user", session.getDBuser());
 	  props.setProperty("password", session.getDBpassword());
@@ -194,7 +194,7 @@ public class DatabaseManager {
         layout = it2.next();
       }
       
-      new DialogGroupPlateSet(this, numberOfPlatesInPlateSets, format, plateSet, layout);
+      new DialogGroupPlateSet(session, numberOfPlatesInPlateSets, format, plateSet, layout);
     } else {
       JOptionPane.showMessageDialog(
           dmf,
@@ -236,7 +236,7 @@ public class DatabaseManager {
     try{
     format = results[1][4];
     //LOGGER.info("format: " + results[1][4]);
-    new DialogGroupPlates(this, plateSet, format);
+    new DialogGroupPlates(session, plateSet, format);
     }catch(ArrayIndexOutOfBoundsException aiob){
 	  JOptionPane.showMessageDialog(
           dmf,
@@ -268,19 +268,19 @@ public class DatabaseManager {
 	String format = (String)tableModel.getValueAt(selection[0], 2).toString();
 	    String[] plate_set_sys_name = new String[1];
 	    plate_set_sys_name[0] = tableModel.getValueAt(selection[0], 0).toString();
-	    Integer[] plate_set_id = this.getDatabaseRetriever().getIDsForSysNames(plate_set_sys_name, "plate_set", "plate_set_sys_name");
+	    Integer[] plate_set_id = session.getDatabaseRetriever().getIDsForSysNames(plate_set_sys_name, "plate_set", "plate_set_sys_name");
 	    String descr = (String)tableModel.getValueAt(selection[0], 4);
 	    int num_plates = (int)tableModel.getValueAt(selection[0], 3);
 	    String plate_type = (String)tableModel.getValueAt(selection[0], 4);
-	    int num_samples = this.getDatabaseRetriever().getNumberOfSamplesForPlateSetID(plate_set_id[0]);
-	    int plate_layout_name_id = this.getDatabaseRetriever().getPlateLayoutNameIDForPlateSetID((int)plate_set_id[0]);
+	    int num_samples = session.getDatabaseRetriever().getNumberOfSamplesForPlateSetID(plate_set_id[0]);
+	    int plate_layout_name_id = session.getDatabaseRetriever().getPlateLayoutNameIDForPlateSetID((int)plate_set_id[0]);
 	    //LOGGER.info("plate_set_id[0]: " + plate_set_id[0]);
 	    switch(format){
 	    case "96":
-			DialogReformatPlateSet drps = new DialogReformatPlateSet( this, (int)plate_set_id[0], plate_set_sys_name[0], descr, num_plates, num_samples, plate_type, format, plate_layout_name_id);
+			DialogReformatPlateSet drps = new DialogReformatPlateSet( session, (int)plate_set_id[0], plate_set_sys_name[0], descr, num_plates, num_samples, plate_type, format, plate_layout_name_id);
 		
 		    break;
-	    case "384":	 drps = new DialogReformatPlateSet( this, (int)plate_set_id[0], plate_set_sys_name[0], descr, num_plates, num_samples, plate_type, format, plate_layout_name_id);
+	    case "384":	 drps = new DialogReformatPlateSet( session, (int)plate_set_id[0], plate_set_sys_name[0], descr, num_plates, num_samples, plate_type, format, plate_layout_name_id);
 		
 		    break;
 	    case "1536":  JOptionPane.showMessageDialog(dmf,

@@ -26,12 +26,12 @@ public class MenuBarForProject extends JMenuBar {
   DialogMainFrame dmf;
     DatabaseManager dbm;
   CustomTable project_table;
-    //    Session session;
+     Session session;
 
   private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
   public MenuBarForProject(Session _s, CustomTable _project_table) {
-
+      session = _s;
       dbm = session.getDatabaseManager();
       dmf = session.getDialogMainFrame();
     project_table = _project_table;
@@ -53,7 +53,7 @@ public class MenuBarForProject extends JMenuBar {
           public void actionPerformed(ActionEvent e) {
 	      try{
             String[][] results = project_table.getSelectedRowsAndHeaderAsStringArray();
-            POIUtilities poi = new POIUtilities(dbm);
+            POIUtilities poi = new POIUtilities(session);
             poi.writeJTableToSpreadsheet("Projects", results);
             
               Desktop d = Desktop.getDesktop();
@@ -113,19 +113,18 @@ public class MenuBarForProject extends JMenuBar {
         });
     this.add(downbutton);
 
-    menu = new ViewerMenu(dbm);
+    menu = new ViewerMenu(session);
     this.add(menu);
 
-    IFn getUserGroupID = Clojure.var("ln.codax-manager", "get-user-group-id");
-    
-    if(getUserGroupID.invoke().equals(1)){
-    menu = new AdminMenu(dbm, project_table);
+   
+    if(session.getUserGroupID() == 1){
+    menu = new AdminMenu(session, project_table);
      this.add(menu);
     }
     
      this.add(Box.createHorizontalGlue());
 
-    menu = new HelpMenu();
+    menu = new HelpMenu(session);
 
     this.add(menu);
   }

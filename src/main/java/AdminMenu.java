@@ -51,7 +51,7 @@ public class AdminMenu extends JMenu {
     menuItem.addActionListener(
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
-	      new DialogAddUser(dbm);           
+	      new DialogAddUser(session);           
           }
         });
     this.add(menuItem);
@@ -64,7 +64,7 @@ public class AdminMenu extends JMenu {
     menuItem.addActionListener(
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
-	      new DialogAddProject(dbm);
+	      new DialogAddProject(session);
    
           }
         });
@@ -87,7 +87,7 @@ public class AdminMenu extends JMenu {
 		      
  
 		      if (owner.equals(session.getUserName())) {
-		      new DialogEditProject(dbm, projectid, name, description);
+		      new DialogEditProject(session, projectid, name, description);
 	      } else {
                 JOptionPane.showMessageDialog(
                     dmf,
@@ -173,7 +173,7 @@ public class AdminMenu extends JMenu {
 							 "File format Error",
 							 JOptionPane.ERROR_MESSAGE);
 		       }
-		       new DialogImportLayoutViewer(dbm, imported_layout);
+		       new DialogImportLayoutViewer(session, imported_layout);
 		 
 		   } else {
 		       LOGGER.info("Open command cancelled by user.\n");
@@ -237,7 +237,7 @@ public class AdminMenu extends JMenu {
 	       public void actionPerformed(ActionEvent e) {
 	       		      
 
-			      new DialogPropertiesNotFound(getAllProps.invoke());
+		   new DialogPropertiesNotFound(null, session);
 		 		   	      
 	  }
         });

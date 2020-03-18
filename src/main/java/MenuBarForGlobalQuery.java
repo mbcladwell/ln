@@ -26,10 +26,6 @@ import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
 
-
-
-
-
 public class MenuBarForGlobalQuery extends JMenuBar {
 
   DialogMainFrame dmf;
@@ -37,10 +33,11 @@ public class MenuBarForGlobalQuery extends JMenuBar {
     CustomTable search_table;
       Connection conn;
 
-    // Session session;
+     Session session;
     private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
     public MenuBarForGlobalQuery(Session _s, CustomTable _search_table){
+	session = _s;
       dbm = session.getDatabaseManager();
       this.conn = dbm.getConnection();
   
@@ -78,7 +75,7 @@ public class MenuBarForGlobalQuery extends JMenuBar {
           public void actionPerformed(ActionEvent e) {
 	      try{
             String[][] results = search_table.getSelectedRowsAndHeaderAsStringArray();
-            POIUtilities poi = new POIUtilities(dbm);
+            POIUtilities poi = new POIUtilities(session);
             poi.writeJTableToSpreadsheet("Global search results", results);
             
               Desktop d = Desktop.getDesktop();
@@ -166,18 +163,16 @@ public class MenuBarForGlobalQuery extends JMenuBar {
 	      case "AssayRun":
 		  //must set the project so the AssayRunViewer opens with correct project
 		  
-		  	IFn setProjectSysName = Clojure.var("ln.codax-manager", "set-project-sys-name");
-			setProjectSysName.invoke(project_sys_name);
-		  	IFn setProjectID = Clojure.var("ln.codax-manager", "set-project-id");
-			setProjectID.invoke(project_id);
+		  	session.setProjectSysName(project_sys_name);
+		  	session.setProjectID(project_id);
 
-			new AssayRunViewer(dbm);
+			new AssayRunViewer(session);
 			dmf.showPlateSetTable(project_sys_name);		  
 		  
 		  break;
 	      case "HitList":
 		  int hit_list_id = Integer.valueOf(entity_sys_name.substring(3));		  
-		  new HitListViewer(dbm, hit_list_id);
+		  new HitListViewer(session, hit_list_id);
 		  break;
 	      }
 	      //need this here to go to different tables
@@ -218,7 +213,7 @@ public class MenuBarForGlobalQuery extends JMenuBar {
    
     this.add(Box.createHorizontalGlue());
 
-    menu = new HelpMenu();
+    menu = new HelpMenu(session);
     this.add(menu);
   }
 }

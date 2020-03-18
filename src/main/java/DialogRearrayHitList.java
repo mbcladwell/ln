@@ -25,9 +25,6 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
-
-
-
 public class DialogRearrayHitList extends JDialog {
   static JButton button;
   static JLabel label;
@@ -60,12 +57,13 @@ public class DialogRearrayHitList extends JDialog {
   final Instant instant = Instant.now();
     final DialogMainFrame dmf;
     final DatabaseManager dbm;
-    //  final Session session;
+    final Session session;
   final DateFormat df = new SimpleDateFormat("MM/dd/yyyy");
   private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
   // final EntityManager em;
 
     public DialogRearrayHitList(Session _s, int _plate_set_id, String _plate_set_sys_name, int _source_plate_set_format, int _hit_list_id, String _hit_list_sys_name, int _unknown_count) {
+	session = _s;
 	dbm = session.getDatabaseManager();
 	this.dmf = session.getDialogMainFrame();
     plate_set_id = _plate_set_id;
@@ -301,9 +299,7 @@ public class DialogRearrayHitList extends JDialog {
     helpButton.addActionListener(
         (new ActionListener() {
           public void actionPerformed(ActionEvent e) {
-
-                   
-	      session.openHelpPage( "rearray");
+       	      session.openHelpPage( "rearray");
 
           }
         }));

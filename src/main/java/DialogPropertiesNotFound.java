@@ -73,26 +73,26 @@ public class DialogPropertiesNotFound extends JDialog
 
 
     
-  static JButton okButton;
-  static JButton readlnpropsButton;
+    static JButton okButton;
+    static JButton readlnpropsButton;
     static String sourceDescription; //for ln-props: local, elephantsql etc. a clue for populating other variables
-  static JButton select;
-  static JButton cancelButton;
-  static JButton cancelButton2;
-  private static final long serialVersionUID = 1L;
-    // private Session session;
-  private JFileChooser fileChooser;
+    static JButton select;
+    static JButton cancelButton;
+    static JButton cancelButton2;
+    private static final long serialVersionUID = 1L;
+    private Session session;
+    private JFileChooser fileChooser;
     private     JTabbedPane tabbedPane;
-  private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+    private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
     private int startup_tab;
     private Map<String, String> allprops;
     
-    public DialogPropertiesNotFound( Object _m ) {
+    public DialogPropertiesNotFound( Object _m, Session _s ) {
 	//Map<String, String> allprops = new java.util.HashMap<String, String>( _m);
 	//	Map<String, String> m = new java.util.HashMap<String, String>(_m);
 	allprops = (Map<String, String>)_m;
 	
-	//session = new Session();
+	session = _s;
 	//dmf = session.getDialogMainFrame();
 	
 	
@@ -100,17 +100,10 @@ public class DialogPropertiesNotFound extends JDialog
 	//LOGGER.info("allprops: " + allprops);
     fileChooser = new JFileChooser();
 
-    dbSetupPanel = new DatabaseSetupPanel();
+    dbSetupPanel = new DatabaseSetupPanel(session);
     
     
     
-    
-    
-    
-    
-    
-    	
-
     
     tabbedPane = new JTabbedPane();
     tabbedPane.addChangeListener(  new ChangeListener() {
@@ -118,7 +111,7 @@ public class DialogPropertiesNotFound extends JDialog
 		JTabbedPane sourceTabbedPane = (JTabbedPane) changeEvent.getSource();
 		int index = sourceTabbedPane.getSelectedIndex();
 		//System.out.println("Tab changed to: " + sourceTabbedPane.getTitleAt(index));
-		String source = (String)getSource.invoke();
+		String source = session.getSource();
 		String conn_url =  session.getConnURL(source);
 		if(source.equals("test")){conn_url="Test cloud instance with example data.";}
 		dbSetupPanel.updateURLLabel(conn_url);
@@ -496,7 +489,7 @@ tabbedPane.addTab("Database setup", icon, panel3,
 	    case 0:
 		hostField.setText(session.getHost());
 		falseButton.setSelected(session.getSSLmode());
-		dbnameField.setText((String)getDBname.invoke());
+		dbnameField.setText(session.getDBname());
 		userField.setText(session.getDBuser());
 		passwordField.setText(session.getDBpassword());
 		updateLnProps.setEnabled(false);
@@ -572,18 +565,19 @@ tabbedPane.addTab("Database setup", icon, panel3,
     if (e.getSource() == updateLnProps) {
 	
 		  
-	updateLnPropsMethod.invoke( hostField.getText(),
-				      portField.getText(),
-				    dbnameField.getText(),
-				    sourceDescription,
-				      Boolean.toString(trueButton.isSelected()),
-				      userField.getText(),
-				    passwordField.getText(),
-				    "www.labsolns.com/software",
-				    System.getProperty("user.dir").toString() + "/ln-props");
-	JOptionPane.showMessageDialog(this,
-				      new String(System.getProperty("user.dir").toString() + "/ln-props updated."));	
-	messageLabel.setText("updated");
+	// updateLnPropsMethod( hostField.getText(),
+	// 			      portField.getText(),
+	// 			    dbnameField.getText(),
+	// 			    sourceDescription,
+	// 			      Boolean.toString(trueButton.isSelected()),
+	// 			      userField.getText(),
+	// 			    passwordField.getText(),
+	// 			    "www.labsolns.com/software",
+	// 			    System.getProperty("user.dir").toString() + "/ln-props");
+	// JOptionPane.showMessageDialog(this,
+	// 			      new String(System.getProperty("user.dir").toString() + "/ln-props updated."));	
+	// messageLabel.setText("updated");
+	
    }
 
   }

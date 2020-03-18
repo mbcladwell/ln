@@ -48,7 +48,7 @@ public class LayoutViewer extends JDialog implements java.awt.event.ActionListen
   static JButton okButton;
   static JButton cancelButton;
   final DialogMainFrame dmf;
-    // final Session session;
+   final Session session;
     private String owner;
   private JTable table;
   private JTable sourceTable;
@@ -77,6 +77,7 @@ public class LayoutViewer extends JDialog implements java.awt.event.ActionListen
 
     
   public LayoutViewer(Session _s) {
+      session = _s;
       dbm = session.getDatabaseManager();
       this.dmf = session.getDialogMainFrame();
       // this.session = dmf.getSession();

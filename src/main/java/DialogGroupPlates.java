@@ -63,6 +63,7 @@ public class DialogGroupPlates extends JDialog {
    * @param _format number of wells per plate
    */
   public DialogGroupPlates(Session _s, Set<String> _plates, String _format) {
+      session = _s;
       dbm = session.getDatabaseManager();
       this.dmf = session.getDialogMainFrame();
       //this.session = dmf.getSession();
@@ -88,7 +89,7 @@ public class DialogGroupPlates extends JDialog {
     //figure out the layout from the parent plate_set
     
     
-    int layout_id = session.getDatabaseRetriever().getLayoutIDForPlateSetSysName((String)getPlateSetSysName.invoke());
+    int layout_id = session.getDatabaseRetriever().getLayoutIDForPlateSetSysName(session.getPlateSetSysName());
     
     
     // Create and set up the window.

@@ -19,8 +19,10 @@ public class POIUtilities {
   private File file;
   private static final String newline = "\n";
     private DatabaseManager dbm;
+    private Session session;
 
   public POIUtilities(Session _s) {
+      session = _s;
       dbm = session.getDatabaseManager();    
   }
   /**

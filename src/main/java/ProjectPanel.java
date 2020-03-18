@@ -29,7 +29,7 @@ public class ProjectPanel extends JPanel {
     private DatabaseManager dbm;
     private JPanel textPanel;
   private ListSelectionModel listSelectionModel;
-    // private Session session;
+    private Session session;
       // private SharedListSelectionHandler sharedListSelectionHandler;
   /**
    * To accomodate all components place panels within panels.
@@ -44,6 +44,7 @@ public class ProjectPanel extends JPanel {
    */
   public ProjectPanel(Session _s, CustomTable _table) {
     this.setLayout(new BorderLayout());
+    session = _s;
     dbm = session.getDatabaseManager();
     dmf = session.getDialogMainFrame();
     // session = dmf.getSession();
@@ -69,7 +70,7 @@ public class ProjectPanel extends JPanel {
 
     JPanel headerPanel = new JPanel();
     headerPanel.setLayout(new BorderLayout());
-    headerPanel.add(new MenuBarForProject(dbm, table), BorderLayout.NORTH);
+    headerPanel.add(new MenuBarForProject(session, table), BorderLayout.NORTH);
 
     textPanel = new JPanel();
     textPanel.setLayout(new GridBagLayout());
@@ -97,9 +98,8 @@ public class ProjectPanel extends JPanel {
     c.anchor = GridBagConstraints.LINE_START;
     textPanel.add(userLabel, c);
 
-        IFn getUserGroup = Clojure.var("ln.codax-manager", "get-user-group");
-
-	JLabel groupLabel = new JLabel((String)getUserGroup.invoke(), SwingConstants.LEFT);
+   
+	JLabel groupLabel = new JLabel(session.getUserGroup(), SwingConstants.LEFT);
     c.gridx = 1;
     c.gridy = 1;
     textPanel.add(groupLabel, c);
@@ -110,7 +110,7 @@ public class ProjectPanel extends JPanel {
     scrollPane = new JScrollPane(table);
     this.add(scrollPane, BorderLayout.CENTER);
     table.setFillsViewportHeight(true);
-    FilterPanel fp = new FilterPanel(dbm, table, 0, DialogMainFrame.PROJECT );
+    FilterPanel fp = new FilterPanel(session, table, 0, DialogMainFrame.PROJECT );
     this.add(fp, BorderLayout.SOUTH);
   }
 
@@ -125,29 +125,6 @@ public class ProjectPanel extends JPanel {
     this.table.setModel(model);
   }
 
-  /*
-  class SharedListSelectionHandler implements ListSelectionListener {
-    public void valueChanged(ListSelectionEvent e) {
-
-      boolean isAdjusting = e.getValueIsAdjusting();
-      if (!isAdjusting) {
-        listSelectionModel.removeListSelectionListener(sharedListSelectionHandler);
-        // ListSelectionModel lsm = (ListSelectionModel) e.getSource();
-
-        CustomTableModel tm = (CustomTableModel) ProjectPanel.this.getTable().getModel();
-
-        // Find out which indexes are selected.
-        int minIndex = listSelectionModel.getMinSelectionIndex();
-        int maxIndex = listSelectionModel.getMaxSelectionIndex();
-        for (int i = minIndex; i <= maxIndex; i++) {
-          if (listSelectionModel.isSelectedIndex(i)) {}
-          // ProjectPanel.this.table.setModel(tm);
-        }
-      }
-      listSelectionModel.addListSelectionListener(sharedListSelectionHandler);
-    }
-  }
-  */
 }
 
 // https://stackoverflow.com/questions/2668547/stackoverflowerror-being-caused-by-a-tablemodellistener

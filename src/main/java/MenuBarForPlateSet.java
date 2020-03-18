@@ -18,19 +18,16 @@ import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
 
-
-
-
-
 public class MenuBarForPlateSet extends JMenuBar {
 
   DialogMainFrame dmf;
     DatabaseManager dbm;
     CustomTable plate_set_table;
-    // Session session;
+    Session session;
     private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
     public MenuBarForPlateSet(Session _s, CustomTable _plate_set_table){
+	session = _s;
       dbm = session.getDatabaseManager();
       dmf = session.getDialogMainFrame();
     plate_set_table = _plate_set_table;
@@ -50,7 +47,7 @@ public class MenuBarForPlateSet extends JMenuBar {
     menuItem.addActionListener(
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
-            new DialogAddPlateSet(dbm);
+            new DialogAddPlateSet(session);
           }
         });
     menu.add(menuItem);
@@ -68,10 +65,10 @@ public class MenuBarForPlateSet extends JMenuBar {
 		  String name = plate_set_table.getValueAt(rowIndex, 1).toString();
 		  int plate_set_owner_id = session.getDatabaseRetriever().getPlateSetOwnerID(plate_set_id);
 		  String description = plate_set_table.getValueAt(rowIndex, 6).toString();
-		  IFn getUserID = Clojure.var("ln.codax-manager", "get-user-id");
+		  
    
-		  if ( plate_set_owner_id == ((Long)getUserID.invoke()).intValue()) {
-		      new DialogEditPlateSet(dbm, plate_set_sys_name, name, description, layout);
+		  if ( plate_set_owner_id == session.getUserID()) {
+		      new DialogEditPlateSet(session, plate_set_sys_name, name, description, layout);
 	      } else {
                 JOptionPane.showMessageDialog(
                     session.getDialogMainFrame(),
@@ -131,8 +128,8 @@ public class MenuBarForPlateSet extends JMenuBar {
 		int format_id = Integer.parseInt((String)results[1][2]);
 		int plate_num = Integer.parseInt((String)results[1][3]);
 		
-		new DialogAddPlateSetData(
-					  dbm, plate_set_sys_name, plate_set_id, format_id, plate_num);}
+		new DialogAddPlateSetData(session, plate_set_sys_name, plate_set_id, format_id, plate_num);
+	    }
 	    else{
 	      JOptionPane.showMessageDialog(session.getDialogMainFrame(), "Select a Plate Set to populate with data!");	      
 	    }
@@ -189,7 +186,7 @@ public class MenuBarForPlateSet extends JMenuBar {
 		try{
 	       	int worklist_id = Integer.parseInt((String)results[1][7]);
 		Object[][] worklist = session.getDatabaseRetriever().getWorklist(worklist_id);
-		POIUtilities poi = new POIUtilities(dbm);
+		POIUtilities poi = new POIUtilities(session);
 		poi.writeJTableToSpreadsheet("Plate Sets", worklist);
 		try{
 		Desktop d = Desktop.getDesktop();
@@ -217,7 +214,7 @@ public class MenuBarForPlateSet extends JMenuBar {
     menuItem.addActionListener(
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
-	      new DialogAddTarget(dbm);
+	      new DialogAddTarget(session);
           }
         });
     menu.add(menuItem);
@@ -227,7 +224,7 @@ public class MenuBarForPlateSet extends JMenuBar {
     menuItem.addActionListener(
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
-	      new DialogCreateTargetLayout(dbm);
+	      new DialogCreateTargetLayout(session);
 	  }     
         });
     menu.add(menuItem);
@@ -245,7 +242,7 @@ public class MenuBarForPlateSet extends JMenuBar {
 		    Object[][] results = session.getDialogMainFrame().getUtilities().getSelectedRowsAndHeaderAsStringArray(plate_set_table);
 		    if(results.length>1){
 			//   LOGGER.info("hit list table: " + results);
-			POIUtilities poi = new POIUtilities(dbm);
+			POIUtilities poi = new POIUtilities(session);
 			poi.writeJTableToSpreadsheet("Plate Sets", results);
 			try {
 			    Desktop d = Desktop.getDesktop();
@@ -285,7 +282,7 @@ public class MenuBarForPlateSet extends JMenuBar {
 			  }
 
 			    Object[][] plate_set_data = session.getDatabaseRetriever().getPlateSetData(plate_set_ids);
-			    POIUtilities poi = new POIUtilities(dbm);
+			    POIUtilities poi = new POIUtilities(session);
 			    
 			    poi.writeJTableToSpreadsheet("Plate Set Information", plate_set_data);
 			    //poi.writeJTableToSpreadsheet("Assay Run Data for " + assay_runs_sys_name, assay_run_data);
@@ -324,10 +321,8 @@ public class MenuBarForPlateSet extends JMenuBar {
 		//String plate_set_sys_name = (String) plate_set_table.getValueAt(i, 0);
 	      String results[][] = plate_set_table.getSelectedRowsAndHeaderAsStringArray();
 	      String plate_set_sys_name = results[1][0];
-	      IFn setPlateSetSysName = Clojure.var("ln.codax-manager", "set-plate-set-sys-name");
-              setPlateSetSysName.invoke(plate_set_sys_name);
-	      IFn setPlateSetID = Clojure.var("ln.codax-manager", "set-plate-set-id");
-	      setPlateSetID.invoke(Integer.parseInt(plate_set_sys_name.substring(3)));
+              session.setPlateSetSysName(plate_set_sys_name);
+	      session.setPlateSetID(Integer.parseInt(plate_set_sys_name.substring(3)));
 	      // System.out.println("plate_set_sys_name: " + plate_set_sys_name);
 	      //System.out.println("plate_set_id: " + Integer.parseInt(plate_set_sys_name.substring(3)));
 	      
@@ -363,12 +358,12 @@ public class MenuBarForPlateSet extends JMenuBar {
           }
         });
     this.add(upbutton);
-    menu = new ViewerMenu(dbm);
+    menu = new ViewerMenu(session);
     this.add(menu);
    
     this.add(Box.createHorizontalGlue());
 
-    menu = new HelpMenu();
+    menu = new HelpMenu(session);
     this.add(menu);
   }
 }

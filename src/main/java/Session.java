@@ -7,8 +7,12 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Properties;
 import java.util.logging.Logger;
+import java.awt.Desktop;
 
 import javax.swing.JOptionPane;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 
 /**
  * Upon insert session gains a timestamp
@@ -27,6 +31,7 @@ public class Session {
     private int project_id;
     private String project_sys_name;
     private String plate_set_sys_name;
+    private String plate_sys_name;
     private int plate_set_id;
     private int plate_id;
     private int session_id;
@@ -47,11 +52,11 @@ public class Session {
     private FileInputStream file;
     private  Properties prop = new Properties();
     private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
-    private boolean authenticated= false;
+    private boolean authenticated= true;
     private static final long serialVersionUID = 1L;
 
   public Session() {
-    	String path = "./limsnucleus2.properties";   
+	    	String path = "./limsnucleus2.properties";   
 	try{
 	    file = new FileInputStream(path);
 	    loadProperties();
@@ -64,11 +69,14 @@ public class Session {
 	}
 	    
 	}catch(FileNotFoundException fnfe){
-	    //    new DialogPropertiesNotFound();	   
+	    //    new DialogPropertiesNotFound();
+	    LOGGER.info("limsnucleus.properties not found!");
 	}   
 
 
-  }
+    }
+
+  
   
     /**
      * Define class variables with contents of properties file
@@ -136,6 +144,9 @@ public class Session {
 	try{
 	    
 	    switch (source){
+	    case "internal":
+		URL = new String("jdbc:postgresql://" + host + ":" + port + "/" + dbname + "?sslmode=require&user=" + connuser + "&password=" + connpassword );
+		break;
 	    case "heroku":
 		URL = new String("jdbc:postgresql://" + host + ":" + port + "/" + dbname + "?sslmode=require&user=" + connuser + "&password=" + connpassword );
 		break;
@@ -151,8 +162,8 @@ public class Session {
 
 	dbm = new DatabaseManager(this );
 	if(authenticated){
-	    dbr = session.getDatabaseRetriever();
-	    dbi = dbm.getDatabaseInserter();
+	    dbr = new DatabaseRetriever(this);
+	    dbi = new DatabaseInserter(this);
 	    dmf = new DialogMainFrame(this);
 	}else{
 	    	JOptionPane.showMessageDialog(null,
@@ -168,7 +179,7 @@ public class Session {
     }
 
 
-    public String getURL(String _source){
+    public String getConnURL(String _source){
  switch (_source){
 	    case "heroku":
 		URL = new String("jdbc:postgresql://" + host + ":" + port + "/" + dbname + "?sslmode=require&user=" + connuser + "&password=" + connpassword );
@@ -209,7 +220,11 @@ public class Session {
       public String getDBuser() {
     return connuser;
   }
-  public String getDBpassword() {
+      public String getDBname() {
+    return dbname;
+  }
+
+    public String getDBpassword() {
     return connpassword;
   }
 
@@ -248,9 +263,15 @@ public class Session {
   public void setPlateSetSysName(String _s) {
     plate_set_sys_name = _s;
   }
+ public void setPlateSysName(String _s) {
+    plate_sys_name = _s;
+  }
 
   public String getPlateSetSysName() {
     return plate_set_sys_name;
+  }
+  public String getPlateSysName() {
+    return plate_sys_name;
   }
 
       public void setPlateSetID(int _id) {
@@ -269,7 +290,16 @@ public class Session {
     return plate_id;
   }
 
-    
+    public boolean getSSLmode(){
+	switch(sslmode){
+	case "true":
+	    return true;
+	    
+	case "false":
+	    return false;	   
+	}
+	return false;
+    }  
   public int getSessionID() {
     return session_id;
   }
@@ -290,6 +320,13 @@ public class Session {
     working_dir = _s;
   }
 
+    public void openHelpPage(String _s){
+	//defn open-help-page [s]
+	//(browse/browse-url (str (cm/get-help-url-prefix) s)))
+	openWebpage(URI.create(this.getHelpURLPrefix() + _s));
+
+    }
+    
   public String getWorkingDir() {
     return working_dir;
   }
@@ -305,6 +342,10 @@ public class Session {
     public String getSource(){
 	return source;
     }
+    public String getPort(){
+	return port;
+    }
+
     
     public DatabaseManager getDatabaseManager(){
 	return dbm;
@@ -330,5 +371,36 @@ public class Session {
     public boolean getAuthenticated(){
 	return authenticated;
     }
+    public String getAllProps(){
+	return null;
+    }
+
+  public static boolean openWebpage(URI uri) {
+    Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
+    if (desktop != null && desktop.isSupported(Desktop.Action.BROWSE)) {
+        try {
+            desktop.browse(uri);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    return false;
+}
+
     
+       public static boolean openWebpage(URL url) {
+    try {
+        return openWebpage(url.toURI());
+    } catch (URISyntaxException e) {
+        e.printStackTrace();
+    }
+    return false;
+}
+
+
+    public static void main(String[] args){
+	new Session();
+	
+    }
 }

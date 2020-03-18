@@ -25,6 +25,7 @@ public class GlobalQueryPanel extends JPanel {
   private JPanel textPanel;
   private String plateset_sys_name;
   private String search_term;
+    private Session session;
     
     //   private Session session;    
     private DatabaseManager dbm;
@@ -39,7 +40,7 @@ public class GlobalQueryPanel extends JPanel {
     
     JPanel headerPanel = new JPanel();
     headerPanel.setLayout(new BorderLayout());
-    headerPanel.add(new MenuBarForGlobalQuery(dbm, table), BorderLayout.NORTH);
+    headerPanel.add(new MenuBarForGlobalQuery(session, table), BorderLayout.NORTH);
 
     // textPanel = new JPanel();
     // textPanel.setLayout(new GridBagLayout());
@@ -84,7 +85,7 @@ public class GlobalQueryPanel extends JPanel {
     scrollPane = new JScrollPane(table);
     this.add(scrollPane, BorderLayout.CENTER);
     table.setFillsViewportHeight(true);
-    FilterPanel fp = new FilterPanel(dbm, (JTable)table, 0 , DialogMainFrame.GLOBALQUERY );
+    FilterPanel fp = new FilterPanel(session, (JTable)table, 0 , DialogMainFrame.GLOBALQUERY );
     this.add(fp, BorderLayout.SOUTH);
   }
 
