@@ -58,7 +58,7 @@ public class DatabaseManager {
 	  props.setProperty("password", session.getDBpassword());
 
 	  conn = DriverManager.getConnection(url, props);	
-      
+	  authenticateLnUser();      
 
       dbRetriever = session.getDatabaseRetriever();
       dbInserter = session.getDatabaseInserter();
@@ -70,7 +70,59 @@ public class DatabaseManager {
     }
   }
 
+    public void authenticateLnUser(){
+    try {
+	
+      String query =
+          new String("SELECT password, id, usergroup_id FROM lnuser WHERE lnuser_name = '" + session.getUserName() + "';");
+      Statement st = conn.createStatement();
+      ResultSet rs = st.executeQuery(query);
+      rs.next();
+      String results = rs.getString(1);
+      int user_id = rs.getInt(2);
+      int group_id = rs.getInt(3);
+      rs.close();
+      st.close();
+      //LOGGER.info("password: " + results);
+      if(session.getPassword().equals(results)){
+	  session.setAuthenticated(true);
+	  session.setUserGroupID(group_id);
+	  session.setUserID(user_id);
+	  setUserGroupName(group_id);
+	  
+      }else{
+	  session.setAuthenticated(false);
+      }
 
+    } catch (SQLException sqle) {
+      LOGGER.warning("Problems with authentication: " + sqle);
+    }
+
+	
+    }
+
+    //set user group and id in session if user is authenticated
+    public void setUserGroupName(int _group_id){
+	try{
+      String query =
+          new String("SELECT usergroup FROM lnuser_groups WHERE id = '" + _group_id + "';");
+      Statement st = conn.createStatement();
+      ResultSet rs = st.executeQuery(query);
+      rs.next();
+      String results = rs.getString("usergroup");
+      rs.close();
+      st.close();
+      //LOGGER.info("password: " + results);
+     	  session.setUserGroup(results);
+
+    } catch (SQLException sqle) {
+      LOGGER.warning("Problems setting user group name: " + sqle);
+    }
+
+
+	
+    }
+    
   public void updateSessionWithProject(String _project_sys_name) {
     int results = 0;
     String project_sys_name = _project_sys_name;

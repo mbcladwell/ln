@@ -237,7 +237,7 @@ public class AdminMenu extends JMenu {
 	       public void actionPerformed(ActionEvent e) {
 	       		      
 
-		   new DialogPropertiesNotFound(null, session);
+		   new DialogPropertiesNotFound( session);
 		 		   	      
 	  }
         });

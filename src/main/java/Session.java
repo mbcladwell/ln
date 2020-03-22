@@ -20,7 +20,7 @@ import java.net.URL;
  * <p>Session provides user name and ID and project sys name and id
  */
 public class Session {
-
+    private boolean init;
     private int user_id;
     private String user;
     private String password;
@@ -52,14 +52,18 @@ public class Session {
     private FileInputStream file;
     private  Properties prop = new Properties();
     private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
-    private boolean authenticated= true;
+    private boolean authenticated = false;
+    private boolean admin_account = false;
     private static final long serialVersionUID = 1L;
 
   public Session() {
-	    	String path = "./limsnucleus2.properties";   
-	try{
+      String path = "./limsnucleus.properties";   
+      try{
 	    file = new FileInputStream(path);
 	    loadProperties();
+	    if(init){
+		new DialogPropertiesNotFound( this);
+	    }    
 	if(user.equals("null")){
 	    new DialogLogin(this, "", java.awt.Dialog.ModalityType.APPLICATION_MODAL);
 	    //postLoadProperties();
@@ -69,8 +73,13 @@ public class Session {
 	}
 	    
 	}catch(FileNotFoundException fnfe){
-	    //    new DialogPropertiesNotFound();
-	    LOGGER.info("limsnucleus.properties not found!");
+	    	JOptionPane.showMessageDialog(null,
+					      "Connecting to ElephantSQL test instance.",
+					      "No limsnucleus.properties file!",
+					      JOptionPane.ERROR_MESSAGE);
+	    setupElephantSQL();
+	    setUserName("ESQL_test");
+	    setUserGroup("user");
 	}   
 
 
@@ -87,6 +96,7 @@ public class Session {
 	try{
 	    prop.load(file);
             // get the property value and print it out
+	    init = Boolean.parseBoolean(prop.getProperty("init"));
             host = prop.getProperty("host");
 	    port = prop.getProperty("port");
 	    sslmode = prop.getProperty("sslmode");
@@ -142,57 +152,44 @@ public class Session {
      */
     public void postLoadProperties(){
 	try{
-	    
-	    switch (source){
-	    case "internal":
-		URL = new String("jdbc:postgresql://" + host + ":" + port + "/" + dbname + "?sslmode=require&user=" + connuser + "&password=" + connpassword );
-		break;
-	    case "heroku":
-		URL = new String("jdbc:postgresql://" + host + ":" + port + "/" + dbname + "?sslmode=require&user=" + connuser + "&password=" + connpassword );
-		break;
-	    case "local":
-		URL = new String("jdbc:postgresql://" + host + "/" + dbname);
-	    break;
-	    case "elephantsql":
-	
-	    	URL = new String("jdbc:postgresql://" + host + ":" + port + "/" + dbname + "?user=" + connuser + "&password=" + connpassword + "&SSL=true" );
-		break;
-	}
-	    //	 LOGGER.info("URL: " + URL);
+	    URL = getConnURL(source);
+	    //LOGGER.info("URL: " + URL);
 
-	dbm = new DatabaseManager(this );
-	if(authenticated){
-	    dbr = new DatabaseRetriever(this);
-	    dbi = new DatabaseInserter(this);
-	    dmf = new DialogMainFrame(this);
-	}else{
+	    dbm = new DatabaseManager(this );
+	    if(authenticated){
+		dbr = new DatabaseRetriever(this);
+		dbi = new DatabaseInserter(this);
+		dmf = new DialogMainFrame(this);
+	    }else{
 	    	JOptionPane.showMessageDialog(null,
-			      "Invalid username or password.  Session terminated.",
-				      "Authentication Failure!",
-			      JOptionPane.ERROR_MESSAGE);
+					      "Invalid username or password.  Session terminated.",
+					      "Authentication Failure!",
+					      JOptionPane.ERROR_MESSAGE);
+	    }
+	}catch(SQLException sqle){
+	    LOGGER.info("SQL exception creating DatabaseManager: " + sqle);
 	}
-	}
-    catch(SQLException sqle){
-	LOGGER.info("SQL exception creating DatabaseManager: " + sqle);
-    }
 	
     }
 
 
     public String getConnURL(String _source){
- switch (_source){
-	    case "heroku":
-		URL = new String("jdbc:postgresql://" + host + ":" + port + "/" + dbname + "?sslmode=require&user=" + connuser + "&password=" + connpassword );
-		break;
-	    case "local":
-		URL = new String("jdbc:postgresql://" + host + "/" + dbname);
+	switch (_source){
+	case "internal":
+	    URL = new String("jdbc:postgresql://" + host + ":" + port + "/" + dbname  );
 	    break;
-	    case "elephantsql":
-	
-	    	URL = new String("jdbc:postgresql://" + host + ":" + port + "/" + dbname + "?user=" + connuser + "&password=" + connpassword + "&SSL=true" );
-		break;
+	case "heroku":
+	    URL = new String("jdbc:postgresql://" + host + ":" + port + "/" + dbname + "?sslmode=require&user=" + connuser + "&password=" + connpassword );
+	    break;
+	case "local":
+	    URL = new String("jdbc:postgresql://" + host + "/" + dbname);
+	    break;
+	case "elephantsql":
+	    
+	    URL = new String("jdbc:postgresql://" + host + ":" + port + "/" + dbname + "?user=" + connuser + "&password=" + connpassword + "&SSL=true" );
+	    break;
 	}
- return URL;	
+	return URL;	
     }
     
   public void setUserID(int _id) {
@@ -371,6 +368,14 @@ public class Session {
     public boolean getAuthenticated(){
 	return authenticated;
     }
+    public void setAdminAccount(boolean _b){
+	admin_account = _b;
+    }
+    public boolean getAdminAccount(){
+	return admin_account;
+    }
+
+    
     public String getAllProps(){
 	return null;
     }

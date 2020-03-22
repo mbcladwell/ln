@@ -94,6 +94,7 @@ public class ScatterPlot extends JFrame {
 
     public ScatterPlot(Session _s, int _assay_run_id) {
 	super("Scatter Plot for AR-" + String.valueOf(_assay_run_id));
+	session = _s;
 	dbm = session.getDatabaseManager();
 	setSize(800, 600);
 	//setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

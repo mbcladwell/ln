@@ -15,6 +15,12 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Map;
 import java.util.logging.Logger;
+import java.util.Properties;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
@@ -87,23 +93,11 @@ public class DialogPropertiesNotFound extends JDialog
     private int startup_tab;
     private Map<String, String> allprops;
     
-    public DialogPropertiesNotFound( Object _m, Session _s ) {
-	//Map<String, String> allprops = new java.util.HashMap<String, String>( _m);
-	//	Map<String, String> m = new java.util.HashMap<String, String>(_m);
-	allprops = (Map<String, String>)_m;
-	
+    public DialogPropertiesNotFound(  Session _s ) {
 	session = _s;
-	//dmf = session.getDialogMainFrame();
+	fileChooser = new JFileChooser();
 	
-	
-	//Map<String, String> allprops = (HashMap)getAllProps.invoke();
-	//LOGGER.info("allprops: " + allprops);
-    fileChooser = new JFileChooser();
-
-    dbSetupPanel = new DatabaseSetupPanel(session);
-    
-    
-    
+	dbSetupPanel = new DatabaseSetupPanel(session);
     
     tabbedPane = new JTabbedPane();
     tabbedPane.addChangeListener(  new ChangeListener() {
@@ -134,7 +128,7 @@ tabbedPane.setMnemonicAt(0, KeyEvent.VK_1);
 */
 
 JPanel panel2 = new JPanel(new GridBagLayout());
-tabbedPane.addTab("View/Update ln-props", icon, panel2,
+tabbedPane.addTab("View/Update Properties", icon, panel2,
                   "Configure Database Connection");
 //tabbedPane.setMnemonicAt(1, KeyEvent.VK_2);
 
@@ -159,14 +153,14 @@ tabbedPane.addTab("Database setup", icon, panel3,
  * 
  */
 
-    label = new JLabel("ln-props status:", SwingConstants.RIGHT);
-    c.gridx = 0;
-    c.gridy = 0;
-    c.gridwidth = 1;
-    c.gridheight = 1;
-    c.anchor = GridBagConstraints.LINE_END;
-    c.insets = new Insets(5, 5, 2, 2);
-    panel2.add(label, c);
+    // label = new JLabel("ln-props status:", SwingConstants.RIGHT);
+    // c.gridx = 0;
+    // c.gridy = 0;
+    // c.gridwidth = 1;
+    // c.gridheight = 1;
+    // c.anchor = GridBagConstraints.LINE_END;
+    // c.insets = new Insets(5, 5, 2, 2);
+    // panel2.add(label, c);
 
 
     messageLabel = new JLabel("", SwingConstants.RIGHT);
@@ -180,7 +174,7 @@ tabbedPane.addTab("Database setup", icon, panel3,
 
 
 
-    selectedLabel = new JLabel("Directory:", SwingConstants.RIGHT);
+    selectedLabel = new JLabel("Working Directory:", SwingConstants.RIGHT);
     c.gridx = 0;
     c.gridy = 1;
     c.gridwidth = 1;
@@ -359,7 +353,7 @@ tabbedPane.addTab("Database setup", icon, panel3,
 
     updateLnProps =
         new JButton(
-            "Update ln-props", createImageIcon("/toolbarButtonGraphics/general/New16.gif"));
+            "Update properties", createImageIcon("/toolbarButtonGraphics/general/New16.gif"));
     c.fill = GridBagConstraints.HORIZONTAL;
     c.gridx = 2;
     c.gridy = 11;
@@ -413,44 +407,29 @@ tabbedPane.addTab("Database setup", icon, panel3,
     //panel 3
 
     panel3.add(dbSetupPanel);
-    java.io.File nodeFile = new java.io.File("/ln-props/nodes");
-    //IFn recentlyModified  = Clojure.var("ln.codax-manager", "recently-modified?");
-    Long elapsed = System.currentTimeMillis() - nodeFile.lastModified();
-    if(elapsed < 10000){
-	    messageLabel.setText("newly created");
-	}else{
-	    messageLabel.setText("pre-existing");}
-	hostField.setText(allprops.get(":host"));
-	portField.setText(String.valueOf(allprops.get(":port")));
-	userField.setText(allprops.get(":user"));
-	passwordField.setText(allprops.get(":password"));
-	selectedLabelResponse.setText(System.getProperty("user.dir") + "/ln-props");
-	if(String.valueOf(allprops.get(":sslmode")).equals("true")){
-	    trueButton.setSelected(true);
-	}else{falseButton.setSelected(true);
-	}
-	switch (allprops.get(":source")){
+    //	    messageLabel.setText("pre-existing");}
+    hostField.setText(session.getHost());
+    portField.setText(session.getPort());
+    userField.setText(session.getUserName());
+    passwordField.setText(session.getPassword());
+    selectedLabelResponse.setText(System.getProperty("user.dir"));
+    if(String.valueOf(session.getSSLmode()).equals("true")){
+	trueButton.setSelected(true);
+    }else{falseButton.setSelected(true);
+    }
+    switch (session.getSource()){
 	case "internal":  sourceBox.setSelectedIndex(4);
 	    break;
-	case "local":  sourceBox.setSelectedIndex(5);
-	    break;
-	case "heroku":  sourceBox.setSelectedIndex(3);
-	    break;
-	case "elephantsql":  sourceBox.setSelectedIndex(2);
-	    break;
-	case "test":  sourceBox.setSelectedIndex(1);
-	    break;
-	}
+    case "local":  sourceBox.setSelectedIndex(5);
+	break;
+    case "heroku":  sourceBox.setSelectedIndex(3);
+	break;
+    case "elephantsql":  sourceBox.setSelectedIndex(2);
+	break;
+    case "test":  sourceBox.setSelectedIndex(1);
+	break;
+    }
 	    
-	/*
-	hostField.setEnabled(false);
-	portField.setEnabled(false);
-	trueButton.setEnabled(false);
-	falseButton.setEnabled(false);
-	userField.setEnabled(false);
-	passwordField.setEnabled(false);
-	updateLnProps.setEnabled(false);
-	*/
     
     this.getContentPane().add(tabbedPane, BorderLayout.CENTER);
     this.pack();
@@ -459,7 +438,7 @@ tabbedPane.addTab("Database setup", icon, panel3,
         (Toolkit.getDefaultToolkit().getScreenSize().height) / 2 - getHeight() / 2);
     tabbedPane.setSelectedIndex(startup_tab);
     this.setVisible(true);
-  }
+    }
 
     
   /** Returns an ImageIcon, or null if the path was invalid. */
@@ -475,14 +454,7 @@ tabbedPane.addTab("Database setup", icon, panel3,
 
   public void actionPerformed(ActionEvent e) {
       int top_n_number = 0;
-    
-    
-    
-    
-    
-    
-    
-    
+     
 
       if (e.getSource() == sourceBox) {  
    switch(((ComboItem)sourceBox.getSelectedItem()).getKey()){
@@ -556,14 +528,34 @@ tabbedPane.addTab("Database setup", icon, panel3,
 	 
 
       }
+  
 	
-  // if (e.getSource() == elephantsql) {
-  //     // session.setupElephantSQL();
-  //     this.dispose();
-  // }
     
     if (e.getSource() == updateLnProps) {
-	
+	try {
+	    Properties properties = new Properties();
+	    
+	    properties.setProperty("init", "false");
+	    properties.setProperty("host", hostField.getText());
+	    properties.setProperty("port", portField.getText());
+	    properties.setProperty("sslmode", Boolean.toString(trueButton.isSelected()));
+	    properties.setProperty("source", sourceDescription);
+            properties.setProperty("dbname", dbnameField.getText());
+            properties.setProperty("help_url_prefix", "http://labsolns.com/software");
+            properties.setProperty("password", "welcome");
+	    properties.setProperty("user", "ln_admin");	  
+            properties.setProperty("connpassword", passwordField.getText());
+	    properties.setProperty("connuser", userField.getText());	  
+				   
+	    File file = new File("limsnucleus.properties");
+	    FileOutputStream fileOut = new FileOutputStream(file);
+	    properties.store(fileOut, "");
+	    fileOut.close();
+	} catch (FileNotFoundException fnfe) {
+	    fnfe.printStackTrace();
+	} catch (IOException ioe) {
+	    ioe.printStackTrace();
+	}
 		  
 	// updateLnPropsMethod( hostField.getText(),
 	// 			      portField.getText(),

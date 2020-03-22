@@ -89,7 +89,7 @@ public class ProjectPanel extends JPanel {
 
          
 
-	 JLabel userLabel = new JLabel(session.getUserName(), SwingConstants.LEFT);
+    JLabel userLabel = new JLabel(session.getUserName(), SwingConstants.LEFT);
     c.gridx = 1;
     c.gridy = 0;
     // c.gridwidth = 3;
@@ -99,7 +99,7 @@ public class ProjectPanel extends JPanel {
     textPanel.add(userLabel, c);
 
    
-	JLabel groupLabel = new JLabel(session.getUserGroup(), SwingConstants.LEFT);
+    JLabel groupLabel = new JLabel(session.getUserGroup(), SwingConstants.LEFT);
     c.gridx = 1;
     c.gridy = 1;
     textPanel.add(groupLabel, c);
