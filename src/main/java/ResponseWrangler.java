@@ -101,7 +101,7 @@ public class ResponseWrangler {
 	    Double p_enhance = Double.valueOf((float)dtm.getValueAt(row, 6));
 	    
 	    int well_type_id = (int)dtm.getValueAt(row, 7);
-		sorted_response[row][2] = (int)dtm.getValueAt(row, 7);
+	    sorted_response[row][2] = (int)dtm.getValueAt(row, 7);
 	    int replicates = (int)dtm.getValueAt(row, 8);
 	    int target = (int)dtm.getValueAt(row, 9);
 	    int sample_id = 0;

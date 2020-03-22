@@ -63,29 +63,25 @@ public class Session {
 	    loadProperties();
 	    if(init){
 		new DialogPropertiesNotFound( this);
-	    }    
-	if(user.equals("null")){
-	    new DialogLogin(this, "", java.awt.Dialog.ModalityType.APPLICATION_MODAL);
-	    //postLoadProperties();
-	}else{
-	    postLoadProperties();
+	    }else{    
+		//	if(user.equals("null") || password.equals("null")){
+		//    new DialogLogin(this, "", java.awt.Dialog.ModalityType.APPLICATION_MODAL);
+		//	}
+		postLoadProperties();
+	
+	    }
+      }catch(FileNotFoundException fnfe){
+	  JOptionPane.showMessageDialog(null,
+					"Connecting to ElephantSQL test instance.",
+					"No limsnucleus.properties file!",
+					JOptionPane.ERROR_MESSAGE);
+	  setupElephantSQL();
+	  setUserName("ESQL_test");
+	  setUserGroup("user");
+	  postLoadProperties();
+      }   
+  }
 
-	}
-	    
-	}catch(FileNotFoundException fnfe){
-	    	JOptionPane.showMessageDialog(null,
-					      "Connecting to ElephantSQL test instance.",
-					      "No limsnucleus.properties file!",
-					      JOptionPane.ERROR_MESSAGE);
-	    setupElephantSQL();
-	    setUserName("ESQL_test");
-	    setUserGroup("user");
-	}   
-
-
-    }
-
-  
   
     /**
      * Define class variables with contents of properties file

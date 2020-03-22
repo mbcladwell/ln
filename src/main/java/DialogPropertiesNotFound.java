@@ -224,7 +224,7 @@ tabbedPane.addTab("Database setup", icon, panel3,
         }
     });
 
-	    ComboItem[] sourceTypes = new ComboItem[]{ new ComboItem(0,"Viewing ln-props"), new ComboItem(1,"Test (Cloud)"), new ComboItem(2,"ElephantSQL (Cloud)"), new ComboItem(3,"Heroku (Cloud)"),  new ComboItem(4,"Internal Network (within company firewall)"), new ComboItem(5,"Local PostgreSQL (personal workstation / laptop)")};
+	    ComboItem[] sourceTypes = new ComboItem[]{ new ComboItem(0,"Viewing properties file"), new ComboItem(1,"Test (Cloud)"), new ComboItem(2,"ElephantSQL (Cloud)"), new ComboItem(3,"Heroku (Cloud)"),  new ComboItem(4,"Internal Network (within company firewall)"), new ComboItem(5,"Local PostgreSQL (personal workstation / laptop)")};
     
 	sourceBox = new JComboBox<ComboItem>(sourceTypes);
 	sourceBox.setSelectedIndex(0);
