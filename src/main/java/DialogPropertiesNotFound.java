@@ -549,7 +549,7 @@ tabbedPane.addTab("Database setup", icon, panel3,
 				   
 	    File file = new File("limsnucleus.properties");
 	    FileOutputStream fileOut = new FileOutputStream(file);
-	    properties.store(fileOut, "");
+	    properties.store(fileOut, "LIMS*Nucleus Properties File");
 	    fileOut.close();
 	} catch (FileNotFoundException fnfe) {
 	    fnfe.printStackTrace();

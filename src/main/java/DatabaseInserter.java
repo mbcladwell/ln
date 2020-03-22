@@ -26,6 +26,7 @@ import javax.swing.table.DefaultTableModel;
 
 /** 
  * executeUpdate expects no returns!!!
+ * see Session.java createSession() for using RETURN_GENERATED_KEYS to avoid return errors
 */
 public class DatabaseInserter {
   DatabaseManager dbm;

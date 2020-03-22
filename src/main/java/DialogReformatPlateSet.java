@@ -537,8 +537,8 @@ target_reps_list_model =  new DefaultComboBoxModel<ComboItem>( target_reps );
 
     if (e.getSource() == okButton) {
 
-	dbm
-	    .getDatabaseInserter()
+	
+	    session.getDatabaseInserter()
 	    .reformatPlateSet(old_plate_set_id,
 			      dmf,
 			      nameField.getText(),

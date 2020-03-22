@@ -8,6 +8,12 @@ import java.sql.SQLException;
 import java.util.Properties;
 import java.util.logging.Logger;
 import java.awt.Desktop;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.Statement;
 
 import javax.swing.JOptionPane;
 import java.net.URI;
@@ -153,6 +159,7 @@ public class Session {
 
 	    dbm = new DatabaseManager(this );
 	    if(authenticated){
+		createNewSession(); //session id needed for dbi
 		dbr = new DatabaseRetriever(this);
 		dbi = new DatabaseInserter(this);
 		dmf = new DialogMainFrame(this);
@@ -187,6 +194,31 @@ public class Session {
 	}
 	return URL;	
     }
+
+
+  public int createNewSession() {
+      int i=0;
+    String insertSql = "INSERT INTO lnsession( lnuser_id) VALUES (? ) RETURNING id;";
+    PreparedStatement insertPs;
+
+    try {
+       Connection conn = dbm.getConnection();
+
+       insertPs = conn.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS  );
+      insertPs.setInt(1, getUserID());
+       insertPs.executeUpdate(); // executeUpdate expects no returns!!!
+       ResultSet keys = insertPs.getGeneratedKeys();
+       keys.next();
+       i = keys.getInt(1); 
+       //LOGGER.info("session id: " + i);
+      setSessionID(i);
+      //      insertPreparedStatement(insertPs);
+    } catch (SQLException sqle) {
+      LOGGER.warning("Failed to properly prepare  prepared statement: " + sqle);
+    }
+    return i;
+  }
+
     
   public void setUserID(int _id) {
     user_id = _id;
