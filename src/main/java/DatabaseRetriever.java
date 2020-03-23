@@ -77,9 +77,9 @@ public class DatabaseRetriever {
 	  sql_statement = "SELECT plate_set.plate_set_sys_name AS \"PlateSetID\", plate.plate_sys_name AS \"PlateID\", plate_plate_set.plate_order AS \"Order\",  plate_type.plate_type_name As \"Type\", plate_format.format AS \"Format\", plate.barcode AS \"Barcode ID\" FROM plate_set, plate, plate_type, plate_format, plate_plate_set WHERE plate_plate_set.plate_set_id = ? AND plate.plate_type_id = plate_type.id AND plate_plate_set.plate_id = plate.id AND plate_plate_set.plate_set_id = plate_set.id  AND plate_format.id = plate.plate_format_id ORDER BY plate_plate_set.plate_order DESC;";
 	  break;
       case DialogMainFrame.WELL:
-	  
+	  //the passed in ID is for plate but also need the plate_set
 	  int plate_set_id = session.getPlateSetID();
-	  System.out.println("plate_set_id: "+ plate_set_id);
+	  System.out.println("plate_set_id in DMF well: "+ plate_set_id);
 	  sql_statement = "SELECT plate_set.plate_set_sys_name AS \"PlateSetID\", plate.plate_sys_name AS \"PlateID\", well_numbers.well_name AS \"Well\", well.by_col AS \"Well_NUM\", sample.sample_sys_name AS \"Sample\", sample.accs_id as \"Accession\" FROM plate_plate_set, plate_set, plate, sample, well_sample, well JOIN well_numbers ON ( well.by_col= well_numbers.by_col)  WHERE plate.id = well.plate_id AND well_sample.well_id=well.id AND well_sample.sample_id=sample.id AND well.plate_id = ?  AND plate_plate_set.plate_id = plate.id AND plate_plate_set.plate_set_id = plate_set.ID AND plate_set.ID =" + plate_set_id + " AND  well_numbers.plate_format = (SELECT plate_format_id  FROM plate_set WHERE plate_set.ID =  (SELECT plate_set_id FROM plate_plate_set WHERE plate_id = plate.ID LIMIT 1) ) ORDER BY plate.id DESC, well.by_col DESC;";
 	  
 	  //	  sql_statement = "SELECT plate_set.plate_set_sys_name AS \"PlateSetID\", plate.plate_sys_name AS \"PlateID\", well_numbers.well_name AS \"Well\", well.by_col AS \"Well_NUM\", sample.sample_sys_name AS \"Sample\", sample.accs_id as \"Accession\" FROM plate_plate_set, plate_set, plate, sample, well_sample, well JOIN well_numbers ON ( well.by_col= well_numbers.by_col)  WHERE plate.id = well.plate_id AND well_sample.well_id=well.id AND well_sample.sample_id=sample.id AND well.plate_id = ?  AND plate_plate_set.plate_id = plate.id AND plate_plate_set.plate_set_id = plate_set.ID AND  well_numbers.plate_format = (SELECT plate_format_id  FROM plate_set WHERE plate_set.ID =  (SELECT plate_set_id FROM plate_plate_set WHERE plate_id = plate.ID LIMIT 1) ) ORDER BY plate.id DESC, well.by_col DESC;";
@@ -124,8 +124,8 @@ public class DatabaseRetriever {
 
 
       ResultSet rs =  pstmt.executeQuery();
-      CustomTable table = new CustomTable(dmf, buildTableModel(rs));
-      //LOGGER.info("table: " + table.getTableModel().getDataVector());
+      CustomTable table = new CustomTable(session, buildTableModel(rs));
+      LOGGER.info("table post well in dbr: " + table.getTableModel().getDataVector());
  
       rs.close();
       pstmt.close();
@@ -225,7 +225,7 @@ public class DatabaseRetriever {
       pstmt.setInt(1, _project_id);
       ResultSet rs = pstmt.executeQuery();
 
-      CustomTable table = new CustomTable(dmf, buildTableModel(rs));
+      CustomTable table = new CustomTable(session, buildTableModel(rs));
       rs.close();
       pstmt.close();
       return table;
@@ -835,7 +835,7 @@ int plate_layout_name_id = _plate_layout_name_id;
       pstmt.setInt(1, plate_layout_name_id);
       ResultSet rs = pstmt.executeQuery();
 
-      table = new CustomTable(dmf, dbm.buildTableModel(rs));
+      table = new CustomTable(session, dbm.buildTableModel(rs));
       //LOGGER.info("Got plate table " + table);
       rs.close();
       pstmt.close();
@@ -859,7 +859,7 @@ int plate_layout_name_id = _plate_layout_name_id;
 	  pstmt.setInt(1, plate_layout_name_id);
 	  ResultSet rs = pstmt.executeQuery();
 	  
-      table = new CustomTable(dmf, dbm.buildTableModel(rs));
+      table = new CustomTable(session, dbm.buildTableModel(rs));
       // LOGGER.info("Got plate table " + table);
       rs.close();
       pstmt.close();
@@ -883,7 +883,7 @@ int plate_layout_name_id = _plate_layout_name_id;
       pstmt.setInt(1, plate_layout_name_id);
       ResultSet rs = pstmt.executeQuery();
 
-      table = new CustomTable(dmf, dbm.buildTableModel(rs));
+      table = new CustomTable(session, dbm.buildTableModel(rs));
       //  LOGGER.info("Got plate table " + table);
       rs.close();
       pstmt.close();
@@ -965,7 +965,7 @@ int plate_layout_name_id = _plate_layout_name_id;
 	row_counter = row_counter + 1;
     }
 
-    ct = new CustomTable( dmf, new DefaultTableModel(data, columnNames));
+    ct = new CustomTable(session, new DefaultTableModel(data, columnNames));
     ct.setSelectedRows(selected_rows);
 
     return ct.getSelectedRowsAndHeaderAsStringArray();
@@ -1023,7 +1023,7 @@ int plate_layout_name_id = _plate_layout_name_id;
 	row_counter = row_counter + 1;
     }
 
-    ct = new CustomTable( dmf, new DefaultTableModel(data, columnNames));
+    ct = new CustomTable(session, new DefaultTableModel(data, columnNames));
     ct.setSelectedRows(selected_rows);
 
     return ct.getSelectedRowsAndHeaderAsStringArray();
@@ -1087,7 +1087,7 @@ int plate_layout_name_id = _plate_layout_name_id;
 	row_counter = row_counter + 1;
     }
 
-    ct = new CustomTable( dmf, new DefaultTableModel(data, columnNames));
+    ct = new CustomTable(session, new DefaultTableModel(data, columnNames));
     ct.setSelectedRows(selected_rows);
 
     return ct.getSelectedRowsAndHeaderAsStringArray();
@@ -1315,7 +1315,7 @@ int plate_layout_name_id = _plate_layout_name_id;
 
       ResultSet rs = pstmt.executeQuery();
      
-      table = new CustomTable(dmf, dbm.buildTableModel(rs));
+      table = new CustomTable(session, dbm.buildTableModel(rs));
 	
            rs.close();
       pstmt.close();
@@ -1342,7 +1342,7 @@ int project_id = _project_id;
       pstmt.setInt(1, project_id);
       ResultSet rs = pstmt.executeQuery();
 
-      table = new CustomTable(dmf, dbm.buildTableModel(rs));
+      table = new CustomTable(session, dbm.buildTableModel(rs));
       //LOGGER.info("Got assay run table " + table);
       rs.close();
       pstmt.close();
@@ -1366,7 +1366,7 @@ int project_id = _project_id;
       pstmt.setInt(1, project_id);
       ResultSet rs = pstmt.executeQuery();
 
-      table = new CustomTable(dmf, dbm.buildTableModel(rs));
+      table = new CustomTable(session, dbm.buildTableModel(rs));
       //LOGGER.info("Got assay run table " + table);
       rs.close();
       pstmt.close();
@@ -1390,7 +1390,7 @@ int assay_run_id = _assay_run_id;
       pstmt.setInt(1, assay_run_id);
       ResultSet rs = pstmt.executeQuery();
 
-      table = new CustomTable(dmf, dbm.buildTableModel(rs));
+      table = new CustomTable(session, dbm.buildTableModel(rs));
       //LOGGER.info("Got assay run table " + table);
       rs.close();
       pstmt.close();
@@ -1423,7 +1423,7 @@ int assay_run_id = _assay_run_id;
       pstmt.setInt(1, format);
       ResultSet rs = pstmt.executeQuery();
 
-      table = new CustomTable(dmf, dbm.buildTableModel(rs));
+      table = new CustomTable(session, dbm.buildTableModel(rs));
       // LOGGER.info("Got layout sources table " + table);
       rs.close();
       pstmt.close();
@@ -1447,7 +1447,7 @@ int assay_run_id = _assay_run_id;
       pstmt.setInt(1, source_layout_id);
       ResultSet rs = pstmt.executeQuery();
 
-      table = new CustomTable(dmf, dbm.buildTableModel(rs));
+      table = new CustomTable(session, dbm.buildTableModel(rs));
       // LOGGER.info("Got layout sources table " + table);
       rs.close();
       pstmt.close();
@@ -1478,7 +1478,7 @@ int assay_run_id = _assay_run_id;
       
       ResultSet rs = pstmt.executeQuery();
 
-      table = new CustomTable(dmf, dbm.buildTableModel(rs));
+      table = new CustomTable(session, dbm.buildTableModel(rs));
       // LOGGER.info("Got layout sources table " + table);
       rs.close();
       pstmt.close();
@@ -1507,7 +1507,7 @@ int assay_run_id = _assay_run_id;
       
       ResultSet rs = pstmt.executeQuery();
 
-      table = new CustomTable(dmf, dbm.buildTableModel(rs));
+      table = new CustomTable(session, dbm.buildTableModel(rs));
       // LOGGER.info("Got layout sources table " + table);
       rs.close();
       pstmt.close();

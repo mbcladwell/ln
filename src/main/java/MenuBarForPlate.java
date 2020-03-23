@@ -135,12 +135,8 @@ public class MenuBarForPlate extends JMenuBar {
 	      String plate_sys_name = results[1][1];
 	  
 	      session.setPlateSysName(plate_sys_name);
-	      
-	      //session.setPlateSysName(plate_sys_name);
-	      
-	      
 	      session.setPlateID(Integer.parseInt(plate_sys_name.substring(4)));
-	      
+	      LOGGER.info("plate_sys_name: " + plate_sys_name);	      
               session.getDialogMainFrame().showWellTable(plate_sys_name);
             } catch (ArrayIndexOutOfBoundsException s) {
 			JOptionPane.showMessageDialog(session.getDialogMainFrame(),

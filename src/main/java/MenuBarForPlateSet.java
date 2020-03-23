@@ -146,7 +146,7 @@ public class MenuBarForPlateSet extends JMenuBar {
 		    Object[][] results = plate_set_table.getSelectedRowsAndHeaderAsStringArray();	   
 		    String plate_set_sys_name = (String) results[1][0];
 		    int  plate_set_id = Integer.parseInt(plate_set_sys_name.substring(3));
-		    dbm.getDatabaseInserter().importAccessionsByPlateSet(plate_set_id);
+		    session.getDatabaseInserter().importAccessionsByPlateSet(plate_set_id);
 		}else{
 		    JOptionPane.showMessageDialog(session.getDialogMainFrame(), "Select a Plate Set for which to populate with accession IDs!");	      
 		} 	   
@@ -164,7 +164,7 @@ public class MenuBarForPlateSet extends JMenuBar {
 		    Object[][] results = plate_set_table.getSelectedRowsAndHeaderAsStringArray();	   
 		    String plate_set_sys_name = (String) results[1][0];
 		    int  plate_set_id = Integer.parseInt(plate_set_sys_name.substring(3));
-		    dbm.getDatabaseInserter().importBarcodesByPlateSet(plate_set_id);
+		    session.getDatabaseInserter().importBarcodesByPlateSet(plate_set_id);
 		}else{
 		    JOptionPane.showMessageDialog(session.getDialogMainFrame(), "Select a Plate Set for which to populate with accession IDs!");	      
 		} 	   

@@ -21,11 +21,12 @@ public class CustomTable extends JTable {
   private SharedListSelectionHandler sharedListSelectionHandler;
   private Vector<Integer> selectedRows = new Vector<>();
   private TableColumnModel tableColumnModel;
-
-  public CustomTable(DialogMainFrame _dmf, DefaultTableModel _tm) {
+    private Session session;
+    
+  public CustomTable(Session _s, DefaultTableModel _tm) {
     super(_tm);
-
-    dmf = _dmf;
+    session = _s;
+    dmf = session.getDialogMainFrame();
     tableModel = _tm;
     tableColumnModel = this.getColumnModel();
     listSelectionModel = this.getSelectionModel();
@@ -49,7 +50,7 @@ public class CustomTable extends JTable {
 
     int colCount = tableModel.getColumnCount();
     int rowCount = selectedRows.size();
-    //    	LOGGER.info("colCount: " + colCount + " rowCount:  " + rowCount);
+    //LOGGER.info("colCount: " + colCount + " rowCount:  " + rowCount);
     
     String[][] results = new String[rowCount + 1][colCount];
     for (int i = 0; i < colCount; i++) {
@@ -61,7 +62,8 @@ public class CustomTable extends JTable {
 	for (int j = 0; j < colCount; j++) {
 	    try{
 		results[i][j] = tableModel.getValueAt(selectedRows.get(i-1), j).toString();  
-		
+		//LOGGER.info("ij: " + results[i][j]);
+  		
 	    }catch(NullPointerException e){
 		
 	    }
