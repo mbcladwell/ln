@@ -159,7 +159,7 @@ public class DialogNewHitList extends JDialog {
     okButton.addActionListener(
         (new ActionListener() {
           public void actionPerformed(ActionEvent e) {
-	      dbm.getDatabaseInserter()
+	      session.getDatabaseInserter()
 		  .insertHitList( nameField.getText(),
 				  descriptionField.getText(),
 				  num_hits,

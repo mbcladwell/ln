@@ -344,7 +344,7 @@ public class DialogAddPlateSet extends JDialog   {
 		break;					    
 	    }
 	    //System.out.println("tlnid: "+ target_layout_name_id);
-	    dbm.getDatabaseInserter()
+	    session.getDatabaseInserter()
 		.insertPlateSet(nameField.getText(),
 				descriptionField.getText(),
 				Integer.valueOf(numberField.getText()),

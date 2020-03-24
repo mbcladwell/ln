@@ -287,7 +287,7 @@ public class DialogImportPlateSetBarcodeIDs extends JDialog
 					      new String("Expecting " + String.valueOf(expected_rows) + " rows but found " + (barcodes.size()-1) + " rows." ), "Import Error",      JOptionPane.ERROR_MESSAGE);
 		return;	    
 	}
-	dbm.getDatabaseInserter().associateBarcodesWithPlateSet( plate_set_id, barcodes);
+	session.getDatabaseInserter().associateBarcodesWithPlateSet( plate_set_id, barcodes);
       dispose();
     }
 

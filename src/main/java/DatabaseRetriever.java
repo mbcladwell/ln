@@ -125,7 +125,7 @@ public class DatabaseRetriever {
 
       ResultSet rs =  pstmt.executeQuery();
       CustomTable table = new CustomTable(session, buildTableModel(rs));
-      LOGGER.info("table post well in dbr: " + table.getTableModel().getDataVector());
+      // LOGGER.info("table post well in dbr: " + table.getTableModel().getDataVector());
  
       rs.close();
       pstmt.close();
@@ -1160,7 +1160,7 @@ int plate_layout_name_id = _plate_layout_name_id;
       ResultSet rs = pstmt.executeQuery();
       rs.next();
       result = rs.getInt(1);
-      LOGGER.info("number of samples: " + result);
+      //LOGGER.info("number of samples: " + result);
       rs.close();
       pstmt.close();
 
@@ -1289,7 +1289,7 @@ int plate_layout_name_id = _plate_layout_name_id;
       ResultSet rs = pstmt.executeQuery();
       rs.next();
       result = rs.getInt(1);
-      LOGGER.info("number of replicates for layout name: " + result);
+      //LOGGER.info("number of replicates for layout name: " + result);
       rs.close();
       pstmt.close();
 

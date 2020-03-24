@@ -299,15 +299,15 @@ public class DatabaseSetupPanel extends JPanel {
         public Void doInBackground() {
 	    //initLimsNucleus.invoke();
 	   
-		  String psql_command = new String("psql -h " + session.getHost() + " -p " + session.getPort() + " -U ln_admin " + " -d " +  session.getDBname() + " -f ./resources/sql/create-tables.sql");
+		  String psql_command = new String("psql -h " + session.getHost() + " -p " + session.getPort() + " -U ln_admin " + " -d " +  session.getDBname() + " -f ./resources/sql/create-db.sql");
 	    LOGGER.info("sql: " + psql_command);
-	  String psql_command2 = new String("psql -h " + session.getHost() + " -p " + session.getPort() + " -U ln_admin " + " -d " +  session.getDBname() + " -f ./resources/sql/functions.sql");
-	    LOGGER.info("sql2: " + psql_command2);
+	    // String psql_command2 = new String("psql -h " + session.getHost() + " -p " + session.getPort() + " -U ln_admin " + " -d " +  session.getDBname() + " -f ./resources/sql/functions.sql");
+	    // LOGGER.info("sql2: " + psql_command2);
 
 	    
 	    try{
 		Process p = Runtime.getRuntime().exec(psql_command);
-		Process p2 = Runtime.getRuntime().exec(psql_command2);
+		//Process p2 = Runtime.getRuntime().exec(psql_command2);
 		
 	    }catch (IOException ioe) {
 		LOGGER.info("Failed to execute psql!");

@@ -84,7 +84,7 @@ public class DialogAddPlateSetData extends JDialog
     //session = dmf.getSession();
     //this.dbm = session.getDatabaseManager();
     this.dbr = session.getDatabaseRetriever();
-    this.dbi = dbm.getDatabaseInserter();
+    this.dbi = session.getDatabaseInserter();
 
     //LOGGER.info("plate_set_id: " + plate_set_id);
     plate_set_description = dbr.getDescriptionForPlateSet(_plate_set_sys_name);
@@ -512,7 +512,7 @@ public static boolean openWebpage(URI uri) {
 
     public Task(int _top_n_number) {
        this.top_n_number = _top_n_number;
-       System.out.println("top n number: " + top_n_number);
+       // System.out.println("top n number: " + top_n_number);
     }
 
         @Override

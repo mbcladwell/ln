@@ -105,7 +105,7 @@ public class AssayRunViewer extends JDialog implements java.awt.event.ActionList
 			int assay_run_id = Integer.parseInt(( (String)assay_runs_table.getModel().getValueAt(row,0)).substring(3));
 
 			//LOGGER.info("source_layout_id: " + source_layout_id);
-			hit_lists_table.setModel(dbm
+			hit_lists_table.setModel(session
 					   .getDatabaseRetriever()
 						.getHitListsForAssayRun(assay_run_id).getModel());
 			//

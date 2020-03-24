@@ -257,7 +257,7 @@ public class DialogRearrayHitList extends JDialog {
           public void actionPerformed(ActionEvent e) {
 
      
-                dbm.getDatabaseInserter()
+                session.getDatabaseInserter()
                 .insertRearrayedPlateSet(
                     nameField.getText(),
                     descriptionField.getText(),

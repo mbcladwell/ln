@@ -87,7 +87,7 @@ public class DialogCreateTargetLayout extends JDialog
     //  this.session = dmf.getSession();
     // this.dbm = session.getDatabaseManager();
     this.dbr = session.getDatabaseRetriever();
-    this.dbi = dbm.getDatabaseInserter();
+    this.dbi = session.getDatabaseInserter();
     
 
     JPanel pane = new JPanel(new GridBagLayout());
@@ -324,7 +324,7 @@ public class DialogCreateTargetLayout extends JDialog
     if (e.getSource() == okButton) {
 	switch(replication){
 	case 1:
-	dbm.getDatabaseInserter().addTargetLayoutName(session.getProjectID(), nameField.getText(),
+	session.getDatabaseInserter().addTargetLayoutName(session.getProjectID(), nameField.getText(),
 						      descriptionField.getText(),
 						      1,
 						      ((ComboItem)quad1.getSelectedItem()).getKey(),
@@ -333,7 +333,7 @@ public class DialogCreateTargetLayout extends JDialog
 						      ((ComboItem)quad4.getSelectedItem()).getKey());	    
 	    break;
 	case 2:
-	    dbm.getDatabaseInserter().addTargetLayoutName(session.getProjectID(), nameField.getText(),
+	    session.getDatabaseInserter().addTargetLayoutName(session.getProjectID(), nameField.getText(),
 							  descriptionField.getText(),
 							  2,
 							  ((ComboItem)quad1.getSelectedItem()).getKey(),
@@ -344,7 +344,7 @@ public class DialogCreateTargetLayout extends JDialog
 
 	    break;
 	case 4:
-	    	dbm.getDatabaseInserter().addTargetLayoutName(session.getProjectID(), nameField.getText(),
+	    	session.getDatabaseInserter().addTargetLayoutName(session.getProjectID(), nameField.getText(),
 						      descriptionField.getText(),
 							      4,
 						      ((ComboItem)quad1.getSelectedItem()).getKey(),

@@ -438,7 +438,7 @@ public int insertPlateSet(
     Integer[] plate_set_id =
         session.getDatabaseRetriever()
             .getIDsForSysNames(plate_set_sys_name, "plate_set", "plate_set_sys_name");
-
+    //LOGGER.info("plate_set_id: " + plate_set_id);
     int num_of_plate_ids = session.getDatabaseRetriever().getAllPlateIDsForPlateSetID(plate_set_id[0]).size();
     //check that there are the correct number of rows in the table
     if(num_of_plate_ids*format_id!=table.size()-1){
@@ -555,7 +555,7 @@ public int insertPlateSet(
 	ResponseWrangler rw = new ResponseWrangler(session.getDatabaseRetriever().getDataForScatterPlot(assay_run_id),ResponseWrangler.NORM);
 	double[][] sorted_response = rw.getSortedResponse();
 	int number_of_hits = 0;
-       LOGGER.info("algorith: " + hit_selection_algorithm);
+       LOGGER.info("algorithm: " + hit_selection_algorithm);
 	
 	
 	switch(hit_selection_algorithm){
