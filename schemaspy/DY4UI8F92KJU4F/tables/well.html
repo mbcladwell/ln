@@ -73,7 +73,7 @@
             <div class="content-wrapper">
                 <!-- Content Header (Page header) -->
                 <section class="content-header">
-                    <h1>well</h1><p><span id="recordNumber">5952</span> rows</p><br />
+                    <h1>well</h1><p><span id="recordNumber">4800</span> rows</p><br />
                 </section>
                 <!-- Main content -->
                 <section class="content">
@@ -113,7 +113,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                             <tr>
                                                 <td title="well_sample.well_id references well.id via well_sample_well_id_fkey"><a href='well_sample.html'>well_sample</a><span class='relatedKey'>.well_id</span></td>
-                                                <td class="constraint detail">well_sample_well_id_fkey<span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                                <td class="constraint detail">well_sample_well_id_fkey<span title='Cascade on delete:&#10;Deletion of parent deletes child'>C</span></td>
                                             </tr>
                                         </table>
                                     </td>
@@ -155,7 +155,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                             <tr>
                                                 <td title="well.plate_id references plate.id via well_plate_id_fkey"><a href='plate.html'>plate</a><span class='relatedKey'>.id</span></td>
-                                                <td class="constraint detail">well_plate_id_fkey<span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                                <td class="constraint detail">well_plate_id_fkey<span title='Cascade on delete:&#10;Deletion of parent deletes child'>C</span></td>
                                             </tr>
                                         </table>
                                     </td>

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-javadoc -d ./javadocs ../src/java/*.java
+javadoc -d ./javadocs ../src/main/java/*.java
 
 ## f so not prompted for each file
 rm -rf /home/mbc/syncd/labsolns/javadocs

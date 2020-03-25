@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+Implementation-Title: LIMS*Nucleus
+Implementation-Version: 0.1
+provider: gradle
+Main-Class: ln.Session
+

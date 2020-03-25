@@ -552,10 +552,10 @@ public int insertPlateSet(
     
     if(auto_select_hits){
 	
-	ResponseWrangler rw = new ResponseWrangler(session.getDatabaseRetriever().getDataForScatterPlot(assay_run_id),ResponseWrangler.NORM);
+	ResponseWrangler rw = new ResponseWrangler(session, session.getDatabaseRetriever().getDataForScatterPlot(assay_run_id),ResponseWrangler.NORM, assay_run_id);
 	double[][] sorted_response = rw.getSortedResponse();
 	int number_of_hits = 0;
-       LOGGER.info("algorithm: " + hit_selection_algorithm);
+	// LOGGER.info("algorithm: " + hit_selection_algorithm);
 	
 	
 	switch(hit_selection_algorithm){

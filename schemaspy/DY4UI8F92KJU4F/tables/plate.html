@@ -73,7 +73,7 @@
             <div class="content-wrapper">
                 <!-- Content Header (Page header) -->
                 <section class="content-header">
-                    <h1>plate</h1><p><span id="recordNumber">32</span> rows</p><br />
+                    <h1>plate</h1><p><span id="recordNumber">29</span> rows</p><br />
                 </section>
                 <!-- Main content -->
                 <section class="content">
@@ -113,11 +113,11 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                             <tr>
                                                 <td title="plate_plate_set.plate_id references plate.id via plate_plate_set_plate_id_fkey"><a href='plate_plate_set.html'>plate_plate_set</a><span class='relatedKey'>.plate_id</span></td>
-                                                <td class="constraint detail">plate_plate_set_plate_id_fkey<span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                                <td class="constraint detail">plate_plate_set_plate_id_fkey<span title='Cascade on delete:&#10;Deletion of parent deletes child'>C</span></td>
                                             </tr>
                                             <tr>
                                                 <td title="well.plate_id references plate.id via well_plate_id_fkey"><a href='well.html'>well</a><span class='relatedKey'>.plate_id</span></td>
-                                                <td class="constraint detail">well_plate_id_fkey<span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                                <td class="constraint detail">well_plate_id_fkey<span title='Cascade on delete:&#10;Deletion of parent deletes child'>C</span></td>
                                             </tr>
                                         </table>
                                     </td>

@@ -126,31 +126,6 @@
                                     <td>ARRAY</td>
                                     <td>IN</td>
                                 </tr>
-                                <tr>
-                                    <td>_name</td>
-                                    <td>character varying</td>
-                                    <td>IN</td>
-                                </tr>
-                                <tr>
-                                    <td>_descr</td>
-                                    <td>character varying</td>
-                                    <td>IN</td>
-                                </tr>
-                                <tr>
-                                    <td>_num_hits</td>
-                                    <td>integer</td>
-                                    <td>IN</td>
-                                </tr>
-                                <tr>
-                                    <td>_assay_run_id</td>
-                                    <td>integer</td>
-                                    <td>IN</td>
-                                </tr>
-                                <tr>
-                                    <td>hit_list</td>
-                                    <td>ARRAY</td>
-                                    <td>IN</td>
-                                </tr>
                                 </tbody>
                             </table>
                         </div>
@@ -165,7 +140,7 @@
                             </div>
                         </div>
                         <div class="box-body">
-                            <textarea id="sql-script-codemirror" name="sql-script-codemirror" rows="" style="display: none;">&#10;DECLARE&#10; hl_id INTEGER;&#10; hl_sys_name VARCHAR(10);&#10; s_id INTEGER;&#10;BEGIN&#10;&#10;&#10;  INSERT INTO hit_list(hitlist_name, descr, n, assay_run_id)&#10;   VALUES (_name, _descr, _num_hits, _assay_run_id)&#10;   RETURNING id INTO hl_id;&#10;&#10;    UPDATE hit_list SET hitlist_sys_name = &#39;HL-&#39;|| hl_id WHERE id=hl_id;&#10;    &#10;FOR i IN 1.._num_hits loop&#10; INSERT INTO hit_sample(hitlist_id, sample_id)VALUES(hl_id, hit_list[i]);&#10;END LOOP;&#10;&#10;END;&#10;</textarea>
+                            <textarea id="sql-script-codemirror" name="sql-script-codemirror" rows="" style="display: none;">&#10;DECLARE&#10; hl_id INTEGER;&#10; hl_sys_name VARCHAR(10);&#10; s_id INTEGER;&#10;BEGIN&#10;&#10;&#10;  INSERT INTO hit_list(hitlist_name, descr, n, assay_run_id, lnsession_id)&#10;   VALUES (_name, _descr, _num_hits, _assay_run_id, _lnsession_id)&#10;   RETURNING id INTO hl_id;&#10;&#10;    UPDATE hit_list SET hitlist_sys_name = &#39;HL-&#39;|| hl_id WHERE id=hl_id;&#10;    &#10;FOR i IN 1.._num_hits loop&#10; INSERT INTO hit_sample(hitlist_id, sample_id)VALUES(hl_id, hit_list[i]);&#10;END LOOP;&#10;&#10;END;&#10;</textarea>
                         </div>
                     </div>
                 </section>

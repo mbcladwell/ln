@@ -24,6 +24,7 @@ digraph "twoDegreesRelationshipsDiagram" {
   "assay_run":"lnsession_id":w -> "lnsession":"id.type":e [arrowhead=none dir=back arrowtail=crowodot];
   "assay_run":"plate_layout_name_id":w -> "plate_layout_name":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "assay_run":"plate_set_id":w -> "plate_set":"id":e [arrowhead=none dir=back arrowtail=crowodot];
+  "assay_run_stats":"elipses":w -> "assay_run":"id":e [arrowhead=none dir=back arrowtail=crowodot];
   "hit_list":"assay_run_id":w -> "assay_run":"id":e [arrowhead=none dir=back arrowtail=crowodot];
   "hit_list":"lnsession_id":w -> "lnsession":"id.type":e [arrowhead=none dir=back arrowtail=crowodot];
   "hit_sample":"elipses":w -> "hit_list":"id":e [arrowhead=none dir=back arrowtail=crowodot];
@@ -37,14 +38,17 @@ digraph "twoDegreesRelationshipsDiagram" {
   "plate_set":"plate_layout_name_id":w -> "plate_layout_name":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "plate_set":"plate_type_id":w -> "plate_type":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "plate_set":"project_id":w -> "project":"id":e [arrowhead=none dir=back arrowtail=crowodot];
+  "plate_set":"target_layout_name_id":w -> "target_layout_name":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "project":"lnsession_id":w -> "lnsession":"id.type":e [arrowhead=none dir=back arrowtail=crowodot];
   "sample":"elipses":w -> "project":"id":e [arrowhead=none dir=back arrowtail=crowodot];
+  "target":"elipses":w -> "project":"id":e [arrowhead=none dir=back arrowtail=crowodot];
+  "target_layout_name":"elipses":w -> "project":"id":e [arrowhead=none dir=back arrowtail=crowodot];
   "assay_result" [
    label=<
     <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
       <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT"><B>assay_result</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
       <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 1</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">4,032 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 1</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">384 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD></TR>
     </TABLE>>
     URL="assay_result.html"
     target="_top"
@@ -55,7 +59,7 @@ digraph "twoDegreesRelationshipsDiagram" {
     <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
       <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT"><B>assay_result_pre</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
       <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 1</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">0 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 1</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">192 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD></TR>
     </TABLE>>
     URL="assay_result_pre.html"
     target="_top"
@@ -71,11 +75,22 @@ digraph "twoDegreesRelationshipsDiagram" {
       <TR><TD PORT="plate_layout_name_id" COLSPAN="3" BGCOLOR="#ffffff" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="./DY4UI8F92KJU4F/images/foreignKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="145" HEIGHT="16">plate_layout_name_id</TD></TR></TABLE></TD></TR>
       <TR><TD PORT="lnsession_id" COLSPAN="3" BGCOLOR="#ffffff" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="./DY4UI8F92KJU4F/images/foreignKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="145" HEIGHT="16">lnsession_id</TD></TR></TABLE></TD></TR>
       <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 4</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">6 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">3 &gt;</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 4</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">5 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">4 &gt;</TD></TR>
     </TABLE>>
     URL="assay_run.html"
     target="_top"
     tooltip="assay_run"
+  ];
+  "assay_run_stats" [
+   label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT"><B>assay_run_stats</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 1</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">8 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD></TR>
+    </TABLE>>
+    URL="assay_run_stats.html"
+    target="_top"
+    tooltip="assay_run_stats"
   ];
   "assay_type" [
    label=<
@@ -96,7 +111,7 @@ digraph "twoDegreesRelationshipsDiagram" {
       <TR><TD PORT="lnsession_id" COLSPAN="3" BGCOLOR="#ffffff" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="./DY4UI8F92KJU4F/images/foreignKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="110" HEIGHT="16">lnsession_id</TD></TR></TABLE></TD></TR>
       <TR><TD PORT="assay_run_id" COLSPAN="3" BGCOLOR="#ffffff" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="./DY4UI8F92KJU4F/images/foreignKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="110" HEIGHT="16">assay_run_id</TD></TR></TABLE></TD></TR>
       <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 2</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">7 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">1 &gt;</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 2</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">0 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">1 &gt;</TD></TR>
     </TABLE>>
     URL="hit_list.html"
     target="_top"
@@ -107,7 +122,7 @@ digraph "twoDegreesRelationshipsDiagram" {
     <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
       <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT"><B>hit_sample</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
       <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 2</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">110 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 2</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">0 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD></TR>
     </TABLE>>
     URL="hit_sample.html"
     target="_top"
@@ -120,7 +135,7 @@ digraph "twoDegreesRelationshipsDiagram" {
       <TR><TD PORT="id" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="./DY4UI8F92KJU4F/images/primaryKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="63" HEIGHT="16">id</TD></TR></TABLE></TD><TD PORT="id.type" ALIGN="LEFT">serial[10]</TD></TR>
       <TR><TD PORT="lnuser_id" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="./DY4UI8F92KJU4F/images/foreignKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="63" HEIGHT="16">lnuser_id</TD></TR></TABLE></TD><TD PORT="lnuser_id.type" ALIGN="LEFT">int4[10]</TD></TR>
       <TR><TD PORT="updated" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="63" HEIGHT="16">updated</TD></TR></TABLE></TD><TD PORT="updated.type" ALIGN="LEFT">timestamptz[35,6]</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 1</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">4 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">4 &gt;</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 1</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">2 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">4 &gt;</TD></TR>
     </TABLE>>
     URL="lnsession.html"
     target="_top"
@@ -178,7 +193,7 @@ digraph "twoDegreesRelationshipsDiagram" {
     <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
       <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT"><B>plate_plate_set</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
       <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 2</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">34 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 2</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">29 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD></TR>
     </TABLE>>
     URL="plate_plate_set.html"
     target="_top"
@@ -188,14 +203,15 @@ digraph "twoDegreesRelationshipsDiagram" {
    label=<
     <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
       <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT"><B>plate_set</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
-      <TR><TD PORT="id" COLSPAN="3" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="./DY4UI8F92KJU4F/images/primaryKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="145" HEIGHT="16">id</TD></TR></TABLE></TD></TR>
-      <TR><TD PORT="plate_format_id" COLSPAN="3" BGCOLOR="#ffffff" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="./DY4UI8F92KJU4F/images/foreignKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="145" HEIGHT="16">plate_format_id</TD></TR></TABLE></TD></TR>
-      <TR><TD PORT="plate_type_id" COLSPAN="3" BGCOLOR="#ffffff" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="./DY4UI8F92KJU4F/images/foreignKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="145" HEIGHT="16">plate_type_id</TD></TR></TABLE></TD></TR>
-      <TR><TD PORT="project_id" COLSPAN="3" BGCOLOR="#ffffff" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="./DY4UI8F92KJU4F/images/foreignKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="145" HEIGHT="16">project_id</TD></TR></TABLE></TD></TR>
-      <TR><TD PORT="plate_layout_name_id" COLSPAN="3" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="./DY4UI8F92KJU4F/images/foreignKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="145" HEIGHT="16">plate_layout_name_id</TD></TR></TABLE></TD></TR>
-      <TR><TD PORT="lnsession_id" COLSPAN="3" BGCOLOR="#ffffff" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="./DY4UI8F92KJU4F/images/foreignKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="145" HEIGHT="16">lnsession_id</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="id" COLSPAN="3" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="./DY4UI8F92KJU4F/images/primaryKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="152" HEIGHT="16">id</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="plate_format_id" COLSPAN="3" BGCOLOR="#ffffff" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="./DY4UI8F92KJU4F/images/foreignKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="152" HEIGHT="16">plate_format_id</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="plate_type_id" COLSPAN="3" BGCOLOR="#ffffff" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="./DY4UI8F92KJU4F/images/foreignKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="152" HEIGHT="16">plate_type_id</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="project_id" COLSPAN="3" BGCOLOR="#ffffff" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="./DY4UI8F92KJU4F/images/foreignKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="152" HEIGHT="16">project_id</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="plate_layout_name_id" COLSPAN="3" BGCOLOR="#ffffff" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="./DY4UI8F92KJU4F/images/foreignKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="152" HEIGHT="16">plate_layout_name_id</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="lnsession_id" COLSPAN="3" BGCOLOR="#ffffff" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="./DY4UI8F92KJU4F/images/foreignKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="152" HEIGHT="16">lnsession_id</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="target_layout_name_id" COLSPAN="3" BGCOLOR="#ffffff" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="./DY4UI8F92KJU4F/images/foreignKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="152" HEIGHT="16">target_layout_name_id</TD></TR></TABLE></TD></TR>
       <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 5</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">9 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">2 &gt;</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 6</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">7 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">2 &gt;</TD></TR>
     </TABLE>>
     URL="plate_set.html"
     target="_top"
@@ -219,7 +235,7 @@ digraph "twoDegreesRelationshipsDiagram" {
       <TR><TD PORT="id" COLSPAN="3" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="./DY4UI8F92KJU4F/images/primaryKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="119" HEIGHT="16">id</TD></TR></TABLE></TD></TR>
       <TR><TD PORT="lnsession_id" COLSPAN="3" BGCOLOR="#ffffff" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="./DY4UI8F92KJU4F/images/foreignKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="119" HEIGHT="16">lnsession_id</TD></TR></TABLE></TD></TR>
       <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 1</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">10 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">2 &gt;</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 1</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">10 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">4 &gt;</TD></TR>
     </TABLE>>
     URL="project.html"
     target="_top"
@@ -235,5 +251,27 @@ digraph "twoDegreesRelationshipsDiagram" {
     URL="sample.html"
     target="_top"
     tooltip="sample"
+  ];
+  "target" [
+   label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT"><B>target</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 1</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">12 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">1 &gt;</TD></TR>
+    </TABLE>>
+    URL="target.html"
+    target="_top"
+    tooltip="target"
+  ];
+  "target_layout_name" [
+   label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT"><B>target_layout_name</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 1</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">3 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">2 &gt;</TD></TR>
+    </TABLE>>
+    URL="target_layout_name.html"
+    target="_top"
+    tooltip="target_layout_name"
   ];
 }

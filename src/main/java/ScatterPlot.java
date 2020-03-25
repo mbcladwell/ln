@@ -34,10 +34,6 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
-
-
-
-
 public class ScatterPlot extends JFrame {
     private JButton genHitsBtn = new JButton("Generate hit list");
     private JButton help_button = new JButton("Help");
@@ -106,10 +102,10 @@ public class ScatterPlot extends JFrame {
 	table = session.getDatabaseRetriever().getDataForScatterPlot(assay_run_id);
 	//LOGGER.info("row count: " + table.getRowCount());	    
 
-	raw_response = new ResponseWrangler(table, ResponseWrangler.RAW);
-	norm_response = new ResponseWrangler(table, ResponseWrangler.NORM);
-	norm_pos_response = new ResponseWrangler(table, ResponseWrangler.NORM_POS);
-	p_enhanced_response = new ResponseWrangler(table, ResponseWrangler.P_ENHANCE);
+	raw_response = new ResponseWrangler(session, table, ResponseWrangler.RAW, assay_run_id);
+	norm_response = new ResponseWrangler(session, table, ResponseWrangler.NORM, assay_run_id);
+	norm_pos_response = new ResponseWrangler(session, table, ResponseWrangler.NORM_POS, assay_run_id);
+	p_enhanced_response = new ResponseWrangler(session, table, ResponseWrangler.P_ENHANCE, assay_run_id);
 
 	selected_response = norm_response;
 	threshold = selected_response.getThreshold();

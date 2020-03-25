@@ -152,52 +152,7 @@
                                     <td>IN</td>
                                 </tr>
                                 <tr>
-                                    <td>source_plate_set_id</td>
-                                    <td>integer</td>
-                                    <td>IN</td>
-                                </tr>
-                                <tr>
-                                    <td>source_num_plates</td>
-                                    <td>integer</td>
-                                    <td>IN</td>
-                                </tr>
-                                <tr>
-                                    <td>n_reps_source</td>
-                                    <td>integer</td>
-                                    <td>IN</td>
-                                </tr>
-                                <tr>
-                                    <td>dest_descr</td>
-                                    <td>character varying</td>
-                                    <td>IN</td>
-                                </tr>
-                                <tr>
-                                    <td>dest_plate_set_name</td>
-                                    <td>character varying</td>
-                                    <td>IN</td>
-                                </tr>
-                                <tr>
-                                    <td>dest_num_plates</td>
-                                    <td>integer</td>
-                                    <td>IN</td>
-                                </tr>
-                                <tr>
-                                    <td>dest_plate_format_id</td>
-                                    <td>integer</td>
-                                    <td>IN</td>
-                                </tr>
-                                <tr>
-                                    <td>dest_plate_type_id</td>
-                                    <td>integer</td>
-                                    <td>IN</td>
-                                </tr>
-                                <tr>
-                                    <td>project_id</td>
-                                    <td>integer</td>
-                                    <td>IN</td>
-                                </tr>
-                                <tr>
-                                    <td>dest_plate_layout_name_id</td>
+                                    <td>target_layout_name_id</td>
                                     <td>integer</td>
                                     <td>IN</td>
                                 </tr>
@@ -215,7 +170,7 @@
                             </div>
                         </div>
                         <div class="box-body">
-                            <textarea id="sql-script-codemirror" name="sql-script-codemirror" rows="" style="display: none;">&#10;DECLARE&#10;&#10;dest_plate_set_id INTEGER;&#10;all_source_well_ids INTEGER[];&#10;all_dest_well_ids INTEGER[];&#10;w INTEGER;&#10;holder INTEGER;&#10;&#10;BEGIN&#10;--here I am creating the destination plate set, no samples included&#10;SELECT new_plate_set(dest_descr ,dest_plate_set_name, dest_num_plates, dest_plate_format_id, dest_plate_type_id, project_id, dest_plate_layout_name_id, lnsession_id, false) INTO dest_plate_set_id;&#10;&#10;--RAISE notice &#39;dest_plate_set_id: (%)&#39;, dest_plate_set_id;&#10;&#10;CREATE TEMP TABLE temp1(counter INT, plate_id INT, plate_order INT, well_by_col INT, well_id INT);&#10;&#10;FOR i IN 1..n_reps_source LOOP&#10;INSERT INTO temp1 select i, well.plate_id, plate_plate_set.plate_order, well.by_col, well.id AS well_id FROM plate_plate_set, well  WHERE plate_plate_set.plate_set_id = source_plate_set_id AND plate_plate_set.plate_id = well.plate_id   ORDER BY well.plate_id, well.ID;&#10;END LOOP;&#10;&#10;SELECT ARRAY (SELECT well_id FROM temp1 ORDER BY plate_id, counter, well_id) INTO all_source_well_ids;&#10;&#10;&#10;SELECT ARRAY (SELECT  dest.id  FROM ( SELECT plate_plate_set.plate_ID, well.by_col,  well.id  FROM well, plate_plate_set  WHERE plate_plate_set.plate_set_id = dest_plate_set_id  AND plate_plate_set.plate_id = well.plate_id) AS dest JOIN (SELECT well_numbers.well_name, well_numbers.by_col, well_numbers.quad FROM well_numbers WHERE well_numbers.plate_format=dest_plate_format_id)  AS foo ON (dest.by_col=foo.by_col) ORDER BY plate_id, quad, dest.by_col) INTO all_dest_well_ids;&#10;&#10;&#10;FOR w IN 1..array_length(all_source_well_ids,1)  LOOP&#10;SELECT sample.id FROM sample, well, well_sample WHERE well_sample.well_id=well.id AND well_sample.sample_id=sample.id AND well.id= all_source_well_ids[w] INTO holder;&#10;INSERT INTO well_sample (well_id, sample_id) VALUES (all_dest_well_ids[w], holder );&#10;&#10;&#10;--RAISE notice  &#39;w: (%)&#39;, w;&#10;--RAISE notice  &#39;all_source_well_ids[w]: (%)&#39;, all_source_well_ids[w];&#10;--RAISE notice  &#39;all_dest_well_ids[w]: (%)&#39;, all_dest_well_ids[w];&#10;&#10;END LOOP;&#10;&#10;--RAISE notice  &#39;all_source_well_ids: (%)&#39;, all_source_well_ids;&#10;--RAISE notice  &#39;all_dest_well_ids: (%)&#39;, all_dest_well_ids;&#10;&#10;&#10;DROP TABLE temp1;&#10;&#10;RETURN dest_plate_set_id;&#10;END;&#10;</textarea>
+                            <textarea id="sql-script-codemirror" name="sql-script-codemirror" rows="" style="display: none;">&#10;DECLARE&#10;&#10;dest_plate_set_id INTEGER;&#10;all_source_well_ids INTEGER[];&#10;all_dest_well_ids INTEGER[];&#10;w INTEGER;&#10;holder INTEGER;&#10;&#10;BEGIN&#10;--here I am creating the destination plate set, no samples included&#10;SELECT new_plate_set(dest_descr ,dest_plate_set_name, dest_num_plates, dest_plate_format_id, dest_plate_type_id, project_id, dest_plate_layout_name_id, lnsession_id, false, target_layout_name_id) INTO dest_plate_set_id;&#10;&#10;--RAISE notice &#39;dest_plate_set_id: (%)&#39;, dest_plate_set_id;&#10;&#10;CREATE TEMP TABLE temp1(counter INT, plate_id INT, plate_order INT, well_by_col INT, well_id INT);&#10;&#10;FOR i IN 1..n_reps_source LOOP&#10;INSERT INTO temp1 select i, well.plate_id, plate_plate_set.plate_order, well.by_col, well.id AS well_id FROM plate_plate_set, well  WHERE plate_plate_set.plate_set_id = source_plate_set_id AND plate_plate_set.plate_id = well.plate_id   ORDER BY well.plate_id, well.ID;&#10;END LOOP;&#10;&#10;SELECT ARRAY (SELECT well_id FROM temp1 ORDER BY plate_id, counter, well_id) INTO all_source_well_ids;&#10;&#10;&#10;SELECT ARRAY (SELECT  dest.id  FROM ( SELECT plate_plate_set.plate_ID, well.by_col,  well.id  FROM well, plate_plate_set  WHERE plate_plate_set.plate_set_id = dest_plate_set_id  AND plate_plate_set.plate_id = well.plate_id) AS dest JOIN (SELECT well_numbers.well_name, well_numbers.by_col, well_numbers.quad FROM well_numbers WHERE well_numbers.plate_format=dest_plate_format_id)  AS foo ON (dest.by_col=foo.by_col) ORDER BY plate_id, quad, dest.by_col) INTO all_dest_well_ids;&#10;&#10;&#10;FOR w IN 1..array_length(all_source_well_ids,1)  LOOP&#10;SELECT sample.id FROM sample, well, well_sample WHERE well_sample.well_id=well.id AND well_sample.sample_id=sample.id AND well.id= all_source_well_ids[w] INTO holder;&#10;INSERT INTO well_sample (well_id, sample_id) VALUES (all_dest_well_ids[w], holder );&#10;&#10;&#10;--RAISE notice  &#39;w: (%)&#39;, w;&#10;--RAISE notice  &#39;all_source_well_ids[w]: (%)&#39;, all_source_well_ids[w];&#10;--RAISE notice  &#39;all_dest_well_ids[w]: (%)&#39;, all_dest_well_ids[w];&#10;&#10;END LOOP;&#10;&#10;--RAISE notice  &#39;all_source_well_ids: (%)&#39;, all_source_well_ids;&#10;--RAISE notice  &#39;all_dest_well_ids: (%)&#39;, all_dest_well_ids;&#10;&#10;&#10;DROP TABLE temp1;&#10;&#10;RETURN dest_plate_set_id;&#10;END;&#10;</textarea>
                         </div>
                     </div>
                 </section>

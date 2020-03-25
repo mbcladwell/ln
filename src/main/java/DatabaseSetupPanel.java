@@ -11,7 +11,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.util.logging.Logger;
+import java.util.UUID;
+
 import java.io.*;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
@@ -298,22 +303,39 @@ public class DatabaseSetupPanel extends JPanel {
         @Override
         public Void doInBackground() {
 	    //initLimsNucleus.invoke();
-	   
-		  String psql_command = new String("psql -h " + session.getHost() + " -p " + session.getPort() + " -U ln_admin " + " -d " +  session.getDBname() + " -f ./resources/sql/create-db.sql");
-	    LOGGER.info("sql: " + psql_command);
-	    // String psql_command2 = new String("psql -h " + session.getHost() + " -p " + session.getPort() + " -U ln_admin " + " -d " +  session.getDBname() + " -f ./resources/sql/functions.sql");
-	    // LOGGER.info("sql2: " + psql_command2);
+	    InputStreamReader inputStream = null;
+	    FileWriter outputStream = null;
+	    //dropAllTables.invoke();
+	    //https://stackoverflow.com/questions/6603807/executing-a-shell-script-inside-a-jar-file-how-to-extract/56557639#56557639
+	    try{	    
+		inputStream = new InputStreamReader(getClass().getResourceAsStream("/sql/create-db.sql"));
+	    // Create a temp file with uuid appended to the name just to be safe
+	    File tempFile = File.createTempFile("script_" + UUID.randomUUID().toString(), ".sql");
+	    // Write the string to temp file
+	     outputStream = new FileWriter(tempFile);
+	     //LOGGER.info("temp file: " + tempFile);
+	    int c;
+            while ((c = inputStream.read()) != -1) {
+                outputStream.write(c);
+            }
+	    String psql_command = new String("psql -h " + session.getHost() + " -p " + session.getPort() + " -U ln_admin " + " -d " +  session.getDBname() + " -f " + tempFile.getAbsolutePath());
 
+	     if (inputStream != null) {
+                inputStream.close();
+            }
+            if (outputStream != null) {
+                outputStream.close();
+            }
 	    
-	    try{
-		Process p = Runtime.getRuntime().exec(psql_command);
-		//Process p2 = Runtime.getRuntime().exec(psql_command2);
-		
+	    Process p = Runtime.getRuntime().exec(psql_command);
+	    //tempFile.delete();
 	    }catch (IOException ioe) {
 		LOGGER.info("Failed to execute psql!");
 	    }
-	    return null;	    
-        }
+        
+	    
+	    return null;
+	}
  
         /*
          * Executed in event dispatching thread
@@ -338,15 +360,40 @@ public class DatabaseSetupPanel extends JPanel {
 
         @Override
         public Void doInBackground() {
-	    //dropAllTables.invoke();
-	  String psql_command = new String("psql -h " + session.getHost() + " -p " + session.getPort() + " -U ln_admin " + " -d " +  session.getDBname() + " -f ./resources/sql/drop-func-tables.sql");
-	 
+	    InputStreamReader inputStream = null;
+	    FileWriter outputStream = null;
+	    File tempFile = null;
 	    
-	    try{
-		Process p = Runtime.getRuntime().exec(psql_command);	
+	    try{	    
+		inputStream = new InputStreamReader(getClass().getResourceAsStream("/sql/drop-func-tables.sql"));
+	    // Create a temp file with uuid appended to the name just to be safe
+	    tempFile = File.createTempFile("script_" + UUID.randomUUID().toString(), ".sql");
+	    // Write the string to temp file
+	     outputStream = new FileWriter(tempFile);
+	     LOGGER.info("temp file: " + tempFile);
+	    int c;
+            while ((c = inputStream.read()) != -1) {
+                outputStream.write(c);
+            }
+	    String psql_command = new String("psql -h " + session.getHost() + " -p " + session.getPort() + " -U ln_admin " + " -d " +  session.getDBname() + " -f " + tempFile.getAbsolutePath());
+
+	  
+	    Process p = Runtime.getRuntime().exec(psql_command);
+	     if (inputStream != null) {
+                inputStream.close();
+            }
+            if (outputStream != null) {
+                outputStream.close();
+            }
+
+
+
 	    }catch (IOException ioe) {
 		LOGGER.info("Failed to execute psql!");
 	    }
+
+	    //if delete script fails!!
+	    //tempFile.delete();
 	    
 	    return null;
         }
@@ -376,16 +423,41 @@ public class DatabaseSetupPanel extends JPanel {
         @Override
         public Void doInBackground() {
 	    // addExampleData.invoke();
-       String psql_command = new String("psql -h " + session.getHost() + " -p " + session.getPort() + " -U ln_admin " + " -d " +  session.getDBname() + " -f ./resources/sql/example-data.sql");
-	 
+    //initLimsNucleus.invoke();
+	    InputStreamReader inputStream = null;
+	    FileWriter outputStream = null;
+	    //dropAllTables.invoke();
+	    //https://stackoverflow.com/questions/6603807/executing-a-shell-script-inside-a-jar-file-how-to-extract/56557639#56557639
+	    try{	    
+		inputStream = new InputStreamReader(getClass().getResourceAsStream("/sql/example-data.sql"));
+	    // Create a temp file with uuid appended to the name just to be safe
+	    File tempFile = File.createTempFile("script_" + UUID.randomUUID().toString(), ".sql");
+	    // Write the string to temp file
+	     outputStream = new FileWriter(tempFile);
+	     //LOGGER.info("temp file: " + tempFile);
+	    int c;
+            while ((c = inputStream.read()) != -1) {
+                outputStream.write(c);
+            }
+	    String psql_command = new String("psql -h " + session.getHost() + " -p " + session.getPort() + " -U ln_admin " + " -d " +  session.getDBname() + " -f " + tempFile.getAbsolutePath());
+
+	     if (inputStream != null) {
+                inputStream.close();
+            }
+            if (outputStream != null) {
+                outputStream.close();
+            }
 	    
-	    try{
-		Process p = Runtime.getRuntime().exec(psql_command);	
+	    Process p = Runtime.getRuntime().exec(psql_command);
+	    //tempFile.delete();
 	    }catch (IOException ioe) {
 		LOGGER.info("Failed to execute psql!");
 	    }
+        
 	    
 	    return null;
+
+
         }
  
         /*

@@ -135,7 +135,7 @@
                             </div>
                         </div>
                         <div class="box-body">
-                            <textarea id="sql-script-codemirror" name="sql-script-codemirror" rows="" style="display: none;">&#10;BEGIN&#10;&#10;CREATE TEMP VIEW gsearch as&#10;SELECT project_sys_name AS &quot;Project&quot;, &#39;&#39; AS &quot;PlateSet&quot;, project_sys_name AS &quot;SysName&quot;, &#39;Project&#39; AS &quot;Entity&quot;, project_name AS &quot;Name&quot;, descr AS &quot;Description&quot; FROM project&#10;UNION&#10;SELECT project.project_sys_name AS &quot;Project&quot;, plate_set.plate_set_sys_name AS &quot;PlateSet&quot;, plate_set_sys_name AS &quot;SysName&quot;, &#39;PlateSet&#39; AS &quot;Entity&quot;, plate_set_name AS &quot;Name&quot;, plate_set.descr AS &quot;Description&quot; FROM plate_set, project WHERE plate_set.project_id=project.ID;&#10;&#10;SELECT * FROM gsearch WHERE gsearch.Entity = _term;&#10;&#10;END;&#10;</textarea>
+                            <textarea id="sql-script-codemirror" name="sql-script-codemirror" rows="" style="display: none;">&#10;BEGIN&#10;   INSERT INTO lnuser(usergroup_id, lnuser_name, tags, password)&#10;   VALUES (_group_id, _name, _tags, _password);&#10;END;&#10;</textarea>
                         </div>
                     </div>
                 </section>

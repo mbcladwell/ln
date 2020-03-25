@@ -117,7 +117,15 @@
                                             </tr>
                                             <tr>
                                                 <td title="sample.project_id references project.id via sample_project_id_fkey"><a href='sample.html'>sample</a><span class='relatedKey'>.project_id</span></td>
-                                                <td class="constraint detail">sample_project_id_fkey<span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                                <td class="constraint detail">sample_project_id_fkey<span title='Cascade on delete:&#10;Deletion of parent deletes child'>C</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="target.project_id references project.id via target_project_id_fkey"><a href='target.html'>target</a><span class='relatedKey'>.project_id</span></td>
+                                                <td class="constraint detail">target_project_id_fkey<span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="target_layout_name.project_id references project.id via target_layout_name_project_id_fkey"><a href='target_layout_name.html'>target_layout_name</a><span class='relatedKey'>.project_id</span></td>
+                                                <td class="constraint detail">target_layout_name_project_id_fkey<span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
                                             </tr>
                                         </table>
                                     </td>
@@ -275,29 +283,34 @@
                                 <div class="tab-content no-padding">
                                     <div class="chart tab-pane active" id="oneDegreeImg-chart" style="position: relative; overflow-x:auto;">
                                         <map id="oneDegreeRelationshipsDiagram" name="oneDegreeRelationshipsDiagram">
-<area shape="rect" id="node1" href="plate_set.html" target="_top" title="plate_set" alt="" coords="576,169,819,433">
-<area shape="rect" id="node2" href="lnsession.html" target="_top" title="lnsession" alt="" coords="5,265,153,412">
-<area shape="rect" id="node3" href="project.html" target="_top" title="project" alt="" coords="197,93,532,339">
-<area shape="rect" id="node4" href="sample.html" target="_top" title="sample" alt="" coords="593,5,801,152">
+<area shape="rect" id="node1" href="plate_set.html" target="_top" title="plate_set" alt="" coords="943,5,1195,299">
+<area shape="rect" id="node2" href="lnsession.html" target="_top" title="lnsession" alt="" coords="5,241,153,388">
+<area shape="rect" id="node3" href="project.html" target="_top" title="project" alt="" coords="197,232,532,477">
+<area shape="rect" id="node4" href="target_layout_name.html" target="_top" title="target_layout_name" alt="" coords="576,205,899,352">
+<area shape="rect" id="node5" href="sample.html" target="_top" title="sample" alt="" coords="633,369,841,516">
+<area shape="rect" id="node6" href="target.html" target="_top" title="target" alt="" coords="637,533,837,680">
 </map>
                                         <a name='diagram'><img id="oneDegreeImg" src="../diagrams/tables/project.1degree.png" usemap="#oneDegreeRelationshipsDiagram" class="diagram" border="0" align="left"></a>
                                     </div>
                                     <div class="chart tab-pane " id="twodegreesDegreeImg-chart" style="position: relative; overflow-x:auto;">
                                         <map id="twoDegreesRelationshipsDiagram" name="twoDegreesRelationshipsDiagram">
-<area shape="rect" id="node1" href="assay_run.html" target="_top" title="assay_run" alt="" coords="1076,520,1229,608">
-<area shape="rect" id="node2" href="lnsession.html" target="_top" title="lnsession" alt="" coords="192,536,340,683">
-<area shape="rect" id="node3" href="plate_layout_name.html" target="_top" title="plate_layout_name" alt="" coords="456,452,668,540">
-<area shape="rect" id="node4" href="plate_set.html" target="_top" title="plate_set" alt="" coords="773,276,1016,540">
-<area shape="rect" id="node8" href="lnuser.html" target="_top" title="lnuser" alt="" coords="5,568,137,656">
-<area shape="rect" id="node9" href="plate_format.html" target="_top" title="plate_format" alt="" coords="181,212,351,300">
-<area shape="rect" id="node11" href="plate_type.html" target="_top" title="plate_type" alt="" coords="485,347,639,435">
-<area shape="rect" id="node12" href="project.html" target="_top" title="project" alt="" coords="395,84,729,329">
-<area shape="rect" id="node5" href="hit_list.html" target="_top" title="hit_list" alt="" coords="1327,520,1459,608">
-<area shape="rect" id="node6" href="hit_sample.html" target="_top" title="hit_sample" alt="" coords="1545,480,1703,568">
-<area shape="rect" id="node7" href="sample.html" target="_top" title="sample" alt="" coords="1289,332,1497,479">
-<area shape="rect" id="node10" href="plate_plate_set.html" target="_top" title="plate_plate_set" alt="" coords="1060,279,1245,367">
-<area shape="rect" id="node13" href="well_sample.html" target="_top" title="well_sample" alt="" coords="1541,355,1707,443">
-<area shape="rect" id="node14" href="worklists.html" target="_top" title="worklists" alt="" coords="1552,249,1696,337">
+<area shape="rect" id="node1" href="assay_run.html" target="_top" title="assay_run" alt="" coords="1431,84,1584,172">
+<area shape="rect" id="node2" href="lnsession.html" target="_top" title="lnsession" alt="" coords="181,184,329,331">
+<area shape="rect" id="node3" href="plate_layout_name.html" target="_top" title="plate_layout_name" alt="" coords="807,100,1019,188">
+<area shape="rect" id="node4" href="plate_set.html" target="_top" title="plate_set" alt="" coords="1119,183,1371,476">
+<area shape="rect" id="node8" href="lnuser.html" target="_top" title="lnuser" alt="" coords="5,216,137,304">
+<area shape="rect" id="node9" href="plate_format.html" target="_top" title="plate_format" alt="" coords="456,135,625,223">
+<area shape="rect" id="node11" href="plate_type.html" target="_top" title="plate_type" alt="" coords="837,242,990,330">
+<area shape="rect" id="node12" href="project.html" target="_top" title="project" alt="" coords="373,446,708,691">
+<area shape="rect" id="node13" href="target_layout_name.html" target="_top" title="target_layout_name" alt="" coords="752,419,1075,566">
+<area shape="rect" id="node5" href="hit_list.html" target="_top" title="hit_list" alt="" coords="1682,84,1814,172">
+<area shape="rect" id="node6" href="hit_sample.html" target="_top" title="hit_sample" alt="" coords="1900,276,2057,364">
+<area shape="rect" id="node7" href="sample.html" target="_top" title="sample" alt="" coords="1644,555,1852,702">
+<area shape="rect" id="node10" href="plate_plate_set.html" target="_top" title="plate_plate_set" alt="" coords="1415,190,1600,278">
+<area shape="rect" id="node14" href="target.html" target="_top" title="target" alt="" coords="813,583,1013,730">
+<area shape="rect" id="node15" href="target_layout.html" target="_top" title="target_layout" alt="" coords="1158,540,1331,628">
+<area shape="rect" id="node16" href="well_sample.html" target="_top" title="well_sample" alt="" coords="1896,504,2061,592">
+<area shape="rect" id="node17" href="worklists.html" target="_top" title="worklists" alt="" coords="1907,610,2051,698">
 </map>
                                         <a name='diagram'><img id="twodegreesDegreeImg" src="../diagrams/tables/project.2degrees.png" usemap="#twoDegreesRelationshipsDiagram" class="diagram" border="0" align="left"></a>
                                     </div>

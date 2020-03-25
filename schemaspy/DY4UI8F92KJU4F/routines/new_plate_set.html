@@ -141,6 +141,11 @@
                                     <td>boolean</td>
                                     <td>IN</td>
                                 </tr>
+                                <tr>
+                                    <td>_target_layout_name_id</td>
+                                    <td>integer</td>
+                                    <td>IN</td>
+                                </tr>
                                 </tbody>
                             </table>
                         </div>
@@ -155,7 +160,7 @@
                             </div>
                         </div>
                         <div class="box-body">
-                            <textarea id="sql-script-codemirror" name="sql-script-codemirror" rows="" style="display: none;">&#10;DECLARE&#10;   ps_id INTEGER;&#10;   n_plates INTEGER;&#10;   p_type INTEGER;&#10;   p_form INTEGER;&#10;   prj_id INTEGER;&#10;   plt_id INTEGER;&#10;   play_n_id INTEGER;&#10;   w_spls BOOLEAN := _with_samples;&#10;BEGIN&#10;   &#10;   INSERT INTO plate_set(descr, plate_set_name, num_plates, plate_format_id, plate_type_id, project_id, plate_layout_name_id, lnsession_id)&#10;   VALUES (_descr, _plate_set_name, _num_plates, _plate_format_id, _plate_type_id, _project_id, _plate_layout_name_id, _lnsession_id )&#10;   RETURNING ID, plate_format_id, num_plates, project_id, plate_type_id, plate_layout_name_id INTO ps_id, p_form, n_plates, prj_id, p_type, play_n_id;&#10;   UPDATE plate_set SET plate_set_sys_name = &#39;PS-&#39;||ps_id WHERE id=ps_id;&#10;&#10;FOR i IN 1..n_plates loop&#10;&#9;     -- _plate_type_id INTEGER, _plate_set_id INTEGER, _project_id INTEGER, _plate_format_id INTEGER, include_sample BOOLEAN&#10;&#9;    SELECT new_plate(p_type, ps_id, p_form, play_n_id, w_spls) INTO plt_id;&#10;&#9;    UPDATE plate_plate_set SET plate_order = i WHERE plate_set_id = ps_id AND plate_id = plt_id;&#10;&#10;END LOOP;&#10;&#10;RETURN ps_id;&#10;&#10;END;&#10;</textarea>
+                            <textarea id="sql-script-codemirror" name="sql-script-codemirror" rows="" style="display: none;">&#10;DECLARE&#10;   ps_id INTEGER;&#10;   n_plates INTEGER;&#10;   p_type INTEGER;&#10;   p_form INTEGER;&#10;   prj_id INTEGER;&#10;   plt_id INTEGER;&#10;   play_n_id INTEGER;&#10;   w_spls BOOLEAN := _with_samples;&#10;   trg_lyt_name_id INTEGER := _target_layout_name_id;&#10;BEGIN&#10;   &#10;   INSERT INTO plate_set(descr, plate_set_name, num_plates, plate_format_id, plate_type_id, project_id, plate_layout_name_id, lnsession_id, target_layout_name_id)&#10;   VALUES (_descr, _plate_set_name, _num_plates, _plate_format_id, _plate_type_id, _project_id, _plate_layout_name_id, _lnsession_id, trg_lyt_name_id )&#10;   RETURNING ID, plate_format_id, num_plates, project_id, plate_type_id, plate_layout_name_id INTO ps_id, p_form, n_plates, prj_id, p_type, play_n_id;&#10;   UPDATE plate_set SET plate_set_sys_name = &#39;PS-&#39;||ps_id WHERE id=ps_id;&#10;&#10;FOR i IN 1..n_plates loop&#10;&#9;     -- _plate_type_id INTEGER, _plate_set_id INTEGER, _project_id INTEGER, _plate_format_id INTEGER, include_sample BOOLEAN&#10;&#9;    SELECT new_plate(p_type, ps_id, p_form, play_n_id, w_spls) INTO plt_id;&#10;&#9;    UPDATE plate_plate_set SET plate_order = i WHERE plate_set_id = ps_id AND plate_id = plt_id;&#10;&#10;END LOOP;&#10;&#10;RETURN ps_id;&#10;&#10;END;&#10;</textarea>
                         </div>
                     </div>
                 </section>

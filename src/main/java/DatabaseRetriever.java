@@ -31,6 +31,10 @@ public class DatabaseRetriever {
   JTable table;
     Session session;
   private static final Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+    public static final int RAW = 0;
+    public static final int NORM = 1;
+    public static final int NORM_POS = 2;
+    public static final int P_ENHANCE = 3;
     
 
   /** */
@@ -1767,6 +1771,58 @@ int assay_run_id = _assay_run_id;
     }
     return (ComboItem[])output;
   }
+
+    /*
+     * max_response   0
+     * min_response   1 
+     * mean_bkgrnd    2   
+     * std_dev_bkgrnd 3     
+     * mean_pos       4    
+     * stdev_pos      5   
+     * mean_neg_3_sd  6   
+     * mean_neg_2_sd  7   
+     * mean_pos_3_sd  8 
+     * mean_pos_2_sd  9  
+     * public static final int RAW = 0;
+     * public static final int NORM = 1;
+     * public static final int NORM_POS = 2;
+     * public static final int P_ENHANCE = 3;
+          
+     */
+    public double[] getStatsForAssayRunID(int _assay_run_id, int _response_type){
+
+	int assay_run_id = _assay_run_id;
+	int response_type = _response_type;
+	double[] results = new double[10];
+	
+	String sqlstring = "SELECT * FROM assay_run_stats WHERE assay_run_id = ? AND response_type = ?;";
+		LOGGER.info("SQL : " + sqlstring);
+
+	try {
+	    PreparedStatement preparedStatement =
+		conn.prepareStatement(sqlstring, Statement.RETURN_GENERATED_KEYS);
+	    preparedStatement.setInt(1, assay_run_id);
+	    preparedStatement.setInt(2, response_type);
+
+	    preparedStatement.executeQuery(); // executeUpdate expects no returns!!!
+
+	    ResultSet resultSet = preparedStatement.getResultSet();
+	    resultSet.next();
+	    for (int i = 0; i < results.length; i++){
+		results[i] = resultSet.getDouble(i+3);
+		//LOGGER.info("i: " + i + " results[i]: " + results[i]);
+
+	    }
+
+	    // LOGGER.info("resultset: " + result);
+
+	} catch (SQLException sqle) {
+	    LOGGER.warning("SQLE at getPlateLayoutNameIDforPlateSetID: " + sqle);
+	}
+
+	return results;
+    }
+
 
     
 }

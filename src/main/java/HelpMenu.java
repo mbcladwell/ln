@@ -39,9 +39,9 @@ public class HelpMenu extends JMenu {
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
 	       
-
+    System.out.println(session.getHelpURLPrefix() + "toc");
+	  
 	      openWebpage(URI.create(session.getHelpURLPrefix() + "toc"));
-	      //System.out.println(session.getHelpURLPrefix() + "toc");
 	      //            new OpenHelpDialog();
           }
         });

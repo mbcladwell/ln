@@ -73,7 +73,7 @@
             <div class="content-wrapper">
                 <!-- Content Header (Page header) -->
                 <section class="content-header">
-                    <h1>plate_set</h1><p><span id="recordNumber">9</span> rows</p><br />
+                    <h1>plate_set</h1><p><span id="recordNumber">7</span> rows</p><br />
                 </section>
                 <!-- Main content -->
                 <section class="content">
@@ -117,7 +117,7 @@
                                             </tr>
                                             <tr>
                                                 <td title="plate_plate_set.plate_set_id references plate_set.id via plate_plate_set_plate_set_id_fkey"><a href='plate_plate_set.html'>plate_plate_set</a><span class='relatedKey'>.plate_set_id</span></td>
-                                                <td class="constraint detail">plate_plate_set_plate_set_id_fkey<span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                                <td class="constraint detail">plate_plate_set_plate_set_id_fkey<span title='Cascade on delete:&#10;Deletion of parent deletes child'>C</span></td>
                                             </tr>
                                         </table>
                                     </td>
@@ -301,6 +301,27 @@
                                     <td></td>
                                 </tr>
                                 <tr>
+                                    <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="target_layout_name_id">target_layout_name_id</span></td>
+                                    <td>int4</td>
+                                    <td>10</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                            <tr>
+                                                <td title="plate_set.target_layout_name_id references target_layout_name.id via plate_set_target_layout_name_id_fkey"><a href='target_layout_name.html'>target_layout_name</a><span class='relatedKey'>.id</span></td>
+                                                <td class="constraint detail">plate_set_target_layout_name_id_fkey<span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
                                     <td><span id="updated">updated</span></td>
                                     <td>timestamptz</td>
                                     <td>35,6</td>
@@ -360,6 +381,12 @@
                                     <td>plate_format_id</td>
                                 </tr>
                                 <tr>
+                                    <td title='Indexed'>plate_set_plate_layout_name_id_idx</td>
+                                    <td>Performance</td>
+                                    <td><span title='Ascending'>Asc</span></td>
+                                    <td>plate_layout_name_id</td>
+                                </tr>
+                                <tr>
                                     <td title='Indexed'>plate_set_plate_type_id_idx</td>
                                     <td>Performance</td>
                                     <td><span title='Ascending'>Asc</span></td>
@@ -370,6 +397,12 @@
                                     <td>Performance</td>
                                     <td><span title='Ascending'>Asc</span></td>
                                     <td>project_id</td>
+                                </tr>
+                                <tr>
+                                    <td title='Indexed'>plate_set_target_layout_name_id_idx</td>
+                                    <td>Performance</td>
+                                    <td><span title='Ascending'>Asc</span></td>
+                                    <td>target_layout_name_id</td>
                                 </tr>
                                 </tbody>
                             </table>
@@ -394,35 +427,40 @@
                                 <div class="tab-content no-padding">
                                     <div class="chart tab-pane active" id="oneDegreeImg-chart" style="position: relative; overflow-x:auto;">
                                         <map id="oneDegreeRelationshipsDiagram" name="oneDegreeRelationshipsDiagram">
-<area shape="rect" id="node1" href="assay_run.html" target="_top" title="assay_run" alt="" coords="893,5,1136,240">
-<area shape="rect" id="node2" href="lnsession.html" target="_top" title="lnsession" alt="" coords="16,497,164,644">
-<area shape="rect" id="node3" href="plate_layout_name.html" target="_top" title="plate_layout_name" alt="" coords="219,39,436,185">
-<area shape="rect" id="node4" href="plate_set.html" target="_top" title="plate_set" alt="" coords="480,115,849,507">
-<area shape="rect" id="node5" href="plate_format.html" target="_top" title="plate_format" alt="" coords="5,116,175,233">
-<area shape="rect" id="node7" href="plate_type.html" target="_top" title="plate_type" alt="" coords="227,239,428,356">
-<area shape="rect" id="node8" href="project.html" target="_top" title="project" alt="" coords="223,373,431,520">
-<area shape="rect" id="node6" href="plate_plate_set.html" target="_top" title="plate_plate_set" alt="" coords="922,257,1107,404">
+<area shape="rect" id="node1" href="assay_run.html" target="_top" title="assay_run" alt="" coords="1239,5,1481,240">
+<area shape="rect" id="node2" href="lnsession.html" target="_top" title="lnsession" alt="" coords="5,465,153,612">
+<area shape="rect" id="node3" href="plate_layout_name.html" target="_top" title="plate_layout_name" alt="" coords="502,171,719,317">
+<area shape="rect" id="node4" href="plate_set.html" target="_top" title="plate_set" alt="" coords="816,203,1195,624">
+<area shape="rect" id="node5" href="plate_format.html" target="_top" title="plate_format" alt="" coords="217,248,386,365">
+<area shape="rect" id="node7" href="plate_type.html" target="_top" title="plate_type" alt="" coords="510,371,711,488">
+<area shape="rect" id="node8" href="project.html" target="_top" title="project" alt="" coords="197,541,405,688">
+<area shape="rect" id="node9" href="target_layout_name.html" target="_top" title="target_layout_name" alt="" coords="449,577,772,724">
+<area shape="rect" id="node6" href="plate_plate_set.html" target="_top" title="plate_plate_set" alt="" coords="1267,257,1453,404">
 </map>
                                         <a name='diagram'><img id="oneDegreeImg" src="../diagrams/tables/plate_set.1degree.png" usemap="#oneDegreeRelationshipsDiagram" class="diagram" border="0" align="left"></a>
                                     </div>
                                     <div class="chart tab-pane " id="twodegreesDegreeImg-chart" style="position: relative; overflow-x:auto;">
                                         <map id="twoDegreesRelationshipsDiagram" name="twoDegreesRelationshipsDiagram">
-<area shape="rect" id="node1" href="assay_result.html" target="_top" title="assay_result" alt="" coords="1371,356,1541,444">
-<area shape="rect" id="node2" href="assay_run.html" target="_top" title="assay_run" alt="" coords="1069,301,1312,536">
-<area shape="rect" id="node4" href="assay_type.html" target="_top" title="assay_type" alt="" coords="761,216,920,304">
-<area shape="rect" id="node5" href="lnsession.html" target="_top" title="lnsession" alt="" coords="192,785,340,932">
-<area shape="rect" id="node6" href="plate_layout_name.html" target="_top" title="plate_layout_name" alt="" coords="395,248,612,395">
-<area shape="rect" id="node7" href="plate_set.html" target="_top" title="plate_set" alt="" coords="656,357,1025,749">
-<area shape="rect" id="node3" href="assay_result_pre.html" target="_top" title="assay_result_pre" alt="" coords="1356,251,1556,339">
-<area shape="rect" id="node9" href="lnuser.html" target="_top" title="lnuser" alt="" coords="5,817,137,905">
-<area shape="rect" id="node11" href="plate_format.html" target="_top" title="plate_format" alt="" coords="181,277,351,395">
-<area shape="rect" id="node12" href="plate_type.html" target="_top" title="plate_type" alt="" coords="403,104,604,221">
-<area shape="rect" id="node15" href="project.html" target="_top" title="project" alt="" coords="399,708,607,855">
-<area shape="rect" id="node8" href="hit_list.html" target="_top" title="hit_list" alt="" coords="1390,665,1522,753">
-<area shape="rect" id="node10" href="plate.html" target="_top" title="plate" alt="" coords="771,5,911,93">
-<area shape="rect" id="node13" href="plate_layout.html" target="_top" title="plate_layout" alt="" coords="758,111,923,199">
-<area shape="rect" id="node14" href="plate_plate_set.html" target="_top" title="plate_plate_set" alt="" coords="1098,56,1283,203">
-<area shape="rect" id="node16" href="sample.html" target="_top" title="sample" alt="" coords="761,767,921,855">
+<area shape="rect" id="node1" href="assay_result.html" target="_top" title="assay_result" alt="" coords="1717,321,1886,409">
+<area shape="rect" id="node2" href="assay_run.html" target="_top" title="assay_run" alt="" coords="1415,108,1657,343">
+<area shape="rect" id="node4" href="assay_type.html" target="_top" title="assay_type" alt="" coords="1102,95,1261,183">
+<area shape="rect" id="node5" href="lnsession.html" target="_top" title="lnsession" alt="" coords="181,399,329,545">
+<area shape="rect" id="node6" href="plate_layout_name.html" target="_top" title="plate_layout_name" alt="" coords="678,269,895,416">
+<area shape="rect" id="node7" href="plate_set.html" target="_top" title="plate_set" alt="" coords="992,483,1371,904">
+<area shape="rect" id="node3" href="assay_result_pre.html" target="_top" title="assay_result_pre" alt="" coords="1701,111,1901,199">
+<area shape="rect" id="node10" href="lnuser.html" target="_top" title="lnuser" alt="" coords="5,431,137,519">
+<area shape="rect" id="node12" href="plate_format.html" target="_top" title="plate_format" alt="" coords="393,393,562,511">
+<area shape="rect" id="node13" href="plate_type.html" target="_top" title="plate_type" alt="" coords="686,469,887,587">
+<area shape="rect" id="node16" href="project.html" target="_top" title="project" alt="" coords="373,712,581,859">
+<area shape="rect" id="node17" href="target_layout_name.html" target="_top" title="target_layout_name" alt="" coords="625,817,948,964">
+<area shape="rect" id="node8" href="assay_run_stats.html" target="_top" title="assay_run_stats" alt="" coords="1704,216,1899,304">
+<area shape="rect" id="node9" href="hit_list.html" target="_top" title="hit_list" alt="" coords="1735,5,1867,93">
+<area shape="rect" id="node11" href="plate.html" target="_top" title="plate" alt="" coords="1111,377,1251,465">
+<area shape="rect" id="node14" href="plate_layout.html" target="_top" title="plate_layout" alt="" coords="1099,272,1264,360">
+<area shape="rect" id="node15" href="plate_plate_set.html" target="_top" title="plate_plate_set" alt="" coords="1443,423,1629,569">
+<area shape="rect" id="node18" href="sample.html" target="_top" title="sample" alt="" coords="707,712,867,800">
+<area shape="rect" id="node19" href="target.html" target="_top" title="target" alt="" coords="717,981,857,1069">
+<area shape="rect" id="node20" href="target_layout.html" target="_top" title="target_layout" alt="" coords="1095,952,1268,1040">
 </map>
                                         <a name='diagram'><img id="twodegreesDegreeImg" src="../diagrams/tables/plate_set.2degrees.png" usemap="#twoDegreesRelationshipsDiagram" class="diagram" border="0" align="left"></a>
                                     </div>

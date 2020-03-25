@@ -44,7 +44,7 @@ public class Session {
     private String working_dir;
     private String temp_dir;
     //DialogProperties not found has a help button that needs a help_url_prefix
-    private String help_url_prefix = "http://labsolns.com/software/";  
+    private String help_url_prefix;  
     private String URL;
     private String dbname;
     private DatabaseManager dbm;
@@ -140,6 +140,8 @@ public class Session {
 		help_url_prefix = "http://labsolns.com/software/";
 		connpassword = "hwc3v4_rbkT-1EL2KI-JBaqFq0thCXM_";
 		connuser = "klohymim";
+		user="ln_user";
+		password="welcome";
 	    	URL = new String("jdbc:postgresql://" + host + ":" + port + "/" + dbname + "?user=" + connuser + "&password=" + connpassword + "&SSL=true" );
 
 		this.postLoadProperties();
@@ -356,7 +358,7 @@ public class Session {
     return working_dir;
   }
     public String getHelpURLPrefix(){
-	return help_url_prefix;
+	return "http://labsolns.com/software/";
     }
     public String getURL(){
 	return URL;

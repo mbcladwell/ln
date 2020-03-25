@@ -12,7 +12,7 @@ import java.util.logging.Logger;
 
 import javax.swing.table.DefaultTableModel;
 
-import com.google.common.math.Stats;
+//import com.google.common.math.Stats;
 
 
 public class ResponseWrangler {
@@ -39,6 +39,8 @@ public class ResponseWrangler {
     private CustomTable table;
     private double[][] sorted_response;
     private double[][] sorted_response_unknowns_only;
+    private int assay_run_id;
+    private double[] assay_run_stats;
     
   private DecimalFormat df = new DecimalFormat("#####.####");
         private Set<Integer> plate_set = new HashSet<Integer>();
@@ -48,7 +50,7 @@ public class ResponseWrangler {
     private List<Double> neg_list = new LinkedList<Double>();
     private List<Double> pos_list = new LinkedList<Double>();
     private List<Double> unknowns_list = new LinkedList<Double>();
-    
+    private Session session;
     //private int num_data_points;
 
     public static final int RAW = 0;
@@ -69,8 +71,10 @@ public class ResponseWrangler {
      *
      * double[][]  sorted_response [response] [well] [type_id] [sample_id]
      */
-    public ResponseWrangler(CustomTable _table, int _desired_response){
+    public ResponseWrangler(Session _s, CustomTable _table, int _desired_response, int _assay_run_id){
+	session = _s;
 	table = _table;
+	assay_run_id = _assay_run_id;
 	DefaultTableModel dtm = (DefaultTableModel)table.getModel();
 
 	/**
@@ -201,21 +205,45 @@ public class ResponseWrangler {
    
     	}
 
+	assay_run_stats = session.getDatabaseRetriever().getStatsForAssayRunID(assay_run_id, _desired_response);
+	
     format = well_set.size();
     num_plates = plate_set.size();
-    max_response = Double.valueOf(Collections.max(unknowns_list));
-    min_response = Double.valueOf(Collections.min(unknowns_list));
     
-    mean_bkgrnd = Stats.meanOf(blank_list);
-    stdev_bkgrnd = Stats.of(blank_list).sampleStandardDeviation();
-    mean_neg = Stats.meanOf(neg_list);
+    max_response = assay_run_stats[0];
+    min_response = assay_run_stats[1];
     
-    stdev_neg = Stats.of(neg_list).sampleStandardDeviation();
-    mean_pos = Stats.meanOf(pos_list);
-    stdev_pos = Stats.of(pos_list).sampleStandardDeviation();
+    mean_bkgrnd = assay_run_stats[2];
+    stdev_bkgrnd = assay_run_stats[3];
+    //mean_neg = assay_run_stats[3];
     
-    mean_neg_3_sd = mean_neg + 3*(stdev_neg);
-    mean_neg_2_sd = mean_neg + 2*(stdev_neg);
+    //stdev_neg = assay_run_stats[];
+    mean_pos = assay_run_stats[4];
+    stdev_pos = assay_run_stats[5];
+    
+    mean_neg_3_sd = assay_run_stats[6];
+    mean_neg_2_sd =assay_run_stats[7];
+
+    mean_pos_3_sd =assay_run_stats[8];
+    mean_pos_2_sd = assay_run_stats[9];
+
+
+    // max_response = Double.valueOf(Collections.max(unknowns_list));
+    // min_response = Double.valueOf(Collections.min(unknowns_list));
+    
+    // mean_bkgrnd = Stats.meanOf(blank_list);
+    // stdev_bkgrnd = Stats.of(blank_list).sampleStandardDeviation();
+    // mean_neg = Stats.meanOf(neg_list);
+    
+    // stdev_neg = Stats.of(neg_list).sampleStandardDeviation();
+    // mean_pos = Stats.meanOf(pos_list);
+    // stdev_pos = Stats.of(pos_list).sampleStandardDeviation();
+    
+    // mean_neg_3_sd = mean_neg + 3*(stdev_neg);
+    // mean_neg_2_sd = mean_neg + 2*(stdev_neg);
+
+    // mean_pos_3_sd = mean_pos + 3*(stdev_pos);
+    // mean_pos_2_sd = mean_pos + 2*(stdev_pos);
 
     if(_desired_response==3){
 	threshold = 0;
@@ -224,8 +252,6 @@ public class ResponseWrangler {
     }
 
 
-    mean_pos_3_sd = mean_pos + 3*(stdev_pos);
-    mean_pos_2_sd = mean_pos + 2*(stdev_pos);
 
     Arrays.sort(sorted_response, new Comparator<double[]>() {
         @Override

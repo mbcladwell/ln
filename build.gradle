@@ -26,8 +26,8 @@ version = '0.1'
 
 dependencies {
     // This dependency is found on compile classpath of this component and consumers.
-    compile 'com.google.guava:guava:23.0'
-    extraLibs group: 'com.google.guava', name: 'guava', version: '23.0'
+  //  compile 'com.google.guava:guava:23.0'
+   // extraLibs group: 'com.google.guava', name: 'guava', version: '23.0'
 
     extraLibs group: 'org.postgresql', name: 'postgresql', version: '42.2.5'
     configurations.compile.extendsFrom(configurations.extraLibs)
@@ -73,7 +73,7 @@ dependencies {
 //    implementation 'javax.swing:jnlp:1.0'
     
 //JSON parsing
-    compile 'com.google.code.gson:gson:2.8.5'
+    //compile 'com.google.code.gson:gson:2.8.5'
 	
 }
 

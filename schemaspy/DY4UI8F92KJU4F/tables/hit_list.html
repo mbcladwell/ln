@@ -73,7 +73,7 @@
             <div class="content-wrapper">
                 <!-- Content Header (Page header) -->
                 <section class="content-header">
-                    <h1>hit_list</h1><p><span id="recordNumber">7</span> rows</p><br />
+                    <h1>hit_list</h1><p><span id="recordNumber">0</span> rows</p><br />
                 </section>
                 <!-- Main content -->
                 <section class="content">
@@ -206,8 +206,25 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                             <tr>
                                                 <td title="hit_list.lnsession_id references lnsession.id via hit_list_lnsession_id_fkey"><a href='lnsession.html'>lnsession</a><span class='relatedKey'>.id</span></td>
-                                                <td class="constraint detail">hit_list_lnsession_id_fkey<span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                                <td class="constraint detail">hit_list_lnsession_id_fkey<span title='Cascade on delete:&#10;Deletion of parent deletes child'>C</span></td>
                                             </tr>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td><span id="updated">updated</span></td>
+                                    <td>timestamptz</td>
+                                    <td>35,6</td>
+                                    <td title=''></td>
+                                    <td title=''></td>
+                                    <td>CURRENT_TIMESTAMP</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
                                     <td></td>
@@ -227,25 +244,8 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                             <tr>
                                                 <td title="hit_list.assay_run_id references assay_run.id via hit_list_assay_run_id_fkey"><a href='assay_run.html'>assay_run</a><span class='relatedKey'>.id</span></td>
-                                                <td class="constraint detail">hit_list_assay_run_id_fkey<span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                                <td class="constraint detail">hit_list_assay_run_id_fkey<span title='Cascade on delete:&#10;Deletion of parent deletes child'>C</span></td>
                                             </tr>
-                                        </table>
-                                    </td>
-                                    <td></td>
-                                </tr>
-                                <tr>
-                                    <td><span id="updated">updated</span></td>
-                                    <td>timestamptz</td>
-                                    <td>35,6</td>
-                                    <td title=''></td>
-                                    <td title=''></td>
-                                    <td>CURRENT_TIMESTAMP</td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
                                     <td></td>
@@ -315,8 +315,8 @@
                                 <div class="tab-content no-padding">
                                     <div class="chart tab-pane active" id="oneDegreeImg-chart" style="position: relative; overflow-x:auto;">
                                         <map id="oneDegreeRelationshipsDiagram" name="oneDegreeRelationshipsDiagram">
-<area shape="rect" id="node1" href="assay_run.html" target="_top" title="assay_run" alt="" coords="197,207,440,441">
-<area shape="rect" id="node2" href="lnsession.html" target="_top" title="lnsession" alt="" coords="5,228,153,375">
+<area shape="rect" id="node1" href="assay_run.html" target="_top" title="assay_run" alt="" coords="197,221,440,456">
+<area shape="rect" id="node2" href="lnsession.html" target="_top" title="lnsession" alt="" coords="5,243,153,389">
 <area shape="rect" id="node3" href="hit_list.html" target="_top" title="hit_list" alt="" coords="484,5,807,309">
 <area shape="rect" id="node4" href="hit_sample.html" target="_top" title="hit_sample" alt="" coords="851,8,1008,131">
 </map>
@@ -324,18 +324,19 @@
                                     </div>
                                     <div class="chart tab-pane " id="twodegreesDegreeImg-chart" style="position: relative; overflow-x:auto;">
                                         <map id="twoDegreesRelationshipsDiagram" name="twoDegreesRelationshipsDiagram">
-<area shape="rect" id="node1" href="assay_result.html" target="_top" title="assay_result" alt="" coords="1195,327,1365,415">
-<area shape="rect" id="node2" href="assay_run.html" target="_top" title="assay_run" alt="" coords="832,275,1075,509">
-<area shape="rect" id="node4" href="assay_type.html" target="_top" title="assay_type" alt="" coords="629,231,788,319">
-<area shape="rect" id="node5" href="lnsession.html" target="_top" title="lnsession" alt="" coords="181,367,329,513">
-<area shape="rect" id="node6" href="plate_layout_name.html" target="_top" title="plate_layout_name" alt="" coords="373,372,585,460">
-<area shape="rect" id="node7" href="plate_set.html" target="_top" title="plate_set" alt="" coords="637,336,781,424">
-<area shape="rect" id="node3" href="assay_result_pre.html" target="_top" title="assay_result_pre" alt="" coords="1180,432,1380,520">
-<area shape="rect" id="node11" href="lnuser.html" target="_top" title="lnuser" alt="" coords="5,399,137,487">
-<area shape="rect" id="node12" href="project.html" target="_top" title="project" alt="" coords="409,513,549,601">
-<area shape="rect" id="node8" href="hit_list.html" target="_top" title="hit_list" alt="" coords="1119,5,1441,309">
-<area shape="rect" id="node9" href="hit_sample.html" target="_top" title="hit_sample" alt="" coords="1485,245,1643,368">
-<area shape="rect" id="node10" href="sample.html" target="_top" title="sample" alt="" coords="873,527,1033,615">
+<area shape="rect" id="node1" href="assay_result.html" target="_top" title="assay_result" alt="" coords="1195,432,1365,520">
+<area shape="rect" id="node2" href="assay_run.html" target="_top" title="assay_run" alt="" coords="832,332,1075,567">
+<area shape="rect" id="node4" href="assay_type.html" target="_top" title="assay_type" alt="" coords="629,272,788,360">
+<area shape="rect" id="node5" href="lnsession.html" target="_top" title="lnsession" alt="" coords="181,408,329,555">
+<area shape="rect" id="node6" href="plate_layout_name.html" target="_top" title="plate_layout_name" alt="" coords="373,413,585,501">
+<area shape="rect" id="node7" href="plate_set.html" target="_top" title="plate_set" alt="" coords="637,377,781,465">
+<area shape="rect" id="node3" href="assay_result_pre.html" target="_top" title="assay_result_pre" alt="" coords="1180,537,1380,625">
+<area shape="rect" id="node12" href="lnuser.html" target="_top" title="lnuser" alt="" coords="5,440,137,528">
+<area shape="rect" id="node13" href="project.html" target="_top" title="project" alt="" coords="409,555,549,643">
+<area shape="rect" id="node8" href="assay_run_stats.html" target="_top" title="assay_run_stats" alt="" coords="1183,327,1377,415">
+<area shape="rect" id="node9" href="hit_list.html" target="_top" title="hit_list" alt="" coords="1119,5,1441,309">
+<area shape="rect" id="node10" href="hit_sample.html" target="_top" title="hit_sample" alt="" coords="1485,291,1643,413">
+<area shape="rect" id="node11" href="sample.html" target="_top" title="sample" alt="" coords="873,599,1033,687">
 </map>
                                         <a name='diagram'><img id="twodegreesDegreeImg" src="../diagrams/tables/hit_list.2degrees.png" usemap="#twoDegreesRelationshipsDiagram" class="diagram" border="0" align="left"></a>
                                     </div>
