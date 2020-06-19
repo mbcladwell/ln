@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- JNLP File for SwingSet2 Demo Application -->
+<jnlp
+  spec="8.0+"
+  codebase="http://labsolns.com/software/client/"
+  href="ln.jnlp">
+  <information>
+    <title>LIMS*Nucleus Client</title>
+    <vendor>labsolns.com</vendor>
+    <homepage href="http://labsolns.com/software/client/"/>
+    <description>LIMS*Nucleus Swing Client</description>
+    <description kind="short"></description>
+    <icon href="images/las.png"/>
+    <icon kind="splash" href="las.png"/>
+    <offline-allowed/> 
+    <association mime-type="application-x/labsolns-file"  extensions="labsolns"/> 
+    <shortcut online="false" install="false">
+      <desktop/>
+      <menu submenu="com.labsolns Apps"/>
+    </shortcut>
+  </information>
+  <information os="linux">   
+    <title> LIMS*Nucleus client on Linux </title>
+    <homepage href="http://labsolns.com"/>
+  </information>
+  <security>
+      <all-permissions/>
+  </security>
+  <resources>
+    <j2se version="1.8+" java-vm-args="-esa -Xnoclassgc"/>
+    <jar href="http://labsolns.com/software/client/ln-0.1-standalone.jar"/>
+	<jar href="lib/file1.jar"/>
+    <jar href="lib/file2.jar"/>
+    <jar href="lib/file3.jar"/>
+    <jar href="lib/file4.jar"/>
+    <jar href="lib/file5.jar"/>
+  </resources>
+  <application-desc main-class="ln.Session"/>
+</jnlp> 

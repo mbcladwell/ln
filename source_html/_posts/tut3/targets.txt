@@ -1,0 +1,9 @@
+project	target 	description	accession
+10	muCD71	Mouse transferrin receptor	FHD8SU29
+10	huCD71	Human transferrin receptor	JDHSU789
+10	cynoCD71	Monkey transferrin receptor	KSIOW8H3
+10	BSA	Bovine serum albumin	KEUI87YH
+10	Lysozyme	Lysozyme	KDJFG98D
+10	GAPDH	Glyceraldehyde Phosphate Dehydrogenase	KFIIOD09
+10	ICAM4	ICAM 4 integrin	KL0OIE7U
+10	IL21R	IL21 receptor	KOI89IUY

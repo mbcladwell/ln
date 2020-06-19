@@ -31,6 +31,7 @@ public class GlobalQueryPanel extends JPanel {
     private DatabaseManager dbm;
     
     public GlobalQueryPanel(Session _s, CustomTable _table, String _search_term) {
+	session = _s;
     this.setLayout(new BorderLayout());
     dbm = session.getDatabaseManager();
     dmf = session.getDialogMainFrame();

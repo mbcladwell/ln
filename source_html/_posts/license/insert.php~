@@ -1,0 +1,68 @@
+<html>
+<body>
+<?php
+
+
+$db = new mysqli('192.254.187.215','plapan_lic_admin','welcome','plapan_license', '3306');
+
+if ($db->connect_errno) {
+    die($db->connect_error);
+}
+
+
+$clean['fname'] = $db->real_escape_string($_POST[fname]);
+$clean['lname'] = $db->real_escape_string($_POST[lname]);
+$clean['institution'] = $db->real_escape_string($_POST[institution]);
+$clean['email'] = $db->real_escape_string($_POST[email]);
+
+
+
+$result = $db->query("CALL new_customer('{$clean['fname']}','{$clean['lname']}','gi','{$clean['email']}', 'litecoin', @returned_wallet_id )");
+
+
+if (!$result) {
+    echo "Database Error";
+} else {
+$row = mysqli_fetch_array($result);
+$w_id = $row[0];
+  }
+
+mysqli_close($db);
+
+$to = "peter.lapan@labsolns.com";
+$subject = "New LIMS*Nucleus Registration";
+$txt = "Wallet ID: " . $w_id;
+$headers = "From: webmaster@example.com" . "\r\n" .
+
+mail($to,$subject,$txt,$headers);
+
+?>
+
+
+
+<input type="text" value="<?php echo $row[0] ?>" id="myInput" size=40>
+
+<!-- The button used to copy the text -->
+<button onclick="myFunction()">Copy to clipboard</button>
+
+<script>
+
+
+function myFunction() {
+  /* Get the text field */
+  var copyText = document.getElementById("myInput");
+
+  /* Select the text field */
+  copyText.select();
+  copyText.setSelectionRange(0, 99999); /*For mobile devices*/
+
+  /* Copy the text inside the text field */
+  document.execCommand("copy");
+
+  /* Alert the copied text */
+  alert("Copied the text: " + myInput);
+} 
+</script>
+
+</body>
+</html>

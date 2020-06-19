@@ -1,0 +1,4 @@
+plate 	barcode.id
+1	LN000001
+2	LN000002
+3	LN000003

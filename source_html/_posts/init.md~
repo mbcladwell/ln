@@ -1,0 +1,45 @@
+---
+title: Initialize a new server
+categories:
+  - Developer
+tags:
+  - initialize
+  - PostgreSQL
+comments: true
+---
+
+Once you have obtained a [license key](/software/register/) you must configure a [limsnucleus.properties file](/software/props) and launch LIMS\*Nucleus database utilities dialog.  Do so by indicating init: true in the limsnucleus.properties file:
+
+```text
+{:conn { :init  true
+         :source "local"
+  	 :dbname "lndb"
+ 	 :host  "192.168.1.11"
+  	 :port  5432
+  	 :user  "ln_admin"
+  	 :password  "welcome"
+  	 :db-user  "ln_admin"
+  	 :db-password  "welcome"
+ 	 :sslmode  false
+ 	 :help-url-prefix  "http://labsolns.com/software/"
+	 :customer-id "1CK6KHY6MHkfi8sRQ4PAafKYDrg1ejbH1cE"
+	 :license-key "a77f0e51alskdo00a16lksdf9fuey6k8dg"
+	 :email "info@labsolns.com"
+       }
+ :session { :user "ln_admin"
+           :password "welcome"
+           :auto-login false }}
+
+
+```
+
+
+This will launch the [database utilities](/software/dbutilities/) dialog box, with multiple fields prepopulated with the data in the properties file.  Buttons in the "Database Setup" tab will allow creation of tables and stored procedures, as well a insertion of demonstration data if desired.
+
+{% asset_img   %}
+
+Once the database has been created/populated, shut down and restart the client.  The client software is now reading initialization parameters from the newly created [ln-props](/software/ln-props/) local key/value store, which holds authentication, session and navigation variables.
+
+Under routine operation, database administrators have access to the database utilities dialog box under the "Admin" menu item.
+
+
