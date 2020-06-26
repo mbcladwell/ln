@@ -347,6 +347,12 @@ public class DatabaseSetupPanel extends JPanel {
 	    progress_bar.dispose();
      }
     }
+
+    // psql -h 192.168.1.11 -p 5432 -U ln_admin -d lndb  -f /home/mbc/projects/ln/build/resources/main/sql/drop-func-tables.sql
+    // psql -h 192.168.1.11 -p 5432 -U ln_admin -d lndb  -f /home/mbc/projects/ln/build/resources/main/sql/create-db.sql
+    // psql -h 192.168.1.11 -p 5432 -U ln_admin -d lndb  -f /home/mbc/projects/ln/build/resources/main/sql/example-data.sql
+    
+
     
     class DropTask extends SwingWorker<Void, Void> {
         /*
@@ -370,7 +376,7 @@ public class DatabaseSetupPanel extends JPanel {
 	    tempFile = File.createTempFile("script_" + UUID.randomUUID().toString(), ".sql");
 	    // Write the string to temp file
 	     outputStream = new FileWriter(tempFile);
-	     LOGGER.info("temp file: " + tempFile);
+	     // LOGGER.info("temp file: " + tempFile);
 	    int c;
             while ((c = inputStream.read()) != -1) {
                 outputStream.write(c);
@@ -411,14 +417,6 @@ public class DatabaseSetupPanel extends JPanel {
 
 
     class AddEgTask extends SwingWorker<Void, Void> {
-        /*
-         * Main task. Executed in background thread.
-         */
-	// IFn addExampleData = Clojure.var("ln.db-init", "add-example-data");
-    
-    
-    
-    
 
         @Override
         public Void doInBackground() {

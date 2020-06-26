@@ -166,7 +166,7 @@ public class MenuBarForPlateSet extends JMenuBar {
 		    int  plate_set_id = Integer.parseInt(plate_set_sys_name.substring(3));
 		    session.getDatabaseInserter().importBarcodesByPlateSet(plate_set_id);
 		}else{
-		    JOptionPane.showMessageDialog(session.getDialogMainFrame(), "Select a Plate Set for which to populate with accession IDs!");	      
+		    JOptionPane.showMessageDialog(session.getDialogMainFrame(), "Select a Plate Set for which to populate with barcode IDs!");	      
 		} 	   
 	    }
         });

@@ -1,5 +1,4 @@
-
---users------------------------------------------------------
+-- users------------------------------------------------------
 
 DROP TABLE IF EXISTS lnuser_groups CASCADE;
 CREATE TABLE lnuser_groups

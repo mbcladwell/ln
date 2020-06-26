@@ -886,9 +886,9 @@ public int insertPlateSet(
   
       insertPreparedStatement(insertPs);
     } catch (SQLException sqle) {
-      LOGGER.warning("Failed to properly prepare  prepared statement: " + sqle);
+	//      LOGGER.warning("Failed to properly prepare  prepared statement: " + sqle);
       JOptionPane.showMessageDialog(
-          dmf, "Problems parsing accesion ids file!.", "Error", JOptionPane.ERROR_MESSAGE);
+          dmf, "Problems parsing accession ids file!.", "Error", JOptionPane.ERROR_MESSAGE);
       return;
     }
 
@@ -961,7 +961,7 @@ public int insertPlateSet(
   
       insertPreparedStatement(insertPs);
     } catch (SQLException sqle) {
-      LOGGER.warning("Failed to properly prepare  prepared statement: " + sqle);
+	// LOGGER.warning("Failed to properly prepare  prepared statement: " + sqle);
       JOptionPane.showMessageDialog(
           dmf, "Problems parsing barcode ids file!.", "Error", JOptionPane.ERROR_MESSAGE);
       return;
