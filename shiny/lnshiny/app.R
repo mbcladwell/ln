@@ -16,13 +16,16 @@ library(ggplot2)
         
         pool <- dbPool(
           drv = RPostgres::Postgres(),
-          dbname = "lndb",
-          host = "192.168.1.11",
-          user = "ln_admin",
-          password = "welcome",
+          dbname = "klohymim",
+          host = "raja.db.elephantsql.com",
+          user = "klohymim",
+          password = "hwc3v4_rbkT-1EL2KI-JBaqFq0thCXM_",
           bigint = c("integer64", "integer", "numeric", "character")
         )
 
+        values <- reactiveValues()
+        values$ar_id <- 1
+        
 # Define UI for application that draws a histogram
 ui <- fluidPage(
    
@@ -40,22 +43,38 @@ ui <- fluidPage(
           selectInput("threshold", "Threshold:",
                       c("mean pos" = 1,
                         "mean neg + 2sd" = 2,
-                        "mean neg + 3sd" = 3))),
+                        "mean neg + 3sd" = 3)),
+        actionButton("make_hit_list", "Create hit list")),
       # Show a plot of the generated distribution
       mainPanel(
-        plotOutput("plot1", click = "plot_click")
+        tabsetPanel(type = "tabs", id="maintabs",
+                    tabPanel("Plot", plotOutput("plot1", click = "plot_click")),
+                    tabPanel("Hit List", value="tab2",
+                             
+                             textInput("hl_name", "Hit List Name", "Enter name"),
+                             textInput("hl_descr", "Description", "Enter description"),
+                             actionButton("load_hit_list", "Load hit list"))
+                    
+        )
+        
       )
    )
 )
 
 # Define server logic required to draw a histogram
-server <- function(input, output) {
-  
+server <- function(input, output, session) {
+  observe({
+    query <- parseQueryString(session$clientData$url_search)
+    if (!is.null(query[['ar']])) {
+      values$ar_id <-  query[['ar']]
+    }
+  })
   output$plot1 <- renderPlot({
  ##   sql <- "SELECT  project_sys_name as "Project", descr as "Description" FROM project;"
  ##   query <- sqlInterpolate(pool, sql)
-    d <-dbGetQuery(pool, "SELECT * FROM get_scatter_plot_data(1)")
-    d2 <-dbGetQuery(pool, "SELECT * FROM assay_run_stats where assay_run_id =1;")
+    
+    d <-dbGetQuery(pool, paste0("SELECT * FROM get_scatter_plot_data(", values$ar_id,")"))
+    d2 <-dbGetQuery(pool, paste0("SELECT * FROM assay_run_stats where assay_run_id =", values$ar_id, ";"))
     
     response <- as.numeric(input$response)
     threshold <- as.numeric(input$threshold)
@@ -66,16 +85,16 @@ server <- function(input, output) {
     ## 3 p_enhanced
     if(response ==0){
       ylabel <- "Background Substracted"
-      df <- d[,c(2,3,4,8)]}
+      df <- d[,c(2,3,4,8,11)]}
     if(response ==1){
       ylabel <- "Normalized"
-      df <- d[,c(2,3,5,8)]}
+      df <- d[,c(2,3,5,8,11)]}
     if(response ==2){
       ylabel <- "Normalized to Positive Control"
-      df <- d[,c(2,3,6,8)]}
+      df <- d[,c(2,3,6,8,11)]}
     if(response ==3){
       ylabel <- "% Enhanced"
-      df <- d[,c(2,3,7,8)]}
+      df <- d[,c(2,3,7,8,11)]}
     
     
     ## Threshold
@@ -99,20 +118,41 @@ server <- function(input, output) {
     names(df) <- c("plate","well","response","type")
     df <- df[order(df$response),]
     df$index <- (nrow(df)):1
-    num.hits <- nrow(df[df$response > threshold_num,])
-    mycols <- c(4="grey",3="black",1= "green",2="red")
+    values$num.hits <- nrow(df[df$response > threshold_num,])
+    values$hit.array <-"{"
+    for(i in 1:num.hits){
+      paste0(values$hit.array)
+    }
+    mycols <- c("grey","black","red","green")
     names(mycols) <- levels(df$type)
-    
-    ##print(df)
-    ggplot(df, aes(index, response )) + geom_point(col=df$type) + ylab(ylabel) + xlab("Index") +
-       geom_abline(slope=0, intercept=threshold_num, linetype="dotted")  +
-       geom_text(label=paste0(threshold.text, "; hits: ", num.hits ), x= nrow(df)*0.1 , y=threshold_num - 0.05*threshold_num) +
-      theme(legend.position="bottom",legend.box = "horizontal") +
-    scale_color_manual(name="type", values=c(4="grey",3="black",1= "green",2="red"))
-    
-##    legend("topright",  c("unknown","positive","negative","blank"), fill=c("white", "green", "red", "grey"))
-    
+  
+    plot(df$index, df$response, main=paste0("Plot for AR-", values$ar_id, "; Hit count: ", values$num.hits), cex=1, pch=1, col=c("black", "green", "red", "grey")[df$type], ylab=ylabel, xlab="Index")
+    text( nrow(df)*0.1, threshold_num - 0.05*threshold_num, threshold.text)
+    legend("topright",  c("unknown","positive","negative","blank"), fill=c("black", "green", "red", "grey"))
+    abline(h=threshold_num, lty="dashed")
+
 })
+  
+ 
+  observeEvent(input$make_hit_list, {
+    updateTabsetPanel(session, "maintabs",
+                      selected = "tab2")
+  })
+ 
+  observeEvent(input$load_hit_list, {
+    ## an array  {10000,10000,10000,10000} 
+    d2 <-dbGetQuery(pool, paste0("SELECT * FROM assay_run_stats where assay_run_id =", ar_id, ";"))
+   ## String insertSql = "SELECT new_hit_list ( ?, ?, ?, ?, ?, ?);";
+  ##  insertPs.setString(1, _name);
+  ##  insertPs.setString(2, _description);
+  ##  insertPs.setInt(3, _num_hits);
+  ##  insertPs.setInt(4, _assay_run_id);
+  ##  insertPs.setInt(5, session_id);
+  ##  insertPs.setArray(6, conn.createArrayOf("INTEGER", hit_list));
+    
+    
+  })
+  
 }
 
 # Run the application 
