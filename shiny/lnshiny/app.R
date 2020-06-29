@@ -16,10 +16,16 @@ library(ggplot2)
         
         pool <- dbPool(
           drv = RPostgres::Postgres(),
-          dbname = "klohymim",
-          host = "raja.db.elephantsql.com",
-          user = "klohymim",
-          password = "hwc3v4_rbkT-1EL2KI-JBaqFq0thCXM_",
+      ##    dbname = "klohymim",
+      ##    host = "raja.db.elephantsql.com",
+      ##    user = "klohymim",
+      ##    password = "hwc3v4_rbkT-1EL2KI-JBaqFq0thCXM_",
+        
+          dbname = "lndb",
+          host = "192.168.1.11",
+          user = "ln_admin",
+          password = "welcome",
+      
           bigint = c("integer64", "integer", "numeric", "character")
         )
 
@@ -53,7 +59,9 @@ ui <- fluidPage(
                              
                              textInput("hl_name", "Hit List Name", "Enter name"),
                              textInput("hl_descr", "Description", "Enter description"),
-                             actionButton("load_hit_list", "Load hit list"))
+                             actionButton("load_hit_list", "Load hit list")),
+                            textOutput("hl_confirm")
+                    
                     
         )
         
@@ -85,16 +93,16 @@ server <- function(input, output, session) {
     ## 3 p_enhanced
     if(response ==0){
       ylabel <- "Background Substracted"
-      df <- d[,c(2,3,4,8,11)]}
+      df <- d[,c(1,2,4,8,11)]}
     if(response ==1){
       ylabel <- "Normalized"
-      df <- d[,c(2,3,5,8,11)]}
+      df <- d[,c(1,2,5,8,11)]}
     if(response ==2){
       ylabel <- "Normalized to Positive Control"
-      df <- d[,c(2,3,6,8,11)]}
+      df <- d[,c(1,2,6,8,11)]}
     if(response ==3){
       ylabel <- "% Enhanced"
-      df <- d[,c(2,3,7,8,11)]}
+      df <- d[,c(1,2,7,8,11)]}
     
     
     ## Threshold
@@ -115,19 +123,26 @@ server <- function(input, output, session) {
       threshold_num <- d2[d2$response_type==response, "mean_neg_3_sd" ]
     }
     
-    names(df) <- c("plate","well","response","type")
+    names(df) <- c("plate","well","response","type","sid")
     df <- df[order(df$response),]
     df$index <- (nrow(df)):1
-    values$num.hits <- nrow(df[df$response > threshold_num,])
-    values$hit.array <-"{"
-    for(i in 1:num.hits){
-      paste0(values$hit.array)
+    values$num.hits <- nrow(df[df$response > threshold_num & df$type==1,])
+    hit.array <-"{"
+    counter <- 0
+    for(i in 1:nrow(df)){
+      if(counter==values$num.hits){
+        break
+        }else{
+          if(df[i,"type"]==1){
+            hit.array <- paste0(hit.array, df[i,"sid"],"," )
+            counter <- counter +1}
+      }
     }
-    mycols <- c("grey","black","red","green")
-    names(mycols) <- levels(df$type)
-  
+    hit.array <- substring(hit.array,1, nchar(hit.array)-1)
+    hit.array <- paste0(hit.array,"}")
+  values$hit.list <- hit.array ##keep the reactive value out of a loop??  
     plot(df$index, df$response, main=paste0("Plot for AR-", values$ar_id, "; Hit count: ", values$num.hits), cex=1, pch=1, col=c("black", "green", "red", "grey")[df$type], ylab=ylabel, xlab="Index")
-    text( nrow(df)*0.1, threshold_num - 0.05*threshold_num, threshold.text)
+     text( nrow(df)*0.1, threshold_num - 0.05*threshold_num, threshold.text)
     legend("topright",  c("unknown","positive","negative","blank"), fill=c("black", "green", "red", "grey"))
     abline(h=threshold_num, lty="dashed")
 
@@ -139,18 +154,14 @@ server <- function(input, output, session) {
                       selected = "tab2")
   })
  
-  observeEvent(input$load_hit_list, {
-    ## an array  {10000,10000,10000,10000} 
-    d2 <-dbGetQuery(pool, paste0("SELECT * FROM assay_run_stats where assay_run_id =", ar_id, ";"))
-   ## String insertSql = "SELECT new_hit_list ( ?, ?, ?, ?, ?, ?);";
-  ##  insertPs.setString(1, _name);
-  ##  insertPs.setString(2, _description);
-  ##  insertPs.setInt(3, _num_hits);
-  ##  insertPs.setInt(4, _assay_run_id);
-  ##  insertPs.setInt(5, session_id);
-  ##  insertPs.setArray(6, conn.createArrayOf("INTEGER", hit_list));
-    
-    
+observeEvent(input$load_hit_list, {
+
+sqlstmnt = "SELECT new_hit_list ($1,$2,$3,$4,$5,$6);"
+
+conn <- poolCheckout(pool) 
+dbSendQuery(conn, sqlstmnt, list(input$hl_name,input$hl_descr,values$num.hits,values$ar_id,1,values$hit.list)) 
+poolReturn(conn)
+##input$hl_confirm <- "Database has been updated!"
   })
   
 }
