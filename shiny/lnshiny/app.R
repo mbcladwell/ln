@@ -16,15 +16,15 @@ library(ggplot2)
         
         pool <- dbPool(
           drv = RPostgres::Postgres(),
-      ##    dbname = "klohymim",
-      ##    host = "raja.db.elephantsql.com",
-      ##    user = "klohymim",
-      ##    password = "hwc3v4_rbkT-1EL2KI-JBaqFq0thCXM_",
+          dbname = "klohymim",
+          host = "raja.db.elephantsql.com",
+          user = "klohymim",
+          password = "hwc3v4_rbkT-1EL2KI-JBaqFq0thCXM_",
         
-          dbname = "lndb",
-          host = "192.168.1.11",
-          user = "ln_admin",
-          password = "welcome",
+      ##    dbname = "lndb",
+      ##    host = "192.168.1.11",
+      ##    user = "ln_admin",
+      ##    password = "welcome",
       
           bigint = c("integer64", "integer", "numeric", "character")
         )
@@ -60,8 +60,12 @@ ui <- fluidPage(
                              textInput("hl_name", "Hit List Name", "Enter name"),
                              textInput("hl_descr", "Description", "Enter description"),
                              actionButton("load_hit_list", "Load hit list")),
-                            textOutput("hl_confirm")
-                    
+                            ##textOutput({"hl_confirm"})),
+                    tabPanel("Results", value="tab3",
+                             h2(textOutput("ar_id")),
+                             DT::dataTableOutput("hl_for_ar"),
+                             h4("Also visible through the JAVA/Swing interface")
+                             )
                     
         )
         
@@ -81,9 +85,11 @@ server <- function(input, output, session) {
  ##   sql <- "SELECT  project_sys_name as "Project", descr as "Description" FROM project;"
  ##   query <- sqlInterpolate(pool, sql)
     
-    d <-dbGetQuery(pool, paste0("SELECT * FROM get_scatter_plot_data(", values$ar_id,")"))
-    d2 <-dbGetQuery(pool, paste0("SELECT * FROM assay_run_stats where assay_run_id =", values$ar_id, ";"))
-    
+    conn <- poolCheckout(pool) 
+    d <-dbGetQuery(conn, paste0("SELECT * FROM get_scatter_plot_data(", values$ar_id,")"))
+    d2 <-dbGetQuery(conn, paste0("SELECT * FROM assay_run_stats where assay_run_id =", values$ar_id, ";"))
+    poolReturn(conn)
+        
     response <- as.numeric(input$response)
     threshold <- as.numeric(input$threshold)
     
@@ -156,12 +162,20 @@ server <- function(input, output, session) {
  
 observeEvent(input$load_hit_list, {
 
-sqlstmnt = "SELECT new_hit_list ($1,$2,$3,$4,$5,$6);"
-
+sqlstmnt1 = "SELECT new_hit_list ($1,$2,$3,$4,$5,$6);"
+sqlstmnt2 = "SELECT hitlist_sys_name AS \"Sys Name\", hitlist_name AS \"Name\", descr AS \"Description\", n AS \"# hits\" FROM hit_list where assay_run_id= $1 ORDER BY id DESC" 
+sqlstmnt3 = "SELECT sample_id AS \"Sample ID\" FROM hit_sample where hl_id = $1"
 conn <- poolCheckout(pool) 
-dbSendQuery(conn, sqlstmnt, list(input$hl_name,input$hl_descr,values$num.hits,values$ar_id,1,values$hit.list)) 
+dbGetQuery(conn, sqlstmnt1, list(input$hl_name,input$hl_descr,values$num.hits,values$ar_id,1,values$hit.list))
+output$hl_for_ar = DT::renderDataTable({
+  dbGetQuery(conn, sqlstmnt2, list(values$ar_id))
+})
 poolReturn(conn)
-##input$hl_confirm <- "Database has been updated!"
+
+updateTabsetPanel(session, "maintabs", selected = "tab3")
+
+ output$ar_id <- renderText(paste0("Hit Lists for AR-", as.character(values$ar_id)))
+
   })
   
 }
